@@ -25,7 +25,7 @@ jobs:
           dotnet-version: ${{ inputs.netsdkversion }}
 
       - name: Restore Dependencies
-        run: dotnet restore "${{ github.workspace }}/${{ inputs.projectname }}/${{ inputs.projectname }}.csproj"
+        run: dotnet restore "${{ github.workspace }}/Testing/${{ inputs.projectname }}Tests/${{ inputs.projectname }}.csproj"
 
       - name: Execute Unit Tests
         run: dotnet test "${{ github.workspace }}/Testing/${{ inputs.projectname }}Tests/${{ inputs.projectname }}Tests.csproj" `
