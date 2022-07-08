@@ -17,15 +17,17 @@ on:
 
 jobs:
   Unit_Testing_Status_Check:
-    - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: ${{ inputs.netsdkversion }}
+    name: Setup .NET SDK
+    runs-on: ubuntu-latest # TODO: Turn this into an input but not required and with default value of ubuntu-latest
+    steps:
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ inputs.netsdkversion }}
 
-    - name: Restore Dependencies
-      run: dotnet restore "${{ github.workspace }}/${{ inputs.projectname }}/${{ inputs.projectname }}.csproj"
+      - name: Restore Dependencies
+        run: dotnet restore "${{ github.workspace }}/${{ inputs.projectname }}/${{ inputs.projectname }}.csproj"
 
-    - name: Execute Unit Tests
-      run: dotnet test "${{ github.workspace }}/Testing/${{ inputs.projectname }}Tests/${{ inputs.projectname }}Tests.csproj" `
-        -c ${{ inputs.buildconfig }} `
-        --no-restore
+      - name: Execute Unit Tests
+        run: dotnet test "${{ github.workspace }}/Testing/${{ inputs.projectname }}Tests/${{ inputs.projectname }}Tests.csproj" `
+          -c ${{ inputs.buildconfig }} `
+          --no-restore
