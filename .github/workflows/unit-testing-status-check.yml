@@ -18,7 +18,7 @@ on:
 jobs:
   Unit_Testing_Status_Check:
     name: Setup .NET SDK
-    runs-on: ubuntu-latest # TODO: Turn this into an input but not required and with default value of ubuntu-latest
+    runs-on: windows-latest # TODO: Turn this into an input but not required and with default value of ubuntu-latest
     steps:
       - uses: actions/setup-dotnet@v1
         with:
