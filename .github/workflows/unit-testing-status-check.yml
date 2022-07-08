@@ -9,7 +9,7 @@ on:
         type: string
       netsdkversion:
         required: true
-        type: number
+        type: string
    
 
 
