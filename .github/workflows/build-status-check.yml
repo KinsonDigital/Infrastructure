@@ -1,4 +1,4 @@
-name: ✔Unit Testing Status Check
+name: ✔Build Status Check
 
 
 on:
@@ -13,12 +13,15 @@ on:
       net-sdk-version:
         required: true
         type: string
+      base-path:
+        required: false
+        type: string
 
 
 jobs:
-  run_unit_tests:
-    name: Run Unit Tests
-    runs-on: ubuntu-latest # TODO: Turn this into an input but not required and with default value of ubuntu-latest
+  build_project:
+    name: Build Project
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
 
@@ -26,7 +29,9 @@ jobs:
       id: resolve-file-path
       shell: pwsh
       run: |
-        $result = Get-ChildItem -Path "${{ github.workspace }}/**/${{ inputs.project-name }}.csproj" -Recurse | ForEach-Object{$_.FullName};
+        $basePath = !$basePath -or $basePath -eq "" ? "${{ github.workspace }}" : $basePath;
+
+        $result = Get-ChildItem -Path "$basePath/**/${{ inputs.project-name }}.csproj" -Recurse | ForEach-Object{$_.FullName};
 
         $resultType = $result ? $result.GetType().Name : $null;
 
@@ -43,18 +48,18 @@ jobs:
 
             exit 1; # Fail Workflow
         } else {
-            Write-Host "Project File Path Resolved To: $result";
-            Write-Host "::set-output name=file-path::$result";
+            Write-Host "::set-output name=project-file-path::$result";
         }
 
-    - uses: actions/setup-dotnet@v1
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ inputs.net-sdk-version }}
 
     - name: Restore Dependencies
-      run: dotnet restore "${{ steps.resolve-path.outputs.file-path }}"
+      run: dotnet restore "${{ steps.resolve-file-path.outputs.project-file-path }}"
 
-    - name: Execute Unit Tests
-      run: dotnet build "${{ steps.resolve-path.outputs.file-path }}" `
+    - name: Build Project
+      run: dotnet build "${{ steps.resolve-file-path.outputs.project-file-path }}" `
         -c ${{ inputs.build-config }} `
         --no-restore
