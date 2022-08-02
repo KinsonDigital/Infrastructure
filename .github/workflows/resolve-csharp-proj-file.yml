@@ -50,5 +50,6 @@ jobs:
 
             exit 1; # Fail Workflow
         } else {
+            Write-Host "Resolved file path 👉🏼 $result";
             Write-Host "::set-output name=project-file-path::$result";
         }
