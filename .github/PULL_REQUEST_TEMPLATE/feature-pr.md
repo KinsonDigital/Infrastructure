@@ -11,9 +11,9 @@
       ```
     </details>
 
-- [ ] The **_head(source)_** branch for this pull request is created from a **_development_** branch with the name **_develop_**.
+- [ ] The **_head(source)_** branch for this pull request is created from a **_production_** branch with the name **_master_**.
 
-- [ ] The **_base(target)_** branch for this pull request is a **_development_** branch with the name **_develop_**.
+- [ ] The **_base(target)_** branch for this pull request is the main **_production_** branch with the name **_master_**.
   - A **_base(target)_** branch is the branch that the **_head(source)_** branch is merging into.
 
 - [ ] Pull request title matches the title of the linked issue.
