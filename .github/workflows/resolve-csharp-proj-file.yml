@@ -1,0 +1,54 @@
+name: Resolve CSharp Project File Path
+
+
+on:
+  workflow_call:
+    inputs:
+      project-name:
+        required: true
+        type: string
+      base-path:
+        required: false
+        type: string
+    outputs:
+      project-file-path:
+        description: "The resolve csharp project file path."
+        value: ${{ jobs.resolve_proj_file_path.outputs.project-file-path }}
+
+
+jobs:
+  resolve_proj_file_path:
+    name: Resolve Project File Path
+    runs-on: ubuntu-latest
+    outputs:
+      project-file-path: ${{ steps.resolve-file-path.outputs.project-file-path }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Resolve Project File Path
+      id: resolve-file-path
+      shell: pwsh
+      run: |
+        $basePath = "${{ inputs.base-path }}";
+        $basePath = !$basePath -or $basePath -eq "" ? "${{ github.workspace }}" : $basePath;
+
+        $result = Get-ChildItem -Path "$basePath/**/${{ inputs.project-name }}.csproj" -Recurse | ForEach-Object{$_.FullName};
+
+        $resultType = $result ? $result.GetType().Name : $null;
+
+        # If null, no project file was found
+        if (!$result) {
+            Write-Host "::error::Project file not found";
+            exit 1; # Fail Workflow
+        } elseif ($resultType -ne "String") {
+            Write-Host "::error::Found too many project files!!";
+
+            foreach ($item in $result) {
+                Write-Host "`t$item";
+            }
+
+            exit 1; # Fail Workflow
+        } else {
+            Write-Host "::set-output name=project-file-path::$result";
+        }
