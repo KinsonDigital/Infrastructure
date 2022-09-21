@@ -52,9 +52,9 @@ jobs:
         dotnet-version: ${{ inputs.net-sdk-version }}
 
     - name: Restore Dependencies
-      run: dotnet restore "${{ steps.resolve-path.outputs.file-path }}"
+      run: dotnet restore "${{ steps.resolve-file-path.outputs.file-path }}"
 
     - name: Execute Unit Tests
-      run: dotnet build "${{ steps.resolve-path.outputs.file-path }}" `
+      run: dotnet build "${{ steps.resolve-file-path.outputs.file-path }}" `
         -c ${{ inputs.build-config }} `
         --no-restore
