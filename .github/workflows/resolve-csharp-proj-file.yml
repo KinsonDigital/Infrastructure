@@ -24,7 +24,7 @@ jobs:
       project-file-path: ${{ steps.resolve-file-path.outputs.project-file-path }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Resolve Project File Path
       id: resolve-file-path
