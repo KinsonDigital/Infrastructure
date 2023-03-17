@@ -48,7 +48,7 @@ jobs:
 
             exit 1; # Fail Workflow
         } else {
-            Write-Host "::set-output name=project-file-path::$result";
+            "project-file-path=$result" >> $env.GITHUB_OUTPUT;
         }
 
     - name: Setup .NET SDK
