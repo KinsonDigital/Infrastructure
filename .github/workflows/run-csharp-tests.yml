@@ -47,7 +47,7 @@ jobs:
             "file-path=$result" >> $env.GITHUB_OUTPUT;
         }
 
-    - uses: actions/setup-dotnet@v1
+    - uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{ inputs.net-sdk-version }}
 
