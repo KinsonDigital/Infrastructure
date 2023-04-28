@@ -1,0 +1,20 @@
+name: TESTING
+
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+  testing:
+    name: testing
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: testing
+      shell: pwsh
+      run: |
+        $fileContent = Get-Content "${{ github.event_path }}" -Raw;
+        Write-Host $fileContent;
+
