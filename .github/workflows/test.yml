@@ -3,6 +3,8 @@ name: TESTING
 
 on:
   workflow_dispatch:
+  issues:
+    types: [opened]
 
 
 jobs:
