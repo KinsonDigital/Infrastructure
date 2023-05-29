@@ -2,11 +2,13 @@ import { existsSync } from "https://deno.land/std@0.184.0/fs/exists.ts";
 
 // Validate the arguments
 if (Deno.args.length !== 2) {
-    let errorMsg = "The 'validate-notes' cicd script must have two arguments.";
+    const scriptName = Deno.mainModule.substring(Deno.mainModule.lastIndexOf("/") + 1);
+    let errorMsg = `The '${scriptName}' cicd script must have two arguments.`;
     errorMsg += "\nThe first arg must be either 'production', 'preview' or 'either'.";
     errorMsg += "\nThe second arg must be the version of the notes.";
 
-    throw new Error(errorMsg);
+    console.log(`::error::${errorMsg}`);
+    Deno.exit(1);
 }
 
 const notesType: string = Deno.args[0].toLowerCase();
@@ -21,7 +23,8 @@ if (notesType !== "production" && notesType !== "preview" && notesType != "eithe
     let errorMsg = "The notes type argument must be a value of 'production', 'preview' or 'either'.";
     errorMsg += "\nThe value is case-insensitive.";
 
-    throw new Error(errorMsg);
+    console.log(`::error::${errorMsg}`);
+    Deno.exit(1);
 }
 
 const prodVersionRegex = /^v[0-9]+\.[0-9]+\.[0-9]+$/;
@@ -36,7 +39,8 @@ if (notesType === "production") {
 }
 
 if (isValid === false) {
-    throw new Error(`The version is not in the correct ${notesType} version syntax.`);
+    console.log(`::error::The version is not in the correct ${notesType} version syntax.`);
+    Deno.exit(1);
 }
 
 let notesDirName = "";
@@ -51,5 +55,6 @@ if (notesType == "production" || notesType === "preview") {
 const notesFilePath = `${Deno.cwd()}/Documentation/ReleaseNotes/${notesDirName}/Release-Notes-${version}.md`;
 
 if (!existsSync(notesFilePath)) {
-    throw new Error(`The release notes '${notesFilePath}' do not exist.`);
+    console.log(`::error::The release notes '${notesFilePath}' do not exist.`);
+    Deno.exit(1);
 }

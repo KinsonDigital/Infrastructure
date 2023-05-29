@@ -1,10 +1,12 @@
 // Validate the arguments
 if (Deno.args.length !== 3) {
-    let errorMsg = "The 'validate-tag' cicd script must have two arguments.";
+    const scriptName = Deno.mainModule.substring(Deno.mainModule.lastIndexOf("/") + 1);
+    let errorMsg = `The '${scriptName}' cicd script must have two arguments.`;
     errorMsg += "\nThe first arg must be either 'production', 'preview' or 'either'.";
     errorMsg += "\nThe second arg must be the name of the tag.";
 
-    throw new Error(errorMsg);
+    console.log(`::error::${errorMsg}`);
+    Deno.exit(1);
 }
 
 const tagType: string = Deno.args[0].toLowerCase();
@@ -21,7 +23,8 @@ if (tagType !== "production" && tagType !== "preview" && tagType !== "either") {
     let errorMsg = "The tag type argument must be a value of 'production', 'preview' or 'either'.";
     errorMsg += "\nThe value is case-insensitive.";
 
-    throw new Error(errorMsg);
+    console.log(`::error::${errorMsg}`);
+    Deno.exit(1);
 }
 
 const prodVersionRegex = /^v[0-9]+\.[0-9]+\.[0-9]+$/;
@@ -48,7 +51,8 @@ if (isValid === false) {
     ? tagType
     : "production or preview";
     
-    throw new Error(`The tag is not in the correct ${tagTypeStr} version syntax.`);
+    console.log(`The tag is not in the correct ${tagTypeStr} version syntax.`);
+    Deno.exit(1);
 }
         
 const tagsUrl = `https://api.github.com/repos/KinsonDigital/${projectName}/tags`;
@@ -60,5 +64,6 @@ const tags: string[] = responseData.map((tagObj) => tagObj.name);
 const tagExists: boolean = tags.some(t => t === tag);
 
 if (tagExists) {
-    throw new Error(`The tag '${tag}' already exists.`);
+    console.log(`The tag '${tag}' already exists.`);
+    Deno.exit(1);
 }
