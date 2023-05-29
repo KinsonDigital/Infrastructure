@@ -8,7 +8,7 @@
             "name": "Validate Prod Tag (DEBUG)",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/.github/cicd/validate-tag.ts",
+            "program": "${workspaceFolder}/cicd/validate-tag.ts",
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
@@ -29,7 +29,7 @@
             "name": "Validate Preview Tag (DEBUG)",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/.github/cicd/validate-tag.ts",
+            "program": "${workspaceFolder}/cicd/validate-tag.ts",
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
@@ -50,7 +50,7 @@
             "name": "Validate Either Tag (DEBUG)",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/.github/cicd/validate-tag.ts",
+            "program": "${workspaceFolder}/cicd/validate-tag.ts",
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
