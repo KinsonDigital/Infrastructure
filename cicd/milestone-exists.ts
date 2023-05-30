@@ -1,3 +1,5 @@
+import { Utils } from "./core/Utils.ts";
+
 if (Deno.args.length != 3) {
     const scriptName = Deno.mainModule.substring(Deno.mainModule.lastIndexOf("/") + 1);
     let errorMsg = `The '${scriptName}' cicd script must have 3 arguments.`;
@@ -13,11 +15,12 @@ const projectName = Deno.args[0].trim();
 const milestone = Deno.args[1].trim();
 const githubToken = Deno.args[2].trim();
 
-console.log("::group::Argument Values");
-console.log(`Project Name: ${projectName}`);
-console.log(`Milestone: ${milestone}`);
-console.log("GitHub Token: ****");
-console.log("::endgroup::");
+// Print out all of the arguments
+Utils.printInGroup("Arguments", [
+    `Project Name: ${projectName}`,
+    `Milestone: ${milestone}`,
+    "GitHub Token: ****",
+]);
 
 const milestoneUrl = `https://api.github.com/repos/KinsonDigital/${projectName}/milestones?state=all`;
 

@@ -1,3 +1,5 @@
+import { Utils } from "./core/Utils.ts";
+
 // Validate the arguments
 if (Deno.args.length != 3) {
     const scriptName = Deno.mainModule.substring(Deno.mainModule.lastIndexOf("/") + 1);
@@ -13,11 +15,12 @@ const tagType: string = Deno.args[0].toLowerCase();
 const tag: string = Deno.args[1].startsWith("v") ? Deno.args[1] : `v${Deno.args[1]}`;
 const projectName: string = Deno.args[2];
 
-console.log("::group::Argument Values")
-console.log(`Tag Type: ${tagType}`);
-console.log(`Tag: ${tag}`);
-console.log(`Project Name: ${projectName}`);
-console.log("::endgroup::");
+// Print out all of the arguments
+Utils.printInGroup("Arguments", [
+    `Tag Type: ${tagType}`,
+    `Tag: ${tag}`,
+    `Project Name: ${projectName}`,
+]);
 
 if (tagType !== "production" && tagType !== "preview" && tagType !== "either") {
     let errorMsg = "The tag type argument must be a value of 'production', 'preview' or 'either'.";
@@ -36,7 +39,7 @@ switch (tagType) {
     case "production":
         isValid = prodVersionRegex.test(tag);
         break;
-        case "preview":
+    case "preview":
         isValid = prevVersionRegex.test(tag);
         break;
     case "either":

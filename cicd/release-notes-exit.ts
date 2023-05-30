@@ -1,4 +1,5 @@
 import { existsSync } from "https://deno.land/std@0.184.0/fs/exists.ts";
+import { Utils } from "./core/Utils.ts";
 
 // Validate the arguments
 if (Deno.args.length != 2) {
@@ -14,10 +15,11 @@ if (Deno.args.length != 2) {
 const notesType: string = Deno.args[0].toLowerCase();
 const version: string = Deno.args[1];
 
-console.log("::group::Argument Values");
-console.log(`Notes Type: ${notesType}`);
-console.log(`Version: ${version}`);
-console.log("::endgroup::");
+// Print out all of the arguments
+Utils.printInGroup("Arguments", [
+    `Notes Type: ${notesType}`,
+    `Version: ${version}`,
+]);
 
 if (notesType !== "production" && notesType !== "preview" && notesType != "either") {
     let errorMsg = "The notes type argument must be a value of 'production', 'preview' or 'either'.";
