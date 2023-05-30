@@ -19,11 +19,13 @@
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe",
+                "request": "launch",
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
             },
             "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno",
-            },
+                "request": "launch",
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
         },
         {
             "name": "Validate Preview Tag (DEBUG)",
@@ -40,11 +42,13 @@
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe",
+                "request": "launch",
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
             },
             "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno",
-            },
+                "request": "launch",
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
         },        
         {
             "name": "Validate Either Tag (DEBUG)",
@@ -61,10 +65,14 @@
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe",
+                "request": "launch",
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
             },
             "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno",
+                "request": "launch",
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
             },
         }
     ]
