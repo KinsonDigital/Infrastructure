@@ -84,16 +84,37 @@
                 "--inspect-wait",
                 "--allow-all"
             ],
-            "args": ["Infrastructure", "v1.2.3-preview.4", "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"],
+            "args": ["Infrastructure", "v1.2.3-preview.4", "fake-token"],
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
-                "name": "Milestone Exists (DEBUG) - Windows",
                 "request": "launch",
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
             },
             "linux": {
-                "name": "Milestone Exists (DEBUG) - Linux",
+                "request": "launch",
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+        {
+            "name": "Label If Head Branch (DEBUG)",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/label-if-head-branch.ts",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": ["Infrastructure", "24", "master", "master"],
+            "attachSimplePort": 9229,
+            "console": "integratedTerminal",
+            "windows": {
+                "request": "launch",
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
                 "request": "launch",
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
