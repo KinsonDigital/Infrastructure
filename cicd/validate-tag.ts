@@ -1,5 +1,5 @@
 // Validate the arguments
-if (Deno.args.length !== 3) {
+if (Deno.args.length != 3) {
     const scriptName = Deno.mainModule.substring(Deno.mainModule.lastIndexOf("/") + 1);
     let errorMsg = `The '${scriptName}' cicd script must have two arguments.`;
     errorMsg += "\nThe first arg must be either 'production', 'preview' or 'either'.";
