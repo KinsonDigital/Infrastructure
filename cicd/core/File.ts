@@ -21,4 +21,15 @@ export class File {
     public static DoesNotExist(filePath: string): boolean {
         return !this.Exists(filePath);
     }
+
+    /**
+     * Loads the contents of the file at the given file path.
+     * @param filePath The path to the file to load.
+     * @returns The contents of the file.
+     */
+    public static LoadFile(filePath: string): string {
+        const file = Deno.readTextFileSync(filePath);
+
+        return file;
+    }
 }
