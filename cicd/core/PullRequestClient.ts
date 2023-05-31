@@ -52,11 +52,49 @@ export class PullRequestClient {
             }
 
             Deno.exit(1);
-        }        
+        }
 
         const responseData = await Utils.getResponseData(response);
 
         return responseData.map((label: any) => label.name);
+    }
+
+    /**
+     * Gets a pull request for a given project.
+     * @param projectName The name of the project.
+     * @param prNumber The number of the pull request.
+     * @returns The pull request.
+     */
+    public async getPullRequest(projectName: string, prNumber: number): Promise<any> {
+        // TODO: Add param value checks
+        const url = `${this.baseUrl}/${this.organization}/${projectName}/pulls/${prNumber}`;
+        
+        const response: Response = await fetch(url, {
+            method: "GET",
+            headers: this.headers,
+        });
+
+        const possibleStatusCodes = [304, 404, 500, 503];
+
+        // If there is an error
+        if (possibleStatusCodes.includes(response.status)) {
+            switch (response.status) {
+                case 304: // Not modified
+                case 500: // Internal Error
+                case 503: // Service Unavailable
+                    console.log(`::error::The request to get pull request returned error '${response.status} - (${response.statusText})'`);
+                    break;
+                case 404: // Resource Not Found
+                    console.log(`::error::The pull request number '${prNumber}' does not exist.`);
+                    break;
+            }
+
+            Deno.exit(1);
+        }
+
+        const responseData = await Utils.getResponseData(response);
+
+        return responseData;
     }
 
     /**
