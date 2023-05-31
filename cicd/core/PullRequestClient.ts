@@ -1,3 +1,5 @@
+import { Utils } from "./Utils.ts";
+
 /**
  * Provides a client for interacting with pull requests.
  */
@@ -52,7 +54,7 @@ export class PullRequestClient {
             Deno.exit(1);
         }        
 
-        const responseData = await this.getResponseData(response);
+        const responseData = await Utils.getResponseData(response);
 
         return responseData.map((label: any) => label.name);
     }
@@ -99,16 +101,5 @@ export class PullRequestClient {
 
             Deno.exit(1);
         }        
-    }
-
-    /**
-     * Gets the milestone for the pull request.
-     * @param prNumber The number of the pull request.
-     * @returns The HTTP response data.
-     */
-    private async getResponseData(response: Response): Promise<any> {
-        const responseText: string = await response.text();
-
-        return await JSON.parse(responseText);
     }
 }

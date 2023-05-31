@@ -26,4 +26,15 @@ export class Utils {
 
         console.log("::endgroup::");
     }
+
+    /**
+     * Gets the data from an HTTP response.
+     * @param response The HTTP response to get the data from.
+     * @returns The data from the response.
+     */
+    public static async getResponseData(response: Response): Promise<any> {
+        const responseText: string = await response.text();
+
+        return await JSON.parse(responseText);
+    }
 }
