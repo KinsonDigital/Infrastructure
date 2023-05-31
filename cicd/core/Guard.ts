@@ -1,3 +1,5 @@
+import { Utils } from "./Utils.ts";
+
 /**
  * A class that contains functions to check if values are invalid.
  */
@@ -8,7 +10,7 @@ export class Guard {
      * @returns True if the value is null, undefined, or empty, otherwise false.
      */
     public static isNullOrEmptyOrUndefined(value: string | undefined | null, funcName: string = "", paramName: string = ""): void {
-        if (value === undefined || value === null || value === "") {
+        if (Utils.isNullOrEmptyOrUndefined(value)) {
             console.log("::error::The value is null, undefined, or empty.");
 
             if (funcName != "") {
@@ -23,9 +25,14 @@ export class Guard {
         }
     }
 
-    // Create a function that checks if a number is undefined, null, Nan, Infinite, or -Infinity, or negative
+    /**
+     * Checks if a variable value is null or undefined.
+     * @param value The value to check.
+     * @param funcName The name of the function that is calling this function.
+     * @param paramName The name of the parameter that is being checked.
+     */
     public static isLessThanOne(value: number | undefined | null, funcName: string = "", paramName: string = ""): void {
-        if (value === undefined || value === null || isNaN(value) || !isFinite(value)) {
+        if (Utils.isNullOrUndefined(value) || isNaN(value) || !isFinite(value)) {
             console.log("::error::The value is undefined, null, NaN, Infinite, -Infinity.");
 
             if (funcName != "") {
