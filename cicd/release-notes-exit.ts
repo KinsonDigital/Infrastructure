@@ -1,5 +1,5 @@
-import { existsSync } from "https://deno.land/std@0.184.0/fs/exists.ts";
 import { Utils } from "./core/Utils.ts";
+import { File } from "./core/File.ts";
 
 // Validate the arguments
 if (Deno.args.length != 2) {
@@ -56,7 +56,8 @@ if (notesType == "production" || notesType === "preview") {
 
 const notesFilePath = `${Deno.cwd()}/Documentation/ReleaseNotes/${notesDirName}/Release-Notes-${version}.md`;
 
-if (!existsSync(notesFilePath)) {
+
+if (File.DoesNotExist(notesFilePath)) {
     console.log(`::error::The release notes '${notesFilePath}' do not exist.`);
     Deno.exit(1);
 }
