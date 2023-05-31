@@ -37,4 +37,22 @@ export class Utils {
 
         return await JSON.parse(responseText);
     }
+
+    /**
+     * Checks if the value is null, undefined, or empty.
+     * @param value The value to check.
+     * @returns True if the value is null, undefined, or empty, otherwise false.
+     */
+    public static isNullOrEmptyOrUndefined(value: string | undefined | null): value is null | undefined | "" {
+        return this.isNullOrUndefined(value) || value === "";
+    }
+
+    /**
+     * Checks if the value is null or undefined.
+     * @param value The value to check.
+     * @returns True if the value is null or undefined, otherwise false.
+     */
+    public static isNullOrUndefined(value: any): value is null | undefined {
+        return value === undefined || value === null;
+    }
 }
