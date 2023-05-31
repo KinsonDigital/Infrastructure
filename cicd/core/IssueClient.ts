@@ -1,3 +1,4 @@
+import { Guard } from "./Guard.ts";
 import { IIssueModel } from "./Models/IIssueModel.ts";
 import { ILabelModel } from "./Models/ILabelModel.ts";
 import { Utils } from "./Utils.ts";
@@ -30,7 +31,7 @@ export class IssueClient {
      * @returns The issue.
      */
     public async getIssues(projectName: string): Promise<IIssueModel[]> {
-        // TODO: Add param value checks
+        Guard.isNullOrEmptyOrUndefined(projectName, "getIssues");
 
         // REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#list-repository-issues
         const url = `${this.baseUrl}/${this.organization}/${projectName}/issues?state=all&page=1&per_page=100`;
@@ -70,11 +71,14 @@ export class IssueClient {
      * @remarks Requires authentication.
      */
     public async addLabel(projectName: string, issueNumber: number, label: string): Promise<void> {
-        // REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue
+        Guard.isNullOrEmptyOrUndefined(projectName, "addLabel", "projectName");
+        Guard.isLessThanOne(issueNumber, "addLabel", "issueNumber");
+        Guard.isNullOrEmptyOrUndefined(label, "addLabel", "projectName");
 
         let prLabels: string[] = await this.getLabels(projectName, issueNumber);
         prLabels.push(label);
-
+        
+        // REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue
         const url = `${this.baseUrl}/${this.organization}/${projectName}/issues/${issueNumber}`;
         
         const response: Response = await fetch(url, {
@@ -114,6 +118,9 @@ export class IssueClient {
      * @remarks Does not require authentication.
      */
      public async getLabels(projectName: string, issueNumber: number): Promise<string[]> {
+        Guard.isNullOrEmptyOrUndefined(projectName, "getLabels", "projectName");
+        Guard.isLessThanOne(issueNumber, "getLabels", "issueNumber");
+
         const url = `${this.baseUrl}/${this.organization}/${projectName}/issues/${issueNumber}/labels`;
         
         const response: Response = await fetch(url, {

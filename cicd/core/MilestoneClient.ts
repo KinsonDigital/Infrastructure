@@ -1,3 +1,4 @@
+import { Guard } from "./Guard.ts";
 import { IIssueModel } from "./Models/IIssueModel.ts";
 import { IMilestoneModel } from "./Models/IMilestoneModel.ts";
 import { Utils } from "./Utils.ts";
@@ -31,6 +32,9 @@ export class MilestoneClient {
      * @returns The issues in the milestone.
      */
     public async getIssues(projectName: string, milestoneName: string): Promise<IIssueModel[]> {
+        Guard.isNullOrEmptyOrUndefined(projectName, "getIssues", "projectName");
+        Guard.isNullOrEmptyOrUndefined(milestoneName, "getIssues", "milestoneName");
+
         const milestones: IMilestoneModel[] = await this.getMilestones(projectName);
         const milestone: IMilestoneModel | undefined = milestones.find((m) => m.title === milestoneName);
 
@@ -72,6 +76,8 @@ export class MilestoneClient {
      * @param projectName The name of the project that the milestone exists in.
      */
     public async getMilestones(projectName: string): Promise<IMilestoneModel[]> {
+        Guard.isNullOrEmptyOrUndefined(projectName, "getMilestones", "projectName");
+
         const url = `${this.baseUrl}/${this.organization}/${projectName}/milestones=?state=all&page=1&per_page=100`;
 
         const response: Response = await fetch(url, {

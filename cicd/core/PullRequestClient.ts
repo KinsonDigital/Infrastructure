@@ -1,3 +1,4 @@
+import { Guard } from "./Guard.ts";
 import { Utils } from "./Utils.ts";
 
 /**
@@ -30,6 +31,9 @@ export class PullRequestClient {
      * @remarks Does not require authentication.
      */
     public async getLabels(projectName: string, prNumber: number): Promise<string[]> {
+        Guard.isNullOrEmptyOrUndefined(projectName, "getLabels", "projectName");
+        Guard.isLessThanOne(prNumber, "getLabels", "prNumber");
+
         const url = `${this.baseUrl}/${this.organization}/${projectName}/issues/${prNumber}/labels`;
         
         const response: Response = await fetch(url, {
@@ -66,7 +70,9 @@ export class PullRequestClient {
      * @returns The pull request.
      */
     public async getPullRequest(projectName: string, prNumber: number): Promise<any> {
-        // TODO: Add param value checks
+        Guard.isNullOrEmptyOrUndefined(projectName, "getPullRequest", "projectName");
+        Guard.isLessThanOne(prNumber, "getPullRequest", "prNumber");
+
         const url = `${this.baseUrl}/${this.organization}/${projectName}/pulls/${prNumber}`;
         
         const response: Response = await fetch(url, {
@@ -105,11 +111,14 @@ export class PullRequestClient {
      * @remarks Requires authentication.
      */
     public async addLabel(projectName: string, prNumber: number, label: string): Promise<void> {
-        // REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue
+        Guard.isNullOrEmptyOrUndefined(projectName, "addLabel", "projectName");
+        Guard.isLessThanOne(prNumber, "addLabel", "prNumber");
+        Guard.isNullOrEmptyOrUndefined(label, "addLabel", "label");
 
         let prLabels: string[] = await this.getLabels(projectName, prNumber);
         prLabels.push(label);
-
+        
+        // REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue
         const url = `${this.baseUrl}/${this.organization}/${projectName}/issues/${prNumber}`;
         
         const response: Response = await fetch(url, {
