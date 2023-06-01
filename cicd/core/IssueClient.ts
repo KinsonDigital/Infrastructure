@@ -73,6 +73,11 @@ export class IssueClient extends Client {
         Guard.isLessThanOne(issueNumber, "addLabel", "issueNumber");
         Guard.isNullOrEmptyOrUndefined(label, "addLabel", "projectName");
 
+        if (!this.containsToken()) {
+            console.log(`::error::The request to add label '${label}' is forbidden.  Check the auth token.`);
+            Deno.exit(1);
+        }
+
         let prLabels: string[] = await this.getLabels(projectName, issueNumber);
         prLabels.push(label);
         
