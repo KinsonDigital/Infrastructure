@@ -1,3 +1,4 @@
+import { TagClient } from "./core/TagClient.ts";
 import { Utils } from "./core/Utils.ts";
 
 // Validate the arguments
@@ -57,14 +58,15 @@ if (isValid === false) {
     console.log(`The tag is not in the correct ${tagTypeStr} version syntax.`);
     Deno.exit(1);
 }
-        
-const tagsUrl = `https://api.github.com/repos/KinsonDigital/${projectName}/tags`;
-const response = await fetch(tagsUrl);
-const responseData = <{ name: ""}[]>await response.json();
+ 
 
-const tags: string[] = responseData.map((tagObj) => tagObj.name);
+const tagClient: TagClient = new TagClient(token);
 
-const tagExists: boolean = tags.some(t => t === tag);
+const tags: ITagModel[] = await tagClient.getTags(projectName);
+
+const tagNames: string[] = tags.map(t => t.name);
+
+const tagExists: boolean = tagNames.some(t => t === tag);
 
 if (tagExists) {
     console.log(`The tag '${tag}' already exists.`);
