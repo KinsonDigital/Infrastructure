@@ -21,4 +21,9 @@ export interface IIssueModel {
      * Gets or sets the state of the issue.
      */
     state: string;
+
+    /**
+     * Gets or sets the URL to the html page of the issue.
+     */
+    html_url: string;
 }
