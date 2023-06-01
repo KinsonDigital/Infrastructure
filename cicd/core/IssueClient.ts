@@ -1,4 +1,6 @@
+import { Client } from "./Client.ts";
 import { Guard } from "./Guard.ts";
+import { LabelClient } from "./LabelClient.ts";
 import { IIssueModel } from "./Models/IIssueModel.ts";
 import { ILabelModel } from "./Models/ILabelModel.ts";
 import { Utils } from "./Utils.ts";
@@ -6,10 +8,8 @@ import { Utils } from "./Utils.ts";
 /**
  * Provides a client for interacting with issues.
  */
-export class IssueClient {
-    private readonly organization = "KinsonDigital";
-    private readonly baseUrl = "https://api.github.com/repos";
-    private readonly headers: Headers = new Headers();
+export class IssueClient extends Client {
+    private readonly labelClient: LabelClient;
 
     /**
      * Initializes a new instance of the IssueClient class.
@@ -17,12 +17,8 @@ export class IssueClient {
      * @remarks If no token is provided, then the client will not be authenticated.
      */
     constructor(token?: string) {
-        this.headers.append("Accept", "application/vnd.github.v3+.json");
-        this.headers.append("X-GitHub-Api-Version", "2022-11-28");
-
-        if (token !== undefined && token !== null && token !== "") {
-            this.headers.append("Authorization", `Bearer ${token}`);
-        }
+        super(token);
+        this.labelClient = new LabelClient(token);
     }
 
     /**

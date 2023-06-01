@@ -1,13 +1,13 @@
+import { Client } from "./Client.ts";
 import { Guard } from "./Guard.ts";
+import { LabelClient } from "./LabelClient.ts";
 import { Utils } from "./Utils.ts";
 
 /**
  * Provides a client for interacting with pull requests.
  */
-export class PullRequestClient {
-    private readonly organization = "KinsonDigital";
-    private readonly baseUrl = "https://api.github.com/repos";
-    private readonly headers: Headers = new Headers();
+export class PullRequestClient extends Client {
+    private readonly labelClient: LabelClient;
 
     /**
      * Initializes a new instance of the PullRequestClient class.
@@ -15,12 +15,8 @@ export class PullRequestClient {
      * @remarks If no token is provided, then the client will not be authenticated.
      */
     constructor(token?: string) {
-        this.headers.append("Accept", "application/vnd.github.v3+.json");
-        this.headers.append("X-GitHub-Api-Version", "2022-11-28");
-
-        if (token !== undefined && token !== null && token !== "") {
-            this.headers.append("Authorization", `Bearer ${token}`);
-        }
+        super(token);
+        this.labelClient = new LabelClient(token);
     }
 
     /**
