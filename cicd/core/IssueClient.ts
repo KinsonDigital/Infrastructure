@@ -28,7 +28,7 @@ export class IssueClient extends Client {
      * @remarks Does not require authentication.
      */
     public async getIssues(projectName: string): Promise<IIssueModel[]> {
-        Guard.isNullOrEmptyOrUndefined(projectName, "getIssues");
+        Guard.isNullOrEmptyOrUndefined(projectName, "getIssues", "getIssues");
 
         // REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#list-repository-issues
         const url = `${this.baseUrl}/${this.organization}/${projectName}/issues?state=all&page=1&per_page=100`;
@@ -121,7 +121,7 @@ export class IssueClient extends Client {
      * @returns The labels for an issue.
      * @remarks Does not require authentication.
      */
-     public async getLabels(projectName: string, issueNumber: number): Promise<string[]> {
+    public async getLabels(projectName: string, issueNumber: number): Promise<string[]> {
         Guard.isNullOrEmptyOrUndefined(projectName, "getLabels", "projectName");
         Guard.isLessThanOne(issueNumber, "getLabels", "issueNumber");
 

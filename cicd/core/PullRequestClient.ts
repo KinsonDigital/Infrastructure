@@ -1,6 +1,7 @@
 import { Client } from "./Client.ts";
 import { Guard } from "./Guard.ts";
 import { LabelClient } from "./LabelClient.ts";
+import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
 import { Utils } from "./Utils.ts";
 
 /**
@@ -68,7 +69,7 @@ export class PullRequestClient extends Client {
      * @returns The pull request.
      * @remarks Does not require authentication.
      */
-    public async getPullRequest(projectName: string, prNumber: number): Promise<any> {
+    public async getPullRequest(projectName: string, prNumber: number): Promise<IPullRequestModel> {
         Guard.isNullOrEmptyOrUndefined(projectName, "getPullRequest", "projectName");
         Guard.isLessThanOne(prNumber, "getPullRequest", "prNumber");
 
@@ -97,9 +98,7 @@ export class PullRequestClient extends Client {
             Deno.exit(1);
         }
 
-        const responseData = await Utils.getResponseData(response);
-
-        return responseData;
+        return <IPullRequestModel>await Utils.getResponseData(response);
     }
 
     /**
