@@ -72,7 +72,7 @@ export class MilestoneClient extends Client {
     public async getMilestones(projectName: string): Promise<IMilestoneModel[]> {
         Guard.isNullOrEmptyOrUndefined(projectName, "getMilestones", "projectName");
 
-        const url = `${this.baseUrl}/${this.organization}/${projectName}/milestones=?state=all&page=1&per_page=100`;
+        const url = `${this.baseUrl}/${this.organization}/${projectName}/milestones?state=all&page=1&per_page=100`;
 
         const response: Response = await fetch(url, {
             method: "GET",
