@@ -3,7 +3,9 @@
         "cicd",
         "endgroup",
         "Kinson",
-        "pwsh"
+        "Nums",
+        "pwsh",
+        "zipball"
     ],
-    "deno.enable": true
+    "deno.enable": true,
 }
