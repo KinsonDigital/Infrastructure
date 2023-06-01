@@ -1,11 +1,16 @@
+import { MilestoneClient } from "./core/MilestoneClient.ts";
+import { ScriptDescriptions } from "./core/ScriptDescriptions.ts";
 import { Utils } from "./core/Utils.ts";
 
-if (Deno.args.length != 3) {
-    const scriptName = Deno.mainModule.substring(Deno.mainModule.lastIndexOf("/") + 1);
+const scriptName = Utils.getScriptName()
+const scriptDescriptions: ScriptDescriptions = new ScriptDescriptions();
+scriptDescriptions.printScriptDescription(scriptName);
+
+if (Deno.args.length >= 2 && Deno.args.length <= 3) {
     let errorMsg = `The '${scriptName}' cicd script must have 3 arguments.`;
-    errorMsg += "\nThe first arg must be the GitHub project name.";
-    errorMsg += "\nThe second arg must be the title of the milestone.";
-    errorMsg += "\nThe third arg must be the GitHub token.";
+    errorMsg += "\nThe 1st arg must be the GitHub project name.";
+    errorMsg += "\nThe 2nd arg must be the title of the milestone.";
+    errorMsg += "\nThe 3rd arg is optional and must be the GitHub token.";
 
     console.log(`::error::${errorMsg}`);
     Deno.exit(1);
@@ -13,44 +18,21 @@ if (Deno.args.length != 3) {
 
 const projectName = Deno.args[0].trim();
 const milestone = Deno.args[1].trim();
-const githubToken = Deno.args[2].trim();
+const token = Deno.args[2].length >= 3 ? Deno.args[2].trim() : "";
 
 // Print out all of the arguments
 Utils.printInGroup("Arguments", [
     `Project Name: ${projectName}`,
     `Milestone: ${milestone}`,
-    "GitHub Token: ****",
+    `GitHub Token(Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,
 ]);
 
-const milestoneUrl = `https://api.github.com/repos/KinsonDigital/${projectName}/milestones?state=all`;
+const milestoneClient: MilestoneClient = new MilestoneClient(token);
 
-const headers: Headers = new Headers();
-
-headers.append("Accept", "application/vnd.github.v3+.json");
-headers.append("X-GitHub-Api-Version", "2022-11-28");
-headers.append("Authorization", `Bearer ${githubToken}`);
-
-const response: Response = await fetch(milestoneUrl, {
-    method: "GET",
-    headers: headers,
-});
-
-if (response.status === 404) {
-    console.log(`::error::The milestone '${milestone}' for project '${projectName}' does not exist.`);
-    Deno.exit(1);
-} 
-
-const responseText: string = await response.text();
-const responseData = await JSON.parse(responseText);
-
-let milestones: string[] = responseData.map((milestone: any) => milestone.title);
-
-// Trim all of the milestone names
-milestones = milestones.map((milestone: string) => milestone.trim());
+const milestoneDoesNotExist: boolean = !(await milestoneClient.milestoneExists(projectName, milestone));
 
 // Check if the milestone exists
-if (milestones.includes(milestone)) {
-    console.log(`✅The milestone '${milestone}' for project '${projectName}' exists!!✅`);
-} else {
+if (milestoneDoesNotExist) {
     console.log(`::error::The milestone '${milestone}' for project '${projectName}' does not exist.`);
+    Deno.exit(1);
 }

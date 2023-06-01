@@ -1,12 +1,18 @@
+import { ITagModel } from "./core/Models/ITagModel.ts";
+import { ScriptDescriptions } from "./core/ScriptDescriptions.ts";
 import { TagClient } from "./core/TagClient.ts";
 import { Utils } from "./core/Utils.ts";
 
+const scriptName = Utils.getScriptName()
+const scriptDescriptions: ScriptDescriptions = new ScriptDescriptions();
+scriptDescriptions.printScriptDescription(scriptName);
+
 // Validate the arguments
-if (Deno.args.length != 3) {
-    const scriptName = Deno.mainModule.substring(Deno.mainModule.lastIndexOf("/") + 1);
+if (Deno.args.length >= 3 && Deno.args.length <= 4) {
     let errorMsg = `The '${scriptName}' cicd script must have two arguments.`;
-    errorMsg += "\nThe first arg must be either 'production', 'preview' or 'either'.";
-    errorMsg += "\nThe second arg must be the name of the tag.";
+    errorMsg += "\nThe 1st arg must be either 'production', 'preview' or 'either'.";
+    errorMsg += "\nThe 2nd arg must be the name of the tag.";
+    errorMsg += "\nThe 3rd arg is optional and must be a GitHub token.";
 
     console.log(`::error::${errorMsg}`);
     Deno.exit(1);
@@ -15,6 +21,7 @@ if (Deno.args.length != 3) {
 const tagType: string = Deno.args[0].toLowerCase();
 const tag: string = Deno.args[1].startsWith("v") ? Deno.args[1] : `v${Deno.args[1]}`;
 const projectName: string = Deno.args[2];
+const token = Deno.args[2].length >= 3 ? Deno.args[2].trim() : "";
 
 // Print out all of the arguments
 Utils.printInGroup("Arguments", [
@@ -23,7 +30,7 @@ Utils.printInGroup("Arguments", [
     `Project Name: ${projectName}`,
 ]);
 
-if (tagType !== "production" && tagType !== "preview" && tagType !== "either") {
+if (tagType != "production" && tagType != "preview" && tagType != "either") {
     let errorMsg = "The tag type argument must be a value of 'production', 'preview' or 'either'.";
     errorMsg += "\nThe value is case-insensitive.";
 
