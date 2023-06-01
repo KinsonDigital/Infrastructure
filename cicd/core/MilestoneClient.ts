@@ -2,6 +2,7 @@ import { Client } from "./Client.ts";
 import { Guard } from "./Guard.ts";
 import { IIssueModel } from "./Models/IIssueModel.ts";
 import { IMilestoneModel } from "./Models/IMilestoneModel.ts";
+import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
 import { Utils } from "./Utils.ts";
 
 /**
@@ -24,12 +25,12 @@ export class MilestoneClient extends Client {
      * @param milestoneName The name of the milestone to get issues for.
      * @returns The issues in the milestone.
      */
-    public async getIssues(projectName: string, milestoneName: string): Promise<IIssueModel[]> {
-        Guard.isNullOrEmptyOrUndefined(projectName, "getIssues", "projectName");
-        Guard.isNullOrEmptyOrUndefined(milestoneName, "getIssues", "milestoneName");
+    public async getIssuesAndPullRequests(projectName: string, milestoneName: string): Promise<IIssueModel[] | IPullRequestModel[]> {
+        Guard.isNullOrEmptyOrUndefined(projectName, "getIssuesAndPullRequests", "projectName");
+        Guard.isNullOrEmptyOrUndefined(milestoneName, "getIssuesAndPullRequests", "milestoneName");
 
         const milestones: IMilestoneModel[] = await this.getMilestones(projectName);
-        const milestone: IMilestoneModel | undefined = milestones.find((m) => m.title === milestoneName);
+        const milestone: IMilestoneModel | undefined = milestones.find((m) => m.title.trim() === milestoneName);
 
         if (milestone === undefined) {
             console.log(`::error::The milestone '${milestoneName}' does not exist.`);
@@ -62,7 +63,41 @@ export class MilestoneClient extends Client {
             Deno.exit(1);
         }        
 
-        return <IIssueModel[]>await Utils.getResponseData(response);
+        return <IIssueModel[] | IPullRequestModel[]>await Utils.getResponseData(response);
+    }
+
+    /**
+     * Gets all of the issues for a milestone that matches the given {@link milestoneName}
+     * in a project that matches the given {@link projectName}.
+     * @param projectName The name of the project.
+     * @param milestoneName The name of the milestone to get issues for.
+     * @returns The issues in the milestone.
+     */
+    public async getIssues(projectName: string, milestoneName: string): Promise<IIssueModel[]> {
+        Guard.isNullOrEmptyOrUndefined(projectName, "getIssues", "projectName");
+        Guard.isNullOrEmptyOrUndefined(milestoneName, "getIssues", "milestoneName");
+
+        const allMilestoneItems: IIssueModel[] = await this.getIssuesAndPullRequests(projectName, milestoneName);
+
+        // Return all issues that DO NOT have a 'pull_request' object property
+        return <IIssueModel[]>allMilestoneItems.filter((i) => !("pull_request" in i));
+    }
+
+    /**
+     * Gets all of the pull requests for a milestone that matches the given {@link milestoneName}
+     * in a project that matches the given {@link projectName}.
+     * @param projectName The name of the project.
+     * @param milestoneName The name of the milestone to get pull requests for.
+     * @returns The pull requests in the milestone.
+     */
+    public async getPullRequests(projectName: string, milestoneName: string): Promise<IPullRequestModel[]> {
+        Guard.isNullOrEmptyOrUndefined(projectName, "getPullRequests", "projectName");
+        Guard.isNullOrEmptyOrUndefined(milestoneName, "getPullRequests", "milestoneName");
+
+        const allMilestoneItems: IIssueModel[] | IPullRequestModel[] = await this.getIssuesAndPullRequests(projectName, milestoneName);
+
+        // Return all issues that DO have a 'pull_request' object property
+        return <IPullRequestModel[]>allMilestoneItems.filter((i) => "pull_request" in i);
     }
 
     /**
@@ -86,5 +121,20 @@ export class MilestoneClient extends Client {
         }
 
         return <IMilestoneModel[]>await Utils.getResponseData(response);
+    }
+
+    /**
+     * Checks if a milestone exists that matches in the given {@link milestoneName} in a project that
+     * matches the given {@link projectName}.
+     * @param projectName The name of the project that the milestone exists in.
+     * @param milestoneName The name of the milestone to check for.
+     */
+    public async milestoneExists(projectName: string, milestoneName: string): Promise<boolean> {
+        Guard.isNullOrEmptyOrUndefined(projectName, "milestoneExists", "projectName");
+        Guard.isNullOrEmptyOrUndefined(milestoneName, "milestoneExists", "milestoneName");
+
+        const milestones: IMilestoneModel[] = await this.getMilestones(projectName);
+
+        return milestones.some((m) => m.title.trim() === milestoneName);
     }
 }
