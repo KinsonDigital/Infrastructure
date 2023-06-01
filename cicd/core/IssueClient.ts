@@ -78,6 +78,21 @@ export class IssueClient extends Client {
             Deno.exit(1);
         }
 
+        // First check that the label trying to be added exists in the project
+        const labelDoesNotExist: boolean = !(await this.labelClient.labelExists(projectName, label));
+
+        if (labelDoesNotExist) {
+            const labelsUrl = `https://github.com/KinsonDigital/${projectName}/labels`;
+            const issueUrl = `https://github.com/KinsonDigital/${projectName}/issues/618`;
+
+            let errorMsg = `::error::The label '${label}' attempting to be added to issue '${issueNumber}' does not exist in the project '${projectName}'.`;
+            errorMsg += `\nProject Labels: ${labelsUrl}`;
+            errorMsg += `\nIssue: ${issueUrl}`;
+
+            console.log(errorMsg);
+            Deno.exit(1);
+        }
+
         let prLabels: string[] = await this.getLabels(projectName, issueNumber);
         prLabels.push(label);
         
