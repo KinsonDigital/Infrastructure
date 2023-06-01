@@ -12,7 +12,7 @@ export class IssueClient extends Client {
     private readonly labelClient: LabelClient;
 
     /**
-     * Initializes a new instance of the IssueClient class.
+     * Initializes a new instance of the {@link IssueClient} class.
      * @param token The GitHub token to use for authentication.
      * @remarks If no token is provided, then the client will not be authenticated.
      */
@@ -22,9 +22,10 @@ export class IssueClient extends Client {
     }
 
     /**
-     * Gets an issue for a given project.
+     * Gets all of the issues for a project that match the given {@link projectName}.
      * @param projectName The name of the project.
      * @returns The issue.
+     * @remarks Does not require authentication.
      */
     public async getIssues(projectName: string): Promise<IIssueModel[]> {
         Guard.isNullOrEmptyOrUndefined(projectName, "getIssues");
@@ -60,7 +61,8 @@ export class IssueClient extends Client {
     }
 
     /**
-     * Adds a label to an issue.
+     * Adds the given {@link label} to an issue that matches the given {@link issueNumber} in a project
+     * that matches the given {@link projectName}.
      * @param projectName The name of the project.
      * @param issueNumber The number of an issue.
      * @param label The name of the label to add.
@@ -107,7 +109,8 @@ export class IssueClient extends Client {
     }
 
     /**
-     * Gets the labels for an issue.
+     * Gets all of the labels for an issue that matches the given {@link issueNumber} in a project
+     * that matches the given {@link projectName}.
      * @param projectName The name of the project.
      * @param issueNumber The number of an issue.
      * @returns The labels for an issue.

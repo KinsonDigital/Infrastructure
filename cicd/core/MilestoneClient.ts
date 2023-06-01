@@ -9,7 +9,7 @@ import { Utils } from "./Utils.ts";
  */
 export class MilestoneClient extends Client {
     /**
-     * Initializes a new instance of the MilestoneClient class.
+     * Initializes a new instance of the {@link MilestoneClient} class.
      * @param token The GitHub token to use for authentication.
      * @remarks If no token is provided, then the client will not be authenticated.
      */
@@ -18,7 +18,8 @@ export class MilestoneClient extends Client {
     }
 
     /**
-     * Gets all of the issues in the given milestone.
+     * Gets all of the issues and pull requests for a milestone that matches the given {@link milestoneName}
+     * in a project that matches the given {@link projectName}.
      * @param projectName The name of the project.
      * @param milestoneName The name of the milestone to get issues for.
      * @returns The issues in the milestone.
@@ -36,6 +37,7 @@ export class MilestoneClient extends Client {
             Deno.exit(1);
         }
 
+        // NOTE: This API endpoint returns issues AND pull requests.
         const url = `${this.baseUrl}/${this.organization}/${projectName}/issues?milestone=${milestone.number}`;
 
         const response: Response = await fetch(url, {
@@ -64,7 +66,7 @@ export class MilestoneClient extends Client {
     }
 
     /**
-     * Gets all of the milestones in the given project.
+     * Gets all of the milestones in a project that matches the given {@link projectName}.
      * @param projectName The name of the project that the milestone exists in.
      */
     public async getMilestones(projectName: string): Promise<IMilestoneModel[]> {

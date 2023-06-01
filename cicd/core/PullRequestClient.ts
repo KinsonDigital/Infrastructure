@@ -10,7 +10,7 @@ export class PullRequestClient extends Client {
     private readonly labelClient: LabelClient;
 
     /**
-     * Initializes a new instance of the PullRequestClient class.
+     * Initializes a new instance of the {@link PullRequestClient} class.
      * @param token The GitHub token to use for authentication.
      * @remarks If no token is provided, then the client will not be authenticated.
      */
@@ -20,7 +20,8 @@ export class PullRequestClient extends Client {
     }
 
     /**
-     * Gets the labels for the pull request.
+     * Gets all of the labels for a pull request that matches the given {@link prNumber} in a project
+     * that matches the given {@link projectName}.
      * @param projectName The name of the project.
      * @param prNumber The number of the pull request.
      * @returns The labels for the pull request.
@@ -60,10 +61,12 @@ export class PullRequestClient extends Client {
     }
 
     /**
-     * Gets a pull request for a given project.
+     * Gets a pull request that matches the given {@link prNumber} in a project
+     * that matches the given {@link projectName}.
      * @param projectName The name of the project.
      * @param prNumber The number of the pull request.
      * @returns The pull request.
+     * @remarks Does not require authentication.
      */
     public async getPullRequest(projectName: string, prNumber: number): Promise<any> {
         Guard.isNullOrEmptyOrUndefined(projectName, "getPullRequest", "projectName");
@@ -100,7 +103,8 @@ export class PullRequestClient extends Client {
     }
 
     /**
-     * Adds a label to a pull request.
+     * Adds the given {@link label} to a pull request that matches the given {@link prNumber} in a project
+     * that matches the given {@link projectName}.
      * @param projectName The name of the project.
      * @param prNumber The number of the pull request.
      * @param label The name of the label to add.
