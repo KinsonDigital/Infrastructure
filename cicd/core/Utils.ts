@@ -55,4 +55,12 @@ export class Utils {
     public static isNullOrUndefined(value: any): value is null | undefined {
         return value === undefined || value === null;
     }
+
+    /**
+     * Gets the name of the script that is running.
+     * @returns The name of the script that is running.
+     */
+    public static getScriptName(): string {
+        return Deno.mainModule.substring(Deno.mainModule.lastIndexOf("/") + 1);
+    }
 }
