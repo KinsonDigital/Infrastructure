@@ -1,3 +1,6 @@
+import { IIssueModel } from "./Models/IIssueModel.ts";
+import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
+
 /**
  * Provides utility functions.
  */
@@ -62,5 +65,23 @@ export class Utils {
      */
     public static getScriptName(): string {
         return Deno.mainModule.substring(Deno.mainModule.lastIndexOf("/") + 1);
+    }
+
+    /**
+     * Filters the given list of issues or pull requests to only return issues.
+     * @param issuesOrPrs The issues or pull requests to filter.
+     * @returns The issues from the given list of issues or pull requests.
+     */
+    public static filterIssues(issuesOrPrs: IIssueModel[] | IPullRequestModel[]): IIssueModel[] {
+        return <IIssueModel[]>issuesOrPrs.filter((item) => !("pull_request" in item));
+    }
+
+    /**
+     * Filters the given list of issues or pull requests to only return pull requests.
+     * @param issuesOrPrs The issues or pull requests to filter.
+     * @returns The pull requests from the given list of issues or pull requests.
+     */
+    public static filterPullRequests(issuesOrPrs: IIssueModel[] | IPullRequestModel[]): IPullRequestModel[] {
+        return <IPullRequestModel[]>issuesOrPrs.filter((item) => "pull_request" in item);
     }
 }
