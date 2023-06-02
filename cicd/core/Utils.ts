@@ -84,4 +84,28 @@ export class Utils {
     public static filterPullRequests(issuesOrPrs: IIssueModel[] | IPullRequestModel[]): IPullRequestModel[] {
         return <IPullRequestModel[]>issuesOrPrs.filter((item) => "pull_request" in item);
     }
+
+    /**
+     * Prints the given list of problems as errors.
+     * @param problems The list of problems to print.
+     * @returns A promise that resolves if there are no problems, otherwise rejects with the list of problems.
+     */
+    public static async printProblemList(problems: string[]): Promise<void> {
+        let errorList: string[] = [];
+
+        // Display all of the issues that have been found as errors
+        for (let i = 0; i < problems.length; i++) {
+            const errorFound = problems[i];
+        
+            errorList.push(`${i + 1}. ${errorFound}`);
+        }
+        
+        return new Promise((resolve, reject) => {
+            if (problems.length > 0) {
+                reject(`::error::${errorList.join("\n")}`);
+            } else {
+                resolve();
+            }
+        });
+    }
 }
