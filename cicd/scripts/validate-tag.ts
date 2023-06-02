@@ -10,8 +10,8 @@ scriptDescriptions.printScriptDescription(scriptName);
 // Validate the arguments
 if (Deno.args.length < 2) {
     let errorMsg = `The '${scriptName}' cicd script must have two arguments and with an additional 1 optional argument.`;
-    errorMsg += "\nThe 1st arg must be either 'production', 'preview' or 'either'.";
-    errorMsg += "\nThe 2nd arg must be the name of the tag.";
+    errorMsg += "\nThe 1st arg is required and must be either 'production', 'preview' or 'either'.";
+    errorMsg += "\nThe 2nd arg is required and must be the name of the tag.";
     errorMsg += "\nThe 3rd arg is optional and must be a GitHub token.";
 
     Utils.printAsGitHubError(`${errorMsg}`);
@@ -25,10 +25,10 @@ const token = Deno.args[2].length >= 3 ? Deno.args[2].trim() : "";
 
 // Print out all of the arguments
 Utils.printInGroup("Arguments", [
-    `Tag Type: ${tagType}`,
-    `Tag: ${tag}`,
-    `Project Name: ${projectName}`,
-    `GitHub Token(Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`
+    `Tag Type (Required): ${tagType}`,
+    `Tag (Required): ${tag}`,
+    `Project Name (Required): ${projectName}`,
+    `GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`
 ]);
 
 if (tagType != "production" && tagType != "preview" && tagType != "either") {

@@ -9,8 +9,8 @@ scriptDescriptions.printScriptDescription(scriptName);
 // Validate the arguments
 if (Deno.args.length != 2) {
     let errorMsg = `The '${scriptName}' cicd script must have two arguments.`;
-    errorMsg += "\nThe 1st arg must be either 'production', 'preview'.";
-    errorMsg += "\nThe 2nd arg must be the version of the notes.";
+    errorMsg += "\nThe 1st arg is required and must be either 'production', 'preview'.";
+    errorMsg += "\nThe 2nd arg is required and must be the version of the notes.";
 
     Utils.printAsGitHubError(`${errorMsg}`);
     Deno.exit(1);
@@ -27,8 +27,8 @@ version = version.startsWith("v") ? version : `v${version}`;
 
 // Print out all of the arguments
 Utils.printInGroup("Arguments", [
-    `Notes Type: ${releaseType}`,
-    `Version: ${version}`,
+    `Notes Type (Required): ${releaseType}`,
+    `Version (Required): ${version}`,
 ]);
 
 const releaseTypeValid: boolean = releaseType != "production" && releaseType != "preview";

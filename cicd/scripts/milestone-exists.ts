@@ -8,8 +8,8 @@ scriptDescriptions.printScriptDescription(scriptName);
 
 if (Deno.args.length >= 2 && Deno.args.length <= 3) {
     let errorMsg = `The '${scriptName}' cicd script must have 3 arguments.`;
-    errorMsg += "\nThe 1st arg must be the GitHub project name.";
-    errorMsg += "\nThe 2nd arg must be the title of the milestone.";
+    errorMsg += "\nThe 1st arg is required and must be the GitHub project name.";
+    errorMsg += "\nThe 2nd arg is required and must be the title of the milestone.";
     errorMsg += "\nThe 3rd arg is optional and must be the GitHub token.";
 
     Utils.printAsGitHubError(`${errorMsg}`);
@@ -22,9 +22,9 @@ const token = Deno.args[2].length >= 3 ? Deno.args[2].trim() : "";
 
 // Print out all of the arguments
 Utils.printInGroup("Arguments", [
-    `Project Name: ${projectName}`,
-    `Milestone: ${milestone}`,
-    `GitHub Token(Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,
+    `Project Name (Required): ${projectName}`,
+    `Milestone (Required): ${milestone}`,
+    `GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,
 ]);
 
 const milestoneClient: MilestoneClient = new MilestoneClient(token);

@@ -7,13 +7,13 @@ const scriptName = Utils.getScriptName()
 const scriptDescriptions: ScriptDescriptions = new ScriptDescriptions();
 scriptDescriptions.printScriptDescription(scriptName);
 
-if (Deno.args.length != 6) {
+if (Deno.args.length < 5) {
     let errorMsg = `The '${scriptName}' cicd script must have 6 arguments.`;
-    errorMsg += "\nThe 1st arg must be the GitHub project name.";
-    errorMsg += "\nThe 2nd arg must be a valid pull request number.";
-    errorMsg += "\nThe 3rd arg must be the head branch of the pull request.";
-    errorMsg += "\nThe 4th arg must be the intended head branch of the pull request.";
-    errorMsg += "\nThe 5th arg must be the label to add if the head branch of the pull request is correct.";
+    errorMsg += "\nThe 1st arg is required and must be the GitHub project name.";
+    errorMsg += "\nThe 2nd arg is required and must be a valid pull request number.";
+    errorMsg += "\nThe 3rd arg is required and must be the head branch of the pull request.";
+    errorMsg += "\nThe 4th arg is required and must be the intended head branch of the pull request.";
+    errorMsg += "\nThe 5th arg is required and must be the label to add if the head branch of the pull request is correct.";
     errorMsg += "\nThe 6th arg is optional and must be the GitHub token.";
 
     Utils.printAsGitHubError(`${errorMsg}`);
@@ -37,12 +37,12 @@ const token = Deno.args[5].length >= 6 ? Deno.args[5].trim() : "";
 
 // Print out all of the arguments
 Utils.printInGroup("Arguments", [
-    `Project Name: ${projectName}`,
-    `Pull Request Number: ${prNumber}`,
-    `Pull Request Head Branch: ${headBranch}`,
-    `Expected Pull Request Head Branch: ${expectedBranch}`,
-    `Label: ${label}`,
-    "GitHub Token(optional): ****",
+    `Project Name (Required): ${projectName}`,
+    `Pull Request Number (Required): ${prNumber}`,
+    `Pull Request Head Branch (Required): ${headBranch}`,
+    `Expected Pull Request Head Branch (Required): ${expectedBranch}`,
+    `Label (Required): ${label}`,
+    "GitHub Token (optional): ****",
 ]);
 
 // If the pull request head branch does not match the expected branch,

@@ -10,9 +10,9 @@ scriptDescriptions.printScriptDescription(scriptName);
 
 if (Deno.args.length < 3) {
     let errorMsg = `The '${scriptName}' cicd script must have at least 3 arguments with an additional 2 optional arguments.`;
-    errorMsg += "\nThe 1st arg must be the GitHub project name.";
-    errorMsg += "\nThe 2nd arg must be the type of release. Valid values are 'Production' and 'Preview'.";
-    errorMsg += "\nThe 3rd arg must be the version of the release.";
+    errorMsg += "\nThe 1st arg is required and must be the GitHub project name.";
+    errorMsg += "\nThe 2nd arg is required and must be the type of release. Valid values are 'Production' and 'Preview'.";
+    errorMsg += "\nThe 3rd arg is required and must be the version of the release.";
     errorMsg += "\nThe 4th arg is optional and must be a label of a PR to enforce the PR to be in the release notes.";
     errorMsg += "\nThe 5th arg is optional and must be the GitHub token.";
 
@@ -28,11 +28,11 @@ const token = Deno.args.length >= 4 ? Deno.args[4].trim() : "";
 
 // Print out all of the arguments
 Utils.printInGroup("Arguments", [
-    `Project Name: ${projectName}`,
-    `Release Type: ${releaseType}`,
-    `Version: ${version}`,
-    `PR Label(Optional): ${Utils.isNullOrEmptyOrUndefined(prLabel) ? "Not Provided" : prLabel}}`,
-    `GitHub Token(Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}}`,
+    `Project Name (Required): ${projectName}`,
+    `Release Type (Required): ${releaseType}`,
+    `Version (Required): ${version}`,
+    `PR Label (Optional): ${Utils.isNullOrEmptyOrUndefined(prLabel) ? "Not Provided" : prLabel}}`,
+    `GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}}`,
 ]);
 
 // Check the release type and make sure that it is all lowercase except the first letter
