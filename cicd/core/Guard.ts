@@ -11,7 +11,7 @@ export class Guard {
      */
     public static isNullOrEmptyOrUndefined(value: string | undefined | null, funcName: string = "", paramName: string = ""): void {
         if (Utils.isNullOrEmptyOrUndefined(value)) {
-            console.log("::error::The value is null, undefined, or empty.");
+            Utils.printAsGitHubError("The value is null, undefined, or empty.");
 
             if (funcName != "") {
                 console.log(`Function Name: ${funcName}`);
@@ -33,7 +33,7 @@ export class Guard {
      */
     public static isLessThanOne(value: number | undefined | null, funcName: string = "", paramName: string = ""): void {
         if (Utils.isNullOrUndefined(value) || isNaN(value) || !isFinite(value)) {
-            console.log("::error::The value is undefined, null, NaN, Infinite, -Infinity.");
+            Utils.printAsGitHubError("The value is undefined, null, NaN, Infinite, -Infinity.");
 
             if (funcName != "") {
                 console.log(`Function Name: ${funcName}`);
@@ -47,7 +47,7 @@ export class Guard {
         }
 
         if (value < 0) {
-            console.log("::error::The value is less than or equal to zero.");
+            Utils.printAsGitHubError("The value is less than or equal to zero.");
 
             if (funcName != "") {
                 console.log(`Function Name: ${funcName}`);

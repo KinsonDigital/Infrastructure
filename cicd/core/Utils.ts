@@ -86,6 +86,14 @@ export class Utils {
     }
 
     /**
+     * Prints the given message as a GitHub error.
+     * @param message The message to print.
+     */
+    public static printAsGitHubError(message: string): void {
+        Utils.printAsGitHubError(`${message}`);
+    }
+
+    /**
      * Prints the given list of problems as errors.
      * @param problems The list of problems to print.
      * @returns A promise that resolves if there are no problems, otherwise rejects with the list of problems.

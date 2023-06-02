@@ -29,7 +29,7 @@ export class LabelClient extends Client {
         });
 
         if (response.status === 404) {
-            console.log(`::error::${response.status} - ${response.statusText}`);
+            Utils.printAsGitHubError(`${response.status} - ${response.statusText}`);
             Deno.exit(1);
         }
 

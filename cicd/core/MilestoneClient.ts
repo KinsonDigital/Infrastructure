@@ -33,7 +33,7 @@ export class MilestoneClient extends Client {
         const milestone: IMilestoneModel | undefined = milestones.find((m) => m.title.trim() === milestoneName);
 
         if (milestone === undefined) {
-            console.log(`::error::The milestone '${milestoneName}' does not exist.`);
+            Utils.printAsGitHubError(`The milestone '${milestoneName}' does not exist.`);
 
             Deno.exit(1);
         }
@@ -53,10 +53,10 @@ export class MilestoneClient extends Client {
             switch (response.status) {
                 case 301:
                 case 410:
-                    console.log(`::error::The request to get issues returned error '${response.status} - (${response.statusText})'`);
+                    Utils.printAsGitHubError(`The request to get issues returned error '${response.status} - (${response.statusText})'`);
                     break;
                 case 404:
-                    console.log(`::error::The milestone '${milestoneName}' does not exist.`);
+                    Utils.printAsGitHubError(`The milestone '${milestoneName}' does not exist.`);
                     break;
             }
 
@@ -114,7 +114,7 @@ export class MilestoneClient extends Client {
 
         // If there is an error
         if (response.status === 404) {
-            console.log(`::error::The organization '${this.organization}' or project '${projectName}' does not exist.`);
+            Utils.printAsGitHubError(`The organization '${this.organization}' or project '${projectName}' does not exist.`);
             Deno.exit(1);
         }
 

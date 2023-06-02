@@ -16,7 +16,7 @@ if (Deno.args.length != 6) {
     errorMsg += "\nThe 5th arg must be the label to add if the head branch of the pull request is correct.";
     errorMsg += "\nThe 6th arg is optional and must be the GitHub token.";
 
-    console.log(`::error::${errorMsg}`);
+    Utils.printAsGitHubError(`${errorMsg}`);
     Deno.exit(1);
 }
 
@@ -26,7 +26,7 @@ let prNumber: number = 0;
 if (Utils.isNumeric(Deno.args[1].trim())) {
     prNumber = parseInt(Deno.args[1].trim());
 } else {
-    console.log(`::error::The pull request number '${Deno.args[1].trim()}' is not a valid number.`);
+    Utils.printAsGitHubError(`The pull request number '${Deno.args[1].trim()}' is not a valid number.`);
     Deno.exit(1);
 }
 
@@ -55,7 +55,7 @@ const labelClient: LabelClient = new LabelClient(token);
 const labelDoesNotExist: boolean = !(await labelClient.labelExists(projectName, label));
 
 if (labelDoesNotExist) {
-    console.log(`::error::The label '${label}' does not exist in the '${projectName}' project.`);
+    Utils.printAsGitHubError(`The label '${label}' does not exist in the '${projectName}' project.`);
     Deno.exit(1);
 }
 

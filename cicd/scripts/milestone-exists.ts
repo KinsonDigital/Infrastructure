@@ -12,7 +12,7 @@ if (Deno.args.length >= 2 && Deno.args.length <= 3) {
     errorMsg += "\nThe 2nd arg must be the title of the milestone.";
     errorMsg += "\nThe 3rd arg is optional and must be the GitHub token.";
 
-    console.log(`::error::${errorMsg}`);
+    Utils.printAsGitHubError(`${errorMsg}`);
     Deno.exit(1);
 }
 
@@ -33,6 +33,6 @@ const milestoneDoesNotExist: boolean = !(await milestoneClient.milestoneExists(p
 
 // Check if the milestone exists
 if (milestoneDoesNotExist) {
-    console.log(`::error::The milestone '${milestone}' for project '${projectName}' does not exist.`);
+    Utils.printAsGitHubError(`The milestone '${milestone}' for project '${projectName}' does not exist.`);
     Deno.exit(1);
 }

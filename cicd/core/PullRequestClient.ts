@@ -46,10 +46,10 @@ export class PullRequestClient extends Client {
             switch (response.status) {
                 case 301:
                 case 410:
-                    console.log(`::error::The request to get labels returned error '${response.status} - (${response.statusText})'`);
+                    Utils.printAsGitHubError(`The request to get labels returned error '${response.status} - (${response.statusText})'`);
                     break;
                 case 404:
-                    console.log(`::error::The pull request number '${prNumber}' does not exist.`);
+                    Utils.printAsGitHubError(`The pull request number '${prNumber}' does not exist.`);
                     break;
             }
 
@@ -88,10 +88,10 @@ export class PullRequestClient extends Client {
                 case 304: // Not modified
                 case 500: // Internal Error
                 case 503: // Service Unavailable
-                    console.log(`::error::The request to get pull request returned error '${response.status} - (${response.statusText})'`);
+                    Utils.printAsGitHubError(`The request to get pull request returned error '${response.status} - (${response.statusText})'`);
                     break;
                 case 404: // Resource Not Found
-                    console.log(`::error::The pull request number '${prNumber}' does not exist.`);
+                    Utils.printAsGitHubError(`The pull request number '${prNumber}' does not exist.`);
                     break;
             }
 
@@ -115,7 +115,7 @@ export class PullRequestClient extends Client {
         Guard.isNullOrEmptyOrUndefined(label, "addLabel", "label");
 
         if (!this.containsToken()) {
-            console.log(`::error::The request to add label '${label}' is forbidden.  Check the auth token.`);
+            Utils.printAsGitHubError(`The request to add label '${label}' is forbidden.  Check the auth token.`);
             Deno.exit(1);
         }
 
@@ -155,13 +155,13 @@ export class PullRequestClient extends Client {
                 case 410: // Gone
                 case 422: // Validation failed, or the endpoint has been spammed
                 case 503: // Service unavailable
-                    console.log(`::error::The request to add label '${label}' returned error '${response.status} - (${response.statusText})'`);
+                    Utils.printAsGitHubError(`The request to add label '${label}' returned error '${response.status} - (${response.statusText})'`);
                     break;
                 case 404:
-                    console.log(`::error::The pull request number '${prNumber}' does not exist.`);
+                    Utils.printAsGitHubError(`The pull request number '${prNumber}' does not exist.`);
                     break;
                 case 403:
-                    console.log(`::error::The request to add label '${label}' was forbidden.  Check the auth token.`);
+                    Utils.printAsGitHubError(`The request to add label '${label}' was forbidden.  Check the auth token.`);
                     break;
             }
 

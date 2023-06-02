@@ -16,7 +16,7 @@ if (Deno.args.length < 3) {
     errorMsg += "\nThe 4th arg is optional and must be a label of a PR to enforce the PR to be in the release notes.";
     errorMsg += "\nThe 5th arg is optional and must be the GitHub token.";
 
-    console.log(`::error::${errorMsg}`);
+    Utils.printAsGitHubError(`${errorMsg}`);
     Deno.exit(1);
 }
 
@@ -41,7 +41,7 @@ const firstLetter = releaseType.slice(0, 1).toUpperCase();
 releaseType = `${firstLetter}${allButFirstLetter}`;
 
 if (releaseType != "Production" && releaseType != "Preview") {
-    console.log(`::error::The release type '${releaseType}' is invalid.  It must be either 'Production' or 'Preview'.`);
+    Utils.printAsGitHubError(`The release type '${releaseType}' is invalid.  It must be either 'Production' or 'Preview'.`);
     Deno.exit(1);
 }
 

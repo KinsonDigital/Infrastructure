@@ -38,7 +38,7 @@ export class TagClient extends Client {
 
         // If there is an error
         if (response.status === 404) {
-            console.log(`::error::${response.status} - ${response.statusText}`);
+            Utils.printAsGitHubError(`${response.status} - ${response.statusText}`);
             Deno.exit(1);
         }
 
