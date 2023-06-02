@@ -1,15 +1,15 @@
-import { ITagModel } from "./core/Models/ITagModel.ts";
-import { ScriptDescriptions } from "./core/ScriptDescriptions.ts";
-import { TagClient } from "./core/TagClient.ts";
-import { Utils } from "./core/Utils.ts";
+import { ITagModel } from "../core/Models/ITagModel.ts";
+import { ScriptDescriptions } from "../core/ScriptDescriptions.ts";
+import { TagClient } from "../core/TagClient.ts";
+import { Utils } from "../core/Utils.ts";
 
 const scriptName = Utils.getScriptName()
 const scriptDescriptions: ScriptDescriptions = new ScriptDescriptions();
 scriptDescriptions.printScriptDescription(scriptName);
 
 // Validate the arguments
-if (Deno.args.length >= 3 && Deno.args.length <= 4) {
-    let errorMsg = `The '${scriptName}' cicd script must have two arguments.`;
+if (Deno.args.length < 2) {
+    let errorMsg = `The '${scriptName}' cicd script must have two arguments and with an additional 1 optional argument.`;
     errorMsg += "\nThe 1st arg must be either 'production', 'preview' or 'either'.";
     errorMsg += "\nThe 2nd arg must be the name of the tag.";
     errorMsg += "\nThe 3rd arg is optional and must be a GitHub token.";
@@ -28,6 +28,7 @@ Utils.printInGroup("Arguments", [
     `Tag Type: ${tagType}`,
     `Tag: ${tag}`,
     `Project Name: ${projectName}`,
+    `GitHub Token(Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`
 ]);
 
 if (tagType != "production" && tagType != "preview" && tagType != "either") {

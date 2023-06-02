@@ -1,7 +1,7 @@
-import { LabelClient } from "./core/LabelClient.ts";
-import { PullRequestClient } from "./core/PullRequestClient.ts";
-import { ScriptDescriptions } from "./core/ScriptDescriptions.ts";
-import { Utils } from "./core/Utils.ts";
+import { LabelClient } from "../core/LabelClient.ts";
+import { PullRequestClient } from "../core/PullRequestClient.ts";
+import { ScriptDescriptions } from "../core/ScriptDescriptions.ts";
+import { Utils } from "../core/Utils.ts";
 
 const scriptName = Utils.getScriptName()
 const scriptDescriptions: ScriptDescriptions = new ScriptDescriptions();

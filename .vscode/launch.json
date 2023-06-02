@@ -8,7 +8,7 @@
             "name": "Validate Prod Tag (DEBUG)",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/cicd/validate-tag.ts",
+            "program": "${workspaceFolder}/cicd/scripts/validate-tag.ts",
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
@@ -31,7 +31,7 @@
             "name": "Validate Preview Tag (DEBUG)",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/cicd/validate-tag.ts",
+            "program": "${workspaceFolder}/cicd/scripts/validate-tag.ts",
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
@@ -54,7 +54,7 @@
             "name": "Validate Either Tag (DEBUG)",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/cicd/validate-tag.ts",
+            "program": "${workspaceFolder}/cicd/scripts/validate-tag.ts",
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
@@ -77,7 +77,7 @@
             "name": "Milestone Exists (DEBUG)",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/cicd/milestone-exists.ts",
+            "program": "${workspaceFolder}/cicd/scripts/milestone-exists.ts",
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
@@ -100,7 +100,7 @@
             "name": "Label If Head Branch (DEBUG)",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/cicd/label-if-head-branch.ts",
+            "program": "${workspaceFolder}/cicd/scripts/label-if-head-branch.ts",
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
@@ -123,15 +123,15 @@
             "name": "Validate Release Notes (DEBUG)",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/cicd/validate-release-notes.ts",
+            "program": "${workspaceFolder}/cicd/scripts/validate-release-notes.ts",
             "cwd": "${workspaceFolder}/cicd",
             "runtimeArgs": [
                 "run",
                 "--inspect-wait",
                 "--allow-all"
             ],
+            "args": ["Infrastructure", "Preview", "v1.2.3-preview.4", "dependency update", "fake-token"],
             "attachSimplePort": 9229,
-            // "console": "integratedTerminal",
             "windows": {
                 "request": "launch",
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"

@@ -1,15 +1,15 @@
-import { File } from "./core/File.ts";
-import { LabelClient } from "./core/LabelClient.ts";
-import { MilestoneClient } from "./core/MilestoneClient.ts";
-import { Utils } from "./core/Utils.ts";
-import { ScriptDescriptions } from "./core/ScriptDescriptions.ts";
+import { File } from "../core/File.ts";
+import { LabelClient } from "../core/LabelClient.ts";
+import { MilestoneClient } from "../core/MilestoneClient.ts";
+import { Utils } from "../core/Utils.ts";
+import { ScriptDescriptions } from "../core/ScriptDescriptions.ts";
 
 const scriptName = Utils.getScriptName()
 const scriptDescriptions: ScriptDescriptions = new ScriptDescriptions();
 scriptDescriptions.printScriptDescription(scriptName);
 
-if (Deno.args.length >= 3 && Deno.args.length <= 5) {
-    let errorMsg = `The '${scriptName}' cicd script must have 3 arguments.`;
+if (Deno.args.length < 3) {
+    let errorMsg = `The '${scriptName}' cicd script must have at least 3 arguments with an additional 2 optional arguments.`;
     errorMsg += "\nThe 1st arg must be the GitHub project name.";
     errorMsg += "\nThe 2nd arg must be the type of release. Valid values are 'Production' and 'Preview'.";
     errorMsg += "\nThe 3rd arg must be the version of the release.";

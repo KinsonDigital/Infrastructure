@@ -31,7 +31,7 @@ export class ScriptDescriptions {
      * @param scriptName The name of the script to get the description for.
      */
     private getScriptDescription(scriptName: string): string {
-        const baseDirPath = `${Deno.cwd()}/script-descriptions`;
+        const baseDirPath = `${Deno.cwd()}/scripts/script-descriptions`;
 
         const descriptionFiles: string[] = [];
         const items = Deno.readDirSync(baseDirPath);;
