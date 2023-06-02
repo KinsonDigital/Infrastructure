@@ -79,8 +79,7 @@ export class MilestoneClient extends Client {
 
         const allMilestoneItems: IIssueModel[] = await this.getIssuesAndPullRequests(projectName, milestoneName);
 
-        // Return all issues that DO NOT have a 'pull_request' object property
-        return <IIssueModel[]>allMilestoneItems.filter((i) => !("pull_request" in i));
+        return Utils.filterIssues(allMilestoneItems);
     }
 
     /**
@@ -96,8 +95,7 @@ export class MilestoneClient extends Client {
 
         const allMilestoneItems: IIssueModel[] | IPullRequestModel[] = await this.getIssuesAndPullRequests(projectName, milestoneName);
 
-        // Return all issues that DO have a 'pull_request' object property
-        return <IPullRequestModel[]>allMilestoneItems.filter((i) => "pull_request" in i);
+        return Utils.filterPullRequests(allMilestoneItems);
     }
 
     /**
