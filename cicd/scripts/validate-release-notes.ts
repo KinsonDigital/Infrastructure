@@ -51,7 +51,7 @@ version = version.startsWith("v") ? version : `v${version}`;
 const noPRLabel: boolean = Utils.isNullOrEmptyOrUndefined(prLabel);
 const prLabelGiven: boolean = !noPRLabel;
 
-const errorsFound: string[] = [];
+const problemsFound: string[] = [];
 
 // Check that the label exists
 if (prLabelGiven) {
@@ -59,7 +59,7 @@ if (prLabelGiven) {
     const labelExists: boolean = await labelClient.labelExists(projectName, prLabel);
 
     if (!labelExists) {
-        errorsFound.push(`The label '${prLabel}' does not exist in the project '${projectName}'.`);
+        problemsFound.push(`The label '${prLabel}' does not exist in the project '${projectName}'.`);
     }
 }
 
@@ -80,7 +80,7 @@ const prLinks: string[] = noPRLabel ? [] : releaseNoteFileData.match(prLinkRegex
 
 // If the title is incorrect, add to the list of errors found
 if (releaseNoteFileData.match(title) === null) {
-    errorsFound.push(`The title of the release notes is incorrect.  It should be '${projectName} ${releaseType} Release Notes - ${version}'.`);
+    problemsFound.push(`The title of the release notes is incorrect.  It should be '${projectName} ${releaseType} Release Notes - ${version}'.`);
 }
 
 // Check that all of the issues exist in the release notes
@@ -88,7 +88,7 @@ issues.forEach(issue => {
     const issueLink: string = `[#${issue.number}](${issue.html_url})`;
 
     if (!issueLinks.includes(issueLink)) {
-        errorsFound.push(`The issue link for issue '${issue.number}' does not exist in the release notes.`);
+        problemsFound.push(`The issue link for issue '${issue.number}' does not exist in the release notes.`);
     }
 });
 
@@ -96,22 +96,13 @@ pullRequests.forEach(pr => {
     const prLink: string = `[#${pr.number}](${pr.html_url})`;
 
     if (!prLinks.includes(prLink)) {
-        errorsFound.push(`The pr link for issue '${pr.number}' with the label '${prLabel}' does not exist in the release notes.`);
+        problemsFound.push(`The pr link for issue '${pr.number}' with the label '${prLabel}' does not exist in the release notes.`);
     }
 });
 
-let errorList: string[] = [];
-
-// Display all of the issues that have been found as errors
-for (let i = 0; i < errorsFound.length; i++) {
-    const errorFound = errorsFound[i];
-
-    errorList.push(`${i + 1}. ${errorFound}`);
-}
-
-if (errorsFound.length > 0) {
-    console.log(`::error::${errorList.join("\n")}`);
+Utils.printProblemList(problemsFound).then(() => {
+    console.log("✅No problems found!!  Release notes are valid.✅");
+}).catch((error) => {
+    Utils.printAsGitHubError(error);
     Deno.exit(1);
-} else {
-    console.log("No Errors Found!!  Release notes are good to go!!");
-}
+});
