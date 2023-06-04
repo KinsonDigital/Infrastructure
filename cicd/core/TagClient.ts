@@ -21,15 +21,15 @@ export class TagClient extends Client {
     }
 
     /**
-     * Gets all of the tags for a project with the given {@link projectName}.
-     * @param projectName The name of the project.
+     * Gets all of the tags for a repo with the given {@link repoName}.
+     * @param repoName The name of the repo.
      * @returns The tags.
      * @remarks Does not require authentication.
      */
-    public async getTags(projectName: string): Promise<ITagModel[]> {
-        Guard.isNullOrEmptyOrUndefined(projectName, "getTags", "projectName");
+    public async getTags(repoName: string): Promise<ITagModel[]> {
+        Guard.isNullOrEmptyOrUndefined(repoName, "getTags", "repoName");
 
-        const url = `${this.baseUrl}/${this.organization}/${projectName}/tags`;
+        const url = `${this.baseUrl}/${this.organization}/${repoName}/tags`;
         
         const response: Response = await fetch(url, {
             method: "GET",

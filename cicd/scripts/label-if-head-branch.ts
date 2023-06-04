@@ -9,7 +9,7 @@ scriptDescriptions.printScriptDescription(scriptName);
 
 if (Deno.args.length < 5) {
     let errorMsg = `The '${scriptName}' cicd script must have 6 arguments.`;
-    errorMsg += "\nThe 1st arg is required and must be the GitHub project name.";
+    errorMsg += "\nThe 1st arg is required and must be the GitHub repo name.";
     errorMsg += "\nThe 2nd arg is required and must be a valid pull request number.";
     errorMsg += "\nThe 3rd arg is required and must be the head branch of the pull request.";
     errorMsg += "\nThe 4th arg is required and must be the intended head branch of the pull request.";
@@ -20,7 +20,7 @@ if (Deno.args.length < 5) {
     Deno.exit(1);
 }
 
-const projectName = Deno.args[0].trim();
+const repoName = Deno.args[0].trim();
 let prNumber: number = 0;
 
 if (Utils.isNumeric(Deno.args[1].trim())) {
@@ -37,7 +37,7 @@ const token = Deno.args[5].length >= 6 ? Deno.args[5].trim() : "";
 
 // Print out all of the arguments
 Utils.printInGroup("Arguments", [
-    `Project Name (Required): ${projectName}`,
+    `Repo Name (Required): ${repoName}`,
     `Pull Request Number (Required): ${prNumber}`,
     `Pull Request Head Branch (Required): ${headBranch}`,
     `Expected Pull Request Head Branch (Required): ${expectedBranch}`,
@@ -52,12 +52,12 @@ if (headBranch != expectedBranch) {
 }
 
 const labelClient: LabelClient = new LabelClient(token);
-const labelDoesNotExist: boolean = !(await labelClient.labelExists(projectName, label));
+const labelDoesNotExist: boolean = !(await labelClient.labelExists(repoName, label));
 
 if (labelDoesNotExist) {
-    Utils.printAsGitHubError(`The label '${label}' does not exist in the '${projectName}' project.`);
+    Utils.printAsGitHubError(`The label '${label}' does not exist in the '${repoName}' repo.`);
     Deno.exit(1);
 }
 
 const prClient: PullRequestClient = new PullRequestClient(token);
-await prClient.addLabel(projectName, prNumber, label);
+await prClient.addLabel(repoName, prNumber, label);

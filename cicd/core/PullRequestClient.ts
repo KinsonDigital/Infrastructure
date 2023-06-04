@@ -21,18 +21,18 @@ export class PullRequestClient extends Client {
     }
 
     /**
-     * Gets all of the labels for a pull request that matches the given {@link prNumber} in a project
-     * that matches the given {@link projectName}.
-     * @param projectName The name of the project.
+     * Gets all of the labels for a pull request that matches the given {@link prNumber} in a repo
+     * that matches the given {@link repoName}.
+     * @param repoName The name of the repo.
      * @param prNumber The number of the pull request.
      * @returns The labels for the pull request.
      * @remarks Does not require authentication.
      */
-    public async getLabels(projectName: string, prNumber: number): Promise<string[]> {
-        Guard.isNullOrEmptyOrUndefined(projectName, "getLabels", "projectName");
+    public async getLabels(repoName: string, prNumber: number): Promise<string[]> {
+        Guard.isNullOrEmptyOrUndefined(repoName, "getLabels", "repoName");
         Guard.isLessThanOne(prNumber, "getLabels", "prNumber");
 
-        const url = `${this.baseUrl}/${this.organization}/${projectName}/issues/${prNumber}/labels`;
+        const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${prNumber}/labels`;
         
         const response: Response = await fetch(url, {
             method: "GET",
@@ -62,18 +62,18 @@ export class PullRequestClient extends Client {
     }
 
     /**
-     * Gets a pull request that matches the given {@link prNumber} in a project
-     * that matches the given {@link projectName}.
-     * @param projectName The name of the project.
+     * Gets a pull request that matches the given {@link prNumber} in a repo
+     * that matches the given {@link repoName}.
+     * @param repoName The name of the repo.
      * @param prNumber The number of the pull request.
      * @returns The pull request.
      * @remarks Does not require authentication.
      */
-    public async getPullRequest(projectName: string, prNumber: number): Promise<IPullRequestModel> {
-        Guard.isNullOrEmptyOrUndefined(projectName, "getPullRequest", "projectName");
+    public async getPullRequest(repoName: string, prNumber: number): Promise<IPullRequestModel> {
+        Guard.isNullOrEmptyOrUndefined(repoName, "getPullRequest", "repoName");
         Guard.isLessThanOne(prNumber, "getPullRequest", "prNumber");
 
-        const url = `${this.baseUrl}/${this.organization}/${projectName}/pulls/${prNumber}`;
+        const url = `${this.baseUrl}/${this.organization}/${repoName}/pulls/${prNumber}`;
         
         const response: Response = await fetch(url, {
             method: "GET",
@@ -102,15 +102,15 @@ export class PullRequestClient extends Client {
     }
 
     /**
-     * Adds the given {@link label} to a pull request that matches the given {@link prNumber} in a project
-     * that matches the given {@link projectName}.
-     * @param projectName The name of the project.
+     * Adds the given {@link label} to a pull request that matches the given {@link prNumber} in a repo
+     * that matches the given {@link repoName}.
+     * @param repoName The name of the repo.
      * @param prNumber The number of the pull request.
      * @param label The name of the label to add.
      * @remarks Requires authentication.
      */
-    public async addLabel(projectName: string, prNumber: number, label: string): Promise<void> {
-        Guard.isNullOrEmptyOrUndefined(projectName, "addLabel", "projectName");
+    public async addLabel(repoName: string, prNumber: number, label: string): Promise<void> {
+        Guard.isNullOrEmptyOrUndefined(repoName, "addLabel", "repoName");
         Guard.isLessThanOne(prNumber, "addLabel", "prNumber");
         Guard.isNullOrEmptyOrUndefined(label, "addLabel", "label");
 
@@ -119,26 +119,26 @@ export class PullRequestClient extends Client {
             Deno.exit(1);
         }
 
-        // First check that the label trying to be added exists in the project
-        const labelDoesNotExist: boolean = !(await this.labelClient.labelExists(projectName, label));
+        // First check that the label trying to be added exists in the repo
+        const labelDoesNotExist: boolean = !(await this.labelClient.labelExists(repoName, label));
 
         if (labelDoesNotExist) {
-            const labelsUrl = `https://github.com/KinsonDigital/${projectName}/labels`;
-            const prUrl = `https://github.com/KinsonDigital/${projectName}/pull/618`;
+            const labelsUrl = `https://github.com/KinsonDigital/${repoName}/labels`;
+            const prUrl = `https://github.com/KinsonDigital/${repoName}/pull/618`;
 
-            let errorMsg = `::error::The label '${label}' attempting to be added to pull request '${prNumber}' does not exist in the project '${projectName}'.`;
-            errorMsg += `\nProject Labels: ${labelsUrl}`;
+            let errorMsg = `::error::The label '${label}' attempting to be added to pull request '${prNumber}' does not exist in the repo '${repoName}'.`;
+            errorMsg += `\nRepo Labels: ${labelsUrl}`;
             errorMsg += `\nPull Request: ${prUrl}`;
 
             console.log(errorMsg);
             Deno.exit(1);
         }
 
-        let prLabels: string[] = await this.getLabels(projectName, prNumber);
+        let prLabels: string[] = await this.getLabels(repoName, prNumber);
         prLabels.push(label);
         
         // REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue
-        const url = `${this.baseUrl}/${this.organization}/${projectName}/issues/${prNumber}`;
+        const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${prNumber}`;
         
         const response: Response = await fetch(url, {
             method: "PATCH",

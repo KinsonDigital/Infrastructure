@@ -10,7 +10,7 @@ scriptDescriptions.printScriptDescription(scriptName);
 
 if (Deno.args.length < 3) {
     let errorMsg = `The '${scriptName}' cicd script must have at least 3 arguments with an additional 2 optional arguments.`;
-    errorMsg += "\nThe 1st arg is required and must be the GitHub project name.";
+    errorMsg += "\nThe 1st arg is required and must be the GitHub repo name.";
     errorMsg += "\nThe 2nd arg is required and must be the type of release. Valid values are 'Production' and 'Preview'.";
     errorMsg += "\nThe 3rd arg is optional and must be the version of the release.";
 
@@ -18,19 +18,19 @@ if (Deno.args.length < 3) {
     Deno.exit(1);
 }
 
-const projectName = "Infrastructure";
+const repoName = "Infrastructure";
 const milestoneName = "v1.2.3-preview.4";
 const token = "";
 
 // Print out all of the arguments
 Utils.printInGroup("Arguments", [
-    `Project Name (Required): ${projectName}`,
+    `Repo Name (Required): ${repoName}`,
     `Milestone (Required): ${milestoneName}`,
     `GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,
 ]);
 
 const milestoneClient: MilestoneClient = new MilestoneClient(token);
-const milestoneItems = await milestoneClient.getIssuesAndPullRequests(projectName, milestoneName);
+const milestoneItems = await milestoneClient.getIssuesAndPullRequests(repoName, milestoneName);
 
 const issues: IIssueModel[] = Utils.filterIssues(milestoneItems);
 const prs: IPullRequestModel[] = Utils.filterPullRequests(milestoneItems);
@@ -40,7 +40,7 @@ const problemsFound: string[] = [];
 // Find all issues that are not closed
 issues.forEach(issue => {
     if (issue.state != "closed") {
-        const url = `https://github.com/${projectName}/issues/${issue.number}`;
+        const url = `https://github.com/${repoName}/issues/${issue.number}`;
         problemsFound.push(`Issue #${issue.number} is not closed.\n${url}`);
     }
 });
@@ -48,7 +48,7 @@ issues.forEach(issue => {
 // Find all pull requests that are not closed
 prs.forEach(pr => {
     if (pr.state != "closed") {
-        const url = `https://github.com/${projectName}/pull/${pr.number}`;
+        const url = `https://github.com/${repoName}/pull/${pr.number}`;
         problemsFound.push(`Pull request #${pr.number} is not closed.\n${url}`);
     }
 });
@@ -56,7 +56,7 @@ prs.forEach(pr => {
 // Find all pull requests that are still in draft
 prs.forEach(pr => {
     if (pr.draft === true) {
-        const url = `https://github.com/${projectName}/pull/${pr.number}`;
+        const url = `https://github.com/${repoName}/pull/${pr.number}`;
         problemsFound.push(`Pull request #${pr.number} is still in draft.\n${url}`);
     }
 });

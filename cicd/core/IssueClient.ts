@@ -22,16 +22,16 @@ export class IssueClient extends Client {
     }
 
     /**
-     * Gets all of the issues for a project that match the given {@link projectName}.
-     * @param projectName The name of the project.
+     * Gets all of the issues for a repo that match the given {@link repoName}.
+     * @param repoName The name of the repo.
      * @returns The issue.
      * @remarks Does not require authentication.
      */
-    public async getIssues(projectName: string): Promise<IIssueModel[]> {
-        Guard.isNullOrEmptyOrUndefined(projectName, "getIssues", "getIssues");
+    public async getIssues(repoName: string): Promise<IIssueModel[]> {
+        Guard.isNullOrEmptyOrUndefined(repoName, "getIssues", "getIssues");
 
         // REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#list-repository-issues
-        const url = `${this.baseUrl}/${this.organization}/${projectName}/issues?state=all&page=1&per_page=100`;
+        const url = `${this.baseUrl}/${this.organization}/${repoName}/issues?state=all&page=1&per_page=100`;
         
         const response: Response = await fetch(url, {
             method: "GET",
@@ -48,7 +48,7 @@ export class IssueClient extends Client {
                     Utils.printAsGitHubError(`The request to get an issue returned error '${response.status} - (${response.statusText})'`);
                     break;
                 case 404: // Resource Not Found
-                    Utils.printAsGitHubError(`The organization '${this.organization}' or project '${projectName}' does not exist.`);
+                    Utils.printAsGitHubError(`The organization '${this.organization}' or repo '${repoName}' does not exist.`);
                     break;
             }
 
@@ -61,43 +61,43 @@ export class IssueClient extends Client {
     }
 
     /**
-     * Adds the given {@link label} to an issue that matches the given {@link issueNumber} in a project
-     * that matches the given {@link projectName}.
-     * @param projectName The name of the project.
+     * Adds the given {@link label} to an issue that matches the given {@link issueNumber} in a repo
+     * that matches the given {@link repoName}.
+     * @param repoName The name of the repo.
      * @param issueNumber The number of an issue.
      * @param label The name of the label to add.
      * @remarks Requires authentication.
      */
-    public async addLabel(projectName: string, issueNumber: number, label: string): Promise<void> {
-        Guard.isNullOrEmptyOrUndefined(projectName, "addLabel", "projectName");
+    public async addLabel(repoName: string, issueNumber: number, label: string): Promise<void> {
+        Guard.isNullOrEmptyOrUndefined(repoName, "addLabel", "repoName");
         Guard.isLessThanOne(issueNumber, "addLabel", "issueNumber");
-        Guard.isNullOrEmptyOrUndefined(label, "addLabel", "projectName");
+        Guard.isNullOrEmptyOrUndefined(label, "addLabel", "repoName");
 
         if (!this.containsToken()) {
             Utils.printAsGitHubError(`The request to add label '${label}' is forbidden.  Check the auth token.`);
             Deno.exit(1);
         }
 
-        // First check that the label trying to be added exists in the project
-        const labelDoesNotExist: boolean = !(await this.labelClient.labelExists(projectName, label));
+        // First check that the label trying to be added exists in the repo
+        const labelDoesNotExist: boolean = !(await this.labelClient.labelExists(repoName, label));
 
         if (labelDoesNotExist) {
-            const labelsUrl = `https://github.com/KinsonDigital/${projectName}/labels`;
-            const issueUrl = `https://github.com/KinsonDigital/${projectName}/issues/618`;
+            const labelsUrl = `https://github.com/KinsonDigital/${repoName}/labels`;
+            const issueUrl = `https://github.com/KinsonDigital/${repoName}/issues/618`;
 
-            let errorMsg = `::error::The label '${label}' attempting to be added to issue '${issueNumber}' does not exist in the project '${projectName}'.`;
-            errorMsg += `\nProject Labels: ${labelsUrl}`;
+            let errorMsg = `::error::The label '${label}' attempting to be added to issue '${issueNumber}' does not exist in the repo '${repoName}'.`;
+            errorMsg += `\nRepo Labels: ${labelsUrl}`;
             errorMsg += `\nIssue: ${issueUrl}`;
 
             console.log(errorMsg);
             Deno.exit(1);
         }
 
-        let prLabels: string[] = await this.getLabels(projectName, issueNumber);
+        let prLabels: string[] = await this.getLabels(repoName, issueNumber);
         prLabels.push(label);
         
         // REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue
-        const url = `${this.baseUrl}/${this.organization}/${projectName}/issues/${issueNumber}`;
+        const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${issueNumber}`;
         
         const response: Response = await fetch(url, {
             method: "PATCH",
@@ -129,18 +129,18 @@ export class IssueClient extends Client {
     }
 
     /**
-     * Gets all of the labels for an issue that matches the given {@link issueNumber} in a project
-     * that matches the given {@link projectName}.
-     * @param projectName The name of the project.
+     * Gets all of the labels for an issue that matches the given {@link issueNumber} in a repo
+     * that matches the given {@link repoName}.
+     * @param repoName The name of the repo.
      * @param issueNumber The number of an issue.
      * @returns The labels for an issue.
      * @remarks Does not require authentication.
      */
-    public async getLabels(projectName: string, issueNumber: number): Promise<string[]> {
-        Guard.isNullOrEmptyOrUndefined(projectName, "getLabels", "projectName");
+    public async getLabels(repoName: string, issueNumber: number): Promise<string[]> {
+        Guard.isNullOrEmptyOrUndefined(repoName, "getLabels", "repoName");
         Guard.isLessThanOne(issueNumber, "getLabels", "issueNumber");
 
-        const url = `${this.baseUrl}/${this.organization}/${projectName}/issues/${issueNumber}/labels`;
+        const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${issueNumber}/labels`;
         
         const response: Response = await fetch(url, {
             method: "GET",

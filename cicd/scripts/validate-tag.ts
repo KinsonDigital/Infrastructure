@@ -20,14 +20,14 @@ if (Deno.args.length < 2) {
 
 const tagType: string = Deno.args[0].toLowerCase();
 const tag: string = Deno.args[1].startsWith("v") ? Deno.args[1] : `v${Deno.args[1]}`;
-const projectName: string = Deno.args[2];
+const repoName: string = Deno.args[2];
 const token = Deno.args[2].length >= 3 ? Deno.args[2].trim() : "";
 
 // Print out all of the arguments
 Utils.printInGroup("Arguments", [
     `Tag Type (Required): ${tagType}`,
     `Tag (Required): ${tag}`,
-    `Project Name (Required): ${projectName}`,
+    `Repo Name (Required): ${repoName}`,
     `GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`
 ]);
 
@@ -70,7 +70,7 @@ if (isValid === false) {
 
 const tagClient: TagClient = new TagClient(token);
 
-const tags: ITagModel[] = await tagClient.getTags(projectName);
+const tags: ITagModel[] = await tagClient.getTags(repoName);
 
 const tagNames: string[] = tags.map(t => t.name);
 

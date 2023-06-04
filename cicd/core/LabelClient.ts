@@ -16,13 +16,13 @@ export class LabelClient extends Client {
     }
 
     /**
-     * Gets a list of all the labels in the project that matches the {@link projectName}.
-     * @param projectName The name of the project where the labels exist.
-     * @returns A list of labels in the project.
+     * Gets a list of all the labels in the repo that matches the {@link repoName}.
+     * @param repoName The name of the repo where the labels exist.
+     * @returns A list of labels in the repo.
      * @remarks Does not require authentication.
      */
-    public async getLabels(projectName: string): Promise<ILabelModel[]> {
-        const url = `${this.baseUrl}/${this.organization}/${projectName}/labels`;
+    public async getLabels(repoName: string): Promise<ILabelModel[]> {
+        const url = `${this.baseUrl}/${this.organization}/${repoName}/labels`;
         const response = await fetch(url, {
             method: "GET",
             headers: this.headers,
@@ -38,14 +38,14 @@ export class LabelClient extends Client {
 
     /**
      * Returns a value indicating whether or not given {@link label} exists in
-     * a project that matches the {@link projectName}.
-     * @param projectName The name of the project where the labels exist.
+     * a repo that matches the {@link repoName}.
+     * @param repoName The name of the repo where the labels exist.
      * @param label The name of the label to check for.
      * @returns True if the label exists, false otherwise.
      * @remarks Does not require authentication.
      */
-    public async labelExists(projectName: string, label: string): Promise<boolean> {
-        const labels = await this.getLabels(projectName);
+    public async labelExists(repoName: string, label: string): Promise<boolean> {
+        const labels = await this.getLabels(repoName);
         return labels.length > 0;
     }
 }
