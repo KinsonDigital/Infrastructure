@@ -1,11 +1,11 @@
-import { Client } from "./Client.ts";
+import { RESTClient } from "./RESTClient.ts";
 import { ILabelModel } from "./Models/ILabelModel.ts";
 import { Utils } from "./Utils.ts";
 
 /**
  * Provides a client for interacting with labels.
  */
-export class LabelClient extends Client {
+export class LabelClient extends RESTClient {
     /**
      * Initializes a new instance of the {@link LabelClient} class.
      * @param token The GitHub token to use for authentication.

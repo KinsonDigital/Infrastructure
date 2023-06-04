@@ -1,4 +1,4 @@
-import { Client } from "./Client.ts";
+import { RESTClient } from "./RESTClient.ts";
 import { Guard } from "./Guard.ts";
 import { LabelClient } from "./LabelClient.ts";
 import { ITagModel } from "./Models/ITagModel.ts";
@@ -7,7 +7,7 @@ import { Utils } from "./Utils.ts";
 /**
  * Provides a client for interacting with GitHub GIT tags.
  */
-export class TagClient extends Client {
+export class TagClient extends RESTClient {
     private readonly labelClient: LabelClient;
 
     /**

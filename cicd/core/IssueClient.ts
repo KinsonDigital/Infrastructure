@@ -1,4 +1,4 @@
-import { Client } from "./Client.ts";
+import { RESTClient } from "./RESTClient.ts";
 import { Guard } from "./Guard.ts";
 import { LabelClient } from "./LabelClient.ts";
 import { IIssueModel } from "./Models/IIssueModel.ts";
@@ -8,7 +8,7 @@ import { Utils } from "./Utils.ts";
 /**
  * Provides a client for interacting with issues.
  */
-export class IssueClient extends Client {
+export class IssueClient extends RESTClient {
     private readonly labelClient: LabelClient;
 
     /**

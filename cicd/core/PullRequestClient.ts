@@ -1,4 +1,4 @@
-import { Client } from "./Client.ts";
+import { RESTClient } from "./RESTClient.ts";
 import { Guard } from "./Guard.ts";
 import { LabelClient } from "./LabelClient.ts";
 import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
@@ -7,7 +7,7 @@ import { Utils } from "./Utils.ts";
 /**
  * Provides a client for interacting with pull requests.
  */
-export class PullRequestClient extends Client {
+export class PullRequestClient extends RESTClient {
     private readonly labelClient: LabelClient;
 
     /**

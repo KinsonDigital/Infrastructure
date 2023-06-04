@@ -3,13 +3,13 @@ import { Utils } from "./Utils.ts";
 /**
  * Provides a base class for HTTP clients.
  */
-export abstract class Client {
+export abstract class RESTClient {
     protected readonly organization = "KinsonDigital";
-    protected readonly baseUrl = "https://api.github.com/repos";
+    protected baseUrl = "https://api.github.com/repos";
     protected readonly headers: Headers = new Headers();
     
     /**
-     * Initializes a new instance of the {@link Client} class.
+     * Initializes a new instance of the {@link RESTClient} class.
      * @param token The GitHub token to use for authentication.
      * @remarks If no token is provided, then the client will not be authenticated.
      */
