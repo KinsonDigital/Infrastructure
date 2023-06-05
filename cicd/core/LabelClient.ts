@@ -1,6 +1,7 @@
 import { RESTClient } from "./RESTClient.ts";
 import { ILabelModel } from "./Models/ILabelModel.ts";
 import { Utils } from "./Utils.ts";
+import { HttpStatusCodes } from "./Enums.ts";
 
 /**
  * Provides a client for interacting with labels.
@@ -25,7 +26,7 @@ export class LabelClient extends RESTClient {
         const url = `${this.baseUrl}/${this.organization}/${repoName}/labels`;
         const response: Response = await this.fetchGET(url);
         
-        if (response.status === 404) {
+        if (response.status === HttpStatusCodes.NotFound) {
             Utils.printAsGitHubError(`${response.status} - ${response.statusText}`);
             Deno.exit(1);
         }

@@ -4,6 +4,7 @@ import { LabelClient } from "./LabelClient.ts";
 import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
 import { Utils } from "./Utils.ts";
 import { PullRequestNotFound } from "./Types.ts";
+import { HttpStatusCodes } from "./Enums.ts";
 
 /**
  * Provides a client for interacting with pull requests.
@@ -36,16 +37,15 @@ export class PullRequestClient extends RESTClient {
         const url = `${this.baseUrl}/${this.organization}/${repoName}/pulls?state=all&page=1&per_page=100`;
         
         const response: Response = await this.fetchGET(url);
-        const possibleStatusCodes = [301, 404, 422];
 
         // If there is an error
-        if (possibleStatusCodes.includes(response.status)) {
+        if (response.status != HttpStatusCodes.OK) {
             switch (response.status) {
-                case 301: // Moved permanently
-                case 422: // Validation failed, or the endpoint has been spammed
+                case HttpStatusCodes.MovedPermanently:
+                case HttpStatusCodes.ValidationFailed:
                     Utils.printAsGitHubError(`The request to get a pull request returned error '${response.status} - (${response.statusText})'`);
                     break;
-                case 404: // Resource Not Found
+                case HttpStatusCodes.NotFound:
                     Utils.printAsGitHubError(`The organization '${this.organization}' or repo '${repoName}' does not exist.`);
                     break;
             }
@@ -71,16 +71,15 @@ export class PullRequestClient extends RESTClient {
         const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${prNumber}/labels`;
         
         const response: Response = await this.fetchGET(url);
-        const possibleStatusCodes = [301, 404, 410];
 
         // If there is an error
-        if (possibleStatusCodes.includes(response.status)) {
+        if (response.status != HttpStatusCodes.OK) {
             switch (response.status) {
-                case 301:
-                case 410:
+                case HttpStatusCodes.MovedPermanently:
+                case HttpStatusCodes.Gone:
                     Utils.printAsGitHubError(`The request to get labels returned error '${response.status} - (${response.statusText})'`);
                     break;
-                case 404:
+                case HttpStatusCodes.NotFound:
                     Utils.printAsGitHubError(`The pull request number '${prNumber}' does not exist.`);
                     break;
             }
@@ -110,17 +109,16 @@ export class PullRequestClient extends RESTClient {
         const url = `${this.baseUrl}/${this.organization}/${repoName}/pulls/${prNumber}`;
         
         const response: Response = await this.fetchGET(url);
-        const possibleStatusCodes = [304, 404, 500, 503];
 
         // If there is an error
-        if (possibleStatusCodes.includes(response.status)) {
+        if (response.status != HttpStatusCodes.OK) {
             switch (response.status) {
-                case 304: // Not modified
-                case 500: // Internal Error
-                case 503: // Service Unavailable
+                case HttpStatusCodes.NotModified:
+                case HttpStatusCodes.InternalServerError:
+                case HttpStatusCodes.ServiceUnavailable:
                     Utils.printAsGitHubError(`The request to get pull request returned error '${response.status} - (${response.statusText})'`);
                     break;
-                case 404: // Resource Not Found
+                case HttpStatusCodes.NotFound:
                     Utils.printAsGitHubError(`The pull request number '${prNumber}' does not exist.`);
 
                     return { statusCode: response.status, statusText: response.statusText };
@@ -170,23 +168,21 @@ export class PullRequestClient extends RESTClient {
         
         // REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue
         const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${prNumber}`;
-        
         const response: Response = await this.fetchPATCH(url, JSON.stringify({ labels: prLabels }));
-                const possibleStatusCodes = [301, 403, 404, 410, 422, 503];
 
         // If there is an error
-        if (possibleStatusCodes.includes(response.status)) {
+        if (response.status != HttpStatusCodes.OK) {
             switch (response.status) {
-                case 301: // Moved permanently
-                case 410: // Gone
-                case 422: // Validation failed, or the endpoint has been spammed
-                case 503: // Service unavailable
+                case HttpStatusCodes.MovedPermanently:
+                case HttpStatusCodes.Gone:
+                case HttpStatusCodes.ValidationFailed:
+                case HttpStatusCodes.ServiceUnavailable:
                     Utils.printAsGitHubError(`The request to add label '${label}' returned error '${response.status} - (${response.statusText})'`);
                     break;
-                case 404:
+                case HttpStatusCodes.NotFound:
                     Utils.printAsGitHubError(`The pull request number '${prNumber}' does not exist.`);
                     break;
-                case 403:
+                case HttpStatusCodes.Forbidden:
                     Utils.printAsGitHubError(`The request to add label '${label}' was forbidden.  Check the auth token.`);
                     break;
             }
@@ -209,17 +205,16 @@ export class PullRequestClient extends RESTClient {
         const url = `${this.baseUrl}/${this.organization}/${repoName}/pull/${prNumber}`;
         
         const response: Response = await this.fetchGET(url);
-        const possibleStatusCodes = [304, 404, 500, 503];
 
         // If there is an error
-        if (possibleStatusCodes.includes(response.status)) {
+        if (response.status != HttpStatusCodes.OK) {
             switch (response.status) {
-                case 304: // Not modified
-                case 500: // Gone
-                case 503: // Service unavailable
+                case HttpStatusCodes.NotModified:
+                case HttpStatusCodes.InternalServerError:
+                case HttpStatusCodes.ServiceUnavailable:
                     Utils.printAsGitHubError(`The request to get an issue returned error '${response.status} - (${response.statusText})'`);
                     break;
-                case 404: // Not found
+                case HttpStatusCodes.NotFound:
                     return false;
             }
         }

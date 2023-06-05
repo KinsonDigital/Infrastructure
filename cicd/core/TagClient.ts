@@ -3,6 +3,7 @@ import { Guard } from "./Guard.ts";
 import { LabelClient } from "./LabelClient.ts";
 import { ITagModel } from "./Models/ITagModel.ts";
 import { Utils } from "./Utils.ts";
+import { HttpStatusCodes } from "./Enums.ts";
 
 /**
  * Provides a client for interacting with GitHub GIT tags.
@@ -34,7 +35,7 @@ export class TagClient extends RESTClient {
         const response: Response = await this.fetchGET(url);
 
         // If there is an error
-        if (response.status === 404) {
+        if (response.status === HttpStatusCodes.NotFound) {
             Utils.printAsGitHubError(`${response.status} - ${response.statusText}`);
             Deno.exit(1);
         }

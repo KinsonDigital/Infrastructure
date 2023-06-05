@@ -5,6 +5,7 @@ import { IMilestoneModel } from "./Models/IMilestoneModel.ts";
 import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
 import { Utils } from "./Utils.ts";
 import { MilestoneNotFound } from "./Types.ts";
+import { HttpStatusCodes } from "./Enums.ts";
 
 /**
  * Provides a client for interacting with milestones.
@@ -45,16 +46,14 @@ export class MilestoneClient extends RESTClient {
 
         const response: Response = await this.fetchGET(url);
 
-        const possibleStatusCodes = [301, 404, 410];
-
         // If there is an error
-        if (possibleStatusCodes.includes(response.status)) {
+        if (response.status != HttpStatusCodes.OK) {
             switch (response.status) {
-                case 301:
-                case 410:
+                case HttpStatusCodes.MovedPermanently:
+                case HttpStatusCodes.Gone:
                     Utils.printAsGitHubError(`The request to get issues returned error '${response.status} - (${response.statusText})'`);
                     break;
-                case 404:
+                case HttpStatusCodes.NotFound:
                     Utils.printAsGitHubError(`The milestone '${milestoneName}' does not exist.`);
                     break;
             }
@@ -115,7 +114,7 @@ export class MilestoneClient extends RESTClient {
 
         if (milestone === undefined) {
             return {
-                statusCode: 404,
+                statusCode: HttpStatusCodes.OK,
                 statusText: `The milestone '${milestoneName}' does not exist.`,
             };
         }
@@ -135,7 +134,7 @@ export class MilestoneClient extends RESTClient {
 
         const response: Response = await this.fetchGET(url);
                 // If there is an error
-        if (response.status === 404) {
+        if (response.status === HttpStatusCodes.OK) {
             Utils.printAsGitHubError(`The organization '${this.organization}' or repo '${repoName}' does not exist.`);
             Deno.exit(1);
         }
@@ -183,12 +182,12 @@ export class MilestoneClient extends RESTClient {
         const response: Response = await this.fetchPATCH(url, JSON.stringify({ state: "closed", }));
 
         // If there is an error
-        if (response.status === 404) {
+        if (response.status === HttpStatusCodes.OK) {
             Utils.printAsGitHubError(`The organization '${this.organization}' or repo '${repoName}' does not exist.`);
             Deno.exit(1);
         }
 
-        if (response.status !== 200) {
+        if (response.status !== HttpStatusCodes.OK) {
             Utils.printAsGitHubError(`The request to close milestone '${milestoneName}' returned error '${response.status} - (${response.statusText})'`);
             Deno.exit(1);
         }
