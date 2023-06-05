@@ -29,4 +29,15 @@ export abstract class RESTClient {
     protected containsToken(): boolean {
         return this.headers.has("Authorization");
     }
+
+    /**
+     * Gets the data from an HTTP response.
+     * @param response The HTTP response to get the data from.
+     * @returns The data from the response.
+     */
+    protected async getResponseData(response: Response): Promise<any> {
+            const responseText: string = await response.text();
+    
+            return await JSON.parse(responseText);
+    }
 }
