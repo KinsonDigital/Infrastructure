@@ -1,6 +1,7 @@
 import { MilestoneClient } from "../core/MilestoneClient.ts";
 import { IIssueModel } from "../core/Models/IIssueModel.ts";
 import { IPullRequestModel } from "../core/Models/IPullRequestModel.ts";
+import { RepoClient } from "../core/RepoClient.ts";
 import { ScriptDescriptions } from "../core/ScriptDescriptions.ts";
 import { Utils } from "../core/Utils.ts";
 
@@ -20,6 +21,7 @@ if (Deno.args.length < 3) {
 	Deno.exit(1);
 }
 
+// TODO: Fix all of these args
 const repoName = "Infrastructure";
 const milestoneName = "v1.2.3-preview.4";
 const token = "";
@@ -30,6 +32,14 @@ Utils.printInGroup("Arguments", [
 	`Milestone (Required): ${milestoneName}`,
 	`GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,
 ]);
+
+const repoClient: RepoClient = new RepoClient(token);
+const repoDoesNotExist = !(await repoClient.repoExists(repoName));
+
+if (repoDoesNotExist) {
+	Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
+	Deno.exit(1);
+}
 
 const milestoneClient: MilestoneClient = new MilestoneClient(token);
 const milestoneItems = await milestoneClient.getIssuesAndPullRequests(repoName, milestoneName);

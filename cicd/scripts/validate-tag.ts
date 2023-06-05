@@ -1,4 +1,5 @@
 import { ITagModel } from "../core/Models/ITagModel.ts";
+import { RepoClient } from "../core/RepoClient.ts";
 import { ScriptDescriptions } from "../core/ScriptDescriptions.ts";
 import { TagClient } from "../core/TagClient.ts";
 import { Utils } from "../core/Utils.ts";
@@ -62,6 +63,14 @@ if (isValid === false) {
 	const tagTypeStr = tagType === "production" || tagType === "preview" ? tagType : "production or preview";
 
 	console.log(`The tag is not in the correct ${tagTypeStr} version syntax.`);
+	Deno.exit(1);
+}
+
+const repoClient: RepoClient = new RepoClient(token);
+const repoDoesNotExist = !(await repoClient.repoExists(repoName));
+
+if (repoDoesNotExist) {
+	Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
 	Deno.exit(1);
 }
 

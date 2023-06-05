@@ -1,4 +1,5 @@
 import { MilestoneClient } from "../core/MilestoneClient.ts";
+import { RepoClient } from "../core/RepoClient.ts";
 import { ScriptDescriptions } from "../core/ScriptDescriptions.ts";
 import { Utils } from "../core/Utils.ts";
 
@@ -26,6 +27,14 @@ Utils.printInGroup("Arguments", [
 	`Milestone (Required): ${milestone}`,
 	`GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,
 ]);
+
+const repoClient: RepoClient = new RepoClient(token);
+const repoDoesNotExist = !(await repoClient.repoExists(repoName));
+
+if (repoDoesNotExist) {
+	Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
+	Deno.exit(1);
+}
 
 const milestoneClient: MilestoneClient = new MilestoneClient(token);
 

@@ -3,6 +3,7 @@ import { LabelClient } from "../core/LabelClient.ts";
 import { MilestoneClient } from "../core/MilestoneClient.ts";
 import { Utils } from "../core/Utils.ts";
 import { ScriptDescriptions } from "../core/ScriptDescriptions.ts";
+import { RepoClient } from "../core/RepoClient.ts";
 
 const scriptName = Utils.getScriptName();
 const scriptDescriptions: ScriptDescriptions = new ScriptDescriptions();
@@ -36,6 +37,14 @@ Utils.printInGroup("Arguments", [
 	`PR Label (Optional): ${Utils.isNullOrEmptyOrUndefined(prLabel) ? "Not Provided" : prLabel}}`,
 	`GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}}`,
 ]);
+
+const repoClient: RepoClient = new RepoClient(token);
+const repoDoesNotExist = !(await repoClient.repoExists(repoName));
+
+if (repoDoesNotExist) {
+	Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
+	Deno.exit(1);
+}
 
 // Check the release type and make sure that it is all lowercase except the first letter
 const allButFirstLetter = releaseType.slice(1).toLowerCase();

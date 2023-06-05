@@ -1,5 +1,6 @@
 import { MilestoneClient } from "../core/MilestoneClient.ts";
 import { IMilestoneModel } from "../core/Models/IMilestoneModel.ts";
+import { RepoClient } from "../core/RepoClient.ts";
 import { ScriptDescriptions } from "../core/ScriptDescriptions.ts";
 import { MilestoneNotFound } from "../core/Types.ts";
 import { Utils } from "../core/Utils.ts";
@@ -22,6 +23,15 @@ if (Deno.args.length != 3) {
 const repoName: string = Deno.args[0].trim();
 const milestoneName: string = Deno.args[1].trim();
 const token = Deno.args[2].trim();
+
+
+const repoClient: RepoClient = new RepoClient(token);
+const repoDoesNotExist = !(await repoClient.repoExists(repoName));
+
+if (repoDoesNotExist) {
+	Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
+	Deno.exit(1);
+}
 
 const milestoneClient: MilestoneClient = new MilestoneClient(token);
 

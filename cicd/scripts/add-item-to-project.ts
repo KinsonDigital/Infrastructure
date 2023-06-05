@@ -6,6 +6,7 @@ import { PullRequestClient } from "../core/PullRequestClient.ts";
 import { ScriptDescriptions } from "../core/ScriptDescriptions.ts";
 import { Utils } from "../core/Utils.ts";
 import { IssueNotFound, ItemType, PullRequestNotFound } from "../core/Types.ts";
+import { RepoClient } from "../core/RepoClient.ts";
 
 const scriptName = Utils.getScriptName();
 const scriptDescriptions: ScriptDescriptions = new ScriptDescriptions();
@@ -29,6 +30,14 @@ const issueOrPRNumber: number = Utils.isNumeric(Deno.args[1].trim()) ? parseInt(
 const itemType: ItemType = <ItemType> Deno.args[2].trim().toLowerCase();
 const projectName: string = Deno.args[3].trim();
 const token = Deno.args[4].trim();
+
+const repoClient: RepoClient = new RepoClient(token);
+const repoDoesNotExist = !(await repoClient.repoExists(repoName));
+
+if (repoDoesNotExist) {
+	Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
+	Deno.exit(1);
+}
 
 const numberInvalid = issueOrPRNumber <= 0;
 

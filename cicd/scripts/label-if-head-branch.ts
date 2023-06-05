@@ -1,5 +1,6 @@
 import { LabelClient } from "../core/LabelClient.ts";
 import { PullRequestClient } from "../core/PullRequestClient.ts";
+import { RepoClient } from "../core/RepoClient.ts";
 import { ScriptDescriptions } from "../core/ScriptDescriptions.ts";
 import { Utils } from "../core/Utils.ts";
 
@@ -45,6 +46,14 @@ Utils.printInGroup("Arguments", [
 	`Label (Required): ${label}`,
 	"GitHub Token (optional): ****",
 ]);
+
+const repoClient: RepoClient = new RepoClient(token);
+const repoDoesNotExist = !(await repoClient.repoExists(repoName));
+
+if (repoDoesNotExist) {
+	Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
+	Deno.exit(1);
+}
 
 // If the pull request head branch does not match the expected branch,
 // do not add a label
