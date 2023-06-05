@@ -3,6 +3,7 @@ import { Guard } from "./Guard.ts";
 import { LabelClient } from "./LabelClient.ts";
 import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
 import { Utils } from "./Utils.ts";
+import { PullRequestNotFound } from "./Types.ts";
 
 /**
  * Provides a client for interacting with pull requests.
@@ -18,6 +19,44 @@ export class PullRequestClient extends RESTClient {
     constructor(token?: string) {
         super(token);
         this.labelClient = new LabelClient(token);
+    }
+
+    /**
+     * Gets all of the pull requests for a repo that match the given {@link repoName}.
+     * @param repoName The name of the repo.
+     * @returns The issue.
+     * @remarks Does not require authentication.
+     */
+    public async getPullRequests(repoName: string): Promise<IPullRequestModel[]> {
+        Guard.isNullOrEmptyOrUndefined(repoName, "getIssues", "getIssues");
+
+
+        // REST API Docs: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#list-pull-requests
+        const url = `${this.baseUrl}/${this.organization}/${repoName}/pulls?state=all&page=1&per_page=100`;
+        
+        const response: Response = await fetch(url, {
+            method: "GET",
+            headers: this.headers,
+        });
+
+        const possibleStatusCodes = [301, 404, 422];
+
+        // If there is an error
+        if (possibleStatusCodes.includes(response.status)) {
+            switch (response.status) {
+                case 301: // Moved permanently
+                case 422: // Validation failed, or the endpoint has been spammed
+                    Utils.printAsGitHubError(`The request to get a pull request returned error '${response.status} - (${response.statusText})'`);
+                    break;
+                case 404: // Resource Not Found
+                    Utils.printAsGitHubError(`The organization '${this.organization}' or repo '${repoName}' does not exist.`);
+                    break;
+            }
+
+            Deno.exit(1);
+        }
+
+        return <IPullRequestModel[]>await this.getResponseData(response);
     }
 
     /**
@@ -56,7 +95,7 @@ export class PullRequestClient extends RESTClient {
             Deno.exit(1);
         }
 
-        const responseData = await Utils.getResponseData(response);
+        const responseData = await this.getResponseData(response);
 
         return responseData.map((label: any) => label.name);
     }
@@ -69,10 +108,12 @@ export class PullRequestClient extends RESTClient {
      * @returns The pull request.
      * @remarks Does not require authentication.
      */
-    public async getPullRequest(repoName: string, prNumber: number): Promise<IPullRequestModel> {
+    public async getPullRequest(repoName: string, prNumber: number): Promise<IPullRequestModel | PullRequestNotFound> {
         Guard.isNullOrEmptyOrUndefined(repoName, "getPullRequest", "repoName");
         Guard.isLessThanOne(prNumber, "getPullRequest", "prNumber");
 
+
+        // REST API Docs: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#get-a-pull-request
         const url = `${this.baseUrl}/${this.organization}/${repoName}/pulls/${prNumber}`;
         
         const response: Response = await fetch(url, {
@@ -92,13 +133,14 @@ export class PullRequestClient extends RESTClient {
                     break;
                 case 404: // Resource Not Found
                     Utils.printAsGitHubError(`The pull request number '${prNumber}' does not exist.`);
-                    break;
+
+                    return { statusCode: response.status, statusText: response.statusText };
             }
 
             Deno.exit(1);
         }
 
-        return <IPullRequestModel>await Utils.getResponseData(response);
+        return <IPullRequestModel>await this.getResponseData(response);
     }
 
     /**
@@ -167,5 +209,41 @@ export class PullRequestClient extends RESTClient {
 
             Deno.exit(1);
         }        
+    }
+
+    /**
+     * Checks if a pull request with the given {@link prNumber } pull request exists in a repo that matches the given {@link repoName}.
+     * @param repoName The name of the repo.
+     * @param prNumber The number of the pull request.
+     * @returns True if the pull request exists, otherwise false.
+     */
+    public async pullRequestExists(repoName: string, prNumber: number): Promise<boolean> {
+        Guard.isNullOrEmptyOrUndefined(repoName, "pullRequestExists", "repoName");
+        Guard.isLessThanOne(prNumber, "pullRequestExists", "prNumber");
+
+        // REST API Docs: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#list-pull-requests
+        const url = `${this.baseUrl}/${this.organization}/${repoName}/pull/${prNumber}`;
+        
+        const response: Response = await fetch(url, {
+            method: "GET",
+            headers: this.headers,
+        });
+
+        const possibleStatusCodes = [304, 404, 500, 503];
+
+        // If there is an error
+        if (possibleStatusCodes.includes(response.status)) {
+            switch (response.status) {
+                case 304: // Not modified
+                case 500: // Gone
+                case 503: // Service unavailable
+                    Utils.printAsGitHubError(`The request to get an issue returned error '${response.status} - (${response.statusText})'`);
+                    break;
+                case 404: // Not found
+                    return false;
+            }
+        }
+
+        return true;
     }
 }
