@@ -2,6 +2,7 @@ import { HttpStatusCodes } from "./Enums.ts";
 import { IIssueModel } from "./Models/IIssueModel.ts";
 import { IMilestoneModel } from "./Models/IMilestoneModel.ts";
 import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
+import { IRepoModel } from "./Models/IRepoModel.ts";
 import { IssueNotFound, MilestoneNotFound, PullRequestNotFound } from "./Types.ts";
 
 /**
@@ -150,27 +151,36 @@ export class Utils {
 	/**
 	 * Checks if the given {@link issue} is an instance of {@link IssueNotFound}.
 	 * @param issue The issue to check.
-	 * @returns True if the issue is an instance of {@link IssueNotFound}, otherwise false.
+	 * @returns True if the {@link issue} is an instance of {@link IssueNotFound}, otherwise false.
 	 */
 	public static isIssueNotFound(issue: IIssueModel | IssueNotFound): issue is IssueNotFound {
-		return typeof issue === "object" && issue !== null && "statusCode" in issue && "statusText" in issue;
+		return typeof issue === "object" && issue && "message" in issue;
 	}
 
 	/**
-	 * Checks if the given {@link issue} is an instance of {@link PullRequestNotFound}.
-	 * @param issue The pull request to check.
-	 * @returns True if the pull request is an instance of {@link PullRequestNotFound}, otherwise false.
+	 * Checks if the given {@link pr} is an instance of {@link PullRequestNotFound}.
+	 * @param pr The pull request to check.
+	 * @returns True if the {@link pr} is an instance of {@link PullRequestNotFound}, otherwise false.
 	 */
-	public static isPullRequestNotFound(issue: IPullRequestModel | PullRequestNotFound): issue is PullRequestNotFound {
-		return typeof issue === "object" && issue !== null && "statusCode" in issue && "statusText" in issue;
+	public static isPullRequestNotFound(pr: IPullRequestModel | PullRequestNotFound): pr is PullRequestNotFound {
+		return typeof pr === "object" && pr && "message" in pr;
 	}
 
 	/**
-	 * Checks if the given {@link issue} is an instance of {@link IssueNotFound}.
-	 * @param issue The issue to check.
-	 * @returns True if the issue is an instance of {@link IssueNotFound}, otherwise false.
+	 * Checks if the given {@link milestone} is an instance of {@link MilestoneNotFound}.
+	 * @param milestone The issue to check.
+	 * @returns True if the {@link milestone} is an instance of {@link MilestoneNotFound}, otherwise false.
 	 */
-	public static isMilestoneNotFound(issue: IMilestoneModel | MilestoneNotFound): issue is MilestoneNotFound {
-		return typeof issue === "object" && issue !== null && "statusCode" in issue && "statusText" in issue;
+	public static isMilestoneNotFound(milestone: IMilestoneModel | MilestoneNotFound): milestone is MilestoneNotFound {
+		return typeof milestone === "object" && milestone && "message" in milestone;
+	}
+
+	/**
+	 * Checks if the given {@link repo} is an instance of {@link MilestoneNotFound}.
+	 * @param repo The issue to check.
+	 * @returns True if the {@link repo} is an instance of {@link MilestoneNotFound}, otherwise false.
+	 */
+	public static isRepoNotFound(repo: IRepoModel | MilestoneNotFound): repo is MilestoneNotFound {
+		return typeof repo === "object" && repo && "message" in repo;
 	}
 }

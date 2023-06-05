@@ -20,6 +20,13 @@ export type MilestoneNotFound = {
 };
 
 /**
+ * Represents that a GitHub repository was not found.
+ */
+export type RepoNotFound = {
+	message: string;
+};
+
+/**
  * Represents a GitHub issue or pull request.
  */
 export type ItemType = "issue" | "pull request";
