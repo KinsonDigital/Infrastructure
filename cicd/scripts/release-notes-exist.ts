@@ -31,8 +31,8 @@ Utils.printInGroup("Arguments", [
     `Version (Required): ${version}`,
 ]);
 
-const releaseTypeValid: boolean = releaseType != "production" && releaseType != "preview";
-const releaseTypeNotValid: boolean = !releaseTypeValid
+const releaseTypeValid = releaseType != "production" && releaseType != "preview";
+const releaseTypeNotValid = !releaseTypeValid
 
 if (releaseTypeNotValid) {
     let errorMsg = "The notes type argument must be a value of 'production', 'preview'.";

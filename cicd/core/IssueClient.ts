@@ -80,7 +80,7 @@ export class IssueClient extends RESTClient {
                 case HttpStatusCodes.NotFound:
                     Utils.printAsGitHubError(`The repo '${repoName}' or issue '${issueNumber}' does not exist.`);
 
-                    return { statusCode: response.status, statusText: response.statusText };
+                    return { message: response.statusText };
                 case HttpStatusCodes.Gone:
                     Utils.printAsGitHubError(`The request to get an issue returned error '${response.status} - (${response.statusText})'`);
                     break;
@@ -111,7 +111,7 @@ export class IssueClient extends RESTClient {
         }
 
         // First check that the label trying to be added exists in the repo
-        const labelDoesNotExist: boolean = !(await this.labelClient.labelExists(repoName, label));
+        const labelDoesNotExist = !(await this.labelClient.labelExists(repoName, label));
 
         if (labelDoesNotExist) {
             const labelsUrl = `https://github.com/KinsonDigital/${repoName}/labels`;
@@ -125,7 +125,7 @@ export class IssueClient extends RESTClient {
             Deno.exit(1);
         }
 
-        let prLabels: string[] = await this.getLabels(repoName, issueNumber);
+        const prLabels: string[] = await this.getLabels(repoName, issueNumber);
         prLabels.push(label);
         
         // REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue

@@ -114,8 +114,7 @@ export class MilestoneClient extends RESTClient {
 
         if (milestone === undefined) {
             return {
-                statusCode: HttpStatusCodes.OK,
-                statusText: `The milestone '${milestoneName}' does not exist.`,
+                message: `The milestone '${milestoneName}' does not exist.`,
             };
         }
 

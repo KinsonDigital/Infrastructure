@@ -21,7 +21,7 @@ if (Deno.args.length < 5) {
 }
 
 const repoName = Deno.args[0].trim();
-let prNumber: number = 0;
+let prNumber = 0;
 
 if (Utils.isNumeric(Deno.args[1].trim())) {
     prNumber = parseInt(Deno.args[1].trim());
@@ -52,7 +52,7 @@ if (headBranch != expectedBranch) {
 }
 
 const labelClient: LabelClient = new LabelClient(token);
-const labelDoesNotExist: boolean = !(await labelClient.labelExists(repoName, label));
+const labelDoesNotExist = !(await labelClient.labelExists(repoName, label));
 
 if (labelDoesNotExist) {
     Utils.printAsGitHubError(`The label '${label}' does not exist in the '${repoName}' repo.`);

@@ -5,7 +5,7 @@ import { ProjectClient } from "../core/ProjectClient.ts";
 import { PullRequestClient } from "../core/PullRequestClient.ts";
 import { ScriptDescriptions } from "../core/ScriptDescriptions.ts";
 import { Utils } from "../core/Utils.ts";
-import { IssueNotFound, PullRequestNotFound } from "../core/Types.ts";
+import { IssueNotFound, ItemType, PullRequestNotFound } from "../core/Types.ts";
 
 const scriptName = Utils.getScriptName();
 const scriptDescriptions: ScriptDescriptions = new ScriptDescriptions();
@@ -25,11 +25,11 @@ if (Deno.args.length != 5) {
 
 const repoName = Deno.args[0].trim();
 const issueOrPRNumber: number = Utils.isNumeric(Deno.args[1].trim()) ? parseInt(Deno.args[1].trim()) : -1;
-const itemType: string = Deno.args[2].trim().toLowerCase();
+const itemType: ItemType = <ItemType>Deno.args[2].trim().toLowerCase();
 const projectName: string = Deno.args[3].trim();
 const token = Deno.args[4].trim();
 
-const numberInvalid: boolean = issueOrPRNumber <= 0;
+const numberInvalid = issueOrPRNumber <= 0;
 
 const doesNotExistErrorMsg = `The issue or PR number '${issueOrPRNumber}' does not exist in the '${repoName}' repo.`;
 
@@ -38,10 +38,13 @@ if (numberInvalid) {
     Deno.exit(1);
 }
 
-let itemNodeId: string = "";
+const ISSUE_TYPE = "issue";
+const PR_TYPE = "pull request";
+
+let itemNodeId = "";
 
 switch (itemType) {
-    case "issue":
+    case ISSUE_TYPE: {
         const issueClient: IssueClient = new IssueClient(token);
         const issue: IIssueModel | IssueNotFound = await issueClient.getIssue(repoName, issueOrPRNumber);
         
@@ -53,7 +56,8 @@ switch (itemType) {
         itemNodeId = issue.node_id;
 
         break;
-    case "pr":
+    }
+    case PR_TYPE: {
         const prClient: PullRequestClient = new PullRequestClient(token);
         const pr: IPullRequestModel | PullRequestNotFound = await prClient.getPullRequest(repoName, issueOrPRNumber);
         
@@ -65,6 +69,7 @@ switch (itemType) {
         itemNodeId = pr.node_id;
 
         break;
+    }
     default:
         Utils.printAsGitHubError(`The item type '${itemType}' is invalid. It must be a value of 'issue' or 'pr'.`);
         break;
@@ -72,7 +77,7 @@ switch (itemType) {
 
 const projectClient: ProjectClient = new ProjectClient(token);
 
-const projectDoesNotExist: boolean = !(await projectClient.projectExists(projectName));
+const projectDoesNotExist = !(await projectClient.projectExists(projectName));
 
 if (projectDoesNotExist) {
     Utils.printAsGitHubError(`The organization project '${projectName}' does not exist.`);

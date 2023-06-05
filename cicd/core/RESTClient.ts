@@ -35,10 +35,10 @@ export abstract class RESTClient {
      * @param response The HTTP response to get the data from.
      * @returns The data from the response.
      */
-    protected async getResponseData(response: Response): Promise<any> {
-            const responseText: string = await response.text();
-    
-            return await JSON.parse(responseText);
+    protected async getResponseData<T>(response: Response): Promise<T> {
+        const responseText: string = await response.text();
+
+        return await JSON.parse(responseText);
     }
 
     /**

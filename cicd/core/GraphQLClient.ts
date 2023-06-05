@@ -40,8 +40,9 @@ export abstract class GraphQLClient {
 		const responseData = await JSON.parse(responseText);
 
 		if (throwWithErrors === true && this.containsErrors(responseData)) {
-			const errors: string[] = this.getErrors(responseData).map((e) => e.message);
-			const error = `${errors.join("\n")}`;
+            const errors: ErrorModel[] = this.getErrors(responseData);
+			const errorMessages: string[] = errors.map((e) => e.message);
+			const error = `${errorMessages.join("\n")}`;
 
 			Utils.printAsGitHubError(error);
             Deno.exit(1);

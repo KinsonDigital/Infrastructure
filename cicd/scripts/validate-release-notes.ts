@@ -48,15 +48,15 @@ if (releaseType != "Production" && releaseType != "Preview") {
 // Make sure the version starts with a 'v'
 version = version.startsWith("v") ? version : `v${version}`;
 
-const noPRLabel: boolean = Utils.isNullOrEmptyOrUndefined(prLabel);
-const prLabelGiven: boolean = !noPRLabel;
+const noPRLabel = Utils.isNullOrEmptyOrUndefined(prLabel);
+const prLabelGiven = !noPRLabel;
 
 const problemsFound: string[] = [];
 
 // Check that the label exists
 if (prLabelGiven) {
     const labelClient: LabelClient = new LabelClient(token);
-    const labelExists: boolean = await labelClient.labelExists(repoName, prLabel);
+    const labelExists = await labelClient.labelExists(repoName, prLabel);
 
     if (!labelExists) {
         problemsFound.push(`The label '${prLabel}' does not exist in the repo '${repoName}'.`);
@@ -73,7 +73,7 @@ const prs = await milestoneClient.getPullRequests(repoName, version);
 
 const pullRequests = noPRLabel ? [] : prs.filter(pr => pr.labels.includes(prLabel));
 
-const releaseNotesFilePath: string = `${Deno.cwd()}/cicd/test-release-notes.md`;
+const releaseNotesFilePath = `${Deno.cwd()}/cicd/test-release-notes.md`;
 const releaseNoteFileData: string = File.LoadFile(releaseNotesFilePath);
 const issueLinks: string[] = releaseNoteFileData.match(issueLinkRegex) ?? [];
 const prLinks: string[] = noPRLabel ? [] : releaseNoteFileData.match(prLinkRegex) ?? [];
@@ -85,7 +85,7 @@ if (releaseNoteFileData.match(title) === null) {
 
 // Check that all of the issues exist in the release notes
 issues.forEach(issue => {
-    const issueLink: string = `[#${issue.number}](${issue.html_url})`;
+    const issueLink = `[#${issue.number}](${issue.html_url})`;
 
     if (!issueLinks.includes(issueLink)) {
         problemsFound.push(`The issue link for issue '${issue.number}' does not exist in the release notes.`);
@@ -93,7 +93,7 @@ issues.forEach(issue => {
 });
 
 pullRequests.forEach(pr => {
-    const prLink: string = `[#${pr.number}](${pr.html_url})`;
+    const prLink = `[#${pr.number}](${pr.html_url})`;
 
     if (!prLinks.includes(prLink)) {
         problemsFound.push(`The pr link for issue '${pr.number}' with the label '${prLabel}' does not exist in the release notes.`);

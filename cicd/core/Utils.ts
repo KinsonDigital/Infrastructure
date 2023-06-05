@@ -1,6 +1,4 @@
 import { HttpStatusCodes } from "./Enums.ts";
-import { ErrorModel } from "./Models/GraphQLModels/ErrorModel.ts";
-import { RequestResponseModel } from "./Models/GraphQLModels/RequestResponseModel.ts";
 import { IIssueModel } from "./Models/IIssueModel.ts";
 import { IMilestoneModel } from "./Models/IMilestoneModel.ts";
 import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
@@ -41,6 +39,10 @@ export class Utils {
      * @returns True if the value is null, undefined, or empty, otherwise false.
      */
     public static isNullOrEmptyOrUndefined(value: string | undefined | null): value is null | undefined | "" {
+        if (typeof value === "string") {
+            return value === "";
+        }
+
         return this.isNullOrUndefined(value) || value === "";
     }
 
@@ -49,7 +51,7 @@ export class Utils {
      * @param value The value to check.
      * @returns True if the value is null or undefined, otherwise false.
      */
-    public static isNullOrUndefined(value: any): value is null | undefined {
+    public static isNullOrUndefined(value: null | undefined): value is null | undefined {
         return value === undefined || value === null;
     }
 
@@ -93,7 +95,7 @@ export class Utils {
      * @returns A promise that resolves if there are no problems, otherwise rejects with the list of problems.
      */
     public static async printProblemList(problems: string[]): Promise<void> {
-        let errorList: string[] = [];
+        const errorList: string[] = [];
 
         // Display all of the issues that have been found as errors
         for (let i = 0; i < problems.length; i++) {
@@ -102,7 +104,7 @@ export class Utils {
             errorList.push(`${i + 1}. ${errorFound}`);
         }
         
-        return new Promise((resolve, reject) => {
+        return await new Promise((resolve, reject) => {
             if (problems.length > 0) {
                 reject(`::error::${errorList.join("\n")}`);
             } else {
@@ -131,13 +133,13 @@ export class Utils {
      * @param issue The issue to check.
      * @returns True if the issue exists, otherwise false.
      */
-    public static issueExists(issue: any): issue is IIssueModel | boolean {
+    public static issueExists(issue: IIssueModel | boolean): issue is IIssueModel | boolean {
         const objKeys: string[] = Object.keys(issue);        
 
         for (let i = 0; i < objKeys.length; i++) {
             const objKey = objKeys[i];
             
-            if (!Object.hasOwn(issue, objKey)) {
+            if (typeof issue === "object" && !Object.hasOwn(issue, objKey)) {
                 return false;
             }
         }

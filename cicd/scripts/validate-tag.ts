@@ -74,7 +74,7 @@ const tags: ITagModel[] = await tagClient.getTags(repoName);
 
 const tagNames: string[] = tags.map(t => t.name);
 
-const tagExists: boolean = tagNames.some(t => t === tag);
+const tagExists = tagNames.some(t => t === tag);
 
 if (tagExists) {
     console.log(`The tag '${tag}' already exists.`);

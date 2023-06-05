@@ -9,7 +9,7 @@ export class Guard {
      * @param value The value to check.
      * @returns True if the value is null, undefined, or empty, otherwise false.
      */
-    public static isNullOrEmptyOrUndefined(value: string | undefined | null, funcName: string = "", paramName: string = ""): void {
+    public static isNullOrEmptyOrUndefined(value: string | undefined | null, funcName = "", paramName = ""): void {
         if (Utils.isNullOrEmptyOrUndefined(value)) {
             Utils.printAsGitHubError("The value is null, undefined, or empty.");
 
@@ -31,7 +31,7 @@ export class Guard {
      * @param funcName The name of the function that is calling this function.
      * @param paramName The name of the parameter that is being checked.
      */
-    public static isLessThanOne(value: number | undefined | null, funcName: string = "", paramName: string = ""): void {
+    public static isLessThanOne(value: number | undefined | null, funcName = "", paramName = ""): void {
         if (Utils.isNullOrUndefined(value) || isNaN(value) || !isFinite(value)) {
             Utils.printAsGitHubError("The value is undefined, null, NaN, Infinite, -Infinity.");
 

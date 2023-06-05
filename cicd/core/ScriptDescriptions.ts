@@ -34,7 +34,7 @@ export class ScriptDescriptions {
         const baseDirPath = `${Deno.cwd()}/scripts/script-descriptions`;
 
         const descriptionFiles: string[] = [];
-        const items = Deno.readDirSync(baseDirPath);;
+        const items = Deno.readDirSync(baseDirPath);
         
         for (const item of items) {
             if (item.isFile) {

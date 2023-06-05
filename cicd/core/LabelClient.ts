@@ -44,6 +44,7 @@ export class LabelClient extends RESTClient {
      */
     public async labelExists(repoName: string, label: string): Promise<boolean> {
         const labels = await this.getLabels(repoName);
-        return labels.length > 0;
+
+        return labels.length > 0 && labels.some(l => l.name.trim() === label.trim());
     }
 }

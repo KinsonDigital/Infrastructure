@@ -5,6 +5,7 @@ import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
 import { Utils } from "./Utils.ts";
 import { PullRequestNotFound } from "./Types.ts";
 import { HttpStatusCodes } from "./Enums.ts";
+import { ILabelModel } from "./Models/ILabelModel.ts";
 
 /**
  * Provides a client for interacting with pull requests.
@@ -87,9 +88,9 @@ export class PullRequestClient extends RESTClient {
             Deno.exit(1);
         }
 
-        const responseData = await this.getResponseData(response);
+        const responseData = await this.getResponseData<ILabelModel[]>(response);
 
-        return responseData.map((label: any) => label.name);
+        return responseData.map((label: ILabelModel) => label.name);
     }
 
     /**
@@ -121,7 +122,7 @@ export class PullRequestClient extends RESTClient {
                 case HttpStatusCodes.NotFound:
                     Utils.printAsGitHubError(`The pull request number '${prNumber}' does not exist.`);
 
-                    return { statusCode: response.status, statusText: response.statusText };
+                    return { message: response.statusText };
             }
 
             Deno.exit(1);
@@ -149,7 +150,7 @@ export class PullRequestClient extends RESTClient {
         }
 
         // First check that the label trying to be added exists in the repo
-        const labelDoesNotExist: boolean = !(await this.labelClient.labelExists(repoName, label));
+        const labelDoesNotExist = !(await this.labelClient.labelExists(repoName, label));
 
         if (labelDoesNotExist) {
             const labelsUrl = `https://github.com/KinsonDigital/${repoName}/labels`;
@@ -163,7 +164,7 @@ export class PullRequestClient extends RESTClient {
             Deno.exit(1);
         }
 
-        let prLabels: string[] = await this.getLabels(repoName, prNumber);
+        const prLabels: string[] = await this.getLabels(repoName, prNumber);
         prLabels.push(label);
         
         // REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue

@@ -29,7 +29,7 @@ Utils.printInGroup("Arguments", [
 
 const milestoneClient: MilestoneClient = new MilestoneClient(token);
 
-const milestoneDoesNotExist: boolean = !(await milestoneClient.milestoneExists(repoName, milestone));
+const milestoneDoesNotExist = !(await milestoneClient.milestoneExists(repoName, milestone));
 
 // Check if the milestone exists
 if (milestoneDoesNotExist) {
