@@ -1,5 +1,8 @@
+import { ErrorModel } from "./Models/GraphQLModels/ErrorModel.ts";
+import { RequestResponseModel } from "./Models/GraphQLModels/RequestResponseModel.ts";
 import { IIssueModel } from "./Models/IIssueModel.ts";
 import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
+import { IssueNotFound, PullRequestNotFound } from "./Types.ts";
 
 /**
  * Provides utility functions.
@@ -28,17 +31,6 @@ export class Utils {
         });
 
         console.log("::endgroup::");
-    }
-
-    /**
-     * Gets the data from an HTTP response.
-     * @param response The HTTP response to get the data from.
-     * @returns The data from the response.
-     */
-    public static async getResponseData(response: Response): Promise<any> {
-        const responseText: string = await response.text();
-
-        return await JSON.parse(responseText);
     }
 
     /**
@@ -72,7 +64,7 @@ export class Utils {
      * @param issuesOrPrs The issues or pull requests to filter.
      * @returns The issues from the given list of issues or pull requests.
      */
-    public static filterIssues(issuesOrPrs: IIssueModel[] | IPullRequestModel[]): IIssueModel[] {
+    public static filterIssues(issuesOrPrs: (IIssueModel | IPullRequestModel)[]): IIssueModel[] {
         return <IIssueModel[]>issuesOrPrs.filter((item) => !("pull_request" in item));
     }
 
@@ -81,7 +73,7 @@ export class Utils {
      * @param issuesOrPrs The issues or pull requests to filter.
      * @returns The pull requests from the given list of issues or pull requests.
      */
-    public static filterPullRequests(issuesOrPrs: IIssueModel[] | IPullRequestModel[]): IPullRequestModel[] {
+    public static filterPullRequests(issuesOrPrs: (IIssueModel | IPullRequestModel)[]): IPullRequestModel[] {
         return <IPullRequestModel[]>issuesOrPrs.filter((item) => "pull_request" in item);
     }
 
@@ -90,7 +82,7 @@ export class Utils {
      * @param message The message to print.
      */
     public static printAsGitHubError(message: string): void {
-        Utils.printAsGitHubError(`${message}`);
+        console.log(`:error::${message}`);
     }
 
     /**
@@ -115,5 +107,57 @@ export class Utils {
                 resolve();
             }
         });
+    }
+
+    /**
+	 * Checks if the response contains status codes other than in the 200 range.
+     * If it does, it will print the error message and exit the process.
+	 * @param response The response from a request.
+	 */
+	public static throwIfErrors(response: Response): void {
+		if (response.status < 200 && response.status > 299) {
+			const errorMsg =
+				`There was a problem with the request. Status code: ${response.status}(${response.statusText}).`;
+
+			Utils.printAsGitHubError(errorMsg);
+            Deno.exit(1);
+		}
+	}
+
+    /**
+     * Checks if the given {@link issue} exists.
+     * @param issue The issue to check.
+     * @returns True if the issue exists, otherwise false.
+     */
+    public static issueExists(issue: any): issue is IIssueModel | boolean {
+        const objKeys: string[] = Object.keys(issue);        
+
+        for (let i = 0; i < objKeys.length; i++) {
+            const objKey = objKeys[i];
+            
+            if (!Object.hasOwn(issue, objKey)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks if the given {@link issue} is an instance of {@link IssueNotFound}.
+     * @param issue The issue to check.
+     * @returns True if the issue is an instance of {@link IssueNotFound}, otherwise false.
+     */
+    public static isIssueNotFound(issue: IIssueModel | IssueNotFound): issue is IssueNotFound {
+        return typeof issue === "object" && issue !== null && "statusCode" in issue && "statusText" in issue;
+    }
+
+    /**
+     * Checks if the given {@link issue} is an instance of {@link PullRequestNotFound}.
+     * @param issue The pull request to check.
+     * @returns True if the pull request is an instance of {@link PullRequestNotFound}, otherwise false.
+     */
+    public static isPullRequestNotFound(issue: IPullRequestModel | PullRequestNotFound): issue is PullRequestNotFound {
+        return typeof issue === "object" && issue !== null && "statusCode" in issue && "statusText" in issue;
     }
 }
