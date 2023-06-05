@@ -7,7 +7,7 @@ import { ScriptDescriptions } from "../core/ScriptDescriptions.ts";
 import { Utils } from "../core/Utils.ts";
 import { IssueNotFound, PullRequestNotFound } from "../core/Types.ts";
 
-const scriptName = Utils.getScriptName()
+const scriptName = Utils.getScriptName();
 const scriptDescriptions: ScriptDescriptions = new ScriptDescriptions();
 scriptDescriptions.printScriptDescription(scriptName);
 

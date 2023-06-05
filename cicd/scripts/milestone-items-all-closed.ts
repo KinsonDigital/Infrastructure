@@ -4,7 +4,7 @@ import { IPullRequestModel } from "../core/Models/IPullRequestModel.ts";
 import { ScriptDescriptions } from "../core/ScriptDescriptions.ts";
 import { Utils } from "../core/Utils.ts";
 
-const scriptName = Utils.getScriptName()
+const scriptName = Utils.getScriptName();
 const scriptDescriptions: ScriptDescriptions = new ScriptDescriptions();
 scriptDescriptions.printScriptDescription(scriptName);
 
