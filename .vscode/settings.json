@@ -2,7 +2,15 @@
     "cSpell.words": [
         "cicd",
         "endgroup",
-        "pwsh"
+        "Kinson",
+        "Nums",
+        "pwsh",
+        "zipball"
     ],
-    "deno.enable": true
+    "deno.enable": true,
+    "[typescript]": {
+        "editor.indentSize": 4
+    },
+    "editor.detectIndentation": false,
+    "editor.insertSpaces": false,
 }

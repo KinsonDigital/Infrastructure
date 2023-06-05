@@ -1,0 +1,17 @@
+Script Description:
+
+This script is used for validating release notes for a release.  It will check if all of the issues in
+a milestone that matches the 'version' argument exist in the release notes.  If a PR label is provided,
+it will check if pull requests in the milestone contain the label and then check if the pull request link
+is in the release notes.
+
+The script takes the following 5 arguments:
+
+1. Project name - The name of the project
+2. Release type - The type of release.  Acceptable values are 'Production' or 'Preview' and are not case-sensitive.
+3. Version - The release version.  The first character of the version can start with or without the letter 'v'.
+4. PR label (optional) - The label of any PRs that must be in the notes.  If no label
+   is provided, then the script will not check if any PRs are in the notes.
+5. GitHub token (optional) - This script does not change any GitHub data so a token is not required.
+   It is recommended that you provide a token.  If a token is not provided, then it is subject to rate limits.
+   GitHub Rate Limits: https://docs.github.com/en/rest/overview/resources-in-the-rest-api?apiVersion=2022-11-28#rate-limiting
