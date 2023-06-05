@@ -140,6 +140,28 @@
                 "request": "launch",
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
+        },
+        {
+            "name": "Add Issue To Project (DEBUG)",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/add-item-to-project.ts",
+            "cwd": "${workspaceFolder}/cicd",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": ["Infrastructure", "24", "pr", "KD-Team", "fake-token"],
+            "attachSimplePort": 9229,
+            "windows": {
+                "request": "launch",
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "request": "launch",
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
         }
     ]
 }
