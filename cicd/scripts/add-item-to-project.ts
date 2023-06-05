@@ -31,6 +31,15 @@ const itemType: ItemType = <ItemType> Deno.args[2].trim().toLowerCase();
 const projectName: string = Deno.args[3].trim();
 const token = Deno.args[4].trim();
 
+// Print out all of the arguments
+Utils.printInGroup("Arguments", [
+	`Repo Name (Required): ${repoName}`,
+	`Issue Or PR Number (Required): ${issueOrPRNumber}`,
+	`Item Type (Required): ${itemType}`,
+	`Project Name (Required): ${projectName}`,
+	`GitHub Token (Required): ****`,
+]);
+
 const repoClient: RepoClient = new RepoClient(token);
 const repoDoesNotExist = !(await repoClient.repoExists(repoName));
 

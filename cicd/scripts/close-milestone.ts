@@ -24,6 +24,12 @@ const repoName: string = Deno.args[0].trim();
 const milestoneName: string = Deno.args[1].trim();
 const token = Deno.args[2].trim();
 
+// Print out all of the arguments
+Utils.printInGroup("Arguments", [
+	`Repo Name (Required): ${repoName}`,
+	`Milestone Name (Required): ${milestoneName}`,
+	`GitHub Token (Required): ****`,
+]);
 
 const repoClient: RepoClient = new RepoClient(token);
 const repoDoesNotExist = !(await repoClient.repoExists(repoName));
