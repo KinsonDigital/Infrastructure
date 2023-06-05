@@ -162,6 +162,28 @@
                 "request": "launch",
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
+        },
+        {
+            "name": "Close Milestone (DEBUG)",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/close-milestone.ts",
+            "cwd": "${workspaceFolder}/cicd",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": ["Infrastructure", "v1.2.3-preview.4", "fake-token"],
+            "attachSimplePort": 9229,
+            "windows": {
+                "request": "launch",
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "request": "launch",
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
         }
     ]
 }

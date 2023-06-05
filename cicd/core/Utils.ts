@@ -1,8 +1,9 @@
 import { ErrorModel } from "./Models/GraphQLModels/ErrorModel.ts";
 import { RequestResponseModel } from "./Models/GraphQLModels/RequestResponseModel.ts";
 import { IIssueModel } from "./Models/IIssueModel.ts";
+import { IMilestoneModel } from "./Models/IMilestoneModel.ts";
 import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
-import { IssueNotFound, PullRequestNotFound } from "./Types.ts";
+import { IssueNotFound, MilestoneNotFound, PullRequestNotFound } from "./Types.ts";
 
 /**
  * Provides utility functions.
@@ -158,6 +159,15 @@ export class Utils {
      * @returns True if the pull request is an instance of {@link PullRequestNotFound}, otherwise false.
      */
     public static isPullRequestNotFound(issue: IPullRequestModel | PullRequestNotFound): issue is PullRequestNotFound {
+        return typeof issue === "object" && issue !== null && "statusCode" in issue && "statusText" in issue;
+    }
+
+    /**
+     * Checks if the given {@link issue} is an instance of {@link IssueNotFound}.
+     * @param issue The issue to check.
+     * @returns True if the issue is an instance of {@link IssueNotFound}, otherwise false.
+     */
+    public static isMilestoneNotFound(issue: IMilestoneModel | MilestoneNotFound): issue is MilestoneNotFound {
         return typeof issue === "object" && issue !== null && "statusCode" in issue && "statusText" in issue;
     }
 }

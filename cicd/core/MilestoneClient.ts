@@ -4,6 +4,7 @@ import { IIssueModel } from "./Models/IIssueModel.ts";
 import { IMilestoneModel } from "./Models/IMilestoneModel.ts";
 import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
 import { Utils } from "./Utils.ts";
+import { MilestoneNotFound } from "./Types.ts";
 
 /**
  * Provides a client for interacting with milestones.
@@ -24,6 +25,7 @@ export class MilestoneClient extends RESTClient {
      * @param repoName The name of the repo.
      * @param milestoneName The name of the milestone to get issues for.
      * @returns The issues in the milestone.
+     * @remarks Does not require authentication.
      */
     public async getIssuesAndPullRequests(repoName: string, milestoneName: string): Promise<IIssueModel[] | IPullRequestModel[]> {
         Guard.isNullOrEmptyOrUndefined(repoName, "getIssuesAndPullRequests", "repoName");
@@ -72,6 +74,7 @@ export class MilestoneClient extends RESTClient {
      * @param repoName The name of the repo.
      * @param milestoneName The name of the milestone to get issues for.
      * @returns The issues in the milestone.
+     * @remarks Does not require authentication.
      */
     public async getIssues(repoName: string, milestoneName: string): Promise<IIssueModel[]> {
         Guard.isNullOrEmptyOrUndefined(repoName, "getIssues", "repoName");
@@ -88,6 +91,7 @@ export class MilestoneClient extends RESTClient {
      * @param repoName The name of the repo.
      * @param milestoneName The name of the milestone to get pull requests for.
      * @returns The pull requests in the milestone.
+     * @remarks Does not require authentication.
      */
     public async getPullRequests(repoName: string, milestoneName: string): Promise<IPullRequestModel[]> {
         Guard.isNullOrEmptyOrUndefined(repoName, "getPullRequests", "repoName");
@@ -99,8 +103,33 @@ export class MilestoneClient extends RESTClient {
     }
 
     /**
+     * Get a milestones that matches the given {@link milestoneName} in a repository that matches the given {@link repoName}.
+     * @param repoName The name of the repository that the milestone exists in.
+     * @param milestoneName The name of the milestone.
+     * @returns The milestone.
+     * @remarks Does not require authentication.
+     */
+    public async getMilestone(repoName: string, milestoneName: string): Promise<IMilestoneModel | MilestoneNotFound> {
+        Guard.isNullOrEmptyOrUndefined(repoName, "getMilestone", "repoName");
+        Guard.isNullOrEmptyOrUndefined(milestoneName, "getMilestone", "milestoneName");
+
+        const milestones: IMilestoneModel[] = await this.getMilestones(repoName);
+        const milestone: IMilestoneModel | undefined = milestones.find((m) => m.title.trim() === milestoneName);
+
+        if (milestone === undefined) {
+            return {
+                statusCode: 404,
+                statusText: `The milestone '${milestoneName}' does not exist.`,
+            };
+        }
+
+        return milestone;
+    }
+
+    /**
      * Gets all of the milestones in a repo that matches the given {@link repoName}.
      * @param repoName The name of the repo that the milestone exists in.
+     * @remarks Does not require authentication.
      */
     public async getMilestones(repoName: string): Promise<IMilestoneModel[]> {
         Guard.isNullOrEmptyOrUndefined(repoName, "getMilestones", "repoName");
@@ -126,6 +155,7 @@ export class MilestoneClient extends RESTClient {
      * matches the given {@link repoName}.
      * @param repoName The name of the repo that the milestone exists in.
      * @param milestoneName The name of the milestone to check for.
+     * @remarks Does not require authentication.
      */
     public async milestoneExists(repoName: string, milestoneName: string): Promise<boolean> {
         Guard.isNullOrEmptyOrUndefined(repoName, "milestoneExists", "repoName");
@@ -134,5 +164,47 @@ export class MilestoneClient extends RESTClient {
         const milestones: IMilestoneModel[] = await this.getMilestones(repoName);
 
         return milestones.some((m) => m.title.trim() === milestoneName);
+    }
+
+    /**
+     * Creates a new milestone in a repo that matches the given {@link repoName}.
+     * @param repoName The name of the repo that the milestone exists in.
+     * @param milestoneName The name of the milestone to close.
+     * @remarks Requires authentication.
+     */
+    public async closeMilestone(repoName: string, milestoneName: string): Promise<void> {
+        Guard.isNullOrEmptyOrUndefined(repoName, "closeMilestone", "repoName");
+        Guard.isNullOrEmptyOrUndefined(milestoneName, "closeMilestone", "milestoneName");
+
+        repoName = repoName.trim();
+        milestoneName = milestoneName.trim();
+
+        const milestone: IMilestoneModel | MilestoneNotFound = await this.getMilestone(repoName, milestoneName);
+
+        if (Utils.isMilestoneNotFound(milestone)) {
+            Utils.printAsGitHubError(`The milestone '${milestoneName}' does not exist.`);
+            Deno.exit(1);
+        }
+
+        const url = `${this.baseUrl}/${this.organization}/${repoName}/milestones/${milestone.number}`;
+
+        const response: Response = await fetch(url, {
+            method: "PATCH",
+            headers: this.headers,
+            body: JSON.stringify({
+                state: "closed",
+            }),
+        });
+
+        // If there is an error
+        if (response.status === 404) {
+            Utils.printAsGitHubError(`The organization '${this.organization}' or repo '${repoName}' does not exist.`);
+            Deno.exit(1);
+        }
+
+        if (response.status !== 200) {
+            Utils.printAsGitHubError(`The request to close milestone '${milestoneName}' returned error '${response.status} - (${response.statusText})'`);
+            Deno.exit(1);
+        }
     }
 }
