@@ -63,7 +63,7 @@ export class MilestoneClient extends RESTClient {
             Deno.exit(1);
         }        
 
-        return <IIssueModel[] | IPullRequestModel[]>await Utils.getResponseData(response);
+        return <IIssueModel[] | IPullRequestModel[]>await this.getResponseData(response);
     }
 
     /**
@@ -118,7 +118,7 @@ export class MilestoneClient extends RESTClient {
             Deno.exit(1);
         }
 
-        return <IMilestoneModel[]>await Utils.getResponseData(response);
+        return <IMilestoneModel[]>await this.getResponseData(response);
     }
 
     /**

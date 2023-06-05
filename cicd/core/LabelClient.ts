@@ -33,7 +33,7 @@ export class LabelClient extends RESTClient {
             Deno.exit(1);
         }
 
-        return <ILabelModel[]>await Utils.getResponseData(response);
+        return <ILabelModel[]>await this.getResponseData(response);
     }
 
     /**

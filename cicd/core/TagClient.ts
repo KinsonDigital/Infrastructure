@@ -42,6 +42,6 @@ export class TagClient extends RESTClient {
             Deno.exit(1);
         }
 
-        return <ITagModel[]>await Utils.getResponseData(response);
+        return <ITagModel[]>await this.getResponseData(response);
     }
 }
