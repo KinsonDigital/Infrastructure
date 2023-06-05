@@ -31,13 +31,12 @@ export class IssueClient extends RESTClient {
     public async getIssues(repoName: string): Promise<IIssueModel[]> {
         Guard.isNullOrEmptyOrUndefined(repoName, "getIssues", "getIssues");
 
+        // TODO: Need to add pagination
+
         // REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#list-repository-issues
         const url = `${this.baseUrl}/${this.organization}/${repoName}/issues?state=all&page=1&per_page=100`;
         
-        const response: Response = await fetch(url, {
-            method: "GET",
-            headers: this.headers,
-        });
+        const response: Response = await this.fetchGET(url);
 
         const possibleStatusCodes = [301, 404, 422];
 
@@ -74,11 +73,7 @@ export class IssueClient extends RESTClient {
         // REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#get-an-issue
         const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${issueNumber}`;
         
-        const response: Response = await fetch(url, {
-            method: "GET",
-            headers: this.headers,
-        });
-
+        const response: Response = await this.fetchGET(url);
         const possibleStatusCodes = [301, 304, 404, 410];
 
         // If there is an error
@@ -140,11 +135,7 @@ export class IssueClient extends RESTClient {
         // REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue
         const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${issueNumber}`;
         
-        const response: Response = await fetch(url, {
-            method: "PATCH",
-            headers: this.headers,
-            body: JSON.stringify({ labels: prLabels }),
-        });
+        const response: Response = await this.fetchPATCH(url, JSON.stringify({ labels: prLabels }));
 
         const possibleStatusCodes = [301, 403, 404, 410, 422, 503];
 
@@ -183,11 +174,7 @@ export class IssueClient extends RESTClient {
 
         const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${issueNumber}/labels`;
         
-        const response: Response = await fetch(url, {
-            method: "GET",
-            headers: this.headers,
-        });
-
+        const response: Response = await this.fetchGET(url);
         const possibleStatusCodes = [301, 404, 410];
 
         // If there is an error
@@ -223,11 +210,7 @@ export class IssueClient extends RESTClient {
         // REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#get-an-issue
         const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${issueNumber}`;
         
-        const response: Response = await fetch(url, {
-            method: "GET",
-            headers: this.headers,
-        });
-
+        const response: Response = await this.fetchGET(url);
         const possibleStatusCodes = [301, 304, 404, 410];
 
         // If there is an error

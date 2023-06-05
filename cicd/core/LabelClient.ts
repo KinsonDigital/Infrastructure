@@ -23,11 +23,8 @@ export class LabelClient extends RESTClient {
      */
     public async getLabels(repoName: string): Promise<ILabelModel[]> {
         const url = `${this.baseUrl}/${this.organization}/${repoName}/labels`;
-        const response = await fetch(url, {
-            method: "GET",
-            headers: this.headers,
-        });
-
+        const response: Response = await this.fetchGET(url);
+        
         if (response.status === 404) {
             Utils.printAsGitHubError(`${response.status} - ${response.statusText}`);
             Deno.exit(1);

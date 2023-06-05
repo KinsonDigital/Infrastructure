@@ -43,10 +43,7 @@ export class MilestoneClient extends RESTClient {
         // NOTE: This API endpoint returns issues AND pull requests.
         const url = `${this.baseUrl}/${this.organization}/${repoName}/issues?milestone=${milestone.number}`;
 
-        const response: Response = await fetch(url, {
-            method: "GET",
-            headers: this.headers,
-        });
+        const response: Response = await this.fetchGET(url);
 
         const possibleStatusCodes = [301, 404, 410];
 
@@ -136,12 +133,8 @@ export class MilestoneClient extends RESTClient {
 
         const url = `${this.baseUrl}/${this.organization}/${repoName}/milestones?state=all&page=1&per_page=100`;
 
-        const response: Response = await fetch(url, {
-            method: "GET",
-            headers: this.headers,
-        });
-
-        // If there is an error
+        const response: Response = await this.fetchGET(url);
+                // If there is an error
         if (response.status === 404) {
             Utils.printAsGitHubError(`The organization '${this.organization}' or repo '${repoName}' does not exist.`);
             Deno.exit(1);
@@ -187,14 +180,7 @@ export class MilestoneClient extends RESTClient {
         }
 
         const url = `${this.baseUrl}/${this.organization}/${repoName}/milestones/${milestone.number}`;
-
-        const response: Response = await fetch(url, {
-            method: "PATCH",
-            headers: this.headers,
-            body: JSON.stringify({
-                state: "closed",
-            }),
-        });
+        const response: Response = await this.fetchPATCH(url, JSON.stringify({ state: "closed", }));
 
         // If there is an error
         if (response.status === 404) {

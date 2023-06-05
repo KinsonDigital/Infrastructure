@@ -31,10 +31,7 @@ export class TagClient extends RESTClient {
 
         const url = `${this.baseUrl}/${this.organization}/${repoName}/tags`;
         
-        const response: Response = await fetch(url, {
-            method: "GET",
-            headers: this.headers,
-        });
+        const response: Response = await this.fetchGET(url);
 
         // If there is an error
         if (response.status === 404) {

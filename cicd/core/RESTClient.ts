@@ -40,4 +40,30 @@ export abstract class RESTClient {
     
             return await JSON.parse(responseText);
     }
+
+    /**
+     * Fetches a resource using the HTTP GET method.
+     * @param url The URL to the resource to fetch.
+     * @returns The response from the fetch request.
+     */
+    protected async fetchGET(url: string): Promise<Response> {
+        return await fetch(url, {
+            method: "GET",
+            headers: this.headers,
+        });
+    }
+
+    /**
+     * Fetches a resource using the HTTP GET method.
+     * @param url The URL to the resource to fetch.
+     * @param body The body of the request.
+     * @returns The response from the fetch request.
+     */
+    protected async fetchPATCH(url: string, body: string): Promise<Response> {
+        return await fetch(url, {
+            method: "PATCH",
+            headers: this.headers,
+            body: body,
+        });
+    }
 }

@@ -30,15 +30,12 @@ export class PullRequestClient extends RESTClient {
     public async getPullRequests(repoName: string): Promise<IPullRequestModel[]> {
         Guard.isNullOrEmptyOrUndefined(repoName, "getIssues", "getIssues");
 
+        // TODO: Need to add pagination
 
         // REST API Docs: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#list-pull-requests
         const url = `${this.baseUrl}/${this.organization}/${repoName}/pulls?state=all&page=1&per_page=100`;
         
-        const response: Response = await fetch(url, {
-            method: "GET",
-            headers: this.headers,
-        });
-
+        const response: Response = await this.fetchGET(url);
         const possibleStatusCodes = [301, 404, 422];
 
         // If there is an error
@@ -73,11 +70,7 @@ export class PullRequestClient extends RESTClient {
 
         const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${prNumber}/labels`;
         
-        const response: Response = await fetch(url, {
-            method: "GET",
-            headers: this.headers,
-        });
-
+        const response: Response = await this.fetchGET(url);
         const possibleStatusCodes = [301, 404, 410];
 
         // If there is an error
@@ -116,11 +109,7 @@ export class PullRequestClient extends RESTClient {
         // REST API Docs: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#get-a-pull-request
         const url = `${this.baseUrl}/${this.organization}/${repoName}/pulls/${prNumber}`;
         
-        const response: Response = await fetch(url, {
-            method: "GET",
-            headers: this.headers,
-        });
-
+        const response: Response = await this.fetchGET(url);
         const possibleStatusCodes = [304, 404, 500, 503];
 
         // If there is an error
@@ -182,13 +171,8 @@ export class PullRequestClient extends RESTClient {
         // REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue
         const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${prNumber}`;
         
-        const response: Response = await fetch(url, {
-            method: "PATCH",
-            headers: this.headers,
-            body: JSON.stringify({ labels: prLabels }),
-        });
-
-        const possibleStatusCodes = [301, 403, 404, 410, 422, 503];
+        const response: Response = await this.fetchPATCH(url, JSON.stringify({ labels: prLabels }));
+                const possibleStatusCodes = [301, 403, 404, 410, 422, 503];
 
         // If there is an error
         if (possibleStatusCodes.includes(response.status)) {
@@ -224,11 +208,7 @@ export class PullRequestClient extends RESTClient {
         // REST API Docs: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#list-pull-requests
         const url = `${this.baseUrl}/${this.organization}/${repoName}/pull/${prNumber}`;
         
-        const response: Response = await fetch(url, {
-            method: "GET",
-            headers: this.headers,
-        });
-
+        const response: Response = await this.fetchGET(url);
         const possibleStatusCodes = [304, 404, 500, 503];
 
         // If there is an error
