@@ -8,4 +8,9 @@
         "zipball"
     ],
     "deno.enable": true,
+    "[typescript]": {
+        "editor.indentSize": 4
+    },
+    "editor.detectIndentation": false,
+    "editor.insertSpaces": false,
 }
