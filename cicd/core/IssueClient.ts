@@ -4,6 +4,7 @@ import { LabelClient } from "./LabelClient.ts";
 import { IIssueModel } from "./Models/IIssueModel.ts";
 import { ILabelModel } from "./Models/ILabelModel.ts";
 import { Utils } from "./Utils.ts";
+import { IssueNotFound } from "./Types.ts";
 
 /**
  * Provides a client for interacting with issues.
@@ -55,9 +56,49 @@ export class IssueClient extends RESTClient {
             Deno.exit(1);
         }
 
-        const responseData = <IIssueModel[]>await Utils.getResponseData(response);
+        return <IIssueModel[]>await this.getResponseData(response);
+    }
 
-        return responseData;
+    /**
+     * Gets an issue with the given {@link issueNumber} from a repository with the given {@link repoName}.
+     * @param repoName The name of the repository.
+     * @param issueNumber The issue number.
+     * @returns The issue.
+     */
+    public async getIssue(repoName: string, issueNumber: number): Promise<IIssueModel | IssueNotFound> {
+        Guard.isNullOrEmptyOrUndefined(repoName, "getIssue", "repoName");
+        Guard.isLessThanOne(issueNumber, "getIssue", "issueNumber");
+
+        const notFoundResult = "404 (Not Found)";
+
+        // REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#get-an-issue
+        const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${issueNumber}`;
+        
+        const response: Response = await fetch(url, {
+            method: "GET",
+            headers: this.headers,
+        });
+
+        const possibleStatusCodes = [301, 304, 404, 410];
+
+        // If there is an error
+        if (possibleStatusCodes.includes(response.status)) {
+            switch (response.status) {
+                case 301: // Moved permanently
+                case 304: // Not modified
+                case 404: // Resource Not Found
+                    Utils.printAsGitHubError(`The repo '${repoName}' or issue '${issueNumber}' does not exist.`);
+
+                    return { statusCode: response.status, statusText: response.statusText };
+                case 410: // Gone
+                    Utils.printAsGitHubError(`The request to get an issue returned error '${response.status} - (${response.statusText})'`);
+                    break;
+            }
+
+            Deno.exit(1);
+        }
+
+        return <IIssueModel>await this.getResponseData(response);
     }
 
     /**
@@ -164,8 +205,44 @@ export class IssueClient extends RESTClient {
             Deno.exit(1);
         }
 
-        const responseData = <ILabelModel[]>await Utils.getResponseData(response);
+        const responseData = <ILabelModel[]>await this.getResponseData(response);
 
         return responseData.map((label: ILabelModel) => label.name);
+    }
+
+    /**
+     * Checks if an issue with the given {@link issueNumber } issue exists in a repo that matches the given {@link repoName}.
+     * @param repoName The name of the repo.
+     * @param issueNumber The number of the issue.
+     * @returns True if the issue exists, otherwise false.
+     */
+    public async issueExists(repoName: string, issueNumber: number): Promise<boolean> {
+        Guard.isNullOrEmptyOrUndefined(repoName, "issueExists", "repoName");
+        Guard.isLessThanOne(issueNumber, "issueExists", "issueNumber");
+
+        // REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#get-an-issue
+        const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${issueNumber}`;
+        
+        const response: Response = await fetch(url, {
+            method: "GET",
+            headers: this.headers,
+        });
+
+        const possibleStatusCodes = [301, 304, 404, 410];
+
+        // If there is an error
+        if (possibleStatusCodes.includes(response.status)) {
+            switch (response.status) {
+                case 301: // Moved permanently
+                case 304: // Not modified
+                case 410: // Gone
+                    Utils.printAsGitHubError(`The request to get an issue returned error '${response.status} - (${response.statusText})'`);
+                    break;
+                case 404: // Not found
+                    return false;
+            }
+        }
+
+        return true;
     }
 }
