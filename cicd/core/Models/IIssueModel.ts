@@ -26,4 +26,9 @@ export interface IIssueModel {
      * Gets or sets the URL to the html page of the issue.
      */
     html_url: string;
+
+    /**
+     * Gets or sets the node ID of the issue.
+     */
+    node_id: string;
 }

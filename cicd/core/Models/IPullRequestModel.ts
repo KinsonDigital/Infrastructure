@@ -31,4 +31,9 @@ export interface IPullRequestModel {
      * Gets or sets if the pull request is a draft.
      */
     draft: boolean;
+    
+    /**
+     * Gets or sets the node id of the pull request.
+     */
+    node_id: string;
 }
