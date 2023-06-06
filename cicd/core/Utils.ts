@@ -87,7 +87,7 @@ export class Utils {
 	 * @param message The message to print.
 	 */
 	public static printAsGitHubError(message: string): void {
-		console.log(`:error::${message}`);
+		console.log(`::error::${message}`);
 	}
 
 	/**
