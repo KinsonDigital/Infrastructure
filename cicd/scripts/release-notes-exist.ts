@@ -8,7 +8,7 @@ scriptDescriptions.printScriptDescription(scriptName);
 
 // Validate the arguments
 if (Deno.args.length != 2) {
-	let errorMsg = `The '${scriptName}' cicd script must have two arguments.`;
+	let errorMsg = `The '${scriptName}' cicd script must have 2 arguments.`;
 	errorMsg += "\nThe 1st arg is required and must be either 'production', 'preview'.";
 	errorMsg += "\nThe 2nd arg is required and must be the version of the notes.";
 

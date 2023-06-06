@@ -10,7 +10,7 @@ scriptDescriptions.printScriptDescription(scriptName);
 
 // Validate the arguments
 if (Deno.args.length < 2) {
-	let errorMsg = `The '${scriptName}' cicd script must have two arguments and with an additional 1 optional argument.`;
+	let errorMsg = `The '${scriptName}' cicd script must have 3 arguments and with an additional 1 optional argument.`;
 	errorMsg += "\nThe 1st arg is required and must be either 'production', 'preview' or 'either'.";
 	errorMsg += "\nThe 2nd arg is required and must be the name of the tag.";
 	errorMsg += "\nThe 3rd arg is optional and must be a GitHub token.";
