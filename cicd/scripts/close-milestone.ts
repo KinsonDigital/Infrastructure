@@ -1,13 +1,10 @@
 import { MilestoneClient } from "../core/MilestoneClient.ts";
 import { IMilestoneModel } from "../core/Models/IMilestoneModel.ts";
 import { RepoClient } from "../core/RepoClient.ts";
-import { ScriptDescriptions } from "../core/ScriptDescriptions.ts";
 import { MilestoneNotFound } from "../core/Types.ts";
 import { Utils } from "../core/Utils.ts";
 
 const scriptName = Utils.getScriptName();
-const scriptDescriptions: ScriptDescriptions = new ScriptDescriptions();
-scriptDescriptions.printScriptDescription(scriptName);
 
 if (Deno.args.length != 3) {
 	let errorMsg = `The '${scriptName}' cicd script must have 3 arguments.`;

@@ -2,12 +2,9 @@ import { File } from "../core/File.ts";
 import { LabelClient } from "../core/LabelClient.ts";
 import { MilestoneClient } from "../core/MilestoneClient.ts";
 import { Utils } from "../core/Utils.ts";
-import { ScriptDescriptions } from "../core/ScriptDescriptions.ts";
 import { RepoClient } from "../core/RepoClient.ts";
 
 const scriptName = Utils.getScriptName();
-const scriptDescriptions: ScriptDescriptions = new ScriptDescriptions();
-scriptDescriptions.printScriptDescription(scriptName);
 
 if (Deno.args.length < 3) {
 	let errorMsg =
