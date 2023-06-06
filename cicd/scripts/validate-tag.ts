@@ -35,7 +35,9 @@ Utils.printInGroup("Arguments", [
 const versionTypeInvalid = tagType != "production" && tagType != "preview" && tagType != "either";
 
 if (versionTypeInvalid) {
-	Utils.printAsGitHubError(`The tag type argument '${tagType}' is invalid.  Valid values are 'production', 'preview' or 'either'.`);
+	Utils.printAsGitHubError(
+		`The tag type argument '${tagType}' is invalid.  Valid values are 'production', 'preview' or 'either'.`,
+	);
 	Deno.exit(1);
 }
 
