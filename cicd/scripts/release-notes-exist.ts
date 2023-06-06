@@ -12,7 +12,7 @@ if (Deno.args.length != 2) {
 	errorMsg += "\nThe 1st arg is required and must be either 'production', 'preview'.";
 	errorMsg += "\nThe 2nd arg is required and must be the version of the notes.";
 
-	Utils.printAsGitHubError(`${errorMsg}`);
+	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 
@@ -38,7 +38,7 @@ if (releaseTypeNotValid) {
 	let errorMsg = "The notes type argument must be a value of 'production', 'preview'.";
 	errorMsg += "\nThe value is case-insensitive.";
 
-	Utils.printAsGitHubError(`${errorMsg}`);
+	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 

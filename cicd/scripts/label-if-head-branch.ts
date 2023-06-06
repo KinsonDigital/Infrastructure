@@ -18,7 +18,7 @@ if (Deno.args.length != 5) {
 		"\nThe 5th arg is required and must be the label to add if the head branch of the pull request is correct.";
 	errorMsg += "\nThe 6th arg is required and must be the GitHub token.";
 
-	Utils.printAsGitHubError(`${errorMsg}`);
+	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 

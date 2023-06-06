@@ -17,7 +17,7 @@ if (Deno.args.length < 3) {
 		"\nThe 2nd arg is required and must be the type of release. Valid values are 'Production' and 'Preview'.";
 	errorMsg += "\nThe 3rd arg is optional and must be the version of the release.";
 
-	Utils.printAsGitHubError(`${errorMsg}`);
+	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 

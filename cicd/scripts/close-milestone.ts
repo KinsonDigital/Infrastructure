@@ -16,7 +16,7 @@ if (Deno.args.length != 3) {
 	errorMsg += "\nThe 2nd arg is required and must be a valid milestone name.";
 	errorMsg += "\nThe 3rd arg is required and must be a valid GitHub token.";
 
-	Utils.printAsGitHubError(`${errorMsg}`);
+	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 

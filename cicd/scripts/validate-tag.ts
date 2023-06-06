@@ -15,7 +15,7 @@ if (Deno.args.length < 2) {
 	errorMsg += "\nThe 2nd arg is required and must be the name of the tag.";
 	errorMsg += "\nThe 3rd arg is optional and must be a GitHub token.";
 
-	Utils.printAsGitHubError(`${errorMsg}`);
+	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 
@@ -36,7 +36,7 @@ if (tagType != "production" && tagType != "preview" && tagType != "either") {
 	let errorMsg = "The tag type argument must be a value of 'production', 'preview' or 'either'.";
 	errorMsg += "\nThe value is case-insensitive.";
 
-	Utils.printAsGitHubError(`${errorMsg}`);
+	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 
