@@ -32,34 +32,33 @@ Utils.printInGroup("Arguments", [
 	`GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,
 ]);
 
-if (tagType != "production" && tagType != "preview" && tagType != "either") {
-	let errorMsg = "The tag type argument must be a value of 'production', 'preview' or 'either'.";
-	errorMsg += "\nThe value is case-insensitive.";
+const versionTypeInvalid = tagType != "production" && tagType != "preview" && tagType != "either";
 
-	Utils.printAsGitHubError(errorMsg);
+if (versionTypeInvalid) {
+	Utils.printAsGitHubError(`The tag type argument '${tagType}' is invalid.  Valid values are 'production', 'preview' or 'either'.`);
 	Deno.exit(1);
 }
 
 const prodVersionRegex = /^v[0-9]+\.[0-9]+\.[0-9]+$/;
 const prevVersionRegex = /^v[0-9]+\.[0-9]+\.[0-9]+-preview\.[0-9]+$/;
 
-let isValid = false;
+let tagIsInvalid = false;
 
 switch (tagType) {
 	case "production":
-		isValid = prodVersionRegex.test(tag);
+		tagIsInvalid = !prodVersionRegex.test(tag);
 		break;
 	case "preview":
-		isValid = prevVersionRegex.test(tag);
+		tagIsInvalid = !prevVersionRegex.test(tag);
 		break;
 	case "either":
-		isValid = prodVersionRegex.test(tag) || prevVersionRegex.test(tag);
+		tagIsInvalid = !prodVersionRegex.test(tag) || prevVersionRegex.test(tag);
 		break;
 	default:
 		break;
 }
 
-if (isValid === false) {
+if (tagIsInvalid) {
 	const tagTypeStr = tagType === "production" || tagType === "preview" ? tagType : "production or preview";
 
 	console.log(`The tag is not in the correct ${tagTypeStr} version syntax.`);

@@ -194,7 +194,7 @@ export class MilestoneClient extends RESTClient {
 			Deno.exit(1);
 		}
 
-		if (response.status !== HttpStatusCodes.OK) {
+		if (response.status != HttpStatusCodes.OK) {
 			Utils.printAsGitHubError(
 				`The request to close milestone '${milestoneName}' returned error '${response.status} - (${response.statusText})'`,
 			);
