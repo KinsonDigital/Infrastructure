@@ -205,6 +205,28 @@
                 "request": "launch",
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
+        },
+		{
+            "name": "Validate Version (DEBUG)",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/validate-version.ts",
+            "cwd": "${workspaceFolder}/cicd",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": ["v1.2.3-preview.4", "preview"],
+            "attachSimplePort": 9229,
+            "windows": {
+                "request": "launch",
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "request": "launch",
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
         }
     ]
 }

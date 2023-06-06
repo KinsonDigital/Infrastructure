@@ -19,7 +19,7 @@ if (Deno.args.length < 3) {
 	errorMsg += "\nThe 4th arg is optional and must be a label of a PR to enforce the PR to be in the release notes.";
 	errorMsg += "\nThe 5th arg is optional and must be the GitHub token.";
 
-	Utils.printAsGitHubError(`${errorMsg}`);
+	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 

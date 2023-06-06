@@ -11,13 +11,13 @@ scriptDescriptions.printScriptDescription(scriptName);
 
 if (Deno.args.length < 3) {
 	let errorMsg =
-		`The '${scriptName}' cicd script must have at least 3 arguments with an additional 2 optional arguments.`;
+		`The '${scriptName}' cicd script must have at least 2 arguments with an additional 1 optional arguments.`;
 	errorMsg += "\nThe 1st arg is required and must be the GitHub repo name.";
 	errorMsg +=
 		"\nThe 2nd arg is required and must be the type of release. Valid values are 'Production' and 'Preview'.";
 	errorMsg += "\nThe 3rd arg is optional and must be the version of the release.";
 
-	Utils.printAsGitHubError(`${errorMsg}`);
+	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 

@@ -21,7 +21,7 @@ if (Deno.args.length != 5) {
 	errorMsg += "\nThe 4th arg is required and must be a valid GitHub organization project.";
 	errorMsg += "\nThe 5th arg is required and must be a valid GitHub token.";
 
-	Utils.printAsGitHubError(`${errorMsg}`);
+	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 

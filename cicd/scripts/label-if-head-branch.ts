@@ -8,7 +8,7 @@ const scriptName = Utils.getScriptName();
 const scriptDescriptions: ScriptDescriptions = new ScriptDescriptions();
 scriptDescriptions.printScriptDescription(scriptName);
 
-if (Deno.args.length < 5) {
+if (Deno.args.length != 5) {
 	let errorMsg = `The '${scriptName}' cicd script must have 6 arguments.`;
 	errorMsg += "\nThe 1st arg is required and must be the GitHub repo name.";
 	errorMsg += "\nThe 2nd arg is required and must be a valid pull request number.";
@@ -16,9 +16,9 @@ if (Deno.args.length < 5) {
 	errorMsg += "\nThe 4th arg is required and must be the intended head branch of the pull request.";
 	errorMsg +=
 		"\nThe 5th arg is required and must be the label to add if the head branch of the pull request is correct.";
-	errorMsg += "\nThe 6th arg is optional and must be the GitHub token.";
+	errorMsg += "\nThe 6th arg is required and must be the GitHub token.";
 
-	Utils.printAsGitHubError(`${errorMsg}`);
+	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 

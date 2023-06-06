@@ -10,13 +10,12 @@ const scriptDescriptions: ScriptDescriptions = new ScriptDescriptions();
 scriptDescriptions.printScriptDescription(scriptName);
 
 if (Deno.args.length != 3) {
-	let errorMsg =
-		`The '${scriptName}' cicd script must have at least 3 arguments with an additional 2 optional arguments.`;
+	let errorMsg = `The '${scriptName}' cicd script must have 3 arguments.`;
 	errorMsg += "\nThe 1st arg is required and must be the GitHub repo name.";
 	errorMsg += "\nThe 2nd arg is required and must be a valid milestone name.";
 	errorMsg += "\nThe 3rd arg is required and must be a valid GitHub token.";
 
-	Utils.printAsGitHubError(`${errorMsg}`);
+	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 
