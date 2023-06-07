@@ -29,4 +29,4 @@ export type RepoNotFound = {
 /**
  * Represents a GitHub issue or pull request.
  */
-export type ItemType = "issue" | "pull request";
+export type ItemType = "issue" | "pull-request";

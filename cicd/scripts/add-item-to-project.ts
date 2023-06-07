@@ -13,8 +13,8 @@ if (Deno.args.length != 5) {
 	let errorMsg =
 		`The '${scriptName}' cicd script must have at least 3 arguments with an additional 2 optional arguments.`;
 	errorMsg += "\nThe 1st arg is required and must be the GitHub repo name.";
-	errorMsg += "\nThe 2nd arg is required and must be a valid issue or pull request number.";
-	errorMsg += "\nThe 3rd arg is required and must be a either the value 'issue' or pr' for the item type.";
+	errorMsg += "\nThe 2nd arg is required and must be a valid issue or pr number.";
+	errorMsg += "\nThe 3rd arg is required and must be a either the value 'issue' or 'pull-request' for the item type.";
 	errorMsg += "\nThe 4th arg is required and must be a valid GitHub organization project.";
 	errorMsg += "\nThe 5th arg is required and must be a valid GitHub token.";
 
@@ -55,7 +55,7 @@ if (numberInvalid) {
 }
 
 const ISSUE_TYPE = "issue";
-const PR_TYPE = "pull request";
+const PR_TYPE = "pull-request";
 
 let itemNodeId = "";
 
@@ -87,7 +87,7 @@ switch (itemType) {
 		break;
 	}
 	default:
-		Utils.printAsGitHubError(`The item type '${itemType}' is invalid. It must be a value of 'issue' or 'pr'.`);
+		Utils.printAsGitHubError(`The item type '${itemType}' is invalid. It must be a value of 'issue' or 'pull-request'.`);
 		break;
 }
 
