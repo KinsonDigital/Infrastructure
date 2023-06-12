@@ -10,7 +10,7 @@ export class ReleaseTweetBuilder {
 	private readonly VERSION_VAR = "VERSION";
 	private readonly NUGET_VERSION_VAR = "NUGET_VERSION";
 	private readonly REPO_OWNER_VAR = "REPO_OWNER";
-	private readonly DISCORD_INVITE_ID_VAR = "DISCORD_INVITE_ID";
+	private readonly DISCORD_INVITE_CODE_VAR = "DISCORD_INVITE_CODE";
 	private readonly releaseTweetFileName = "release-tweet-template.txt";
 
 	/**
@@ -18,14 +18,14 @@ export class ReleaseTweetBuilder {
 	 * @param projectName The name of the project being released.
 	 * @param repoOwner The owner of the repository.
 	 * @param version The version of the project being released.
-	 * @param discordInviteId The discord invite id.
+	 * @param discordInviteCode The discord invite code.
 	 * @returns The release tweet.
 	 */
-	public buildTweet(projectName: string, repoOwner: string, version: string, discordInviteId: string): string {
+	public buildTweet(projectName: string, repoOwner: string, version: string, discordInviteCode: string): string {
 		Guard.isNullOrEmptyOrUndefined(projectName, "buildTweet", "projectName");
 		Guard.isNullOrEmptyOrUndefined(repoOwner, "buildTweet", "repoOwner");
 		Guard.isNullOrEmptyOrUndefined(version, "buildTweet", "version");
-		Guard.isNullOrEmptyOrUndefined(discordInviteId, "buildTweet", "discordInviteId");
+		Guard.isNullOrEmptyOrUndefined(discordInviteCode, "buildTweet", "discordInviteCode");
 
 		version = version.startsWith("v") ? version : `v${version}`;
 
@@ -44,7 +44,7 @@ export class ReleaseTweetBuilder {
 		tweet = tweet.replaceAll(`{${this.VERSION_VAR}}`, version);
 		tweet = tweet.replaceAll(`{${this.NUGET_VERSION_VAR}}`, nugetVersion);
 		tweet = tweet.replaceAll(`{${this.REPO_OWNER_VAR}}`, repoOwner);
-		tweet = tweet.replaceAll(`{${this.DISCORD_INVITE_ID_VAR}}`, discordInviteId);
+		tweet = tweet.replaceAll(`{${this.DISCORD_INVITE_CODE_VAR}}`, discordInviteCode);
 
 		return tweet;
 	}
