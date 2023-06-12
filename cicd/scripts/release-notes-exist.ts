@@ -42,18 +42,15 @@ if (releaseTypeNotValid) {
 	Deno.exit(1);
 }
 
-const prodVersionRegex = /^v[0-9]+\.[0-9]+\.[0-9]+$/;
-const prevVersionRegex = /^v[0-9]+\.[0-9]+\.[0-9]+-preview\.[0-9]+$/;
-
-let isValid = false;
+let isNotValid = true;
 
 if (releaseType === "production") {
-	isValid = prodVersionRegex.test(version);
+	isNotValid = Utils.isNotValidProdVersion(version);
 } else {
-	isValid = prevVersionRegex.test(version);
+	isNotValid = Utils.isNotValidPreviewVersion(version);
 }
 
-if (isValid === false) {
+if (isNotValid) {
 	Utils.printAsGitHubError(`The version is not in the correct ${releaseType} version syntax.`);
 	Deno.exit(1);
 }

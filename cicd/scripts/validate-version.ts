@@ -37,20 +37,17 @@ Utils.printInGroup("Arguments", [
 	`Version Type (Required): ${versionType}`,
 ]);
 
-const prodVersionRegex = /^v[0-9]+\.[0-9]+\.[0-9]+$/;
-const prevVersionRegex = /^v[0-9]+\.[0-9]+\.[0-9]+-preview\.[0-9]+$/;
-
 let versionIsInvalid = false;
 
 switch (versionType) {
 	case "production":
-		versionIsInvalid = !prodVersionRegex.test(version);
+		versionIsInvalid = Utils.isNotValidProdVersion(version);
 		break;
 	case "preview":
-		versionIsInvalid = !prevVersionRegex.test(version);
+		versionIsInvalid = Utils.isNotValidPreviewVersion(version);
 		break;
 	case "either":
-		versionIsInvalid = !prodVersionRegex.test(version) || prevVersionRegex.test(version);
+		versionIsInvalid = Utils.isNotValidProdVersion(version) || Utils.isNotValidPreviewVersion(version);
 		break;
 	default:
 		break;
