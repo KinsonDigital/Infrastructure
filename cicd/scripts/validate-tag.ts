@@ -1,12 +1,9 @@
 import { ITagModel } from "../core/Models/ITagModel.ts";
 import { RepoClient } from "../core/RepoClient.ts";
-import { ScriptDescriptions } from "../core/ScriptDescriptions.ts";
 import { TagClient } from "../core/TagClient.ts";
 import { Utils } from "../core/Utils.ts";
 
 const scriptName = Utils.getScriptName();
-const scriptDescriptions: ScriptDescriptions = new ScriptDescriptions();
-scriptDescriptions.printScriptDescription(scriptName);
 
 // Validate the arguments
 if (Deno.args.length < 2) {

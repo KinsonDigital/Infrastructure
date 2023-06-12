@@ -1,11 +1,8 @@
 import { MilestoneClient } from "../core/MilestoneClient.ts";
 import { RepoClient } from "../core/RepoClient.ts";
-import { ScriptDescriptions } from "../core/ScriptDescriptions.ts";
 import { Utils } from "../core/Utils.ts";
 
 const scriptName = Utils.getScriptName();
-const scriptDescriptions: ScriptDescriptions = new ScriptDescriptions();
-scriptDescriptions.printScriptDescription(scriptName);
 
 if (Deno.args.length >= 2 && Deno.args.length <= 3) {
 	let errorMsg = `The '${scriptName}' cicd script must have at least 2 arguments with 1 additional optional argument.`;
