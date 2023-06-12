@@ -9,6 +9,9 @@ import { IssueNotFound, MilestoneNotFound, PullRequestNotFound } from "./Types.t
  * Provides utility functions.
  */
 export class Utils {
+	private static readonly prodVersionRegex = /^v[0-9]+\.[0-9]+\.[0-9]+$/;
+	private static readonly prevVersionRegex = /^v[0-9]+\.[0-9]+\.[0-9]+-preview\.[0-9]+$/;
+
 	/**
 	 * Checks if the value is numeric.
 	 * @param value The value to check.
@@ -87,7 +90,7 @@ export class Utils {
 	 * @param message The message to print.
 	 */
 	public static printAsGitHubError(message: string): void {
-		console.log(`:error::${message}`);
+		console.log(`::error::${message}`);
 	}
 
 	/**
@@ -182,5 +185,41 @@ export class Utils {
 	 */
 	public static isRepoNotFound(repo: IRepoModel | MilestoneNotFound): repo is MilestoneNotFound {
 		return typeof repo === "object" && repo && "message" in repo;
+	}
+
+	/**
+	 * Checks if the given {@link version} is a valid production version.
+	 * @param version The version to check.
+	 * @returns True if the version is a valid production version, otherwise false.
+	 */
+	public static validProdVersion(version: string): boolean {
+		return this.prodVersionRegex.test(version);
+	}
+
+	/**
+	 * Checks if the given {@link version} is not valid production version.
+	 * @param version The version to check.
+	 * @returns True if the version is not a valid production version, otherwise false.
+	 */
+	public static isNotValidProdVersion(version: string): boolean {
+		return !Utils.validProdVersion(version);
+	}
+
+	/**
+	 * Checks if the given {@link version} is a valid preview version.
+	 * @param version The version to check.
+	 * @returns True if the version is a valid preview version, otherwise false.
+	 */
+	public static validPreviewVersion(version: string): boolean {
+		return this.prevVersionRegex.test(version);
+	}
+
+	/**
+	 * Checks if the given {@link version} is not a valid preview version.
+	 * @param version The version to check.
+	 * @returns True if the version is not a valid preview version, otherwise false.
+	 */
+	public static isNotValidPreviewVersion(version: string): boolean {
+		return !Utils.validPreviewVersion(version);
 	}
 }

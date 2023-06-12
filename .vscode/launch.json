@@ -227,6 +227,37 @@
                 "request": "launch",
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
+        },
+		{
+            "name": "Send Release Tweet (DEBUG)",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/send-release-tweet.ts",
+            "cwd": "${workspaceFolder}/cicd/scripts",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": [
+				"Infrastructure",
+				"v1.2.3-preview.4",
+				"KinsonDigital",
+				"fake-discord-invite-code",
+				"fake-consumer-api-key",
+				"fake-consumer-api-secret",
+				"fake-access-token-key",
+				"fake-access-token-secret",
+			],
+            "attachSimplePort": 9229,
+            "windows": {
+                "request": "launch",
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "request": "launch",
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
         }
     ]
 }

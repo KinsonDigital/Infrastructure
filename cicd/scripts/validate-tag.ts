@@ -38,20 +38,17 @@ if (versionTypeInvalid) {
 	Deno.exit(1);
 }
 
-const prodVersionRegex = /^v[0-9]+\.[0-9]+\.[0-9]+$/;
-const prevVersionRegex = /^v[0-9]+\.[0-9]+\.[0-9]+-preview\.[0-9]+$/;
-
 let tagIsInvalid = false;
 
 switch (tagType) {
 	case "production":
-		tagIsInvalid = !prodVersionRegex.test(tag);
+		tagIsInvalid = Utils.isNotValidProdVersion(tag);
 		break;
 	case "preview":
-		tagIsInvalid = !prevVersionRegex.test(tag);
+		tagIsInvalid = Utils.isNotValidPreviewVersion(tag);
 		break;
 	case "either":
-		tagIsInvalid = !prodVersionRegex.test(tag) || prevVersionRegex.test(tag);
+		tagIsInvalid = Utils.isNotValidProdVersion(tag) || Utils.isNotValidPreviewVersion(tag);
 		break;
 	default:
 		break;
