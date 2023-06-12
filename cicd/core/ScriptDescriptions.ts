@@ -1,4 +1,4 @@
-import { extname, resolve } from "https://deno.land/std@0.190.0/path/mod.ts";
+import { extname, resolve } from "https://deno.land/std@0.191.0/path/mod.ts";
 import { File } from "./File.ts";
 import { Utils } from "./Utils.ts";
 
