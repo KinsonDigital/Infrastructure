@@ -1,15 +1,15 @@
-import { RESTClient } from "./RESTClient.ts";
+import { WebAPIClient } from "./WebAPIClient.ts";
 import { Utils } from "./Utils.ts";
 
 /**
  * Provides a base class for HTTP clients.
  */
-export abstract class GitHubClient extends RESTClient {
+export abstract class GitHubClient extends WebAPIClient {
 	protected readonly organization = "KinsonDigital";
 	protected readonly headers: Headers = new Headers();
 	
 	/**
-	 * Initializes a new instance of the {@link RESTClient} class.
+	 * Initializes a new instance of the {@link WebAPIClient} class.
 	 * @param token The GitHub token to use for authentication.
 	 * @remarks If no token is provided, then the client will not be authenticated.
 	*/

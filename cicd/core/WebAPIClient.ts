@@ -3,7 +3,7 @@ import { Guard } from "./Guard.ts";
 /**
  * Provides a base class for HTTP clients.
  */
-export abstract class RESTClient {
+export abstract class WebAPIClient {
 	protected readonly headers: Headers = new Headers();
 	protected baseUrl = "";
 

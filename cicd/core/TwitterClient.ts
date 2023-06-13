@@ -1,12 +1,12 @@
 import { ITwitterAuthValues } from "./Models/ITwitterAuthValues.ts";
 import { TweetV2PostTweetResult, TwitterApi, TwitterApiReadWrite } from "npm:twitter-api-v2@1.15.0";
 import { Utils } from "./Utils.ts";
-import { RESTClient } from "./RESTClient.ts";
+import { WebAPIClient } from "./WebAPIClient.ts";
 
 /**
  * Provides twitter functionality.
  */
-export class TwitterClient extends RESTClient {
+export class TwitterClient extends WebAPIClient {
 	private readonly authValues: ITwitterAuthValues;
 	private readonly twitterClientBase: TwitterApi;
 	private readonly twitterClientReadWrite: TwitterApiReadWrite;
