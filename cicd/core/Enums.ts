@@ -1,7 +1,7 @@
 /**
  * HTTP status codes.
  */
-export enum HttpStatusCodes {
+export enum GitHubHttpStatusCodes {
 	/**
 	 * The request succeeded. The result meaning of "success" depends on the HTTP method:
 	 * - GET: The resource has been fetched and transmitted in the message body.
@@ -65,4 +65,74 @@ export enum HttpStatusCodes {
 	 * temporary condition responses should usually not be cached.
 	 */
 	ServiceUnavailable = 503,
+}
+
+/**
+ * HTTP status codes for the NuGet API.
+ */
+export enum NuGetHttpStatusCodes {
+	/**
+	 * Success, and there is a response body.
+	 */
+	SuccessWithResponseBody = 200,
+
+	/**
+	 * Success, and the resource was created.
+	 */
+	SuccessResourceCreated = 201,
+
+	/**
+	 * Success, the request has been accepted but some work may still be incomplete and completed asynchronously.
+	 */
+	SuccessIncompleteOrCompletedAsync = 202,
+
+	/**
+	 * Success, but there is no response body.
+	 */
+	SuccessWithNoResponseBody = 204,
+
+	/**
+	 * A permanent redirect.
+	 */
+	PermanentRedirect = 301,
+
+	/**
+	 * A temporary redirect.
+	 */
+	TemporaryRedirect = 302,
+
+	/**
+	 * The parameters in the URL or in the request body aren't valid.
+	 */
+	ParamsNotValid = 400,
+
+	/**
+	 * The provided credentials are invalid.
+	 */
+	CredentialsInvalid = 401,
+
+	/**
+	 * The action is not allowed given the provided credentials.
+	 */
+	ActionNotAllowedWithCreds = 403,
+
+	/**
+	 * The requested resource doesn't exist.
+	 */
+	NotFound = 404,
+
+	/**
+	 * The request conflicts with an existing resource.
+	 */
+	ResourceConflicts = 409,
+
+	/**
+	 * The service has encountered an unexpected error.
+	 */
+	InternalServerError = 500,
+
+	/**
+	 * The service is temporarily unavailable.
+	 */
+	TemporarilyUnavailable = 503,
 }

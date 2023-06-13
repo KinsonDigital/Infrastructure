@@ -1,12 +1,14 @@
 {
     "cSpell.words": [
-        "cicd",
-        "endgroup",
-        "Kinson",
-        "Nums",
-        "pwsh",
-        "zipball"
-    ],
+		"cicd",
+		"Creds",
+		"endgroup",
+		"flatcontainer",
+		"Kinson",
+		"Nums",
+		"pwsh",
+		"zipball"
+	],
     "deno.enable": true,
     "[typescript]": {
         "editor.indentSize": 4

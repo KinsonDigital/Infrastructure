@@ -1,14 +1,14 @@
-import { HttpStatusCodes } from "./Enums.ts";
-import { Guard } from "./Guard.ts";
-import { IRepoModel } from "./Models/IRepoModel.ts";
-import { RESTClient } from "./RESTClient.ts";
-import { RepoNotFound } from "./Types.ts";
-import { Utils } from "./Utils.ts";
+import { GitHubHttpStatusCodes } from "../core/Enums.ts";
+import { GitHubClient } from "../core/GitHubClient.ts";
+import { Guard } from "../core/Guard.ts";
+import { IRepoModel } from "../core/Models/IRepoModel.ts";
+import { RepoNotFound } from "../core/Types.ts";
+import { Utils } from "../core/Utils.ts";
 
 /**
  * Provides a client for interacting with GitHub repositories.
  */
-export class RepoClient extends RESTClient {
+export class RepoClient extends GitHubClient {
 	/**
 	 * Initializes a new instance of the {@link RepoClient} class.
 	 * @param token The GitHub token to use for authentication.
@@ -29,13 +29,13 @@ export class RepoClient extends RESTClient {
 
 		if (response.status != 200) {
 			switch (response.status) {
-				case HttpStatusCodes.MovedPermanently:
+				case GitHubHttpStatusCodes.MovedPermanently:
 					Utils.printAsGitHubError(`The repo '${repoName}' was moved permanently.`);
 					break;
-				case HttpStatusCodes.Forbidden:
+				case GitHubHttpStatusCodes.Forbidden:
 					Utils.printAsGitHubError(`You do not have permission to access the repo '${repoName}'.`);
 					break;
-				case HttpStatusCodes.NotFound:
+				case GitHubHttpStatusCodes.NotFound:
 					return { message: `The repo '${repoName}' was not found.` };
 			}
 

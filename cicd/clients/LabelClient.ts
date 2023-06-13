@@ -1,12 +1,12 @@
-import { RESTClient } from "./RESTClient.ts";
-import { ILabelModel } from "./Models/ILabelModel.ts";
-import { Utils } from "./Utils.ts";
-import { HttpStatusCodes } from "./Enums.ts";
+import { ILabelModel } from "../core/Models/ILabelModel.ts";
+import { Utils } from "../core/Utils.ts";
+import { GitHubHttpStatusCodes } from "../core/Enums.ts";
+import { GitHubClient } from "../core/GitHubClient.ts";
 
 /**
  * Provides a client for interacting with labels.
  */
-export class LabelClient extends RESTClient {
+export class LabelClient extends GitHubClient {
 	/**
 	 * Initializes a new instance of the {@link LabelClient} class.
 	 * @param token The GitHub token to use for authentication.
@@ -26,7 +26,7 @@ export class LabelClient extends RESTClient {
 		const url = `${this.baseUrl}/${this.organization}/${repoName}/labels`;
 		const response: Response = await this.fetchGET(url);
 
-		if (response.status === HttpStatusCodes.NotFound) {
+		if (response.status === GitHubHttpStatusCodes.NotFound) {
 			Utils.printAsGitHubError(`${response.status} - ${response.statusText}`);
 			Deno.exit(1);
 		}

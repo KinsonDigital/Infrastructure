@@ -1,16 +1,16 @@
-import { RESTClient } from "./RESTClient.ts";
-import { Guard } from "./Guard.ts";
+import { Guard } from "../core/Guard.ts";
 import { LabelClient } from "./LabelClient.ts";
-import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
-import { Utils } from "./Utils.ts";
-import { PullRequestNotFound } from "./Types.ts";
-import { HttpStatusCodes } from "./Enums.ts";
-import { ILabelModel } from "./Models/ILabelModel.ts";
+import { IPullRequestModel } from "../core/Models/IPullRequestModel.ts";
+import { Utils } from "../core/Utils.ts";
+import { PullRequestNotFound } from "../core/Types.ts";
+import { GitHubHttpStatusCodes } from "../core/Enums.ts";
+import { ILabelModel } from "../core/Models/ILabelModel.ts";
+import { GitHubClient } from "../core/GitHubClient.ts";
 
 /**
  * Provides a client for interacting with pull requests.
  */
-export class PullRequestClient extends RESTClient {
+export class PullRequestClient extends GitHubClient {
 	private readonly labelClient: LabelClient;
 
 	/**
@@ -40,15 +40,15 @@ export class PullRequestClient extends RESTClient {
 		const response: Response = await this.fetchGET(url);
 
 		// If there is an error
-		if (response.status != HttpStatusCodes.OK) {
+		if (response.status != GitHubHttpStatusCodes.OK) {
 			switch (response.status) {
-				case HttpStatusCodes.MovedPermanently:
-				case HttpStatusCodes.ValidationFailed:
+				case GitHubHttpStatusCodes.MovedPermanently:
+				case GitHubHttpStatusCodes.ValidationFailed:
 					Utils.printAsGitHubError(
 						`The request to get a pull request returned error '${response.status} - (${response.statusText})'`,
 					);
 					break;
-				case HttpStatusCodes.NotFound:
+				case GitHubHttpStatusCodes.NotFound:
 					Utils.printAsGitHubError(
 						`The organization '${this.organization}' or repo '${repoName}' does not exist.`,
 					);
@@ -78,15 +78,15 @@ export class PullRequestClient extends RESTClient {
 		const response: Response = await this.fetchGET(url);
 
 		// If there is an error
-		if (response.status != HttpStatusCodes.OK) {
+		if (response.status != GitHubHttpStatusCodes.OK) {
 			switch (response.status) {
-				case HttpStatusCodes.MovedPermanently:
-				case HttpStatusCodes.Gone:
+				case GitHubHttpStatusCodes.MovedPermanently:
+				case GitHubHttpStatusCodes.Gone:
 					Utils.printAsGitHubError(
 						`The request to get labels returned error '${response.status} - (${response.statusText})'`,
 					);
 					break;
-				case HttpStatusCodes.NotFound:
+				case GitHubHttpStatusCodes.NotFound:
 					Utils.printAsGitHubError(`The pull request number '${prNumber}' does not exist.`);
 					break;
 			}
@@ -117,16 +117,16 @@ export class PullRequestClient extends RESTClient {
 		const response: Response = await this.fetchGET(url);
 
 		// If there is an error
-		if (response.status != HttpStatusCodes.OK) {
+		if (response.status != GitHubHttpStatusCodes.OK) {
 			switch (response.status) {
-				case HttpStatusCodes.NotModified:
-				case HttpStatusCodes.InternalServerError:
-				case HttpStatusCodes.ServiceUnavailable:
+				case GitHubHttpStatusCodes.NotModified:
+				case GitHubHttpStatusCodes.InternalServerError:
+				case GitHubHttpStatusCodes.ServiceUnavailable:
 					Utils.printAsGitHubError(
 						`The request to get pull request returned error '${response.status} - (${response.statusText})'`,
 					);
 					break;
-				case HttpStatusCodes.NotFound:
+				case GitHubHttpStatusCodes.NotFound:
 					Utils.printAsGitHubError(`The pull request number '${prNumber}' does not exist.`);
 
 					return { message: response.statusText };
@@ -180,20 +180,20 @@ export class PullRequestClient extends RESTClient {
 		const response: Response = await this.fetchPATCH(url, JSON.stringify({ labels: prLabels }));
 
 		// If there is an error
-		if (response.status != HttpStatusCodes.OK) {
+		if (response.status != GitHubHttpStatusCodes.OK) {
 			switch (response.status) {
-				case HttpStatusCodes.MovedPermanently:
-				case HttpStatusCodes.Gone:
-				case HttpStatusCodes.ValidationFailed:
-				case HttpStatusCodes.ServiceUnavailable:
+				case GitHubHttpStatusCodes.MovedPermanently:
+				case GitHubHttpStatusCodes.Gone:
+				case GitHubHttpStatusCodes.ValidationFailed:
+				case GitHubHttpStatusCodes.ServiceUnavailable:
 					Utils.printAsGitHubError(
 						`The request to add label '${label}' returned error '${response.status} - (${response.statusText})'`,
 					);
 					break;
-				case HttpStatusCodes.NotFound:
+				case GitHubHttpStatusCodes.NotFound:
 					Utils.printAsGitHubError(`The pull request number '${prNumber}' does not exist.`);
 					break;
-				case HttpStatusCodes.Forbidden:
+				case GitHubHttpStatusCodes.Forbidden:
 					Utils.printAsGitHubError(
 						`The request to add label '${label}' was forbidden.  Check the auth token.`,
 					);
@@ -220,16 +220,16 @@ export class PullRequestClient extends RESTClient {
 		const response: Response = await this.fetchGET(url);
 
 		// If there is an error
-		if (response.status != HttpStatusCodes.OK) {
+		if (response.status != GitHubHttpStatusCodes.OK) {
 			switch (response.status) {
-				case HttpStatusCodes.NotModified:
-				case HttpStatusCodes.InternalServerError:
-				case HttpStatusCodes.ServiceUnavailable:
+				case GitHubHttpStatusCodes.NotModified:
+				case GitHubHttpStatusCodes.InternalServerError:
+				case GitHubHttpStatusCodes.ServiceUnavailable:
 					Utils.printAsGitHubError(
 						`The request to get an issue returned error '${response.status} - (${response.statusText})'`,
 					);
 					break;
-				case HttpStatusCodes.NotFound:
+				case GitHubHttpStatusCodes.NotFound:
 					return false;
 			}
 		}

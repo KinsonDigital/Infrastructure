@@ -1,5 +1,5 @@
-import { ErrorModel } from "./Models/GraphQLModels/ErrorModel.ts";
-import { RequestResponseModel } from "./Models/GraphQLModels/RequestResponseModel.ts";
+import { ErrorModel } from "../core/Models/GraphQLModels/ErrorModel.ts";
+import { RequestResponseModel } from "../core/Models/GraphQLModels/RequestResponseModel.ts";
 import { Utils } from "./Utils.ts";
 
 /**
