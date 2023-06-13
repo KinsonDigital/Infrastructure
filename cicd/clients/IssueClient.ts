@@ -4,7 +4,7 @@ import { IIssueModel } from "../core/Models/IIssueModel.ts";
 import { ILabelModel } from "../core/Models/ILabelModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { IssueNotFound } from "../core/Types.ts";
-import { HttpStatusCodes } from "../core/Enums.ts";
+import { GitHubHttpStatusCodes } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
 
 /**
@@ -40,15 +40,15 @@ export class IssueClient extends GitHubClient {
 		const response: Response = await this.fetchGET(url);
 
 		// If there is an error
-		if (response.status != HttpStatusCodes.OK) {
+		if (response.status != GitHubHttpStatusCodes.OK) {
 			switch (response.status) {
-				case HttpStatusCodes.MovedPermanently:
-				case HttpStatusCodes.ValidationFailed:
+				case GitHubHttpStatusCodes.MovedPermanently:
+				case GitHubHttpStatusCodes.ValidationFailed:
 					Utils.printAsGitHubError(
 						`The request to get an issue returned error '${response.status} - (${response.statusText})'`,
 					);
 					break;
-				case HttpStatusCodes.NotFound:
+				case GitHubHttpStatusCodes.NotFound:
 					Utils.printAsGitHubError(
 						`The organization '${this.organization}' or repo '${repoName}' does not exist.`,
 					);
@@ -77,15 +77,15 @@ export class IssueClient extends GitHubClient {
 		const response: Response = await this.fetchGET(url);
 
 		// If there is an error
-		if (response.status != HttpStatusCodes.OK) {
+		if (response.status != GitHubHttpStatusCodes.OK) {
 			switch (response.status) {
-				case HttpStatusCodes.MovedPermanently:
-				case HttpStatusCodes.NotModified:
-				case HttpStatusCodes.NotFound:
+				case GitHubHttpStatusCodes.MovedPermanently:
+				case GitHubHttpStatusCodes.NotModified:
+				case GitHubHttpStatusCodes.NotFound:
 					Utils.printAsGitHubError(`The repo '${repoName}' or issue '${issueNumber}' does not exist.`);
 
 					return { message: response.statusText };
-				case HttpStatusCodes.Gone:
+				case GitHubHttpStatusCodes.Gone:
 					Utils.printAsGitHubError(
 						`The request to get an issue returned error '${response.status} - (${response.statusText})'`,
 					);
@@ -141,20 +141,20 @@ export class IssueClient extends GitHubClient {
 		const response: Response = await this.fetchPATCH(url, JSON.stringify({ labels: prLabels }));
 
 		// If there is an error
-		if (response.status != HttpStatusCodes.OK) {
+		if (response.status != GitHubHttpStatusCodes.OK) {
 			switch (response.status) {
-				case HttpStatusCodes.MovedPermanently:
-				case HttpStatusCodes.Gone:
-				case HttpStatusCodes.ValidationFailed:
-				case HttpStatusCodes.ServiceUnavailable:
+				case GitHubHttpStatusCodes.MovedPermanently:
+				case GitHubHttpStatusCodes.Gone:
+				case GitHubHttpStatusCodes.ValidationFailed:
+				case GitHubHttpStatusCodes.ServiceUnavailable:
 					Utils.printAsGitHubError(
 						`The request to add label '${label}' returned error '${response.status} - (${response.statusText})'`,
 					);
 					break;
-				case HttpStatusCodes.NotFound:
+				case GitHubHttpStatusCodes.NotFound:
 					Utils.printAsGitHubError(`An issue with the number '${issueNumber}' does not exist.`);
 					break;
-				case HttpStatusCodes.Forbidden:
+				case GitHubHttpStatusCodes.Forbidden:
 					Utils.printAsGitHubError(
 						`The request to add label '${label}' was forbidden.  Check the auth token.`,
 					);
@@ -182,15 +182,15 @@ export class IssueClient extends GitHubClient {
 		const response: Response = await this.fetchGET(url);
 
 		// If there is an error
-		if (response.status != HttpStatusCodes.OK) {
+		if (response.status != GitHubHttpStatusCodes.OK) {
 			switch (response.status) {
-				case HttpStatusCodes.MovedPermanently:
-				case HttpStatusCodes.Gone:
+				case GitHubHttpStatusCodes.MovedPermanently:
+				case GitHubHttpStatusCodes.Gone:
 					Utils.printAsGitHubError(
 						`The request to get labels returned error '${response.status} - (${response.statusText})'`,
 					);
 					break;
-				case HttpStatusCodes.NotFound:
+				case GitHubHttpStatusCodes.NotFound:
 					Utils.printAsGitHubError(`An issue with the number '${issueNumber}' does not exist.`);
 					break;
 			}
@@ -219,16 +219,16 @@ export class IssueClient extends GitHubClient {
 		const response: Response = await this.fetchGET(url);
 
 		// If there is an error
-		if (response.status != HttpStatusCodes.OK) {
+		if (response.status != GitHubHttpStatusCodes.OK) {
 			switch (response.status) {
-				case HttpStatusCodes.MovedPermanently:
-				case HttpStatusCodes.NotModified:
-				case HttpStatusCodes.Gone:
+				case GitHubHttpStatusCodes.MovedPermanently:
+				case GitHubHttpStatusCodes.NotModified:
+				case GitHubHttpStatusCodes.Gone:
 					Utils.printAsGitHubError(
 						`The request to get an issue returned error '${response.status} - (${response.statusText})'`,
 					);
 					break;
-				case HttpStatusCodes.NotFound:
+				case GitHubHttpStatusCodes.NotFound:
 					return false;
 			}
 		}

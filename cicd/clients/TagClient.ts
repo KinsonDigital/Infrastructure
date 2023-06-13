@@ -2,7 +2,7 @@ import { Guard } from "../core/Guard.ts";
 import { LabelClient } from "./LabelClient.ts";
 import { ITagModel } from "../core/Models/ITagModel.ts";
 import { Utils } from "../core/Utils.ts";
-import { HttpStatusCodes } from "../core/Enums.ts";
+import { GitHubHttpStatusCodes } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
 
 /**
@@ -35,7 +35,7 @@ export class TagClient extends GitHubClient {
 		const response: Response = await this.fetchGET(url);
 
 		// If there is an error
-		if (response.status === HttpStatusCodes.NotFound) {
+		if (response.status === GitHubHttpStatusCodes.NotFound) {
 			Utils.printAsGitHubError(`${response.status} - ${response.statusText}`);
 			Deno.exit(1);
 		}

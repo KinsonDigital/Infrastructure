@@ -4,7 +4,7 @@ import { IMilestoneModel } from "../core/Models/IMilestoneModel.ts";
 import { IPullRequestModel } from "../core/Models/IPullRequestModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { MilestoneNotFound } from "../core/Types.ts";
-import { HttpStatusCodes } from "../core/Enums.ts";
+import { GitHubHttpStatusCodes } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
 
 /**
@@ -50,15 +50,15 @@ export class MilestoneClient extends GitHubClient {
 		const response: Response = await this.fetchGET(url);
 
 		// If there is an error
-		if (response.status != HttpStatusCodes.OK) {
+		if (response.status != GitHubHttpStatusCodes.OK) {
 			switch (response.status) {
-				case HttpStatusCodes.MovedPermanently:
-				case HttpStatusCodes.Gone:
+				case GitHubHttpStatusCodes.MovedPermanently:
+				case GitHubHttpStatusCodes.Gone:
 					Utils.printAsGitHubError(
 						`The request to get issues returned error '${response.status} - (${response.statusText})'`,
 					);
 					break;
-				case HttpStatusCodes.NotFound:
+				case GitHubHttpStatusCodes.NotFound:
 					Utils.printAsGitHubError(`The milestone '${milestoneName}' does not exist.`);
 					break;
 			}
@@ -141,7 +141,7 @@ export class MilestoneClient extends GitHubClient {
 
 		const response: Response = await this.fetchGET(url);
 		// If there is an error
-		if (response.status === HttpStatusCodes.OK) {
+		if (response.status === GitHubHttpStatusCodes.OK) {
 			Utils.printAsGitHubError(`The organization '${this.organization}' or repo '${repoName}' does not exist.`);
 			Deno.exit(1);
 		}
@@ -189,12 +189,12 @@ export class MilestoneClient extends GitHubClient {
 		const response: Response = await this.fetchPATCH(url, JSON.stringify({ state: "closed" }));
 
 		// If there is an error
-		if (response.status === HttpStatusCodes.OK) {
+		if (response.status === GitHubHttpStatusCodes.OK) {
 			Utils.printAsGitHubError(`The organization '${this.organization}' or repo '${repoName}' does not exist.`);
 			Deno.exit(1);
 		}
 
-		if (response.status != HttpStatusCodes.OK) {
+		if (response.status != GitHubHttpStatusCodes.OK) {
 			Utils.printAsGitHubError(
 				`The request to close milestone '${milestoneName}' returned error '${response.status} - (${response.statusText})'`,
 			);

@@ -1,7 +1,7 @@
 /**
  * HTTP status codes.
  */
-export enum HttpStatusCodes {
+export enum GitHubHttpStatusCodes {
 	/**
 	 * The request succeeded. The result meaning of "success" depends on the HTTP method:
 	 * - GET: The resource has been fetched and transmitted in the message body.

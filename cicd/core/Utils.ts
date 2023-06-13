@@ -1,4 +1,4 @@
-import { HttpStatusCodes } from "./Enums.ts";
+import { GitHubHttpStatusCodes } from "./Enums.ts";
 import { IIssueModel } from "./Models/IIssueModel.ts";
 import { IMilestoneModel } from "./Models/IMilestoneModel.ts";
 import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
@@ -123,7 +123,7 @@ export class Utils {
 	 * @param response The response from a request.
 	 */
 	public static throwIfErrors(response: Response): void {
-		if (response.status < HttpStatusCodes.OK) {
+		if (response.status < GitHubHttpStatusCodes.OK) {
 			const errorMsg =
 				`There was a problem with the request. Status code: ${response.status}(${response.statusText}).`;
 

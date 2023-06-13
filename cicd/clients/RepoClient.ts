@@ -1,4 +1,4 @@
-import { HttpStatusCodes } from "../core/Enums.ts";
+import { GitHubHttpStatusCodes } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
 import { Guard } from "../core/Guard.ts";
 import { IRepoModel } from "../core/Models/IRepoModel.ts";
@@ -29,13 +29,13 @@ export class RepoClient extends GitHubClient {
 
 		if (response.status != 200) {
 			switch (response.status) {
-				case HttpStatusCodes.MovedPermanently:
+				case GitHubHttpStatusCodes.MovedPermanently:
 					Utils.printAsGitHubError(`The repo '${repoName}' was moved permanently.`);
 					break;
-				case HttpStatusCodes.Forbidden:
+				case GitHubHttpStatusCodes.Forbidden:
 					Utils.printAsGitHubError(`You do not have permission to access the repo '${repoName}'.`);
 					break;
-				case HttpStatusCodes.NotFound:
+				case GitHubHttpStatusCodes.NotFound:
 					return { message: `The repo '${repoName}' was not found.` };
 			}
 

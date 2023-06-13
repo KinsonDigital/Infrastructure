@@ -1,6 +1,6 @@
 import { ILabelModel } from "../core/Models/ILabelModel.ts";
 import { Utils } from "../core/Utils.ts";
-import { HttpStatusCodes } from "../core/Enums.ts";
+import { GitHubHttpStatusCodes } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
 
 /**
@@ -26,7 +26,7 @@ export class LabelClient extends GitHubClient {
 		const url = `${this.baseUrl}/${this.organization}/${repoName}/labels`;
 		const response: Response = await this.fetchGET(url);
 
-		if (response.status === HttpStatusCodes.NotFound) {
+		if (response.status === GitHubHttpStatusCodes.NotFound) {
 			Utils.printAsGitHubError(`${response.status} - ${response.statusText}`);
 			Deno.exit(1);
 		}
