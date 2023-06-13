@@ -136,19 +136,3 @@ export enum NuGetHttpStatusCodes {
 	 */
 	TemporarilyUnavailable = 503,
 }
-
-/**
-case SuccessWithResponseBody:
-case SuccessResourceCreated:
-case SuccessIncompleteOrCompletedAsync:
-case SuccessWithNoResponseBody:
-case PermanentRedirect:
-case TemporaryRedirect:
-case ParamsNotValid:
-case CredentialsInvalid:
-case ActionNotAllowedWithCreds:
-case NotFound:
-case ResourceConflicts:
-case InternalServerError:
-case TemporarilyUnavailable:
- */
