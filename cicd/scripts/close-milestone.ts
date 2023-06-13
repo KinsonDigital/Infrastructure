@@ -1,6 +1,6 @@
-import { MilestoneClient } from "../core/MilestoneClient.ts";
+import { MilestoneClient } from "../clients/MilestoneClient.ts";
 import { IMilestoneModel } from "../core/Models/IMilestoneModel.ts";
-import { RepoClient } from "../core/RepoClient.ts";
+import { RepoClient } from "../clients/RepoClient.ts";
 import { MilestoneNotFound } from "../core/Types.ts";
 import { Utils } from "../core/Utils.ts";
 

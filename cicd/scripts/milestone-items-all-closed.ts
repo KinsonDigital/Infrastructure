@@ -1,7 +1,7 @@
-import { MilestoneClient } from "../core/MilestoneClient.ts";
+import { MilestoneClient } from "../clients/MilestoneClient.ts";
 import { IIssueModel } from "../core/Models/IIssueModel.ts";
 import { IPullRequestModel } from "../core/Models/IPullRequestModel.ts";
-import { RepoClient } from "../core/RepoClient.ts";
+import { RepoClient } from "../clients/RepoClient.ts";
 import { Utils } from "../core/Utils.ts";
 
 const scriptName = Utils.getScriptName();

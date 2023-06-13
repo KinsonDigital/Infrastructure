@@ -1,5 +1,5 @@
-import { MilestoneClient } from "../core/MilestoneClient.ts";
-import { RepoClient } from "../core/RepoClient.ts";
+import { MilestoneClient } from "../clients/MilestoneClient.ts";
+import { RepoClient } from "../clients/RepoClient.ts";
 import { Utils } from "../core/Utils.ts";
 
 const scriptName = Utils.getScriptName();

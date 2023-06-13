@@ -1,6 +1,6 @@
-import { LabelClient } from "../core/LabelClient.ts";
-import { PullRequestClient } from "../core/PullRequestClient.ts";
-import { RepoClient } from "../core/RepoClient.ts";
+import { LabelClient } from "../clients/LabelClient.ts";
+import { PullRequestClient } from "../clients/PullRequestClient.ts";
+import { RepoClient } from "../clients/RepoClient.ts";
 import { Utils } from "../core/Utils.ts";
 
 const scriptName = Utils.getScriptName();

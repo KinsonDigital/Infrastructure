@@ -1,8 +1,8 @@
 import { File } from "../core/File.ts";
-import { LabelClient } from "../core/LabelClient.ts";
-import { MilestoneClient } from "../core/MilestoneClient.ts";
+import { LabelClient } from "../clients/LabelClient.ts";
+import { MilestoneClient } from "../clients/MilestoneClient.ts";
 import { Utils } from "../core/Utils.ts";
-import { RepoClient } from "../core/RepoClient.ts";
+import { RepoClient } from "../clients/RepoClient.ts";
 
 const scriptName = Utils.getScriptName();
 

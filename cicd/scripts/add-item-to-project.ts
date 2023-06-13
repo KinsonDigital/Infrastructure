@@ -1,11 +1,11 @@
-import { IssueClient } from "../core/IssueClient.ts";
+import { IssueClient } from "../clients/IssueClient.ts";
 import { IIssueModel } from "../core/Models/IIssueModel.ts";
 import { IPullRequestModel } from "../core/Models/IPullRequestModel.ts";
-import { ProjectClient } from "../core/ProjectClient.ts";
-import { PullRequestClient } from "../core/PullRequestClient.ts";
+import { ProjectClient } from "../clients/ProjectClient.ts";
+import { PullRequestClient } from "../clients/PullRequestClient.ts";
 import { Utils } from "../core/Utils.ts";
 import { IssueNotFound, ItemType, PullRequestNotFound } from "../core/Types.ts";
-import { RepoClient } from "../core/RepoClient.ts";
+import { RepoClient } from "../clients/RepoClient.ts";
 
 const scriptName = Utils.getScriptName();
 

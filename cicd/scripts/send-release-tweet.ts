@@ -1,4 +1,4 @@
-import { TwitterClient } from "../core/TwitterClient.ts";
+import { TwitterClient } from "../clients/TwitterClient.ts";
 import { ITwitterAuthValues } from "../core/Models/ITwitterAuthValues.ts";
 import { Utils } from "../core/Utils.ts";
 import { ReleaseTweetBuilder } from "../core/ReleaseTweetBuilder.ts";
