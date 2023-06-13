@@ -1,12 +1,12 @@
-import { RESTClient } from "./RESTClient.ts";
 import { ILabelModel } from "./Models/ILabelModel.ts";
 import { Utils } from "./Utils.ts";
 import { HttpStatusCodes } from "./Enums.ts";
+import { GitHubClient } from "./GitHubClient.ts";
 
 /**
  * Provides a client for interacting with labels.
  */
-export class LabelClient extends RESTClient {
+export class LabelClient extends GitHubClient {
 	/**
 	 * Initializes a new instance of the {@link LabelClient} class.
 	 * @param token The GitHub token to use for authentication.

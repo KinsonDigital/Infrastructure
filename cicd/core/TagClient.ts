@@ -1,14 +1,14 @@
-import { RESTClient } from "./RESTClient.ts";
 import { Guard } from "./Guard.ts";
 import { LabelClient } from "./LabelClient.ts";
 import { ITagModel } from "./Models/ITagModel.ts";
 import { Utils } from "./Utils.ts";
 import { HttpStatusCodes } from "./Enums.ts";
+import { GitHubClient } from "./GitHubClient.ts";
 
 /**
  * Provides a client for interacting with GitHub GIT tags.
  */
-export class TagClient extends RESTClient {
+export class TagClient extends GitHubClient {
 	private readonly labelClient: LabelClient;
 
 	/**

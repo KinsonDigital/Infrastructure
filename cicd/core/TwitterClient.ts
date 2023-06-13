@@ -1,11 +1,12 @@
 import { ITwitterAuthValues } from "./Models/ITwitterAuthValues.ts";
 import { TweetV2PostTweetResult, TwitterApi, TwitterApiReadWrite } from "npm:twitter-api-v2@1.15.0";
 import { Utils } from "./Utils.ts";
+import { RESTClient } from "./RESTClient.ts";
 
 /**
  * Provides twitter functionality.
  */
-export class TwitterClient {
+export class TwitterClient extends RESTClient {
 	private readonly authValues: ITwitterAuthValues;
 	private readonly twitterClientBase: TwitterApi;
 	private readonly twitterClientReadWrite: TwitterApiReadWrite;
@@ -15,6 +16,8 @@ export class TwitterClient {
 	 * @param secrets The Twitter secrets and tokens.
 	 */
 	constructor(authValues: ITwitterAuthValues) {
+		super();
+
 		this.authValues = authValues;
 
 		this.twitterClientBase = new TwitterApi({

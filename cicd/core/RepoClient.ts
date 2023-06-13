@@ -1,14 +1,14 @@
 import { HttpStatusCodes } from "./Enums.ts";
+import { GitHubClient } from "./GitHubClient.ts";
 import { Guard } from "./Guard.ts";
 import { IRepoModel } from "./Models/IRepoModel.ts";
-import { RESTClient } from "./RESTClient.ts";
 import { RepoNotFound } from "./Types.ts";
 import { Utils } from "./Utils.ts";
 
 /**
  * Provides a client for interacting with GitHub repositories.
  */
-export class RepoClient extends RESTClient {
+export class RepoClient extends GitHubClient {
 	/**
 	 * Initializes a new instance of the {@link RepoClient} class.
 	 * @param token The GitHub token to use for authentication.

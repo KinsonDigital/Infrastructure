@@ -1,4 +1,3 @@
-import { RESTClient } from "./RESTClient.ts";
 import { Guard } from "./Guard.ts";
 import { LabelClient } from "./LabelClient.ts";
 import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
@@ -6,11 +5,12 @@ import { Utils } from "./Utils.ts";
 import { PullRequestNotFound } from "./Types.ts";
 import { HttpStatusCodes } from "./Enums.ts";
 import { ILabelModel } from "./Models/ILabelModel.ts";
+import { GitHubClient } from "./GitHubClient.ts";
 
 /**
  * Provides a client for interacting with pull requests.
  */
-export class PullRequestClient extends RESTClient {
+export class PullRequestClient extends GitHubClient {
 	private readonly labelClient: LabelClient;
 
 	/**

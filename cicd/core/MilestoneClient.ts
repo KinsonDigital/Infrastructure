@@ -1,4 +1,3 @@
-import { RESTClient } from "./RESTClient.ts";
 import { Guard } from "./Guard.ts";
 import { IIssueModel } from "./Models/IIssueModel.ts";
 import { IMilestoneModel } from "./Models/IMilestoneModel.ts";
@@ -6,11 +5,12 @@ import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
 import { Utils } from "./Utils.ts";
 import { MilestoneNotFound } from "./Types.ts";
 import { HttpStatusCodes } from "./Enums.ts";
+import { GitHubClient } from "./GitHubClient.ts";
 
 /**
  * Provides a client for interacting with milestones.
  */
-export class MilestoneClient extends RESTClient {
+export class MilestoneClient extends GitHubClient {
 	/**
 	 * Initializes a new instance of the {@link MilestoneClient} class.
 	 * @param token The GitHub token to use for authentication.

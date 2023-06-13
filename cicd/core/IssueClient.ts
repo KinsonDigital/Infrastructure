@@ -1,4 +1,3 @@
-import { RESTClient } from "./RESTClient.ts";
 import { Guard } from "./Guard.ts";
 import { LabelClient } from "./LabelClient.ts";
 import { IIssueModel } from "./Models/IIssueModel.ts";
@@ -6,11 +5,12 @@ import { ILabelModel } from "./Models/ILabelModel.ts";
 import { Utils } from "./Utils.ts";
 import { IssueNotFound } from "./Types.ts";
 import { HttpStatusCodes } from "./Enums.ts";
+import { GitHubClient } from "./GitHubClient.ts";
 
 /**
  * Provides a client for interacting with issues.
  */
-export class IssueClient extends RESTClient {
+export class IssueClient extends GitHubClient {
 	private readonly labelClient: LabelClient;
 
 	/**
