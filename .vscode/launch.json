@@ -17,11 +17,9 @@
             ],
             "attachSimplePort": 9229,
             "windows": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
             },
             "linux": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
@@ -40,11 +38,9 @@
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
             },
             "linux": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
@@ -63,11 +59,9 @@
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
             },
             "linux": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },        
@@ -86,11 +80,9 @@
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
             },
             "linux": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
@@ -109,11 +101,9 @@
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
             },
             "linux": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
@@ -132,11 +122,9 @@
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
             },
             "linux": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
@@ -154,11 +142,9 @@
             "args": ["Infrastructure", "Preview", "v1.2.3-preview.4", "dependency update", "fake-token"],
             "attachSimplePort": 9229,
             "windows": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
             },
             "linux": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
@@ -176,11 +162,9 @@
             "args": ["Infrastructure", "24", "pr", "KD-Team", "fake-token"],
             "attachSimplePort": 9229,
             "windows": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
             },
             "linux": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
@@ -198,11 +182,9 @@
             "args": ["Infrastructure", "v1.2.3-preview.4", "fake-token"],
             "attachSimplePort": 9229,
             "windows": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
             },
             "linux": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
@@ -220,11 +202,9 @@
             "args": ["v1.2.3-preview.4", "preview"],
             "attachSimplePort": 9229,
             "windows": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
             },
             "linux": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
@@ -251,11 +231,29 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "request": "launch",
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
             },
             "linux": {
-                "request": "launch",
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+		{
+            "name": "NuGet Package Exists (DEBUG)",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/nuget-pkg-exists.ts",
+            "cwd": "${workspaceFolder}/cicd/scripts",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": ["KinsonDigital.Velaptor"],
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         }
