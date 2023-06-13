@@ -1,11 +1,11 @@
-import { Guard } from "./Guard.ts";
-import { IIssueModel } from "./Models/IIssueModel.ts";
-import { IMilestoneModel } from "./Models/IMilestoneModel.ts";
-import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
-import { Utils } from "./Utils.ts";
-import { MilestoneNotFound } from "./Types.ts";
-import { HttpStatusCodes } from "./Enums.ts";
-import { GitHubClient } from "./GitHubClient.ts";
+import { Guard } from "../core/Guard.ts";
+import { IIssueModel } from "../core/Models/IIssueModel.ts";
+import { IMilestoneModel } from "../core/Models/IMilestoneModel.ts";
+import { IPullRequestModel } from "../core/Models/IPullRequestModel.ts";
+import { Utils } from "../core/Utils.ts";
+import { MilestoneNotFound } from "../core/Types.ts";
+import { HttpStatusCodes } from "../core/Enums.ts";
+import { GitHubClient } from "../core/GitHubClient.ts";
 
 /**
  * Provides a client for interacting with milestones.

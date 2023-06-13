@@ -1,7 +1,7 @@
-import { ILabelModel } from "./Models/ILabelModel.ts";
-import { Utils } from "./Utils.ts";
-import { HttpStatusCodes } from "./Enums.ts";
-import { GitHubClient } from "./GitHubClient.ts";
+import { ILabelModel } from "../core/Models/ILabelModel.ts";
+import { Utils } from "../core/Utils.ts";
+import { HttpStatusCodes } from "../core/Enums.ts";
+import { GitHubClient } from "../core/GitHubClient.ts";
 
 /**
  * Provides a client for interacting with labels.

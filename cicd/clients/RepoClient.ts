@@ -1,9 +1,9 @@
-import { HttpStatusCodes } from "./Enums.ts";
-import { GitHubClient } from "./GitHubClient.ts";
-import { Guard } from "./Guard.ts";
-import { IRepoModel } from "./Models/IRepoModel.ts";
-import { RepoNotFound } from "./Types.ts";
-import { Utils } from "./Utils.ts";
+import { HttpStatusCodes } from "../core/Enums.ts";
+import { GitHubClient } from "../core/GitHubClient.ts";
+import { Guard } from "../core/Guard.ts";
+import { IRepoModel } from "../core/Models/IRepoModel.ts";
+import { RepoNotFound } from "../core/Types.ts";
+import { Utils } from "../core/Utils.ts";
 
 /**
  * Provides a client for interacting with GitHub repositories.

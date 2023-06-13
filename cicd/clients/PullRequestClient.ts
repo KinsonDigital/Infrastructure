@@ -1,11 +1,11 @@
-import { Guard } from "./Guard.ts";
+import { Guard } from "../core/Guard.ts";
 import { LabelClient } from "./LabelClient.ts";
-import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
-import { Utils } from "./Utils.ts";
-import { PullRequestNotFound } from "./Types.ts";
-import { HttpStatusCodes } from "./Enums.ts";
-import { ILabelModel } from "./Models/ILabelModel.ts";
-import { GitHubClient } from "./GitHubClient.ts";
+import { IPullRequestModel } from "../core/Models/IPullRequestModel.ts";
+import { Utils } from "../core/Utils.ts";
+import { PullRequestNotFound } from "../core/Types.ts";
+import { HttpStatusCodes } from "../core/Enums.ts";
+import { ILabelModel } from "../core/Models/ILabelModel.ts";
+import { GitHubClient } from "../core/GitHubClient.ts";
 
 /**
  * Provides a client for interacting with pull requests.

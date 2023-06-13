@@ -1,11 +1,11 @@
-import { Guard } from "./Guard.ts";
+import { Guard } from "../core/Guard.ts";
 import { LabelClient } from "./LabelClient.ts";
-import { IIssueModel } from "./Models/IIssueModel.ts";
-import { ILabelModel } from "./Models/ILabelModel.ts";
-import { Utils } from "./Utils.ts";
-import { IssueNotFound } from "./Types.ts";
-import { HttpStatusCodes } from "./Enums.ts";
-import { GitHubClient } from "./GitHubClient.ts";
+import { IIssueModel } from "../core/Models/IIssueModel.ts";
+import { ILabelModel } from "../core/Models/ILabelModel.ts";
+import { Utils } from "../core/Utils.ts";
+import { IssueNotFound } from "../core/Types.ts";
+import { HttpStatusCodes } from "../core/Enums.ts";
+import { GitHubClient } from "../core/GitHubClient.ts";
 
 /**
  * Provides a client for interacting with issues.

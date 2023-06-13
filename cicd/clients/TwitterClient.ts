@@ -1,7 +1,7 @@
-import { ITwitterAuthValues } from "./Models/ITwitterAuthValues.ts";
+import { ITwitterAuthValues } from "../core/Models/ITwitterAuthValues.ts";
 import { TweetV2PostTweetResult, TwitterApi, TwitterApiReadWrite } from "npm:twitter-api-v2@1.15.0";
-import { Utils } from "./Utils.ts";
-import { WebAPIClient } from "./WebAPIClient.ts";
+import { Utils } from "../core/Utils.ts";
+import { WebAPIClient } from "../core/WebAPIClient.ts";
 
 /**
  * Provides twitter functionality.
