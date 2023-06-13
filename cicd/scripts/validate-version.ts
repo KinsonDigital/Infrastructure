@@ -16,7 +16,9 @@ if (Deno.args.length != 2) {
 	Deno.exit(1);
 }
 
-const version: string = Deno.args[0].toLowerCase();
+let version: string = Deno.args[0].toLowerCase();
+version = version.startsWith("v") ? version : `v${version}`;
+
 const versionType: string = Deno.args[1].toLowerCase();
 
 const versionTypeInvalid = versionType != "production" && versionType != "preview" && versionType != "either";
