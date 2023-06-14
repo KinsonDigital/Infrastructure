@@ -3,8 +3,8 @@ import { Utils } from "../core/Utils.ts";
 
 const scriptName = Utils.getScriptName();
 
-if (Deno.args.length >= 2 && Deno.args.length <= 3) {
-	let errorMsg = `The '${scriptName}' cicd script must have at least 2 arguments with 1 additional optional argument.`;
+if (Deno.args.length != 2) {
+	let errorMsg = `The '${scriptName}' cicd script must have at least 2 required arguments.`;
 	errorMsg += "\nThe 1st arg is required and must be a valid NuGet package name.";
 	errorMsg += "\nThe 2nd arg is required and must be a valid NuGet package version.";
 
@@ -26,7 +26,7 @@ Utils.printInGroup("Arguments", [
 
 const client: NuGetClient = new NuGetClient();
 
-const packageDoestNotExist: boolean = !(await client.packageExists(packageName));
+const packageDoestNotExist = !(await client.packageExists(packageName));
 
 if (packageDoestNotExist) {
 	Utils.printAsGitHubError(`The NuGet package '${packageName}' does not exist.`);
