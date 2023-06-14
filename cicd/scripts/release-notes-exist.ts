@@ -6,25 +6,21 @@ const scriptName = Utils.getScriptName();
 // Validate the arguments
 if (Deno.args.length != 2) {
 	let errorMsg = `The '${scriptName}' cicd script must have 2 arguments.`;
-	errorMsg += "\nThe 1st arg is required and must be either 'production', 'preview'.";
+	errorMsg += "\nThe 1st arg is required and must be a case-insensitive value of 'production' or 'preview'.";
 	errorMsg += "\nThe 2nd arg is required and must be the version of the notes.";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 
-let releaseType: string = Deno.args[0].toLowerCase();
+const releaseType: string = Deno.args[0].toLowerCase();
 let version: string = Deno.args[1].toLowerCase();
-
-const allButFirstLetter = releaseType.slice(1).toLowerCase();
-const firstLetter = releaseType.slice(0, 1).toUpperCase();
-releaseType = `${firstLetter}${allButFirstLetter}`;
 
 version = version.startsWith("v") ? version : `v${version}`;
 
 // Print out all of the arguments
 Utils.printInGroup("Arguments", [
-	`Notes Type (Required): ${releaseType}`,
+	`Release Type (Required): ${releaseType}`,
 	`Version (Required): ${version}`,
 ]);
 
