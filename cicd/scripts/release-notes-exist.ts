@@ -13,12 +13,8 @@ if (Deno.args.length != 2) {
 	Deno.exit(1);
 }
 
-let releaseType: string = Deno.args[0].toLowerCase();
+const releaseType: string = Deno.args[0].toLowerCase();
 let version: string = Deno.args[1].toLowerCase();
-
-const allButFirstLetter = releaseType.slice(1).toLowerCase();
-const firstLetter = releaseType.slice(0, 1).toUpperCase();
-releaseType = `${firstLetter}${allButFirstLetter}`;
 
 version = version.startsWith("v") ? version : `v${version}`;
 
