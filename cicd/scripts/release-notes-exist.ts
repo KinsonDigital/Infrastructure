@@ -24,10 +24,9 @@ Utils.printInGroup("Arguments", [
 	`Version (Required): ${version}`,
 ]);
 
-const releaseTypeValid = releaseType != "production" && releaseType != "preview";
-const releaseTypeNotValid = !releaseTypeValid;
+const releaseTypeValid = releaseType === "production" || releaseType === "preview";
 
-if (releaseTypeNotValid) {
+if (!releaseTypeValid) {
 	let errorMsg = "The notes type argument must be a value of 'production', 'preview'.";
 	errorMsg += "\nThe value is case-insensitive.";
 
