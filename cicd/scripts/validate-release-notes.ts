@@ -10,8 +10,9 @@ if (Deno.args.length < 3) {
 	let errorMsg =
 		`The '${scriptName}' cicd script must have at least 3 arguments with an additional 2 optional arguments.`;
 	errorMsg += "\nThe 1st arg is required and must be the GitHub repo name.";
-	errorMsg +=
-		"\nThe 2nd arg is required and must be the type of release. Valid values are 'Production' and 'Preview'.";
+	errorMsg += "\nThe 2nd arg is required and must be the type of release.";
+	errorMsg += "\n\tValid values are 'production' and 'preview' and are case-insensitive.";
+
 	errorMsg += "\nThe 3rd arg is required and must be the version of the release.";
 	errorMsg += "\nThe 4th arg is optional and must be a label of a PR to enforce the PR to be in the release notes.";
 	errorMsg += "\nThe 5th arg is optional and must be the GitHub token.";
