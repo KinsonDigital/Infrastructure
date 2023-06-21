@@ -29,7 +29,7 @@ const consumerAPIKey = Deno.args[4].trim();
 const consumerAPISecret = Deno.args[5].trim();
 const accessTokenKey = Deno.args[6].trim();
 const accessTokenSecret = Deno.args[7].trim();
-const relativeTemplateFilePath = "/cicd/release-tweet-template.txt";
+const relativeTemplateFilePath = "/cicd/templates/release-tweet-template.txt";
 const templateRepoName = "Infrastructure";
 
 // Print out all of the arguments
