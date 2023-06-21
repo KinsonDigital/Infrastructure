@@ -1,6 +1,7 @@
 ## Docs: https://github.com/Huachao/vscode-restclient#environment-variables
 
 @issue_number = 23
+@pr_number = 222
 @pushEvent = push
 @prEvent = pull_request
 
@@ -14,6 +15,11 @@ GET {{hostAddress}}/repos/{{repoOwner}}/{{repoName}}/issues/{{issue_number}}
 # Get All Milestone Issues & Pull Requests
 
 GET {{hostAddress}}/repos/{{repoOwner}}/{{repoName}}/issues?milestone={{milestoneNumber}}&state=all
+
+###
+
+# Get Pull Request
+GET {{hostAddress}}/repos/{{repoOwner}}/{{repoName}}/pulls/{{pr_number}}
 
 ###
 

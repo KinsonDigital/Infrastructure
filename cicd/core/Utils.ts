@@ -209,26 +209,43 @@ export class Utils {
 	 * @returns The URL to the issue.
 	 */
 	public static buildIssueUrl(repoOwner: string, repoName: string, issueNumber: number): string {
-		Guard.isNullOrEmptyOrUndefined(repoOwner, "buildIssueUrl", "repoOwner");
-		Guard.isNullOrEmptyOrUndefined(repoName, "buildIssueUrl", "repoName");
-		Guard.isLessThanOne(issueNumber, "buildIssueUrl", "issueNumber");
+		const funcName = "buildIssueUrl";
+		Guard.isNullOrEmptyOrUndefined(repoOwner, funcName, "repoOwner");
+		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isLessThanOne(issueNumber, funcName, "issueNumber");
 
 		return `https://github.com/${repoOwner}/${repoName}/issues/${issueNumber}`;
 	}
 
 	/**
-	 * Builds a URL to a pull request that matches the given {@link issueNumber} in a repository that with a
+	 * Builds a URL to a pull request that matches the given {@link prNumber} in a repository with a
 	 * name that matches the given {@link repoName} and is owned by the given {@link repoOwner}.
 	 * @param repoOwner The owner of the repository.
 	 * @param repoName The name of the repository.
-	 * @param issueNumber The pull request number.
+	 * @param prNumber The pull request number.
 	 * @returns The URL to the issue.
 	 */
-	public static buildPullRequestUrl(repoOwner: string, repoName: string, issueNumber: number): string {
-		Guard.isNullOrEmptyOrUndefined(repoOwner, "buildIssueUrl", "repoOwner");
-		Guard.isNullOrEmptyOrUndefined(repoName, "buildIssueUrl", "repoName");
-		Guard.isLessThanOne(issueNumber, "buildIssueUrl", "issueNumber");
+	public static buildPullRequestUrl(repoOwner: string, repoName: string, prNumber: number): string {
+		const funcName = "buildPullRequestUrl";
+		Guard.isNullOrEmptyOrUndefined(repoOwner, funcName, "repoOwner");
+		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isLessThanOne(prNumber, funcName, "prNumber");
 
-		return `https://github.com/${repoOwner}/${repoName}/pull/${issueNumber}`;
+		return `https://github.com/${repoOwner}/${repoName}/pull/${prNumber}`;
+	}
+
+	/**
+	 * Builds a URL to the labels page of a repository with a name that matches the given {@link repoName}
+	 * and is owned by the given {@link repoOwner}.
+	 * @param repoOwner The owner of the repository.
+	 * @param repoName The name of the repository.
+	 * @returns The URL to the repository labels page.
+	 */
+	public static buildLabelsUrl(repoOwner: string, repoName: string): string {
+		const funcName = "buildLabelsUrl";
+		Guard.isNullOrEmptyOrUndefined(repoOwner, funcName, "repoOwner");
+		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+
+		return `https://github.com/${repoOwner}/${repoName}/labels`;
 	}
 }
