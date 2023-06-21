@@ -212,8 +212,8 @@ export class PullRequestClient extends GitHubClient {
 		const labelDoesNotExist = !(await this.labelClient.labelExists(repoName, label));
 
 		if (labelDoesNotExist) {
-			const labelsUrl = `https://github.com/KinsonDigital/${repoName}/labels`;
-			const prUrl = `https://github.com/KinsonDigital/${repoName}/pull/618`;
+			const labelsUrl = Utils.buildLabelsUrl(this.organization, repoName);
+			const prUrl = Utils.buildPullRequestUrl(this.organization, repoName, prNumber);
 
 			let errorMsg =
 				`::error::The label '${label}' attempting to be added to pull request '${prNumber}' does not exist in the repo '${repoName}'.`;
