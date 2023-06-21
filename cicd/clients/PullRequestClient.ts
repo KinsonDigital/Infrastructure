@@ -267,7 +267,7 @@ export class PullRequestClient extends GitHubClient {
 		Guard.isLessThanOne(prNumber, "pullRequestExists", "prNumber");
 
 		// REST API Docs: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#list-pull-requests
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/pull/${prNumber}`;
+		const url = `${this.baseUrl}/${this.organization}/${repoName}/pulls/${prNumber}`;
 
 		const response: Response = await this.fetchGET(url);
 
