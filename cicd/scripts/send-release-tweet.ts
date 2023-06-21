@@ -7,9 +7,9 @@ const scriptName = Utils.getScriptName();
 
 if (Deno.args.length != 8) {
 	let errorMsg = `The '${scriptName}' cicd script must have 4 arguments.`;
-	errorMsg += "\nThe 1st arg is required and must be a project name";
-	errorMsg += "\nThe 2nd arg is required and must be a valid version. ";
-	errorMsg += "\nThe 3rd arg is required and must be a repository owner.";
+	errorMsg += "\nThe 1st arg is required and must be a repository owner.";
+	errorMsg += "\nThe 2nd arg is required and must be a project name";
+	errorMsg += "\nThe 3rd arg is required and must be a valid version. ";
 	errorMsg += "\nThe 4th arg is required and must be a valid discord invite code.";
 	errorMsg += "\nThe 5th arg is required and must be a valid twitter consumer api key.";
 	errorMsg += "\nThe 6th arg is required and must be a valid twitter consumer api secret.";
@@ -20,15 +20,17 @@ if (Deno.args.length != 8) {
 	Deno.exit(1);
 }
 
-const projectName = Deno.args[0].trim();
-let version = Deno.args[1].trim();
+const repoOwner = Deno.args[0].trim();
+const projectName = Deno.args[1].trim();
+let version = Deno.args[2].trim();
 version = version.startsWith("v") ? version : `v${version}`;
-const repoOwner = Deno.args[2].trim();
 const discordInviteCode = Deno.args[3].trim();
 const consumerAPIKey = Deno.args[4].trim();
 const consumerAPISecret = Deno.args[5].trim();
 const accessTokenKey = Deno.args[6].trim();
 const accessTokenSecret = Deno.args[7].trim();
+const relativeTemplateFilePath = "/cicd/release-tweet-template.txt";
+const templateRepoName = "Infrastructure";
 
 // Print out all of the arguments
 Utils.printInGroup("Arguments", [
@@ -51,7 +53,14 @@ const authValues: ITwitterAuthValues = {
 
 const tweetBuilder: ReleaseTweetBuilder = new ReleaseTweetBuilder();
 
-const tweet = tweetBuilder.buildTweet(projectName, repoOwner, version, discordInviteCode);
+const tweet = await tweetBuilder.buildTweet(
+	repoOwner,
+	templateRepoName,
+	projectName,
+	relativeTemplateFilePath,
+	version,
+	discordInviteCode,
+);
 
 const twitterClient: TwitterClient = new TwitterClient(authValues);
 twitterClient.tweet(tweet);

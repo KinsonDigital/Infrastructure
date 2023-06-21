@@ -1,7 +1,6 @@
 import { MilestoneClient } from "../clients/MilestoneClient.ts";
 import { IMilestoneModel } from "../core/Models/IMilestoneModel.ts";
 import { RepoClient } from "../clients/RepoClient.ts";
-import { MilestoneNotFound } from "../core/Types.ts";
 import { Utils } from "../core/Utils.ts";
 
 const scriptName = Utils.getScriptName();
@@ -37,11 +36,6 @@ if (repoDoesNotExist) {
 
 const milestoneClient: MilestoneClient = new MilestoneClient(token);
 
-const milestone: IMilestoneModel | MilestoneNotFound = await milestoneClient.getMilestone(repoName, milestoneName);
-
-if (Utils.isMilestoneNotFound(milestone)) {
-	Utils.printAsGitHubError(`The milestone '${milestoneName}' does not exist in the '${repoName}' repository.`);
-	Deno.exit(1);
-}
+const milestone: IMilestoneModel = await milestoneClient.getMilestoneByName(repoName, milestoneName);
 
 await milestoneClient.closeMilestone(repoName, milestone.title);

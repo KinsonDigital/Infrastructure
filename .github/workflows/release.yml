@@ -1,0 +1,336 @@
+name: 🚀Perform Release
+
+
+defaults:
+  run:
+    shell: pwsh
+
+
+on:
+  workflow_call:
+    inputs:
+      project-name:
+        required: true
+        description: The name of the C# project to validate
+        type: string
+      run-branch:
+        required: true
+        description: The name of the branch to run the workflow on
+        type: string
+      net-sdk-version:
+        required: true
+        description: The version of the .NET SDK to use
+        type: string
+      relative-release-notes-dir-path:
+        required: true
+        description: The relative directory path to the release notes
+        type: string
+      release-notes-file-name-prefix:
+        required: true
+        description: The prefix of the release notes file name.  This is what is prefixed before the version number
+        type: string
+      build-config:
+        required: true
+        description: The build configuration to use. This is either 'Debug' or 'Release'
+        default: Debug
+        type: string
+      cicd-scripts-version:
+        required: true
+        description: The version of the CICD scripts to use
+        type: string
+      pr-include-notes-label:
+        required: false
+        description: The label on a pull request that forces its inclusion in the release notes
+        type: string
+        default: ""
+      send-release-tweet:
+        required: false
+        description: If true, sends a tweet about the release to twitter
+        default: false
+        type: boolean
+      dry-run:
+        required: false
+        description: If true, the release will not be created
+        default: false
+        type: boolean
+    secrets:
+      cicd-rest-api:
+        description: The CICD REST API token
+        required: true
+      nuget-org-api-key:
+        description: The NuGet.org API key
+        required: true
+      twitter-consumer-api-key:
+        description: "The Twitter consumer API key"
+        required: false
+      twitter-consumer-api-secret:
+        description: "The Twitter consumer API secret"
+        required: false
+      twitter-access-token:
+        description: "The Twitter access token"
+        required: false
+      twitter-access-token-secret:
+        description: "The Twitter access token secret"
+        required: false
+  
+
+jobs:
+  validate_workflow_inputs:
+    name: Validate Workflow Inputs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate Inputs
+        run: |
+          # Verify that the project anme workflow input is not empty
+          if ("${{ inputs.project-name }}" -eq "") {
+            Write-Host "The 'project-name' workflow input cannot be empty.";
+            exit 1;
+          }
+
+
+          # Verify that the run branch workflow input is not empty
+          if ("${{ inputs.run-branch }}" -eq "") {
+            Write-Host "The 'run-branch' workflow input cannot be empty.";
+            exit 1;
+          }
+
+
+          $sdkVersion = "${{ inputs.net-sdk-version }}";
+          $sdkVersionRegex = "[0-9]+\.[0-9]+\.[0-9]+";
+          
+          # Verify that the dotnet sdk version has valid syntax
+          if ($sdkVersion -match $sdkVersionRegex) {
+            Write-Host "The dotnet SDK version is valid.";
+          } else {
+            Write-Host "::error::The dotnet SDK version is not valid.\nThe version format is: 'x.x.x'";
+            exit 1;
+          }
+
+
+          $dirPath = "${{ inputs.relative-release-notes-dir-path }}";
+          $backSlash = "\\";
+          $forwardSlash = "/";
+          
+          # Verify that the relative release notes dir path does not start or end with a with a forward or back slash
+          if ($dirPath.StartsWith($backSlash) -or $dirPath.StartsWith($forwardSlash) -or $dirPath.EndsWith($backSlash) -or $dirPath.EndsWith($forwardSlash)) {
+            Write-Host "The 'relative-release-notes-dir-path' cannot start or end with a forward or back slash.";
+            exit 1;
+          }
+
+
+          $buildConfig = "${{ inputs.build-config }}";
+
+          # Verify that the build config is only 'Debug' or 'Release'
+          if ($buildConfig -ne "Debug" -and $buildConfig -ne "Release") {
+            Write-Host "The build configuration '$buildConfig' is invalid.  The build configuration can only be 'Debug' or 'Release'.";
+            exit 1;
+          }
+
+
+  validate_branch:
+    name: Validate Branch
+    runs-on: ubuntu-latest
+    needs: validate_workflow_inputs
+    steps:
+      - name: Validate Branch
+        run: |
+          $branch = "${{ github.ref_name  }}"
+
+          if ($branch -ne "${{ inputs.run-branch }}") {
+            Write-Host "The branch '$branch' is invalid. This release can only run on '${{ inputs.run-branch }}' branches."
+            exit 1;
+          }
+
+
+  validate_version:
+    name: Validate Version
+    needs: validate_branch
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v5.0.0
+    with:
+      project-name: "${{ inputs.project-name }}"
+      cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
+    secrets:
+      cicd-rest-api: "${{ secrets.cicd-rest-api }}"
+
+
+  validate_tag:
+    name: Validate Version
+    needs: validate_version
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-tag.yml@v5.0.0
+    with:
+      project-name: "${{ inputs.project-name }}"
+      tag-name: "${{ needs.validate_version.outputs.version }}"
+      cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
+    secrets:
+      cicd-rest-api: "${{ secrets.cicd-rest-api }}"
+
+
+  nuget_pkg_does_not_exist:
+    name: Validate NuGet Package Does Not Exist
+    needs: validate_version
+    uses: KinsonDigital/Infrastructure/.github/workflows/nuget-package-does-not-exist.yml@v5.0.0
+    with:
+      project-name: "${{ inputs.project-name }}"
+      version: "${{ needs.validate_version.outputs.version }}"
+      cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
+
+
+  validate_release_notes:
+    name: Validate Release Notes
+    needs: validate_version
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-release-notes.yml@v5.0.0
+    with:
+      project-name: "${{ inputs.project-name}}"
+      version: "${{ needs.validate_version.outputs.version }}"
+      pr-label: "${{ inputs.pr-include-notes-label }}"
+      cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
+    secrets:
+      cicd-rest-api: "${{ secrets.cicd-rest-api }}"
+
+
+  validate_milestone_status:
+    name: Validate Milestone Status
+    needs: validate_version
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-milestone-status.yml@v5.0.0
+    with:
+      project-name: "${{ inputs.project-name }}"
+      version: "${{ needs.validate_version.outputs.version }}"
+      cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
+    secrets:
+      cicd-rest-api: "${{ secrets.cicd-rest-api }}"
+
+
+  validate_github_release:
+    name: GitHub Release Does Not Exist
+    needs: [validate_version]
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-github-release.yml@v5.0.0
+    with:
+      project-name: "${{ inputs.project-name }}"
+      version: "${{ needs.validate_version.outputs.version }}"
+      cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
+    secrets:
+      cicd-rest-api: "${{ secrets.cicd-rest-api }}"
+
+
+  build_project:
+    name: Build Main Project
+    needs: [validate_tag, nuget_pkg_does_not_exist, validate_release_notes, validate_milestone_status, validate_github_release]
+    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v5.0.0
+    with:
+      project-name: "${{ inputs.project-name }}"
+      build-config: "${{ inputs.build-config }}"
+      net-sdk-version: "${{ inputs.net-sdk-version }}"
+
+
+  run_tests:
+    name: Run Tests
+    needs: [validate_tag, nuget_pkg_does_not_exist, validate_release_notes, validate_milestone_status, validate_github_release]
+    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v5.0.0
+    with:
+      project-name: "${{ inputs.project-name }}Tests"
+      build-config: "${{ inputs.build-config }}"
+      net-sdk-version: "${{ inputs.net-sdk-version }}"
+
+
+  build_script_url:
+    name: Build Script URL
+    needs: [validate_tag, nuget_pkg_does_not_exist, validate_release_notes, validate_milestone_status, validate_github_release]
+    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v5.0.0
+    with:
+      project-name: "${{ inputs.project-name }}"
+      cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
+
+
+  perform_release:
+    name: Perform Release
+    runs-on: ubuntu-latest
+    needs: [validate_version, build_project, run_tests, build_script_url]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "${{ inputs.net-sdk-version }}"
+
+      - name: Setup Nuget
+        uses: NuGet/setup-nuget@v1
+
+      - name: Create Nuget Package
+        run: |
+          dotnet pack `
+            "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj" `
+            -o "${{ github.workspace }}" `
+            -c ${{ inputs.build-config }};
+
+      - name: Publish Nuget Package
+        if: "${{ inputs.dry-run == 'false' }}"
+        run: |
+          $version = "${{ needs.validate_version.outputs.version}}";
+          $version = $version.StartsWith("v") ? $version.Substring(1) : $version;
+          
+          dotnet nuget push `
+            "${{ github.workspace }}/${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}.$version.nupkg" `
+            --api-key ${{ secrets.nuget-org-api-key }} `
+            --source https://api.nuget.org/v3/index.json;
+
+      - name: Preview Release
+        if: "${{ inputs.dry-run == 'false' }}"
+        uses: softprops/action-gh-release@v0.1.15
+        with: 
+          name: "🚀Preview Release - ${{ needs.validate_version.outputs.version }}" 
+          body_path: "${{ github.workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
+          files: "${{ github.workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
+          tag_name: "${{ needs.validate_version.outputs.version }}"
+          prerelease: true
+          draft: false
+
+      - name: Set Up Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Close Milestone
+        if: "${{ inputs.dry-run == 'false' }}"
+        run: |
+          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/close-milestone.ts";
+        
+          <# Deno Args:
+            1. ProjectName
+            2. MilestoneName - This is the version
+            3. GitHubToken
+          #>
+          deno run `
+            --allow-read --allow-net `
+            "$scriptUrl" `
+            "${{ inputs.project-name }}" `
+            "${{ needs.validate_version.outputs.version }}" `
+            "${{ secrets.cicd-rest-api }}";
+
+      - name: Send Twitter Announcement
+        if: "${{ inputs.send-release-tweet == 'true' && inputs.dry-run == 'false' }}"
+        run: |
+          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/send-release-tweet.ts";
+
+          <# Deno Args:
+            1. RepoOwner
+            2. ProjectName
+            3. Version
+            4. DiscordInviteCode
+            5. TwitterConsumerApiKey
+            6. TwitterConsumerApiSecret
+            7. TwitterAccessToken
+            8. TwitterAccessTokenSecret
+          #>
+          deno run `
+            --allow-read --allow-net --allow-env `
+            "$scriptUrl" `
+            "${{ vars.ORGANIZATION_NAME }}" `
+            "${{ inputs.project-name }}" `
+            "${{ needs.validate_version.outputs.version }}" `
+            "${{ vars.DISCORD_INVITE_CODE }}" `
+            "${{ secrets.twitter-consumer-api-key }}" `
+            "${{ secrets.twitter-consumer-api-secret }}" `
+            "${{ secrets.twitter-access-token }}" `
+            "${{ secrets.twitter-access-token-secret }}";

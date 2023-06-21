@@ -2,6 +2,7 @@ import { ILabelModel } from "../core/Models/ILabelModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { GitHubHttpStatusCodes } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
+import { Guard } from "../core/Guard.ts";
 
 /**
  * Provides a client for interacting with labels.
@@ -17,13 +18,21 @@ export class LabelClient extends GitHubClient {
 	}
 
 	/**
-	 * Gets a list of all the labels in the repo that matches the {@link repoName}.
+	 * Gets a page of labels with a set page size for a repository that matches the {@link repoName}.
 	 * @param repoName The name of the repo where the labels exist.
+	 * @param page The page of results to return.
+	 * @param qtyPerPage The total to return per {@link page}.
 	 * @returns A list of labels in the repo.
 	 * @remarks Does not require authentication.
 	 */
-	public async getLabels(repoName: string): Promise<ILabelModel[]> {
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/labels`;
+	public async getLabels(repoName: string, page: number, qtyPerPage: number): Promise<ILabelModel[]> {
+		Guard.isNullOrEmptyOrUndefined(repoName, "getLabels", "repoName");
+
+		page = page < 1 ? 1 : page;
+		qtyPerPage = Utils.clamp(qtyPerPage, 1, 100);
+
+		const queryParams = `?page=${page}&per_page${qtyPerPage}`;
+		const url = `${this.baseUrl}/${this.organization}/${repoName}/labels${queryParams}`;
 		const response: Response = await this.fetchGET(url);
 
 		if (response.status === GitHubHttpStatusCodes.NotFound) {
@@ -43,8 +52,22 @@ export class LabelClient extends GitHubClient {
 	 * @remarks Does not require authentication.
 	 */
 	public async labelExists(repoName: string, label: string): Promise<boolean> {
-		const labels = await this.getLabels(repoName);
+		const funcName = "labelExists";
+		Guard.isNullOrEmptyOrUndefined(label, funcName, "label");
+		Guard.isNullOrEmptyOrUndefined(label, funcName, "label");
 
-		return labels.length > 0 && labels.some((l) => l.name.trim() === label.trim());
+		const url = `${this.baseUrl}/${this.organization}/${repoName}/labels${label}`;
+		const response: Response = await this.fetchGET(url);
+
+		if (response.status === GitHubHttpStatusCodes.NotFound) {
+			return false;
+		} else if (response.status === GitHubHttpStatusCodes.OK) {
+			return true;
+		} else {
+			Utils.printAsGitHubError(
+				`There was an issue getting the repository label '${label}'. ${response.status} - ${response.statusText}`,
+			);
+			Deno.exit(1);
+		}
 	}
 }

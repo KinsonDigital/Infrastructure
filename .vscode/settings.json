@@ -9,10 +9,38 @@
 		"pwsh",
 		"zipball"
 	],
+	"files.exclude": {
+		"**/.git": true,
+		"**/.svn": true,
+		"**/.hg": true,
+		"**/CVS": true,
+		"**/.DS_Store": true,
+		"**/Thumbs.db": true,
+	},
     "deno.enable": true,
     "[typescript]": {
-        "editor.indentSize": 4
+		"editor.insertSpaces": false,
+		"editor.tabSize": 4,
     },
-    "editor.detectIndentation": false,
-    "editor.insertSpaces": false,
+	"[yaml]": {
+		"editor.insertSpaces": true,
+		"editor.tabSize": 2,
+	},
+	"[jsonc]": {
+		"editor.insertSpaces": false,
+		"editor.tabSize": 4,
+	},
+	"editor.detectIndentation": false,
+	"rest-client.environmentVariables": {
+		"$shared": {
+			"repoOwner": "KinsonDigital",
+			"githubHostAddress": "https://api.github.com",
+		},
+		"GitHub-CASL": {
+			"hostAddress": "{{$shared githubHostAddress}}",
+			"repoOwner": "{{$shared repoOwner}}",
+			"repoName": "CASL",
+			"milestoneNumber": "7",
+		},
+	}
 }

@@ -6,27 +6,25 @@ import { Utils } from "../core/Utils.ts";
 
 const scriptName = Utils.getScriptName();
 
-if (Deno.args.length < 3) {
-	let errorMsg =
-		`The '${scriptName}' cicd script must have at least 2 arguments with an additional 1 optional arguments.`;
+if (Deno.args.length < 2) {
+	let errorMsg = `The '${scriptName}' cicd script must have at least 2 arguments with an additional 1 optional arguments.`;
 	errorMsg += "\nThe 1st arg is required and must be the GitHub repo name.";
-	errorMsg +=
-		"\nThe 2nd arg is required and must be the type of release. Valid values are 'Production' and 'Preview'.";
-	errorMsg += "\nThe 3rd arg is optional and must be the version of the release.";
+	errorMsg += "\nThe 2nd arg is required and must be the title of the milestone.";
+	errorMsg += "\nThe 3rd arg is optional and must be a valid GitHub token.";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 
 // TODO: Fix all of these args
-const repoName = "Infrastructure";
-const milestoneName = "v1.2.3-preview.4";
-const token = "";
+const repoName = Deno.args[0].trim();
+const milestoneTitle = Deno.args[1].trim();
+const token = Deno.args.length >= 3 ? Deno.args[2].trim() : "";
 
 // Print out all of the arguments
 Utils.printInGroup("Arguments", [
 	`Repo Name (Required): ${repoName}`,
-	`Milestone (Required): ${milestoneName}`,
+	`Milestone Title (Required): ${milestoneTitle}`,
 	`GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,
 ]);
 
@@ -39,7 +37,7 @@ if (repoDoesNotExist) {
 }
 
 const milestoneClient: MilestoneClient = new MilestoneClient(token);
-const milestoneItems = await milestoneClient.getIssuesAndPullRequests(repoName, milestoneName);
+const milestoneItems = await milestoneClient.getIssuesAndPullRequests(repoName, milestoneTitle);
 
 const issues: IIssueModel[] = Utils.filterIssues(milestoneItems);
 const prs: IPullRequestModel[] = Utils.filterPullRequests(milestoneItems);
@@ -49,30 +47,29 @@ const problemsFound: string[] = [];
 // Find all issues that are not closed
 issues.forEach((issue) => {
 	if (issue.state != "closed") {
-		const url = `https://github.com/${repoName}/issues/${issue.number}`;
-		problemsFound.push(`Issue #${issue.number} is not closed.\n${url}`);
+		problemsFound.push(`Issue #${issue.number} is not closed.\n\t${issue.html_url}`);
 	}
 });
 
 // Find all pull requests that are not closed
 prs.forEach((pr) => {
 	if (pr.state != "closed") {
-		const url = `https://github.com/${repoName}/pull/${pr.number}`;
-		problemsFound.push(`Pull request #${pr.number} is not closed.\n${url}`);
+		problemsFound.push(`Pull request #${pr.number} is not closed.\n\t${pr.html_url}`);
 	}
 });
 
 // Find all pull requests that are still in draft
 prs.forEach((pr) => {
 	if (pr.draft === true) {
-		const url = `https://github.com/${repoName}/pull/${pr.number}`;
-		problemsFound.push(`Pull request #${pr.number} is still in draft.\n${url}`);
+		problemsFound.push(`Pull request #${pr.number} is still in draft.\n${pr.html_url}`);
 	}
 });
 
-Utils.printProblemList(problemsFound).then(() => {
-	console.log("✅No Problems Found!!  All issues and pull requests are closed and no pull requests are in draft.✅");
-}).catch((error) => {
-	console.log(error);
+Utils.printProblemList(
+	problemsFound,
+	`✅All issues and pull requests in milestone '${milestoneTitle}' are closed and no pull requests are in draft.✅`,
+);
+
+if (problemsFound.length > 0) {
 	Deno.exit(1);
-});
+}

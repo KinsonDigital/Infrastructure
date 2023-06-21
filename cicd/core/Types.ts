@@ -1,32 +1,22 @@
-/**
- * Represents that a GitHub issue was not found.
- */
-export type IssueNotFound = {
-	message: string;
-};
-
-/**
- * Represents that a GitHub pull request was not found.
- */
-export type PullRequestNotFound = {
-	message: string;
-};
-
-/**
- * Represents that a GitHub milestone was not found.
- */
-export type MilestoneNotFound = {
-	message: string;
-};
-
-/**
- * Represents that a GitHub repository was not found.
- */
-export type RepoNotFound = {
-	message: string;
-};
+import { IIssueModel } from "./Models/IIssueModel.ts";
+import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
 
 /**
  * Represents a GitHub issue or pull request.
  */
 export type ItemType = "issue" | "pull-request";
+
+/**
+ * Represents a GitHub issue or pull request.
+ */
+export type IssueOrPR = IIssueModel | IPullRequestModel;
+
+/**
+ * Represents any branch.
+ */
+export type AnyBranch = null;
+
+/**
+ * Represents a function for getting a page of data form a GitHub API end point.
+ */
+export type GetDataFunc<T> = (page: number, qtyPerPage?: number) => Promise<[T[], Response]>;

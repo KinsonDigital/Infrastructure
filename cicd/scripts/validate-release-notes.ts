@@ -3,37 +3,43 @@ import { LabelClient } from "../clients/LabelClient.ts";
 import { MilestoneClient } from "../clients/MilestoneClient.ts";
 import { Utils } from "../core/Utils.ts";
 import { RepoClient } from "../clients/RepoClient.ts";
+import { IIssueModel } from "../core/Models/IIssueModel.ts";
+import { IPullRequestModel } from "../core/Models/IPullRequestModel.ts";
 
 const scriptName = Utils.getScriptName();
 
 if (Deno.args.length < 3) {
-	let errorMsg =
-		`The '${scriptName}' cicd script must have at least 3 arguments with an additional 2 optional arguments.`;
+	let errorMsg = `The '${scriptName}' cicd script must have at least 3 arguments with an additional 2 optional arguments.`;
 	errorMsg += "\nThe 1st arg is required and must be the GitHub repo name.";
 	errorMsg += "\nThe 2nd arg is required and must be the type of release.";
 	errorMsg += "\n\tValid values are 'production' and 'preview' and are case-insensitive.";
 
 	errorMsg += "\nThe 3rd arg is required and must be the version of the release.";
-	errorMsg += "\nThe 4th arg is optional and must be a label of a PR to enforce the PR to be in the release notes.";
-	errorMsg += "\nThe 5th arg is optional and must be the GitHub token.";
+	errorMsg += "\nThe 4th arg is optional and must be a comma delimited list of labels for issues ignore.";
+	errorMsg += "\n\tProviding no argument or empty will allow issues and prs with any label.";
+
+	errorMsg += "\nThe 5th arg is optional and must be a label of a PR to enforce the PR to be in the release notes.";
+	errorMsg += "\nThe 6th arg is optional and must be the GitHub token.";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 
 const repoName = Deno.args[0].trim();
-let releaseType = Deno.args[1].trim();
+const releaseType = Deno.args[1].trim().toLocaleLowerCase();
 let version = Deno.args[2].trim().toLowerCase();
-const prLabel = Deno.args.length >= 3 ? Deno.args[3].trim() : "";
-const token = Deno.args.length >= 4 ? Deno.args[4].trim() : "";
+const ignoreLabelsArg = Deno.args.length >= 4 ? Deno.args[3].trim() : "";
+const prLabel = Deno.args.length >= 5 ? Deno.args[4].trim() : "";
+const token = Deno.args.length >= 6 ? Deno.args[5].trim() : "";
 
 // Print out all of the arguments
 Utils.printInGroup("Arguments", [
 	`Repo Name (Required): ${repoName}`,
 	`Release Type (Required): ${releaseType}`,
 	`Version (Required): ${version}`,
-	`PR Label (Optional): ${Utils.isNullOrEmptyOrUndefined(prLabel) ? "Not Provided" : prLabel}}`,
-	`GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}}`,
+	`Ignore Labels (Optional): ${ignoreLabelsArg}`,
+	`PR Label (Optional): ${Utils.isNullOrEmptyOrUndefined(prLabel) ? "Not Provided" : prLabel}`,
+	`GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,
 ]);
 
 const repoClient: RepoClient = new RepoClient(token);
@@ -47,17 +53,21 @@ if (repoDoesNotExist) {
 // Check the release type and make sure that it is all lowercase except the first letter
 const allButFirstLetter = releaseType.slice(1).toLowerCase();
 const firstLetter = releaseType.slice(0, 1).toUpperCase();
-releaseType = `${firstLetter}${allButFirstLetter}`;
+const releaseTypeTitle = `${firstLetter}${allButFirstLetter}`;
 
-if (releaseType != "Production" && releaseType != "Preview") {
+if (releaseTypeTitle != "Production" && releaseTypeTitle != "Preview") {
 	Utils.printAsGitHubError(
-		`The release type '${releaseType}' is invalid.  It must be either 'Production' or 'Preview'.`,
+		`The release type '${releaseTypeTitle}' is invalid.  It must be either 'Production' or 'Preview'.`,
 	);
 	Deno.exit(1);
 }
 
 // Make sure the version starts with a 'v'
 version = version.startsWith("v") ? version : `v${version}`;
+
+const ignoreLabels: string[] = Utils.isNullOrEmptyOrUndefined(ignoreLabelsArg)
+	? []
+	: ignoreLabelsArg.trim().split(",").map((label) => label.trim());
 
 const noPRLabel = Utils.isNullOrEmptyOrUndefined(prLabel);
 const prLabelGiven = !noPRLabel;
@@ -76,23 +86,83 @@ if (prLabelGiven) {
 
 const issueLinkRegex = /\[#[0-9]*\]\(https:\/\/github\.com\/KinsonDigital\/[a-zA-z]*\/issues\/[0-9]*\)/gm;
 const prLinkRegex = /\[#[0-9]*\]\(https:\/\/github\.com\/KinsonDigital\/[a-zA-z]*\/pull\/[0-9]*\)/gm;
-const title = new RegExp(`${repoName} ${releaseType} Release Notes - ${version}`, "gm");
+const title = new RegExp(`${repoName} ${releaseTypeTitle} Release Notes - ${version}`, "gm");
+
+const ignoredIssues: IIssueModel[] = [];
+const ignoredPullRequests: IPullRequestModel[] = [];
+const ignoredItemList: string[] = [];
 
 const milestoneClient = new MilestoneClient();
-const issues = await milestoneClient.getIssues(repoName, version);
-const prs = await milestoneClient.getPullRequests(repoName, version);
 
-const pullRequests = noPRLabel ? [] : prs.filter((pr) => pr.labels.includes(prLabel));
+// Filter out any issues that have a label included in the ignore label list
+const issues = (await milestoneClient.getIssues(repoName, version))
+	.filter((issue: IIssueModel) => {
+		if (ignoreLabels.length <= 0) {
+			return true;
+		}
 
-const releaseNotesFilePath = `${Deno.cwd()}/cicd/test-release-notes.md`;
-const releaseNoteFileData: string = File.LoadFile(releaseNotesFilePath);
+		const shouldNotIgnore = ignoreLabels.every((ignoreLabel) =>
+			issue.labels.every((issueLabel) => issueLabel.name != ignoreLabel)
+		);
+		const shouldIgnore = !shouldNotIgnore;
+
+		if (shouldIgnore) {
+			ignoredIssues.push(issue);
+		}
+
+		return shouldNotIgnore;
+	});
+
+// Filter out any prs that have a label included in the ignore label list
+const pullRequests = (await milestoneClient.getPullRequests(repoName, version))
+	.filter((pr: IPullRequestModel) => {
+		const shouldNotIgnore = ignoreLabels.length <= 0 || ignoreLabels.every((ignoreLabel) => {
+			return pr.labels.every((prLabel) => prLabel.name != ignoreLabel);
+		});
+		const shouldIgnore = !shouldNotIgnore;
+
+		if (shouldIgnore) {
+			ignoredPullRequests.push(pr);
+		}
+
+		return (pr.pull_request.merged_at != null && shouldNotIgnore) &&
+			pr.labels.some((label) => label.name === prLabel);
+	});
+
+if (ignoredIssues.length > 0) {
+	ignoredIssues.forEach((issue) => {
+		ignoredItemList.push(`${issue.title} - Issue #${issue.number}`);
+	});
+
+	ignoredPullRequests.forEach((pr) => {
+		ignoredItemList.push(`${pr.title} - PR #${pr.number}`);
+	});
+
+	Utils.printInGroup("Ignored Issues And PRs", ignoredItemList);
+}
+
+const baseDirPath = Deno.cwd();
+const notesDirName = releaseType === "production" ? "ProductionReleases" : "PreviewReleases";
+const relativeDirPath = `Documentation/ReleaseNotes/${notesDirName}`;
+const fileName = `Release-Notes-${version}.md`;
+const fullFilePath = `${baseDirPath}/${relativeDirPath}/${fileName}`;
+
+let pathInfo = "::group:: Release Notes File Path Info";
+pathInfo += `\nBase Directory Path: ${baseDirPath}`;
+pathInfo += `\nRelative Directory Path: ${relativeDirPath}`;
+pathInfo += `\nFile Name: ${fileName}`;
+pathInfo += `\nFull File Path: ${fullFilePath}`;
+pathInfo += "\n::endgroup::";
+console.log(pathInfo);
+
+const releaseNoteFileData: string = File.LoadFile(fullFilePath);
 const issueLinks: string[] = releaseNoteFileData.match(issueLinkRegex) ?? [];
 const prLinks: string[] = noPRLabel ? [] : releaseNoteFileData.match(prLinkRegex) ?? [];
 
 // If the title is incorrect, add to the list of errors found
 if (releaseNoteFileData.match(title) === null) {
 	problemsFound.push(
-		`The title of the release notes is incorrect.  It should be '${repoName} ${releaseType} Release Notes - ${version}'.`,
+		`The title of the release notes is incorrect.  It should be '${releaseTypeTitle} ${releaseType} Release Notes - ${version}'.`,
 	);
 }
 
@@ -115,9 +185,8 @@ pullRequests.forEach((pr) => {
 	}
 });
 
-Utils.printProblemList(problemsFound).then(() => {
-	console.log("✅No problems found!!  Release notes are valid.✅");
-}).catch((error) => {
-	Utils.printAsGitHubError(error);
+Utils.printProblemList(problemsFound, `The release notes for version '${version}' are valid!!`);
+
+if (problemsFound.length > 0) {
 	Deno.exit(1);
-});
+}

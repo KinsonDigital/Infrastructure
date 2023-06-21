@@ -11,8 +11,7 @@ if (Deno.args.length != 5) {
 	errorMsg += "\nThe 2nd arg is required and must be a valid pull request number.";
 	errorMsg += "\nThe 3rd arg is required and must be the head branch of the pull request.";
 	errorMsg += "\nThe 4th arg is required and must be the intended head branch of the pull request.";
-	errorMsg +=
-		"\nThe 5th arg is required and must be the label to add if the head branch of the pull request is correct.";
+	errorMsg += "\nThe 5th arg is required and must be the label to add if the head branch of the pull request is correct.";
 	errorMsg += "\nThe 6th arg is required and must be the GitHub token.";
 
 	Utils.printAsGitHubError(errorMsg);
@@ -32,7 +31,7 @@ if (Utils.isNumeric(Deno.args[1].trim())) {
 const headBranch = Deno.args[2].trim();
 const expectedBranch = Deno.args[3].trim();
 const label = Deno.args[4].trim();
-const token = Deno.args[5].length >= 6 ? Deno.args[5].trim() : "";
+const token = Deno.args[5].trim();
 
 // Print out all of the arguments
 Utils.printInGroup("Arguments", [

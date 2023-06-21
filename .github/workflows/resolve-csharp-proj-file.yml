@@ -1,18 +1,25 @@
 name: Resolve CSharp Project File Path
 
 
+defaults:
+  run:
+    shell: pwsh
+  
+  
 on:
   workflow_call:
     inputs:
       project-name:
         required: true
+        description: The name of the C# project to validate
         type: string
       base-path:
         required: false
+        description: The base directory path to start the search from
         type: string
     outputs:
       project-file-path:
-        description: "The resolve csharp project file path."
+        description: The resolve csharp project file path
         value: ${{ jobs.resolve_proj_file_path.outputs.project-file-path }}
 
 
@@ -28,7 +35,6 @@ jobs:
 
     - name: Resolve Project File Path
       id: resolve-file-path
-      shell: pwsh
       run: |
         $basePath = "${{ inputs.base-path }}";
         $basePath = !$basePath -or $basePath -eq "" ? "${{ github.workspace }}" : $basePath;

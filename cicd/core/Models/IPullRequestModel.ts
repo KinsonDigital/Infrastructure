@@ -1,11 +1,20 @@
+import { ILabelModel } from "./ILabelModel.ts";
+import { IPullRequestHeadOrBase } from "./IPullRequestHeadOrBase.ts";
+import { IPullRequestInfo } from "./IPullRequestInfo.ts";
+
 /**
  * Represents a GitHub pull request.
  */
 export interface IPullRequestModel {
 	/**
+	 * Gets or sets the ID of the pull request.
+	 */
+	id: number;
+
+	/**
 	 * Gets or sets the title of the pull request.
 	 */
-	title: string;
+	title?: string;
 
 	/**
 	 * Gets or sets the number of the pull request.
@@ -15,25 +24,45 @@ export interface IPullRequestModel {
 	/**
 	 * Gets or sets the labels of the pull request.
 	 */
-	labels: string[];
+	labels?: ILabelModel[];
 
 	/**
 	 * Gets or sets the state of the pull request.
 	 */
-	state: string;
+	state?: string;
+
+	/**
+	 * Gets or sets the URL to the pull request.
+	 */
+	url: string;
 
 	/**
 	 * Gets or sets the URL to the html page of the pull request.
 	 */
-	html_url: string;
+	html_url?: string;
 
 	/**
 	 * Gets or sets if the pull request is a draft.
 	 */
-	draft: boolean;
+	draft?: boolean;
 
 	/**
 	 * Gets or sets the node id of the pull request.
 	 */
-	node_id: string;
+	node_id?: string;
+
+	/**
+	 * Gets or sets additional information about the pull request.
+	 */
+	pull_request?: IPullRequestInfo;
+
+	/**
+	 * Gets or sets the head branch of the pull request.
+	 */
+	head: IPullRequestHeadOrBase;
+
+	/**
+	 * Gets or sets the base branch of the pull request.
+	 */
+	base: IPullRequestHeadOrBase;
 }

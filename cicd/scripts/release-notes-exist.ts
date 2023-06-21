@@ -47,11 +47,22 @@ if (isNotValid) {
 	Deno.exit(1);
 }
 
+const baseDirPath = Deno.cwd();
 const notesDirName = releaseType === "production" ? "ProductionReleases" : "PreviewReleases";
+const relativeDirPath = `Documentation/ReleaseNotes/${notesDirName}`;
+const fileName = `Release-Notes-${version}.md`;
+const fullFilePath = `${baseDirPath}/${relativeDirPath}/${fileName}`;
 
-const notesFilePath = `${Deno.cwd()}/Documentation/ReleaseNotes/${notesDirName}/Release-Notes-${version}.md`;
+let pathInfo = "::group:: Release Notes File Path Info";
+pathInfo += `\nBase Directory Path: ${baseDirPath}`;
+pathInfo += `\nRelative Directory Path: ${relativeDirPath}`;
+pathInfo += `\nFile Name: ${fileName}`;
+pathInfo += `\nFull File Path: ${fullFilePath}`;
+pathInfo += "\n::endgroup::";
 
-if (File.DoesNotExist(notesFilePath)) {
-	Utils.printAsGitHubError(`The release notes '${notesFilePath}' do not exist.`);
+console.log(pathInfo);
+
+if (File.DoesNotExist(fullFilePath)) {
+	Utils.printAsGitHubError(`The release notes '${fullFilePath}' does not exist.`);
 	Deno.exit(1);
 }

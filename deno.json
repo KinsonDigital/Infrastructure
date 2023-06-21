@@ -1,16 +1,11 @@
 {
     "lint": {
-        "include": ["cicd/"],
-        "rules": {
-            "include": [
-                "cicd/.*\\.ts$"
-            ]
-        }
+        "include": ["cicd/.*\\.ts$"]
     },
     "fmt": {
         "include": ["cicd/"],
         "useTabs": true,
-        "lineWidth": 121,
+        "lineWidth": 130,
         "indentWidth": 4,
         "semiColons": true,
         "singleQuote": false

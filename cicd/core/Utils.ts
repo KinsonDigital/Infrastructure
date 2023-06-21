@@ -1,9 +1,7 @@
 import { GitHubHttpStatusCodes } from "./Enums.ts";
+import { Guard } from "./Guard.ts";
 import { IIssueModel } from "./Models/IIssueModel.ts";
-import { IMilestoneModel } from "./Models/IMilestoneModel.ts";
 import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
-import { IRepoModel } from "./Models/IRepoModel.ts";
-import { IssueNotFound, MilestoneNotFound, PullRequestNotFound } from "./Types.ts";
 
 /**
  * Provides utility functions.
@@ -42,21 +40,22 @@ export class Utils {
 	 * @param value The value to check.
 	 * @returns True if the value is null, undefined, or empty, otherwise false.
 	 */
-	public static isNullOrEmptyOrUndefined(value: string | undefined | null): value is null | undefined | "" {
+	public static isNullOrEmptyOrUndefined<T>(
+		value: undefined | null | string | number | T[] | (() => T),
+	): value is undefined | null | "" | number | T[] | (() => T) {
+		if (value === undefined || value === null) {
+			return true;
+		}
+
 		if (typeof value === "string") {
 			return value === "";
 		}
 
-		return this.isNullOrUndefined(value) || value === "";
-	}
+		if (Array.isArray(value)) {
+			return value.length === 0;
+		}
 
-	/**
-	 * Checks if the value is null or undefined.
-	 * @param value The value to check.
-	 * @returns True if the value is null or undefined, otherwise false.
-	 */
-	public static isNullOrUndefined(value: null | undefined): value is null | undefined {
-		return value === undefined || value === null;
+		return false;
 	}
 
 	/**
@@ -73,7 +72,7 @@ export class Utils {
 	 * @returns The issues from the given list of issues or pull requests.
 	 */
 	public static filterIssues(issuesOrPrs: (IIssueModel | IPullRequestModel)[]): IIssueModel[] {
-		return <IIssueModel[]> issuesOrPrs.filter((item) => !("pull_request" in item));
+		return <IIssueModel[]> issuesOrPrs.filter((item) => this.isIssue(item));
 	}
 
 	/**
@@ -82,7 +81,25 @@ export class Utils {
 	 * @returns The pull requests from the given list of issues or pull requests.
 	 */
 	public static filterPullRequests(issuesOrPrs: (IIssueModel | IPullRequestModel)[]): IPullRequestModel[] {
-		return <IPullRequestModel[]> issuesOrPrs.filter((item) => "pull_request" in item);
+		return <IPullRequestModel[]> issuesOrPrs.filter((item) => this.isPr(item));
+	}
+
+	/**
+	 * Returns a value indicating whether or not the given {@link issueOrPr} is an issue.
+	 * @param issueOrPr The issue or pull request to check.
+	 * @returns True if the given issue or pull request is an issue, otherwise false.
+	 */
+	public static isIssue(issueOrPr: IIssueModel | IPullRequestModel): issueOrPr is IIssueModel {
+		return !("pull_request" in issueOrPr);
+	}
+
+	/**
+	 * Returns a value indicating whether or not the given {@link issueOrPr} is a pull request.
+	 * @param issueOrPr The issue or pull request to check.
+	 * @returns True if the given issue or pull request is a pull request, otherwise false.
+	 */
+	public static isPr(issueOrPr: IPullRequestModel | IIssueModel): issueOrPr is IPullRequestModel {
+		return "pull_request" in issueOrPr;
 	}
 
 	/**
@@ -96,9 +113,10 @@ export class Utils {
 	/**
 	 * Prints the given list of problems as errors.
 	 * @param problems The list of problems to print.
+	 * @param successMsg The message to print if there are no problems.
 	 * @returns A promise that resolves if there are no problems, otherwise rejects with the list of problems.
 	 */
-	public static async printProblemList(problems: string[]): Promise<void> {
+	public static printProblemList(problems: string[], successMsg: string): void {
 		const errorList: string[] = [];
 
 		// Display all of the issues that have been found as errors
@@ -108,13 +126,17 @@ export class Utils {
 			errorList.push(`${i + 1}. ${errorFound}`);
 		}
 
-		return await new Promise((resolve, reject) => {
-			if (problems.length > 0) {
-				reject(`::error::${errorList.join("\n")}`);
-			} else {
-				resolve();
-			}
-		});
+		if (errorList.length > 0) {
+			console.log(`::group::${problems.length} problem(s) found.`);
+
+			errorList.forEach((error) => {
+				this.printAsGitHubError(error);
+			});
+
+			console.log("::endgroup::");
+		} else {
+			console.log(`✅No problems found!!✅\n${successMsg}`);
+		}
 	}
 
 	/**
@@ -124,67 +146,11 @@ export class Utils {
 	 */
 	public static throwIfErrors(response: Response): void {
 		if (response.status < GitHubHttpStatusCodes.OK) {
-			const errorMsg =
-				`There was a problem with the request. Status code: ${response.status}(${response.statusText}).`;
+			const errorMsg = `There was a problem with the request. Status code: ${response.status}(${response.statusText}).`;
 
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
-	}
-
-	/**
-	 * Checks if the given {@link issue} exists.
-	 * @param issue The issue to check.
-	 * @returns True if the issue exists, otherwise false.
-	 */
-	public static issueExists(issue: IIssueModel | boolean): issue is IIssueModel | boolean {
-		const objKeys: string[] = Object.keys(issue);
-
-		for (let i = 0; i < objKeys.length; i++) {
-			const objKey = objKeys[i];
-
-			if (typeof issue === "object" && !Object.hasOwn(issue, objKey)) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Checks if the given {@link issue} is an instance of {@link IssueNotFound}.
-	 * @param issue The issue to check.
-	 * @returns True if the {@link issue} is an instance of {@link IssueNotFound}, otherwise false.
-	 */
-	public static isIssueNotFound(issue: IIssueModel | IssueNotFound): issue is IssueNotFound {
-		return typeof issue === "object" && issue && "message" in issue;
-	}
-
-	/**
-	 * Checks if the given {@link pr} is an instance of {@link PullRequestNotFound}.
-	 * @param pr The pull request to check.
-	 * @returns True if the {@link pr} is an instance of {@link PullRequestNotFound}, otherwise false.
-	 */
-	public static isPullRequestNotFound(pr: IPullRequestModel | PullRequestNotFound): pr is PullRequestNotFound {
-		return typeof pr === "object" && pr && "message" in pr;
-	}
-
-	/**
-	 * Checks if the given {@link milestone} is an instance of {@link MilestoneNotFound}.
-	 * @param milestone The issue to check.
-	 * @returns True if the {@link milestone} is an instance of {@link MilestoneNotFound}, otherwise false.
-	 */
-	public static isMilestoneNotFound(milestone: IMilestoneModel | MilestoneNotFound): milestone is MilestoneNotFound {
-		return typeof milestone === "object" && milestone && "message" in milestone;
-	}
-
-	/**
-	 * Checks if the given {@link repo} is an instance of {@link MilestoneNotFound}.
-	 * @param repo The issue to check.
-	 * @returns True if the {@link repo} is an instance of {@link MilestoneNotFound}, otherwise false.
-	 */
-	public static isRepoNotFound(repo: IRepoModel | MilestoneNotFound): repo is MilestoneNotFound {
-		return typeof repo === "object" && repo && "message" in repo;
 	}
 
 	/**
@@ -221,5 +187,48 @@ export class Utils {
 	 */
 	public static isNotValidPreviewVersion(version: string): boolean {
 		return !Utils.validPreviewVersion(version);
+	}
+
+	/**
+	 * Returns a number that is clamped between the given {@link min} and {@link max} values.
+	 * @param value The value to clamp.
+	 * @param min The minimum value.
+	 * @param max The maximum value.
+	 * @returns A value that is clamped between the given {@link min} and {@link max} values.
+	 */
+	public static clamp(value: number, min: number, max: number): number {
+		return Math.min(Math.max(value, min), max);
+	}
+
+	/**
+	 * Builds a URL to an issue that matches the given {@link issueNumber} in a repository that with a
+	 * name that matches the given {@link repoName} and is owned by the given {@link repoOwner}.
+	 * @param repoOwner The owner of the repository.
+	 * @param repoName The name of the repository.
+	 * @param issueNumber The issue number.
+	 * @returns The URL to the issue.
+	 */
+	public static buildIssueUrl(repoOwner: string, repoName: string, issueNumber: number): string {
+		Guard.isNullOrEmptyOrUndefined(repoOwner, "buildIssueUrl", "repoOwner");
+		Guard.isNullOrEmptyOrUndefined(repoName, "buildIssueUrl", "repoName");
+		Guard.isLessThanOne(issueNumber, "buildIssueUrl", "issueNumber");
+
+		return `https://github.com/${repoOwner}/${repoName}/issues/${issueNumber}`;
+	}
+
+	/**
+	 * Builds a URL to a pull request that matches the given {@link issueNumber} in a repository that with a
+	 * name that matches the given {@link repoName} and is owned by the given {@link repoOwner}.
+	 * @param repoOwner The owner of the repository.
+	 * @param repoName The name of the repository.
+	 * @param issueNumber The pull request number.
+	 * @returns The URL to the issue.
+	 */
+	public static buildPullRequestUrl(repoOwner: string, repoName: string, issueNumber: number): string {
+		Guard.isNullOrEmptyOrUndefined(repoOwner, "buildIssueUrl", "repoOwner");
+		Guard.isNullOrEmptyOrUndefined(repoName, "buildIssueUrl", "repoName");
+		Guard.isLessThanOne(issueNumber, "buildIssueUrl", "issueNumber");
+
+		return `https://github.com/${repoOwner}/${repoName}/pull/${issueNumber}`;
 	}
 }

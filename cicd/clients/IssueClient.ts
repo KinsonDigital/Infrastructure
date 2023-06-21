@@ -3,8 +3,7 @@ import { LabelClient } from "./LabelClient.ts";
 import { IIssueModel } from "../core/Models/IIssueModel.ts";
 import { ILabelModel } from "../core/Models/ILabelModel.ts";
 import { Utils } from "../core/Utils.ts";
-import { IssueNotFound } from "../core/Types.ts";
-import { GitHubHttpStatusCodes } from "../core/Enums.ts";
+import { GitHubHttpStatusCodes, IssueOrPRState } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
 
 /**
@@ -24,18 +23,77 @@ export class IssueClient extends GitHubClient {
 	}
 
 	/**
-	 * Gets all of the issues for a repo that match the given {@link repoName}.
-	 * @param repoName The name of the repo.
+	 * Gets all of the open issues for a repository that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
 	 * @returns The issue.
 	 * @remarks Does not require authentication.
 	 */
-	public async getIssues(repoName: string): Promise<IIssueModel[]> {
-		Guard.isNullOrEmptyOrUndefined(repoName, "getIssues", "getIssues");
+	public async getAllOpenIssues(repoName: string): Promise<IIssueModel[]> {
+		Guard.isNullOrEmptyOrUndefined(repoName, "getAllOpenIssues", "repoName");
 
-		// TODO: Need to add pagination
+		return await this.getAllData<IIssueModel>(async (page: number, qtyPerPage?: number) => {
+			return await this.getIssues(repoName, page, qtyPerPage);
+		});
+	}
+
+	/**
+	 * Gets all of the issues for a repository that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
+	 * @returns The issue.
+	 * @remarks Does not require authentication.
+	 */
+	public async getAllClosedIssues(repoName: string): Promise<IIssueModel[]> {
+		Guard.isNullOrEmptyOrUndefined(repoName, "getAllClosedIssues", "repoName");
+
+		return await this.getAllData<IIssueModel>(async (page: number, qtyPerPage?: number) => {
+			return await this.getIssues(repoName, page, qtyPerPage, IssueOrPRState.closed);
+		});
+	}
+
+	/**
+	 * Gets all of the issues for the given {@link page} for a repository that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
+	 * @param page The page of results to return.
+	 * @param qtyPerPage The total to return per {@link page}.
+	 * @param state The state of the issue.
+	 * @param labels The labels to filter by. A null or empty list will not filter the results.
+	 * @param milestoneNumber The milestone number to filter by. A null value will not filter the results.
+	 * @returns The issue.
+	 * @remarks Does not require authentication if the repository is public.
+	 * Open and closed issues can reside on different pages.  Example: if there are 5 open and 100 issues total, there
+	 * is no guarantee that all of the opened issues will be returned if you request the first page with a quantity of 10.
+	 * This is because no matter what the state of the issue is, it can reside on any page.
+	 *
+	 * The {@link page} value must be greater than 0. If less than 1, the value of 1 will be used.
+	 * The {@link qtyPerPage} value must be a value between 1 and 100. If less than 1, the value will
+	 * be set to 1, if greater than 100, the value will be set to 100.
+	 */
+	public async getIssues(
+		repoName: string,
+		page = 1,
+		qtyPerPage = 100,
+		state: IssueOrPRState = IssueOrPRState.open,
+		labels?: string[] | null,
+		milestoneNumber?: number | null,
+	): Promise<[IIssueModel[], Response]> {
+		const functionName = "getIssues";
+		Guard.isNullOrEmptyOrUndefined(repoName, functionName, "repoName");
+
+		repoName = repoName.trim();
+		page = Utils.clamp(page, 1, Number.MAX_SAFE_INTEGER);
+		qtyPerPage = Utils.clamp(qtyPerPage, 1, 100);
 
 		// REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#list-repository-issues
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/issues?state=all&page=1&per_page=100`;
+		const labelList = Utils.isNullOrEmptyOrUndefined(labels)
+			? labels?.filter((l) => Utils.isNullOrEmptyOrUndefined(l)).map((l) => l.trim()).join(",") ?? ""
+			: "";
+
+		const milestoneNumberQueryParam = Utils.isNullOrEmptyOrUndefined(milestoneNumber) ? "" : `&milestone=${milestoneNumber}`;
+		const labelListQueryParam = labelList.length > 0 ? `&labels=${labelList}` : "";
+
+		const queryParams =
+			`?page=${page}&per_page=${qtyPerPage}&state=${state}${labelListQueryParam}${milestoneNumberQueryParam}`;
+		const url = `${this.baseUrl}/${this.organization}/${repoName}/issues${queryParams}`;
 
 		const response: Response = await this.fetchGET(url);
 
@@ -50,7 +108,7 @@ export class IssueClient extends GitHubClient {
 					break;
 				case GitHubHttpStatusCodes.NotFound:
 					Utils.printAsGitHubError(
-						`The organization '${this.organization}' or repo '${repoName}' does not exist.`,
+						`The organization '${this.organization}' or repository '${repoName}' does not exist.`,
 					);
 					break;
 			}
@@ -58,7 +116,9 @@ export class IssueClient extends GitHubClient {
 			Deno.exit(1);
 		}
 
-		return <IIssueModel[]> await this.getResponseData(response);
+		const issues = (<IIssueModel[]> await this.getResponseData(response)).filter((issue) => Utils.isIssue(issue));
+
+		return [issues, response];
 	}
 
 	/**
@@ -67,7 +127,7 @@ export class IssueClient extends GitHubClient {
 	 * @param issueNumber The issue number.
 	 * @returns The issue.
 	 */
-	public async getIssue(repoName: string, issueNumber: number): Promise<IIssueModel | IssueNotFound> {
+	public async getIssue(repoName: string, issueNumber: number): Promise<IIssueModel> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getIssue", "repoName");
 		Guard.isLessThanOne(issueNumber, "getIssue", "issueNumber");
 
@@ -82,9 +142,8 @@ export class IssueClient extends GitHubClient {
 				case GitHubHttpStatusCodes.MovedPermanently:
 				case GitHubHttpStatusCodes.NotModified:
 				case GitHubHttpStatusCodes.NotFound:
-					Utils.printAsGitHubError(`The repo '${repoName}' or issue '${issueNumber}' does not exist.`);
-
-					return { message: response.statusText };
+					Utils.printAsGitHubError(`The repository '${repoName}' or issue '${issueNumber}' does not exist.`);
+					break;
 				case GitHubHttpStatusCodes.Gone:
 					Utils.printAsGitHubError(
 						`The request to get an issue returned error '${response.status} - (${response.statusText})'`,
@@ -101,7 +160,7 @@ export class IssueClient extends GitHubClient {
 	/**
 	 * Adds the given {@link label} to an issue that matches the given {@link issueNumber} in a repo
 	 * that matches the given {@link repoName}.
-	 * @param repoName The name of the repo.
+	 * @param repoName The name of the repository.
 	 * @param issueNumber The number of an issue.
 	 * @param label The name of the label to add.
 	 * @remarks Requires authentication.
@@ -124,7 +183,7 @@ export class IssueClient extends GitHubClient {
 			const issueUrl = `https://github.com/KinsonDigital/${repoName}/issues/618`;
 
 			let errorMsg =
-				`::error::The label '${label}' attempting to be added to issue '${issueNumber}' does not exist in the repo '${repoName}'.`;
+				`::error::The label '${label}' attempting to be added to issue '${issueNumber}' does not exist in the repository '${repoName}'.`;
 			errorMsg += `\nRepo Labels: ${labelsUrl}`;
 			errorMsg += `\nIssue: ${issueUrl}`;
 
@@ -168,7 +227,7 @@ export class IssueClient extends GitHubClient {
 	/**
 	 * Gets all of the labels for an issue that matches the given {@link issueNumber} in a repo
 	 * that matches the given {@link repoName}.
-	 * @param repoName The name of the repo.
+	 * @param repoName The name of the repository.
 	 * @param issueNumber The number of an issue.
 	 * @returns The labels for an issue.
 	 * @remarks Does not require authentication.
@@ -204,35 +263,61 @@ export class IssueClient extends GitHubClient {
 	}
 
 	/**
-	 * Checks if an issue with the given {@link issueNumber } issue exists in a repo that matches the given {@link repoName}.
-	 * @param repoName The name of the repo.
+	 * Returns a value indicating whether or not an open issue with the given {@link issueNumber} exists in a repository
+	 * that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
+	 * @param issueNumber The issue number.
+	 * @returns True if the issue exists and is open, otherwise false.
+	 */
+	public async openIssueExists(repoName: string, issueNumber: number): Promise<boolean> {
+		Guard.isNullOrEmptyOrUndefined(repoName, "openIssueExist", "repoName");
+		Guard.isLessThanOne(issueNumber, "openIssueExist", "issueNumber");
+
+		return await this.openOrClosedIssueExists(repoName, issueNumber, IssueOrPRState.open);
+	}
+
+	/**
+	 * Returns a value indicating whether or not a closed issue with the given {@link issueNumber} exists in a repository
+	 * that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
+	 * @param issueNumber The issue number.
+	 * @returns True if the issue exists and is open, otherwise false.
+	 */
+	public async closedIssueExists(repoName: string, issueNumber: number): Promise<boolean> {
+		Guard.isNullOrEmptyOrUndefined(repoName, "closedIssueExist", "repoName");
+		Guard.isLessThanOne(issueNumber, "closedIssueExist", "issueNumber");
+
+		return await this.openOrClosedIssueExists(repoName, issueNumber, IssueOrPRState.closed);
+	}
+
+	/**
+	 * Checks if an issue with the given {@link issueNumber } exists with the given {@link state} in a
+	 * repository that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
 	 * @param issueNumber The number of the issue.
 	 * @returns True if the issue exists, otherwise false.
 	 */
-	public async issueExists(repoName: string, issueNumber: number): Promise<boolean> {
-		Guard.isNullOrEmptyOrUndefined(repoName, "issueExists", "repoName");
-		Guard.isLessThanOne(issueNumber, "issueExists", "issueNumber");
+	private async openOrClosedIssueExists(
+		repoName: string,
+		issueNumber: number,
+		state: IssueOrPRState,
+	): Promise<boolean> {
+		Guard.isNullOrEmptyOrUndefined(repoName, "openOrClosedIssueExists", "repoName");
+		Guard.isLessThanOne(issueNumber, "openOrClosedIssueExists", "issueNumber");
 
-		// REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#get-an-issue
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${issueNumber}`;
+		repoName = repoName.toLowerCase();
 
-		const response: Response = await this.fetchGET(url);
+		const issues = await this.getAllDataUntil<IIssueModel>(
+			async (page: number, qtyPerPage?: number) => {
+				return await this.getIssues(repoName, page, qtyPerPage, state);
+			},
+			1, // Start page
+			100, // Qty per page
+			(pageOfData: IIssueModel[]) => {
+				return pageOfData.some((issue: IIssueModel) => issue.number === issueNumber);
+			},
+		);
 
-		// If there is an error
-		if (response.status != GitHubHttpStatusCodes.OK) {
-			switch (response.status) {
-				case GitHubHttpStatusCodes.MovedPermanently:
-				case GitHubHttpStatusCodes.NotModified:
-				case GitHubHttpStatusCodes.Gone:
-					Utils.printAsGitHubError(
-						`The request to get an issue returned error '${response.status} - (${response.statusText})'`,
-					);
-					break;
-				case GitHubHttpStatusCodes.NotFound:
-					return false;
-			}
-		}
-
-		return true;
+		return issues.find((issue: IIssueModel) => issue.number === issueNumber) !== undefined;
 	}
 }

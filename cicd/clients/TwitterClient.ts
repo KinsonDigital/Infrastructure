@@ -25,7 +25,7 @@ export class TwitterClient extends WebAPIClient {
 			appSecret: authValues.consumer_api_secret,
 			accessToken: authValues.access_token_key,
 			accessSecret: authValues.access_token_secret,
-		  });
+		});
 		this.twitterClientReadWrite = this.twitterClientBase.readWrite;
 	}
 
@@ -37,7 +37,7 @@ export class TwitterClient extends WebAPIClient {
 		const tweetResult: TweetV2PostTweetResult = await this.twitterClientBase.v2.tweet(message);
 
 		if (tweetResult.errors) {
-			tweetResult.errors.forEach(error => {
+			tweetResult.errors.forEach((error) => {
 				let errorMsg = `Error Title: ${error.title}`;
 				errorMsg += `\nError Detail: ${error.detail}`;
 

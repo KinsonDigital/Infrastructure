@@ -32,4 +32,14 @@ export class File {
 
 		return file;
 	}
+
+	/**
+	 * Saves the given {@link fileContent} to the file at the given {@link filePath}.
+	 * @param filePath The path to the file to save.
+	 * @param fileContent The content to save to the file.
+	 * @remarks If the file already exists, it will be overwritten.  If the file does not exist, it will be created.
+	 */
+	public static SaveFile(filePath: string, fileContent: string): void {
+		Deno.writeTextFileSync(filePath, fileContent);
+	}
 }

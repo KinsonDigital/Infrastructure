@@ -4,14 +4,13 @@ import { IPullRequestModel } from "../core/Models/IPullRequestModel.ts";
 import { ProjectClient } from "../clients/ProjectClient.ts";
 import { PullRequestClient } from "../clients/PullRequestClient.ts";
 import { Utils } from "../core/Utils.ts";
-import { IssueNotFound, ItemType, PullRequestNotFound } from "../core/Types.ts";
 import { RepoClient } from "../clients/RepoClient.ts";
+import { ItemType } from "../core/Types.ts";
 
 const scriptName = Utils.getScriptName();
 
 if (Deno.args.length != 5) {
-	let errorMsg =
-		`The '${scriptName}' cicd script must have at least 3 arguments with an additional 2 optional arguments.`;
+	let errorMsg = `The '${scriptName}' cicd script must have at least 3 arguments with an additional 2 optional arguments.`;
 	errorMsg += "\nThe 1st arg is required and must be the GitHub repo name.";
 	errorMsg += "\nThe 2nd arg is required and must be a valid issue or pr number.";
 	errorMsg += "\nThe 3rd arg is required and must be a either the value 'issue' or 'pull-request' for the item type.";
@@ -23,7 +22,7 @@ if (Deno.args.length != 5) {
 }
 
 const repoName = Deno.args[0].trim();
-const issueOrPRNumber: number = Utils.isNumeric(Deno.args[1].trim()) ? parseInt(Deno.args[1].trim()) : -1;
+const issueOrPRNumber = Utils.isNumeric(Deno.args[1].trim()) ? parseInt(Deno.args[1].trim()) : -1;
 const itemType: ItemType = <ItemType> Deno.args[2].trim().toLowerCase();
 const projectName: string = Deno.args[3].trim();
 const token = Deno.args[4].trim();
@@ -57,37 +56,40 @@ if (numberInvalid) {
 const ISSUE_TYPE = "issue";
 const PR_TYPE = "pull-request";
 
+let itemUrl = "";
 let itemNodeId = "";
 
 switch (itemType) {
 	case ISSUE_TYPE: {
 		const issueClient: IssueClient = new IssueClient(token);
-		const issue: IIssueModel | IssueNotFound = await issueClient.getIssue(repoName, issueOrPRNumber);
+		const issue: IIssueModel = await issueClient.getIssue(repoName, issueOrPRNumber);
 
-		if (Utils.isIssueNotFound(issue)) {
-			Utils.printAsGitHubError(doesNotExistErrorMsg);
-			Deno.exit(1);
-		}
-
-		itemNodeId = issue.node_id;
+		itemNodeId = issue.node_id === undefined ? "" : issue.node_id;
+		itemUrl = issue.html_url === undefined ? "" : issue.html_url;
 
 		break;
 	}
 	case PR_TYPE: {
 		const prClient: PullRequestClient = new PullRequestClient(token);
-		const pr: IPullRequestModel | PullRequestNotFound = await prClient.getPullRequest(repoName, issueOrPRNumber);
 
-		if (Utils.isPullRequestNotFound(pr)) {
+		const prDoesNotExist = !(await prClient.pullRequestExists(repoName, issueOrPRNumber));
+
+		if (prDoesNotExist) {
 			Utils.printAsGitHubError(doesNotExistErrorMsg);
 			Deno.exit(1);
 		}
 
-		itemNodeId = pr.node_id;
+		const pr: IPullRequestModel = await prClient.getPullRequest(repoName, issueOrPRNumber);
+
+		itemNodeId = pr.node_id === undefined ? "" : pr.node_id;
+		itemUrl = pr.html_url === undefined ? "" : pr.html_url;
 
 		break;
 	}
 	default:
-		Utils.printAsGitHubError(`The item type '${itemType}' is invalid. It must be a value of 'issue' or 'pull-request'.`);
+		Utils.printAsGitHubError(
+			`The item type '${itemType}' is invalid. It must be a value of 'issue' or 'pull-request'.`,
+		);
 		break;
 }
 
@@ -101,3 +103,8 @@ if (projectDoesNotExist) {
 }
 
 await projectClient.addToProject(itemNodeId, projectName);
+
+const itemTypeName = itemType === ISSUE_TYPE ? "issue" : "pull request";
+console.log(
+	`✅The ${itemTypeName} '${issueOrPRNumber}' has been added to the project '${projectDoesNotExist}'!✅\n${itemUrl}`,
+);

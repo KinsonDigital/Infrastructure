@@ -8,25 +8,26 @@ const scriptName = Utils.getScriptName();
 // Validate the arguments
 if (Deno.args.length < 3) {
 	let errorMsg = `The '${scriptName}' cicd script must have 3 arguments and with an additional 1 optional argument.`;
-	errorMsg += "\nThe 1st arg is required and must be either 'production', 'preview' or 'either'.";
-	errorMsg += "\nThe 2nd arg is required and must be the name of the tag.";
-	errorMsg += "\nThe 3rd arg is required and must be a valid GitHub repo.";
+	errorMsg += "\nThe 1st arg is required and must be a valid GitHub repo.";
+	errorMsg += "\nThe 2nd arg is required and must be either 'production', 'preview' or 'either'.";
+	errorMsg += "\nThe 3rd arg is required and must be the name of the tag.";
 	errorMsg += "\nThe 4th arg is optional and must be a GitHub token.";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 
-const tagType: string = Deno.args[0].toLowerCase();
-const tag: string = Deno.args[1].startsWith("v") ? Deno.args[1] : `v${Deno.args[1]}`;
-const repoName: string = Deno.args[2];
-const token = Deno.args[3].length >= 3 ? Deno.args[3].trim() : "";
+const repoName: string = Deno.args[0];
+const tagType: string = Deno.args[1].toLowerCase();
+let tag: string = Deno.args[2].trim();
+tag = tag.startsWith("v") ? tag : `v${Deno.args[2]}`;
+const token = Deno.args.length >= 4 ? Deno.args[3].trim() : "";
 
 // Print out all of the arguments
 Utils.printInGroup("Arguments", [
+	`Repo Name (Required): ${repoName}`,
 	`Tag Type (Required): ${tagType}`,
 	`Tag (Required): ${tag}`,
-	`Repo Name (Required): ${repoName}`,
 	`GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,
 ]);
 

@@ -1,0 +1,62 @@
+name: Create Script URL
+
+
+defaults:
+  run:
+    shell: pwsh
+
+
+on:
+  workflow_call:
+    inputs:
+      project-name:
+        required: true
+        description: The name of the C# project to validate
+        type: string
+      cicd-scripts-version:
+        required: true
+        description: The version of the CICD scripts to use
+        type: string
+    outputs:
+      script-url:
+        description: The URL to the CICD scripts
+        value: ${{ jobs.get_script_url.outputs.script-url }}
+
+
+jobs:
+  get_script_url:
+    name: Get CICD Scripts URL
+    runs-on: ubuntu-latest
+    outputs:
+      script-url: ${{ steps.create-url.outputs.scriptUrl }}
+    steps:
+      - name: Validate CICD Script Version
+        run: |
+          $cicdScriptsVersion = "${{ inputs.cicd-scripts-version }}";
+          $scriptVersionRegEx = "v[0-9]+\.[0-9]+\.[0-9]+";
+
+          if ($cicdScriptsVersion -match $scriptVersionRegEx) {
+            Write-Host "The 'cicd-scripts-version' workflow input value of '$cicdScriptsVersion' is valid.";
+          } else {
+            Write-Host "The 'cicd-scripts-version' workflow input value of '$cicdScriptsVersion' has invalid syntax.";
+            exit 1;
+          }
+
+      - name: Create URL
+        id: create-url
+        run: |
+          # Construct the URL to the organizations CICD scripts
+          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ inputs.cicd-scripts-version }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
+
+          Write-Host "Script URL Before Mutation: $scriptUrl";
+          
+          # Make sure that no double forward or backward slashes make it through
+          $scriptUrl = $scriptUrl.Replace("\ ", "/");
+          $scriptUrl = $scriptUrl.Replace("//", "/");
+          
+          # Make sure that the URL does not end with a forward or backward slash
+          $scriptUrl = $scriptUrl.EndsWith("/") ? $scriptUrl.Substring(0, $scriptUrl.Length - 1) : $scriptUrl;
+
+          Write-Host "Script URL After Mutation: $scriptUrl";
+
+          "scriptUrl=$scriptUrl" >> "$env:GITHUB_OUTPUT";

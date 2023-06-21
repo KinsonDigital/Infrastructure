@@ -1,4 +1,44 @@
 /**
+ * Represents the state of an issue to return in an HTTP request.
+ */
+export enum IssueOrPRState {
+	/**
+	 * All issues.
+	 */
+	any = "all",
+
+	/**
+	 * Issues that are open.
+	 */
+	open = "open",
+
+	/**
+	 * Issues that are closed.
+	 */
+	closed = "closed",
+}
+
+/**
+ * Represents the merge state of a pull request.
+ */
+export enum MergeState {
+	/**
+	 * A pull request is merged or not merged.
+	 */
+	any = 0,
+
+	/**
+	 * A pull request is merged.
+	 */
+	merged = 1,
+
+	/**
+	 * A pull request is not merged.
+	 */
+	unmerged = 2,
+}
+
+/**
  * HTTP status codes.
  */
 export enum GitHubHttpStatusCodes {
@@ -12,9 +52,19 @@ export enum GitHubHttpStatusCodes {
 	OK = 200,
 
 	/**
+	 * The server successfully processed the request and is not returning any content.
+	 */
+	NoContent = 204,
+
+	/**
 	 * The URL of the requested resource has been changed permanently. The new URL is given in the response.
 	 */
 	MovedPermanently = 301,
+
+	/**
+	 * A temporary redirect.
+	 */
+	TemporaryRedirect = 302,
 
 	/**
 	 * This is used for caching purposes. It tells the client that the response has not been modified, so the
@@ -135,4 +185,106 @@ export enum NuGetHttpStatusCodes {
 	 * The service is temporarily unavailable.
 	 */
 	TemporarilyUnavailable = 503,
+}
+
+/**
+ * Different types of events that trigger a workflow run.
+ */
+export enum WorkflowEvent {
+	/**
+	 * The workflow was triggered by anything
+	 */
+	any = "*",
+
+	/**
+	 * The workflow was triggered via a GIT push.
+	 */
+	push = "push",
+
+	/**
+	 * The workflow was triggered via a pull request.
+	 */
+	pullRequest = "pull_request",
+
+	/**
+	 * The workflow was trigger by an issue event.
+	 */
+	issue = "issue",
+}
+
+export enum WorkflowRunStatus {
+	/**
+	 * Any workflow state.
+	 */
+	any = "*",
+
+	/**
+	 * The workflow has been completed.
+	 */
+	completed = "completed",
+
+	/**
+	 * The workflow requires action.
+	 */
+	actionRequired = "action_required",
+
+	/**
+	 * The workflow as cancelled.
+	 */
+	cancelled = "cancelled",
+
+	/**
+	 * The workflow failed.
+	 */
+	failure = "failure",
+
+	/**
+	 * The workflow is neutral.
+	 */
+	neutral = "neutral",
+
+	/**
+	 * The workflow was skipped.
+	 */
+	skipped = "skipped",
+
+	/**
+	 * The workflow is stale.
+	 */
+	stale = "stale",
+
+	/**
+	 * The workflow was successful.
+	 */
+	success = "success",
+
+	/**
+	 * The workflow timed out.
+	 */
+	timedOut = "timed_out",
+
+	/**
+	 * The workflow is currently in progress.
+	 */
+	inProgress = "in_progress",
+
+	/**
+	 * The workflow has been queued.
+	 */
+	queued = "queued",
+
+	/**
+	 * The workflow has been requested.
+	 */
+	requested = "requested",
+
+	/**
+	 * The workflow is currently waiting.
+	 */
+	waiting = "waiting",
+
+	/**
+	 * The workflow is currently pending.
+	 */
+	pending = "pending",
 }

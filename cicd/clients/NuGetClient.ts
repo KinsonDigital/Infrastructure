@@ -92,7 +92,7 @@ export class NuGetClient extends WebAPIClient {
 
 		if (this.statusCodeValid(statusCode)) {
 			if (statusCode === NuGetHttpStatusCodes.SuccessWithResponseBody) {
-				const versions = <string[]>(await this.getResponseData<any>(response))
+				const versions = <string[]> (await this.getResponseData<{ versions: string[] }>(response))
 					.versions.map((v: string) => v.toLowerCase());
 
 				return versions.includes(version);

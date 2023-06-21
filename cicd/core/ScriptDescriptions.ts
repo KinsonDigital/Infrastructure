@@ -44,7 +44,7 @@ export class ScriptDescriptions {
 
 		const filePath: string = descriptionFiles.find((filePath) => filePath.endsWith(`${scriptName}`)) ?? "";
 
-		if (filePath == "") {
+		if (filePath === "") {
 			return "";
 		} else {
 			const fileData: string = File.LoadFile(filePath);

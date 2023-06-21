@@ -31,8 +31,9 @@ export class Guard {
 	 * @param funcName The name of the function that is calling this function.
 	 * @param paramName The name of the parameter that is being checked.
 	 */
-	public static isLessThanOne(value: number | undefined | null, funcName = "", paramName = ""): void {
-		if (Utils.isNullOrUndefined(value) || isNaN(value) || !isFinite(value)) {
+	public static isLessThanOne(value: undefined | null | number, funcName = "", paramName = ""): void {
+		const isNullOrUndefined = value === undefined || value === null;
+		if (isNullOrUndefined || isNaN(value) || !isFinite(value)) {
 			Utils.printAsGitHubError("The value is undefined, null, NaN, Infinite, -Infinity.");
 
 			if (funcName != "") {

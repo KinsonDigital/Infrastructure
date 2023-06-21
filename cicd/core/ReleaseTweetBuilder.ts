@@ -1,4 +1,4 @@
-import { File } from "./File.ts";
+import { RepoClient } from "../clients/RepoClient.ts";
 import { Guard } from "./Guard.ts";
 import { Utils } from "./Utils.ts";
 
@@ -11,34 +11,51 @@ export class ReleaseTweetBuilder {
 	private readonly NUGET_VERSION_VAR = "NUGET_VERSION";
 	private readonly REPO_OWNER_VAR = "REPO_OWNER";
 	private readonly DISCORD_INVITE_CODE_VAR = "DISCORD_INVITE_CODE";
-	private readonly releaseTweetFileName = "release-tweet-template.txt";
+	private readonly repoClient: RepoClient;
+
+	/**
+	 * Creates a new instance of the {@link ReleaseTweetBuilder} class.
+	 */
+	constructor(token?: string) {
+		this.repoClient = new RepoClient(token);
+	}
 
 	/**
 	 * Creates a release tweet using a template.
-	 * @param projectName The name of the project being released.
 	 * @param repoOwner The owner of the repository.
+	 * @param tweetTemplateRepoName The name of the repository where the release tweet template is located.
+	 * @param projectName The name of the project being released.
+	 * @param relativeFilePath The relative file path to the release tweet template.
 	 * @param version The version of the project being released.
 	 * @param discordInviteCode The discord invite code.
 	 * @returns The release tweet.
 	 */
-	public buildTweet(projectName: string, repoOwner: string, version: string, discordInviteCode: string): string {
-		Guard.isNullOrEmptyOrUndefined(projectName, "buildTweet", "projectName");
+	public async buildTweet(
+		repoOwner: string,
+		tweetTemplateRepoName: string,
+		projectName: string,
+		relativeFilePath: string,
+		version: string,
+		discordInviteCode: string,
+	): Promise<string> {
 		Guard.isNullOrEmptyOrUndefined(repoOwner, "buildTweet", "repoOwner");
+		Guard.isNullOrEmptyOrUndefined(tweetTemplateRepoName, "buildTweet", "repoName");
+		Guard.isNullOrEmptyOrUndefined(projectName, "buildTweet", "projectName");
+		Guard.isNullOrEmptyOrUndefined(relativeFilePath, "buildTweet", "relativeFilePath");
 		Guard.isNullOrEmptyOrUndefined(version, "buildTweet", "version");
 		Guard.isNullOrEmptyOrUndefined(discordInviteCode, "buildTweet", "discordInviteCode");
 
 		version = version.startsWith("v") ? version : `v${version}`;
 
 		const nugetVersion = version.startsWith("v") ? version.replace("v", "") : version;
-		const relativeFilePath = `../${this.releaseTweetFileName}`;
-		const tweetTemplateExists: boolean = File.Exists(relativeFilePath);
+		const templateDoesNotExist = !(await this.repoClient.fileExists(repoOwner, relativeFilePath));
 
-		if (!tweetTemplateExists) {
-			Utils.printAsGitHubError(`The release tweet template file '${this.releaseTweetFileName}' could not be found.`);
+		if (!templateDoesNotExist) {
+			Utils.printAsGitHubError(`The release tweet template file '${relativeFilePath}' could not be found.`);
 			Deno.exit(1);
 		}
 
-		const templateFileData: string = File.LoadFile(relativeFilePath);
+		const templateFileData: string = await this.repoClient.getFileContent(tweetTemplateRepoName, relativeFilePath);
 
 		let tweet: string = templateFileData.replaceAll(`{${this.PROJ_NAME_VAR}}`, projectName);
 		tweet = tweet.replaceAll(`{${this.VERSION_VAR}}`, version);
