@@ -106,5 +106,5 @@ await projectClient.addToProject(itemNodeId, projectName);
 
 const itemTypeName = itemType === ISSUE_TYPE ? "issue" : "pull request";
 console.log(
-	`✅The ${itemTypeName} '${issueOrPRNumber}' has been added to the project '${projectDoesNotExist}'!✅\n${itemUrl}`,
+	`✅The ${itemTypeName} '${issueOrPRNumber}' has been added to the project '${projectName}'!✅\n\t${itemUrl}`,
 );
