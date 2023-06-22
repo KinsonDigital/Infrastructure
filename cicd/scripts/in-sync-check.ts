@@ -109,7 +109,11 @@ if (projectsNotInSync) {
 }
 
 // Print errors if any problems exist or a success message if no problems exist
-Utils.printProblemList(problemsFound, `✅Pull request '${prNumber}' is in sync with the issue '${issue.number}'!!✅`);
+let successMsg = `✅Pull request '${prNumber}' is in sync with the issue '${issue.number}'!!✅`;
+successMsg += `\n\tIssue: ${issue.html_url}`;
+successMsg += `\n\tPR: ${pr.html_url}`;
+
+Utils.printProblemList(problemsFound, successMsg);
 
 if (problemsFound.length > 0) {
 	Deno.exit(1);
