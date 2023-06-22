@@ -65,7 +65,7 @@ export class RepoClient extends GitHubClient {
 		qtyPerPage = Utils.clamp(qtyPerPage, 1, 100);
 
 		const queryParams = `?page=${page}&per_page=${qtyPerPage}`;
-		const url = `${this.baseUrl}/${this.organization}/repos${queryParams}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/repos${queryParams}`;
 
 		const response: Response = await this.fetchGET(url);
 
@@ -90,7 +90,7 @@ export class RepoClient extends GitHubClient {
 
 		repoName = repoName.trim();
 
-		const url = `${this.baseUrl}/${this.organization}/${repoName}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}`;
 
 		const response: Response = await this.fetchGET(url);
 

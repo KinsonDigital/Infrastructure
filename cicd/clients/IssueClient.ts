@@ -94,7 +94,7 @@ export class IssueClient extends GitHubClient {
 
 		const queryParams =
 			`?page=${page}&per_page=${qtyPerPage}&state=${state}${labelListQueryParam}${milestoneNumberQueryParam}`;
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/issues${queryParams}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues${queryParams}`;
 
 		const response: Response = await this.fetchGET(url);
 
@@ -133,7 +133,7 @@ export class IssueClient extends GitHubClient {
 		Guard.isLessThanOne(issueNumber, "getIssue", "issueNumber");
 
 		// REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#get-an-issue
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${issueNumber}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${issueNumber}`;
 
 		const response: Response = await this.fetchGET(url);
 
@@ -196,7 +196,7 @@ export class IssueClient extends GitHubClient {
 		prLabels.push(label);
 
 		// REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${issueNumber}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${issueNumber}`;
 
 		const response: Response = await this.fetchPATCH(url, JSON.stringify({ labels: prLabels }));
 
@@ -237,7 +237,7 @@ export class IssueClient extends GitHubClient {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getLabels", "repoName");
 		Guard.isLessThanOne(issueNumber, "getLabels", "issueNumber");
 
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${issueNumber}/labels`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${issueNumber}/labels`;
 
 		const response: Response = await this.fetchGET(url);
 
@@ -304,7 +304,7 @@ export class IssueClient extends GitHubClient {
 
 		repoName = repoName.trim();
 
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${issueNumber}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${issueNumber}`;
 
 		const issueBody: string = JSON.stringify(issueData);
 		const response = await this.fetchPATCH(url, issueBody);

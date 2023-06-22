@@ -56,7 +56,7 @@ export class WorkflowRunClient extends GitHubClient {
 		const eventParam = event === WorkflowEvent.any ? "" : `&event=${event}`;
 		const statusParam = status === WorkflowRunStatus.any ? "" : `&status=${status}`;
 		const queryParams = `?page=${page}&per_page=${qtyPerPage}${branchParam}${eventParam}${statusParam}`;
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/actions/runs${queryParams}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/actions/runs${queryParams}`;
 
 		const response: Response = await this.fetchGET(url);
 
@@ -381,7 +381,7 @@ export class WorkflowRunClient extends GitHubClient {
 	public async deleteWorkflow(repoName: string, workflowRun: IWorkflowRunModel): Promise<void> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "deleteWorkflow", "repoName");
 
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/actions/runs/${workflowRun.id}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/actions/runs/${workflowRun.id}`;
 
 		const response: Response = await this.fetchDELETE(url);
 

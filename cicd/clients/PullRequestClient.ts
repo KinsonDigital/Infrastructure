@@ -95,7 +95,7 @@ export class PullRequestClient extends GitHubClient {
 
 		const queryParams =
 			`?page=${page}&per_page=${qtyPerPage}&state=${state}${labelListQueryParam}${milestoneNumberQueryParam}`;
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/issues${queryParams}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues${queryParams}`;
 
 		const response: Response = await this.fetchGET(url);
 
@@ -166,7 +166,7 @@ export class PullRequestClient extends GitHubClient {
 		Guard.isLessThanOne(prNumber, "getPullRequest", "prNumber");
 
 		// REST API Docs: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#get-a-pull-request
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/pulls/${prNumber}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/pulls/${prNumber}`;
 
 		const response: Response = await this.fetchGET(url);
 
@@ -229,7 +229,7 @@ export class PullRequestClient extends GitHubClient {
 		prLabels.push(label);
 
 		// REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${prNumber}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${prNumber}`;
 		const response: Response = await this.fetchPATCH(url, JSON.stringify({ labels: prLabels }));
 
 		// If there is an error
@@ -268,7 +268,7 @@ export class PullRequestClient extends GitHubClient {
 		Guard.isLessThanOne(prNumber, "pullRequestExists", "prNumber");
 
 		// REST API Docs: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#list-pull-requests
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/pulls/${prNumber}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/pulls/${prNumber}`;
 
 		const response: Response = await this.fetchGET(url);
 
@@ -324,7 +324,7 @@ export class PullRequestClient extends GitHubClient {
 
 		repoName = repoName.trim();
 
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${prNumber}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${prNumber}`;
 
 		const prBody: string = JSON.stringify(prRequestData);
 		const response = await this.fetchPATCH(url, prBody);
@@ -367,7 +367,7 @@ export class PullRequestClient extends GitHubClient {
 		repoName = repoName.trim();
 		reviewer = reviewer.trim();
 		
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/pulls/${prNumber}/requested_reviewers`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/pulls/${prNumber}/requested_reviewers`;
 		const body = JSON.stringify({ reviewers: [reviewer] });
 
 		const response = await this.fetchPOST(url, body);

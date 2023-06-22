@@ -171,7 +171,7 @@ export class MilestoneClient extends GitHubClient {
 		qtyPerPage = Utils.clamp(qtyPerPage, 1, 100);
 
 		const queryParams = `?state=all&page=${page}&per_page=${qtyPerPage}`;
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/milestones${queryParams}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/milestones${queryParams}`;
 
 		const response: Response = await this.fetchGET(url);
 
@@ -229,7 +229,7 @@ export class MilestoneClient extends GitHubClient {
 
 		const milestone: IMilestoneModel = await this.getMilestoneByName(repoName, milestoneName);
 
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/milestones/${milestone.number}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/milestones/${milestone.number}`;
 		const response: Response = await this.fetchPATCH(url, JSON.stringify({ state: "closed" }));
 
 		// If there is an error
