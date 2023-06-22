@@ -55,8 +55,8 @@ const prNumber = Number.parseInt((<RegExpMatchArray> prLinkMetaData[0].match(/[0
 const prClient: PullRequestClient = new PullRequestClient(githubToken);
 const projClient: ProjectClient = new ProjectClient(githubToken);
 
-const issueProj: IProjectModel[] = await projClient.getIssueProjects(repoName, issue.number);
-const prProj: IProjectModel[] = await projClient.getPullRequestProjects(repoName, prNumber);
+const issueProjects: IProjectModel[] = await projClient.getIssueProjects(repoName, issue.number);
+const prProjects: IProjectModel[] = await projClient.getPullRequestProjects(repoName, prNumber);
 
 const pr: IPullRequestModel = await prClient.getPullRequest(repoName, prNumber);
 
@@ -71,8 +71,7 @@ const labelsInSync = Utils.labelsMatch(issue, pr);
 
 const milestoneInSync = issue.milestone === null && pr.milestone === null ||
 	issue.milestone?.number === pr.milestone?.number;
-const projectsInSync = issueProj.length === prProj.length &&
-	issueProj.every((proj) => prProj.some((prProj) => prProj.number === proj.number));
+const projectsInSync = Utils.orgProjectsMatch(issueProjects, prProjects);
 
 const templateSettings: IPRTemplateSettings = {
 	issueNumber: issue.number,
