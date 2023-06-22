@@ -26,7 +26,7 @@ jobs:
 
       - name: Run Bot
         run: |
-          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH}}/in-sync-status-check.ts";
+          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH}}/in-sync-check.ts";
 
           deno run `
             --allow-net `
