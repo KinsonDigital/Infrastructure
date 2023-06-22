@@ -8,25 +8,25 @@ export interface IIssueOrPRRequestData {
 	/**
 	 * Gets or sets the title of the issue.
 	 */
-	title: string | null | number;
+	title?: string | null | number;
 
 	/**
 	 * Gets or sets the contents of the issue.
 	 */
-	body: string | null;
+	body?: string | null;
 
 	/**
 	 * Gets or sets the state of the issue.
 	 * @remarks Can be one of: open, closed
 	 */
-	state: IssueState;
+	state?: IssueState;
 
 	/**
 	 * Gets or sets the reason for the state change.
 	 * @remarks Ignored unless state has changed.
 	 * Can be one of: completed, not_planned, reopened, null
 	 */
-	state_reason: StateReason | null;
+	state_reason?: StateReason | null;
 
 	/**
 	 * Gets or sets the number of the milestone to associate the issue with.
@@ -34,7 +34,7 @@ export interface IIssueOrPRRequestData {
 	 * can set the milestone for issues. Without push access to the repository,
 	 * milestone changes are silently dropped.
 	 */
-	milestone: string | number | null;
+	milestone?: string | number | null;
 
 	/**
 	 * Gets or sets the labels associated with this issue.
@@ -43,7 +43,7 @@ export interface IIssueOrPRRequestData {
 	 * push access can set labels for issues. Without push access to the repository,
 	 * label changes are silently dropped.
 	 */
-	labels: string[];
+	labels?: string[];
 
 	/**
 	 * Gets or sets the usernames to assign to this issue.
@@ -52,5 +52,5 @@ export interface IIssueOrPRRequestData {
 	 * from the issue. Only users with push access can set assignees for new issues.
 	 * Without push access to the repository, assignee changes are silently dropped.
 	 */
-	assignees: string[];
+	assignees?: string[];
 }
