@@ -1,5 +1,4 @@
 import { RepoClient } from "../clients/RepoClient.ts";
-import { PRTemplateVars } from "./Enums.ts";
 import { Guard } from "./Guard.ts";
 import { IPRTemplateSettings } from "./IPRTemplateSettings.ts";
 import { Utils } from "./Utils.ts";
@@ -7,25 +6,26 @@ import { Utils } from "./Utils.ts";
 /**
  * Manages the pull request template.
  */
-export class PullRequestTemplate {
-	private readonly validIssueNum = /<!--valid-issue-number-->/gm;
+export class PRTemplateManager {
+	private readonly baseBranchRegex = /<!--base-branch-->/gm;
+	private readonly headBranchRegex = /<!--head-branch-->/gm;
+	private readonly validIssueNumRegex = /<!--valid-issue-number-->/gm;
 	private readonly titleRegex = /<!--title-->/gm;
 	private readonly defaultReviewerRegex = /<!--default-reviewer-->/gm;
 	private readonly assigneesRegex = /<!--assignees-->/gm;
 	private readonly labelsRegex = /<!--labels-->/gm;
 	private readonly projectsRegex = /<!--projects-->/gm;
 	private readonly milestoneRegex = /<!--milestone-->/gm;
+	private readonly issueNumTemplateVarRegex = /\${{\s*issue-number\s*}}/gm;
 	private readonly syncEnabledRegex = /<!--sync-enabled-->/gm;
 	private readonly syncDisabledRegex = /<!--sync-disabled-->/gm;
-	private readonly issueNumVarRegex = /\${{\s*issue-num\s*}}/gm;
-	private readonly headBranchVarRegex = /\${{\s*head-branch\s*}}/gm;
 	private readonly isInSyncLineRegex = /(✅|❌) .+<!--.+-->/gm;
 	private readonly lineInSyncRegex = /✅ .+<!--.+-->/gm;
 	private readonly lineOutOfSyncRegex = /❌ .+<!--.+-->/gm;
 	private readonly repoClient: RepoClient;
 
 	/**
-	 * Initializes a new instance of the {@link PullRequestTemplate} class.
+	 * Initializes a new instance of the {@link PRTemplateManager} class.
 	 * @param token The GitHub token to use for authentication.
 	 */
 	constructor(token?: string) {
@@ -42,11 +42,6 @@ export class PullRequestTemplate {
 	public processSyncTemplate(template: string, settings: IPRTemplateSettings): string {
 		Guard.isNullOrEmptyOrUndefined(template, "processSyncTemplate", "template");
 
-		if (Utils.isNullOrEmptyOrUndefined(settings.relativeTemplatePath)) {
-			Utils.printAsGitHubError("The relative pr sync template file path cannot be null or empty.");
-			Deno.exit(1);
-		}
-
 		template = template.replace(/(?:\r\n|\r|\n)/g, "\n");
 
 		const fileDataLines: string[] = template.split("\n");
@@ -56,16 +51,18 @@ export class PullRequestTemplate {
 
 			const isInSyncLine = line.match(this.isInSyncLineRegex) != null;
 
-			console.log(`Current Line(${isInSyncLine}): ${line}`);
-
 			// If the line is a sync line with any sync status
 			if (isInSyncLine) {
-				if (line.match(this.validIssueNum)) {
+				if (line.match(this.headBranchRegex)) {
+					fileDataLines[i] = this.setLineSyncStatus(line, settings.headBranchValid);
+				} else if (line.match(this.baseBranchRegex)) {
+					fileDataLines[i] = this.setLineSyncStatus(line, settings.baseBranchValid);
+				} else if (line.match(this.validIssueNumRegex)) {
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.issueNumValid);
 				} else if (line.match(this.titleRegex)) {
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.titleInSync);
 				} else if (line.match(this.defaultReviewerRegex)) {
-					fileDataLines[i] = this.setLineSyncStatus(line, settings.defaultReviewerInSync);
+					fileDataLines[i] = this.setLineSyncStatus(line, settings.defaultReviewerValid);
 				} else if (line.match(this.assigneesRegex)) {
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.assigneesInSync);
 				} else if (line.match(this.labelsRegex)) {
@@ -83,26 +80,20 @@ export class PullRequestTemplate {
 
 		let templateResult = fileDataLines.join("\n");
 
-		templateResult = this.processIssueNumVars(templateResult, settings.issueNumber);
-		templateResult = this.processHeadBranchVars(templateResult, settings.headBranch);
-
 		return templateResult;
 	}
 
-	public processIssueNumVars(template: string, issueNumber: number): string {
-		const funcName = "processIssueNumVars";
-		Guard.isNullOrEmptyOrUndefined(template, funcName, "template");
-		Guard.isLessThanOne(issueNumber, funcName, "issueNumber");
+	/**
+	 * Updates the issue number template variable in the template.
+	 * @param template The template to update.
+	 * @param issueNum The issue number to update.
+	 * @returns The updated template.
+	 */
+	public updateIssueVar(template: string, issueNum: number): string {
+		Guard.isNullOrEmptyOrUndefined(template, "updateIssueVar", "template");
+		Guard.isLessThanOne(issueNum, "updateIssueVar", "issueNum");
 
-		return template.replace(this.issueNumVarRegex, issueNumber.toString());
-	}
-
-	public processHeadBranchVars(template: string, headBranch: string): string {
-		const funcName = "processHeadBranchVars";
-		Guard.isNullOrEmptyOrUndefined(template, funcName, "template");
-		Guard.isNullOrEmptyOrUndefined(headBranch, funcName, "headBranch");
-
-		return template.replace(this.headBranchVarRegex, headBranch);
+		return template.replace(this.issueNumTemplateVarRegex, issueNum.toString());
 	}
 
 	private lineItemShowsInSync(lineItem: string): boolean {
