@@ -3,11 +3,6 @@
  */
 export interface IPRTemplateSettings {
 	/**
-	 * Gets or sets the template path relative to the repository root of where it is contained.
-	 */
-	relativeTemplatePath: string;
-
-	/**
 	 * Gets or sets the issue number.
 	*/
 	issueNumber: number;
