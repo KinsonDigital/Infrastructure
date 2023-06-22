@@ -31,5 +31,6 @@ jobs:
             --allow-net `
             "$scriptUrl" `
             "${{ vars.PROJECT_NAME }}" `
+            "${{ vars.DEFAULT_PR_REVIEWER }}" `
             "$issueData" `
             "${{ secrets.CICD_REST_API }}";
