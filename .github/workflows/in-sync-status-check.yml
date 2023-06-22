@@ -26,7 +26,6 @@ jobs:
 
       - name: Run Bot
         run: |
-          $issueData = "${{ toJson(github.event.issue) }}";
           $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH}}/in-sync-status-check.ts";
 
           deno run `
