@@ -353,6 +353,36 @@ export class PullRequestClient extends GitHubClient {
 	}
 
 	/**
+	 * Requests a review from a reviewer that matches the given {@link reviewer} for a pull request that
+	 * matches the given {@link prNumber} in a repository that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
+	 * @param prNumber The pull request number.
+	 * @param reviewer The reviewer to request.
+	 */
+	public async requestReviewer(repoName: string, prNumber: number, reviewer: string): Promise<void> {
+		Guard.isNullOrEmptyOrUndefined(repoName, "requestReviewer", "repoName");
+		Guard.isLessThanOne(prNumber, "requestReviewer", "prNumber");
+		Guard.isNullOrEmptyOrUndefined(reviewer, "requestReviewer", "reviewer");
+
+		repoName = repoName.trim();
+		reviewer = reviewer.trim();
+		
+		const url = `${this.baseUrl}/${this.organization}/${repoName}/pulls/${prNumber}/requested_reviewers`;
+		const body = JSON.stringify({ reviewers: [reviewer] });
+
+		const response = await this.fetchPOST(url, body);
+
+		if (response.status != GitHubHttpStatusCodes.Created) {
+			let errorMsg = `There was an error requesting the reviewer '${reviewer}' for pull request '${prNumber}'.`;
+			errorMsg += `\n\t'Error: ${response.status}(${response.statusText})'`;
+			errorMsg += `\n\t'PR: ${Utils.buildPullRequestUrl(this.organization, repoName, prNumber)}'`;
+
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
+	}
+
+	/**
 	 * Returns a value indicating whether or not a closed pull request with the given {@link prNumber} exists in a repository
 	 * that matches the given {@link repoName}.
 	 * @param repoName The name of the repository.
