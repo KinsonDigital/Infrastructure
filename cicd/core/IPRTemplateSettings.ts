@@ -13,9 +13,14 @@ export interface IPRTemplateSettings {
 	issueNumber: number;
 
 	/**
-	 * Gets or sets the name of the head branch.
+	 * Gets or sets a value indicating whether or not the head branch is valid.
 	 */
-	headBranch: string;
+	headBranchValid: boolean;
+
+	/**
+	 * Gets or sets a value indicating whether or not the base branch is valid.
+	 */
+	baseBranchValid: boolean;
 	
 	/**
 	 * Gets or sets a value indicating whether or not the issue number is valid.
@@ -28,9 +33,9 @@ export interface IPRTemplateSettings {
 	titleInSync: boolean;
 
 	/**
-	 * Gets or sets a value indicating whether or not the reviewer list has the default reviewer.
+	 * Gets or sets a value indicating whether or not one of the list of reviewers is the default reviewer.
 	 */
-	defaultReviewerInSync: boolean;
+	defaultReviewerValid: boolean;
 
 	/**
 	 * Gets or sets a value indicating whether or not the assignees are in sync.
