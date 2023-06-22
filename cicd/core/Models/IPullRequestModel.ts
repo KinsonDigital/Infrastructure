@@ -12,6 +12,11 @@ export interface IPullRequestModel {
 	id: number;
 
 	/**
+	 * Gets or sets the node id of the pull request.
+	 */
+	node_id?: string;
+
+	/**
 	 * Gets or sets the title of the pull request.
 	 */
 	title?: string;
@@ -45,11 +50,6 @@ export interface IPullRequestModel {
 	 * Gets or sets if the pull request is a draft.
 	 */
 	draft?: boolean;
-
-	/**
-	 * Gets or sets the node id of the pull request.
-	 */
-	node_id?: string;
 
 	/**
 	 * Gets or sets additional information about the pull request.
