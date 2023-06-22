@@ -4,6 +4,7 @@ import { IPullRequestModel } from "../core/Models/IPullRequestModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { GitHubHttpStatusCodes, IssueOrPRState, MergeState } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
+import { IIssueOrPRRequestData } from "../core/Models/IIssueOrPRRequestData.ts";
 
 /**
  * Provides a client for interacting with pull requests.
@@ -301,6 +302,54 @@ export class PullRequestClient extends GitHubClient {
 		Guard.isLessThanOne(prNumber, "openPullRequestExists", "issueNumber");
 
 		return await this.openOrClosedPullRequestExists(repoName, prNumber, IssueOrPRState.open);
+	}
+
+	/**
+	 * Updates a pull request with the given {@link prNumber} in a repository that matches the given {@link repoName},
+	 * using the given {@link prRequestData}.
+	 * @param repoName The name of the repository.
+	 * @param prNumber The pull request number.
+	 * @param prRequestData The data to update the pull request with.
+	*/
+	public async updatePullRequest(repoName: string, prNumber: number, prRequestData: IIssueOrPRRequestData): Promise<void> {
+		Guard.isNullOrEmptyOrUndefined(repoName, "updatePullRequest", "repoName");
+		Guard.isLessThanOne(prNumber, "updatePullRequest", "prNumber");
+
+		const prDoesNotExist = !(await this.pullRequestExists(repoName, prNumber));
+
+		if (prDoesNotExist) {
+			Utils.printAsGitHubError(`A pull request with the number '${prNumber}' does not exist in the repo '${repoName}'.`);
+			Deno.exit(1);
+		}
+
+		repoName = repoName.trim();
+
+		const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${prNumber}`;
+
+		const prBody: string = JSON.stringify(prRequestData);
+		const response = await this.fetchPATCH(url, prBody);
+
+		if (response.status != GitHubHttpStatusCodes.OK) {
+			if (response.status === GitHubHttpStatusCodes.NotFound) {
+				Utils.printAsGitHubError(`An pull request with the number '${prNumber}' does not exist.`);
+			} else {
+				switch (response.status) {
+					case GitHubHttpStatusCodes.MovedPermanently:
+					case GitHubHttpStatusCodes.Gone:
+					case GitHubHttpStatusCodes.ValidationFailed:
+					case GitHubHttpStatusCodes.ServiceUnavailable:
+					case GitHubHttpStatusCodes.Forbidden:
+					case GitHubHttpStatusCodes.Unauthorized:
+						let errorMsg = `The pull request '${prNumber}' could not be updated.`;
+						errorMsg += `\n\t'Error: ${response.status}(${response.statusText})'`;
+
+						Utils.printAsGitHubError(errorMsg);
+						break;
+				}
+			}
+
+			Deno.exit(1);
+		}
 	}
 
 	/**
