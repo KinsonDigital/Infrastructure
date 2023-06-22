@@ -1,6 +1,7 @@
 import { GitHubHttpStatusCodes } from "./Enums.ts";
 import { Guard } from "./Guard.ts";
 import { IIssueModel } from "./Models/IIssueModel.ts";
+import { IProjectModel } from "./Models/IProjectModel.ts";
 import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
 
 /**
@@ -312,6 +313,31 @@ export class Utils {
 
 		for (let i = 0; i < issueLabels.length; i++) {
 			if (issueLabels[i].name !== prLabels[i].name) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Returns a value indicating whether or not the organizational projects of the given
+	 * {@link issueProjects} and {@link prProjects} match.
+	 * @param issueProjects The issue projects to to compare with the pull request projects.
+	 * @param prProjects The pull request projects to compare with the issue projects.
+	 * @returns True if the labels of the issue and pull request match, otherwise false.
+	 */
+	public static orgProjectsMatch(issueProjects: IProjectModel[], prProjects: IProjectModel[]): boolean {
+		if (issueProjects.length === 0 && prProjects.length === 0) {
+			return true;
+		}
+
+		if (issueProjects.length !== prProjects.length) {
+			return false;
+		}
+
+		for (let i = 0; i < issueProjects.length; i++) {
+			if (issueProjects[i].number !== prProjects[i].number) {
 				return false;
 			}
 		}
