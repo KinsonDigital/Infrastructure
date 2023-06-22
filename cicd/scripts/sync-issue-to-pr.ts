@@ -18,7 +18,8 @@ if (Deno.args.length != 5) {
 	errorMsg += "\nThe 1st arg is required and must be the GitHub repo name.";
 	errorMsg += "\nThe 2nd arg is required and must be a valid pull request number.";
 	errorMsg += "\nThe 3rd arg is required and must be a valid GitHub user.";
-	errorMsg += "\nThe 4th arg is required and must be a valid relative file path to the pull request sync template in a repository.";
+	errorMsg +=
+		"\nThe 4th arg is required and must be a valid relative file path to the pull request sync template in a repository.";
 	errorMsg += "\nThe 5th arg is required and must be a valid GitHub token.";
 
 	Utils.printAsGitHubError(errorMsg);
@@ -84,14 +85,14 @@ if (templateFileDoesNotExist) {
 	Deno.exit(1);
 }
 
-const pr: IPullRequestModel = await prClient.getPullRequest(repoName, prNumber)
+const pr: IPullRequestModel = await prClient.getPullRequest(repoName, prNumber);
 
 const featureBranchRegex = /^feature\/[1-9]+-(?!-)[a-z-]+$/gm;
 const headBranch = pr.head.ref;
 
 // If the branch is not a feature branch, exit
 // We do not want to sync a pull request for a branch that is not a feature branch
-if(!featureBranchRegex.test(headBranch)) {
+if (!featureBranchRegex.test(headBranch)) {
 	Utils.printAsGitHubError(`The head branch '${headBranch}' is not a feature branch.`);
 	Deno.exit(1);
 }
@@ -110,13 +111,13 @@ if (issueNumDoesNotExist) {
 
 const issue: IIssueModel = await issueClient.getIssue(repoName, issueNumber);
 
-const issueLabels = issue.labels?.map(label => label.name) ?? [];
+const issueLabels = issue.labels?.map((label) => label.name) ?? [];
 
 const projectClient: ProjectClient = new ProjectClient(githubToken);
 const issueProjects: IProjectModel[] = await projectClient.getIssueProjects(repoName, issueNumber);
 
 const prTemplate = new PRTemplateManager();
-let prDescription = (await prTemplate.getPullRequestTemplate(repoName, relativeTemplateFilePath));
+let prDescription = await prTemplate.getPullRequestTemplate(repoName, relativeTemplateFilePath);
 
 // Find all issue template vars and replace them with the issue number
 prDescription = prTemplate.updateIssueVar(prDescription, issueNumber);
@@ -129,7 +130,7 @@ const prData: IIssueOrPRRequestData = {
 	state_reason: null,
 	milestone: issue.milestone?.number ?? null,
 	labels: issueLabels,
-	assignees: issue.assignees?.map(i => i.login) ?? [],
+	assignees: issue.assignees?.map((i) => i.login) ?? [],
 };
 
 await prClient.updatePullRequest(repoName, prNumber, prData);
@@ -139,7 +140,7 @@ await prClient.requestReviewer(repoName, prNumber, defaultReviewer);
 // Add all of the issue org projects to the PR
 for (let i = 0; i < issueProjects.length; i++) {
 	const proj = issueProjects[i];
-	
+
 	if (pr.node_id === undefined) {
 		continue;
 	}
@@ -155,6 +156,3 @@ const issueData: IIssueOrPRRequestData = {
 };
 
 await issueClient.updateIssue(repoName, issueNumber, issueData);
-
-
-debugger;

@@ -310,7 +310,7 @@ export class PullRequestClient extends GitHubClient {
 	 * @param repoName The name of the repository.
 	 * @param prNumber The pull request number.
 	 * @param prRequestData The data to update the pull request with.
-	*/
+	 */
 	public async updatePullRequest(repoName: string, prNumber: number, prRequestData: IIssueOrPRRequestData): Promise<void> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "updatePullRequest", "repoName");
 		Guard.isLessThanOne(prNumber, "updatePullRequest", "prNumber");
@@ -339,12 +339,13 @@ export class PullRequestClient extends GitHubClient {
 					case GitHubHttpStatusCodes.ValidationFailed:
 					case GitHubHttpStatusCodes.ServiceUnavailable:
 					case GitHubHttpStatusCodes.Forbidden:
-					case GitHubHttpStatusCodes.Unauthorized:
+					case GitHubHttpStatusCodes.Unauthorized: {
 						let errorMsg = `The pull request '${prNumber}' could not be updated.`;
 						errorMsg += `\n\t'Error: ${response.status}(${response.statusText})'`;
 
 						Utils.printAsGitHubError(errorMsg);
 						break;
+					}
 				}
 			}
 
@@ -366,7 +367,7 @@ export class PullRequestClient extends GitHubClient {
 
 		repoName = repoName.trim();
 		reviewer = reviewer.trim();
-		
+
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/pulls/${prNumber}/requested_reviewers`;
 		const body = JSON.stringify({ reviewers: [reviewer] });
 

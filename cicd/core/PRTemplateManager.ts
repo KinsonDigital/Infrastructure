@@ -72,15 +72,12 @@ export class PRTemplateManager {
 				} else if (line.match(this.milestoneRegex)) {
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.milestoneInSync);
 				} else if (line.match(this.syncEnabledRegex)) {
-					
 				} else if (line.match(this.syncDisabledRegex)) {
 				}
 			}
 		}
 
-		let templateResult = fileDataLines.join("\n");
-
-		return templateResult;
+		return fileDataLines.join("\n");
 	}
 
 	/**
@@ -108,8 +105,6 @@ export class PRTemplateManager {
 		const lineIsInSync = this.isLineInSync(line);
 		const settingNotInSync = !settingSyncStatus;
 
-		return lineIsInSync && settingNotInSync
-			? line.replace(/✅/g, "❌")
-			: line.replace(/❌/g, "✅");
+		return lineIsInSync && settingNotInSync ? line.replace(/✅/g, "❌") : line.replace(/❌/g, "✅");
 	}
 }

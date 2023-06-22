@@ -34,4 +34,4 @@ export type BadCredentials = {
 	 * The message about the bad credentials.
 	 */
 	message: string;
-}
+};

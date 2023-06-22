@@ -49,7 +49,7 @@ export abstract class WebAPIClient {
 			body: body,
 		});
 	}
-	
+
 	/**
 	 * Updates a resource by performing an HTTP request using the PATCH method.
 	 * @param url The URL of the request.

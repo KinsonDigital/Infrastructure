@@ -22,7 +22,6 @@ export enum IssueOrPRState {
  * Represents the state of an issue.
  */
 export enum IssueState {
-
 	/**
 	 * Opened issue.
 	 */

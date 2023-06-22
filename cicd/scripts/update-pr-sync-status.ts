@@ -34,7 +34,6 @@ Utils.printInGroup("Arguments", [
 	`GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(githubToken) ? "Not Provided" : "****"}`,
 ]);
 
-
 const closedByPRRegex = /<!--closed-by-pr:[0-9]+-->/gm;
 const issue: IIssueModel = JSON.parse(eventJsonData);
 const issueDescription = issue.body;
@@ -51,7 +50,7 @@ if (prLinkMetaData == null) {
 	Deno.exit(0);
 }
 
-const prNumber = Number.parseInt((<RegExpMatchArray>prLinkMetaData[0].match(/[0-9]+/gm))[0]);
+const prNumber = Number.parseInt((<RegExpMatchArray> prLinkMetaData[0].match(/[0-9]+/gm))[0]);
 
 const prClient: PullRequestClient = new PullRequestClient(githubToken);
 const projClient: ProjectClient = new ProjectClient(githubToken);
@@ -65,7 +64,7 @@ const featureBranchRegex = /^feature\/[1-9]+-(?!-)[a-z-]+$/gm;
 const headBranchIsValid = pr.head.ref.match(featureBranchRegex) != null;
 const baseBranchIsValid = pr.base.ref === "master" || pr.base.ref === "preview";
 const titleInSync = pr.title === issue.title;
-const defaultReviewerIsValid = pr.requested_reviewers.some(r => r.login === defaultReviewer);
+const defaultReviewerIsValid = pr.requested_reviewers.some((r) => r.login === defaultReviewer);
 
 const assigneesInSync = Utils.assigneesMatch(issue, pr);
 const labelsInSync = Utils.labelsMatch(issue, pr);
@@ -73,7 +72,7 @@ const labelsInSync = Utils.labelsMatch(issue, pr);
 const milestoneInSync = issue.milestone === null && pr.milestone === null ||
 	issue.milestone?.number === pr.milestone?.number;
 const projectsInSync = issueProj.length === prProj.length &&
-	issueProj.every(proj => prProj.some(prProj => prProj.number === proj.number));
+	issueProj.every((proj) => prProj.some((prProj) => prProj.number === proj.number));
 
 const templateSettings: IPRTemplateSettings = {
 	issueNumber: issue.number,

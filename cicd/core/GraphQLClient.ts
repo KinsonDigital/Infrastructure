@@ -107,10 +107,11 @@ export abstract class GraphQLClient {
 	 * @param responseOrBadCreds The response or bad credentials object to check.
 	 * @returns True if the object is a bad credentials object, false otherwise.
 	 */
-	private isBadCredentialError(responseOrBadCreds: RequestResponseModel | BadCredentials): responseOrBadCreds is BadCredentials {
+	private isBadCredentialError(
+		responseOrBadCreds: RequestResponseModel | BadCredentials,
+	): responseOrBadCreds is BadCredentials {
 		return "documentation_url" in responseOrBadCreds &&
 			"message" in responseOrBadCreds &&
 			responseOrBadCreds.message === "Bad credentials";
-
 	}
 }

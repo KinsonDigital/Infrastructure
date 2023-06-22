@@ -318,12 +318,13 @@ export class IssueClient extends GitHubClient {
 					case GitHubHttpStatusCodes.Gone:
 					case GitHubHttpStatusCodes.ValidationFailed:
 					case GitHubHttpStatusCodes.ServiceUnavailable:
-					case GitHubHttpStatusCodes.Forbidden:
+					case GitHubHttpStatusCodes.Forbidden: {
 						let errorMsg = `The issue '${issueNumber}' could not be updated.`;
 						errorMsg += `\n\t'Error: ${response.status}(${response.statusText})'`;
 
 						Utils.printAsGitHubError(errorMsg);
 						break;
+					}
 				}
 			}
 

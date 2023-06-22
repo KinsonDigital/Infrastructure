@@ -4,7 +4,7 @@
 export interface IPRTemplateSettings {
 	/**
 	 * Gets or sets the issue number.
-	*/
+	 */
 	issueNumber: number;
 
 	/**
@@ -16,7 +16,7 @@ export interface IPRTemplateSettings {
 	 * Gets or sets a value indicating whether or not the base branch is valid.
 	 */
 	baseBranchValid: boolean;
-	
+
 	/**
 	 * Gets or sets a value indicating whether or not the issue number is valid.
 	 */
