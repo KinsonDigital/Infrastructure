@@ -18,8 +18,8 @@ if (Deno.args.length != 5) {
 	errorMsg += "\nThe 1st arg is required and must be the GitHub repo name.";
 	errorMsg += "\nThe 2nd arg is required and must be a valid pull request number.";
 	errorMsg += "\nThe 3rd arg is required and must be a valid GitHub user.";
-	errorMsg +=
-		"\nThe 4th arg is required and must be a valid relative file path to the pull request sync template in a repository.";
+	errorMsg += "\nThe 4th arg is required and must be a valid relative file path";
+	errorMsg += " to the pull request sync template in a repository.";
 	errorMsg += "\nThe 5th arg is required and must be a valid GitHub token.";
 
 	Utils.printAsGitHubError(errorMsg);
@@ -51,8 +51,8 @@ Utils.printInGroup("Arguments", [
 	`Repo Name (Required): ${repoName}`,
 	`Pull Request Number (Required): ${prNumber}`,
 	`Default Reviewer (Required): ${defaultReviewer}`,
-	`Relative Template File Path (Optional): ${relativeTemplateFilePath}`,
-	`GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(githubToken) ? "Not Provided" : "****"}`,
+	`Relative Template File Path (Required): ${relativeTemplateFilePath}`,
+	`GitHub Token (Required): ${Utils.isNullOrEmptyOrUndefined(githubToken) ? "Not Provided" : "****"}`,
 ]);
 
 const repoClient: RepoClient = new RepoClient(githubToken);

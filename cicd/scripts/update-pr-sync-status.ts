@@ -31,7 +31,7 @@ Utils.printInGroup("Arguments", [
 	`Repo Name (Required): ${repoName}`,
 	`Default Reviewer (Required): ${defaultReviewer}`,
 	`Issue Event JSON Data (Required): ${eventJsonData}`,
-	`GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(githubToken) ? "Not Provided" : "****"}`,
+	`GitHub Token (Required): ${Utils.isNullOrEmptyOrUndefined(githubToken) ? "Not Provided" : "****"}`,
 ]);
 
 const closedByPRRegex = /<!--closed-by-pr:[0-9]+-->/gm;
