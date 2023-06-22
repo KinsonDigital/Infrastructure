@@ -19,6 +19,22 @@ export enum IssueOrPRState {
 }
 
 /**
+ * Represents the state of an issue.
+ */
+export enum IssueState {
+
+	/**
+	 * Opened issue.
+	 */
+	open = "open",
+
+	/**
+	 * A closed issue.
+	 */
+	closed = "closed",
+}
+
+/**
  * Represents the merge state of a pull request.
  */
 export enum MergeState {
@@ -297,4 +313,39 @@ export enum WorkflowRunStatus {
 	 * The workflow is currently pending.
 	 */
 	pending = "pending",
+}
+
+/**
+ * Represents the different reasons for the change in an issues state.
+ */
+export enum StateReason {
+	/**
+	 * The issue has been completed.
+	 */
+	completed = "completed",
+
+	/**
+	 * The issue was not planned.
+	 */
+	notPlanned = "not_planned",
+
+	/**
+	 * The issue was reopened.
+	 */
+	reopened = "reopened",
+}
+
+/**
+ * Represents the different template variables that can be used in a PR template.
+ */
+export enum PRTemplateVars {
+	/**
+	 * The issue number template variable.
+	 */
+	issueNumber = "issue-num",
+
+	/**
+	 * The head branch template variable.
+	 */
+	headBranch = "head-branch",
 }
