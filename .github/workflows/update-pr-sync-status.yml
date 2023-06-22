@@ -1,0 +1,19 @@
+name: Update PR Sync Status
+
+
+defaults:
+  run:
+    shell: pwsh
+
+
+on:
+  workflow_dispatch:
+  issues:
+    types: [edited]
+
+jobs:
+  print_event_obj:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Event Object
+        run: echo "${{ toJson(github.event) }}"
