@@ -5,6 +5,7 @@ import { ILabelModel } from "../core/Models/ILabelModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { GitHubHttpStatusCodes, IssueOrPRState } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
+import { IIssueOrPRBody } from "../core/Models/IIssueBody.ts";
 
 /**
  * Provides a client for interacting with issues.
@@ -288,6 +289,46 @@ export class IssueClient extends GitHubClient {
 		Guard.isLessThanOne(issueNumber, "closedIssueExist", "issueNumber");
 
 		return await this.openOrClosedIssueExists(repoName, issueNumber, IssueOrPRState.closed);
+	}
+
+	/**
+	 * Updates an issue with the given {@link issueNumber} in a repository that matches the given {@link repoName},
+	 * using the given {@link issueData}.
+	 * @param repoName The name of the repository.
+	 * @param issueNumber The issue number.
+	 * @param issueData The data to update the issue with.
+	 */
+	public async updateIssue(repoName: string, issueNumber: number, issueData: IIssueOrPRBody): Promise<void> {
+		Guard.isNullOrEmptyOrUndefined(repoName, "updateIssue", "repoName");
+		Guard.isLessThanOne(issueNumber, "updateIssue", "issueNumber");
+
+		repoName = repoName.trim();
+
+		const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${issueNumber}`;
+
+		const issueBody: string = JSON.stringify(issueData);
+		const response = await this.fetchPATCH(url, issueBody);
+
+		if (response.status != GitHubHttpStatusCodes.OK) {
+			if (response.status === GitHubHttpStatusCodes.NotFound) {
+				Utils.printAsGitHubError(`An issue with the number '${issueNumber}' does not exist.`);
+			} else {
+				switch (response.status) {
+					case GitHubHttpStatusCodes.MovedPermanently:
+					case GitHubHttpStatusCodes.Gone:
+					case GitHubHttpStatusCodes.ValidationFailed:
+					case GitHubHttpStatusCodes.ServiceUnavailable:
+					case GitHubHttpStatusCodes.Forbidden:
+						let errorMsg = `The issue '${issueNumber}' could not be updated.`;
+						errorMsg += `\n\t'Error: ${response.status}(${response.statusText})'`;
+
+						Utils.printAsGitHubError(errorMsg);
+						break;
+				}
+			}
+
+			Deno.exit(1);
+		}
 	}
 
 	/**
