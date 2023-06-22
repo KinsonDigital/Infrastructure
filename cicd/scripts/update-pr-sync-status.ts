@@ -10,7 +10,7 @@ import { Utils } from "../core/Utils.ts";
 
 const scriptName = Utils.getScriptName();
 
-if (Deno.args.length != 5) {
+if (Deno.args.length != 4) {
 	let errorMsg = `The '${scriptName}' cicd script must have at least 3 arguments with an additional 2 optional arguments.`;
 	errorMsg += "\nThe 1st arg is required and must be the GitHub repo name.";
 	errorMsg += "\nThe 2nd arg is required and must be a GitHub user.";
