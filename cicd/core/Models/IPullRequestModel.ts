@@ -1,6 +1,8 @@
 import { ILabelModel } from "./ILabelModel.ts";
+import { IMilestoneModel } from "./IMilestoneModel.ts";
 import { IPullRequestHeadOrBaseModel } from "./IPullRequestHeadOrBaseModel.ts";
 import { IPullRequestInfo } from "./IPullRequestInfo.ts";
+import { IUserModel } from "./IUserModel.ts";
 
 /**
  * Represents a GitHub pull request.
@@ -27,9 +29,19 @@ export interface IPullRequestModel {
 	number: number;
 
 	/**
+	 * Gets or sets the list of pull request reviewers.
+	 */
+	requested_reviewers: IUserModel[];
+
+	/**
+	 * Gets or sets the assignees.
+	 */
+	assignees: IUserModel[];
+
+	/**
 	 * Gets or sets the labels of the pull request.
 	 */
-	labels?: ILabelModel[];
+	labels: ILabelModel[];
 
 	/**
 	 * Gets or sets the state of the pull request.
@@ -40,6 +52,11 @@ export interface IPullRequestModel {
 	 * Gets or sets the URL to the pull request.
 	 */
 	url: string;
+
+	/**
+	 * Gets or sets the milestone.
+	 */
+	milestone?: IMilestoneModel;
 
 	/**
 	 * Gets or sets the URL to the html page of the pull request.
