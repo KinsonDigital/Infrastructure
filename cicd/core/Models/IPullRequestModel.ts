@@ -29,6 +29,11 @@ export interface IPullRequestModel {
 	number: number;
 
 	/**
+	 * Gets or sets the body of the issue.
+	 */
+	body: string;
+
+	/**
 	 * Gets or sets the list of pull request reviewers.
 	 */
 	requested_reviewers: IUserModel[];
