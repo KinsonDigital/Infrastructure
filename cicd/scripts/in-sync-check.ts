@@ -65,7 +65,7 @@ const issueProjects: IProjectModel[] = await projClient.getIssueProjects(repoNam
 const prProjects: IProjectModel[] = await projClient.getPullRequestProjects(repoName, prNumber);
 
 const baseBranchNotValid = pr.base.ref != "master" && pr.base.ref != "preview";
-const titleNotInSync = pr.title != issue.title;
+const titleNotInSync = pr.title?.trim() != issue.title?.trim();
 const defaultReviewerIsNotValid = !pr.requested_reviewers.some((r) => r.login === defaultReviewer);
 
 const assigneesNotInSync = !Utils.assigneesMatch(issue, pr);

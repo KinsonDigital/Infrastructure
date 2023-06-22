@@ -1,4 +1,4 @@
-name: ✅Issue PR Sync Bot
+name: ✅Issue PR Sync Status Check
 
 
 defaults:
@@ -16,7 +16,7 @@ on:
 
 jobs:
   issue_pr_sync_bot:
-    name: Issue PR Sync Bot
+    name: Issue PR Sync Status Check
     runs-on: ubuntu-latest
     steps:
       - name: Set Up Deno
@@ -24,7 +24,7 @@ jobs:
         with:
           deno-version: v1.x
 
-      - name: Run Bot
+      - name: Run Sync Status Check
         run: |
           $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH}}/in-sync-check.ts";
 
