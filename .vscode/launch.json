@@ -276,6 +276,57 @@
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
+        },
+		{
+            "name": "Sync Issue To PR (DEBUG)",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/sync-issue-to-pr.ts",
+            "cwd": "${workspaceFolder}/cicd",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": [
+				"Infrastructure",
+				"48",
+				"KinsonDigitalAdmin",
+				"cicd/templates/pr-sync-status-template.txt",
+				"fake-token",
+			],
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+		{
+            "name": "Update PR Sync Status (DEBUG)",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/update-pr-sync-status.ts",
+            "cwd": "${workspaceFolder}/cicd",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": [
+				"Infrastructure",
+				"KinsonDigitalAdmin",
+				"json-data",
+				"fake-token",
+			],
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
         }
     ]
 }
