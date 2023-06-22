@@ -327,6 +327,31 @@
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
+        },
+		{
+            "name": "In Sync Check (DEBUG)",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/in-sync-check.ts",
+            "cwd": "${workspaceFolder}/cicd",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": [
+				"Infrastructure",
+				"KinsonDigitalAdmin",
+				"48",
+				"",
+			],
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
         }
     ]
 }
