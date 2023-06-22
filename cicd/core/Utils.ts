@@ -264,4 +264,58 @@ export class Utils {
 
 		return `https://github.com/${repoOwner}/${repoName}/labels`;
 	}
+
+	/**
+	 * Returns a value indicating whether or not the assignees of the given {@link issue} and {@link pr} match.
+	 * @param issue The issue to compare with the pull request.
+	 * @param pr The pull request to compare with the issue.
+	 * @returns True if the assignees of the given {@link issue} and {@link pr} match, otherwise false.
+	 */
+	public static assigneesMatch(issue: IIssueModel, pr: IPullRequestModel): boolean {
+		const issueAssignees = issue.assignees;
+		const prAssignees = pr.assignees;
+
+		if (issueAssignees.length === 0 && prAssignees.length === 0) {
+			return true;
+		}
+
+		if (issueAssignees.length !== prAssignees.length) {
+			return false;
+		}
+
+		for (let i = 0; i < issueAssignees.length; i++) {
+			if (issueAssignees[i].login !== prAssignees[i].login) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Returns a value indicating whether or not the labels of the given {@link issue} and {@link pr} match.
+	 * @param issue The issue to to compare with the pull request.
+	 * @param pr The pull request to compare with the issue.
+	 * @returns True if the labels of the issue and pull request match, otherwise false.
+	 */
+	public static labelsMatch(issue: IIssueModel, pr: IPullRequestModel): boolean {
+		const issueLabels = issue.labels;
+		const prLabels = pr.labels;
+
+		if (issueLabels.length === 0 && prLabels.length === 0) {
+			return true;
+		}
+
+		if (issueLabels.length !== prLabels.length) {
+			return false;
+		}
+
+		for (let i = 0; i < issueLabels.length; i++) {
+			if (issueLabels[i].name !== prLabels[i].name) {
+				return false;
+			}
+		}
+
+		return true;
+	}
 }
