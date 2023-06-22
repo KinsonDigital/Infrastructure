@@ -52,6 +52,11 @@ export enum GitHubHttpStatusCodes {
 	OK = 200,
 
 	/**
+	 * Success, and the resource was created.
+	 */
+	Created = 201,
+
+	/**
 	 * The server successfully processed the request and is not returning any content.
 	 */
 	NoContent = 204,
@@ -87,6 +92,11 @@ export enum GitHubHttpStatusCodes {
 	 * occurrence on the web.
 	 */
 	NotFound = 404,
+
+	/**
+	 * The client request has not been completed because it lacks valid authentication credentials for the requested resource.
+	 */
+	Unauthorized = 401,
 
 	/**
 	 * This response is sent when the requested content has been permanently deleted from server, with no
