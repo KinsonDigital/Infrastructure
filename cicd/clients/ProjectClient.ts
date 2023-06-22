@@ -5,6 +5,7 @@ import { GraphQLClient } from "../core/GraphQLClient.ts";
 import { Guard } from "../core/Guard.ts";
 import { Utils } from "../core/Utils.ts";
 import { createLinkItemToProjectMutation } from "../core/GraphQLMutations/AddToProjectMutation.ts";
+import { createGetIssueProjectsQuery } from "../core/GraphQLQueries/GetIssueProjectsQuery.ts";
 
 /**
  * Gets or saves data related to GitHub organization projects.
@@ -72,5 +73,27 @@ export class ProjectClient extends GraphQLClient {
 		const response = await this.fetch(query);
 
 		Utils.throwIfErrors(response);
+	}
+
+	/**
+	 * Gets a list of the organizational projects for an issue that has the given {@link issueNumber},
+	 * in a repository with a name that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
+	 * @param issueNumber The issue number.
+	 * @returns The list of organizational projects that the issue is assigned to.
+	 */
+	public async getIssueProjects(repoName: string, issueNumber: number): Promise<IProjectModel[]> {
+		const funcName = "getIssueProjects";
+		Guard.isNullOrEmptyOrUndefined(repoName, funcName);
+		Guard.isLessThanOne(issueNumber, funcName);
+
+		repoName = repoName.trim();
+
+		const query = createGetIssueProjectsQuery(this.organization, repoName, issueNumber);
+		const response = await this.fetch(query);
+
+		const responseData: RequestResponseModel = await this.getResponseData(response);
+
+		return <IProjectModel[]> responseData.data.repository.issue.projectsV2.nodes;
 	}
 }
