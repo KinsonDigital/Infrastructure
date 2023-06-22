@@ -1,5 +1,5 @@
 import { ILabelModel } from "./ILabelModel.ts";
-import { IPullRequestHeadOrBase } from "./IPullRequestHeadOrBase.ts";
+import { IPullRequestHeadOrBaseModel } from "./IPullRequestHeadOrBaseModel.ts";
 import { IPullRequestInfo } from "./IPullRequestInfo.ts";
 
 /**
@@ -59,10 +59,10 @@ export interface IPullRequestModel {
 	/**
 	 * Gets or sets the head branch of the pull request.
 	 */
-	head: IPullRequestHeadOrBase;
+	head: IPullRequestHeadOrBaseModel;
 
 	/**
 	 * Gets or sets the base branch of the pull request.
 	 */
-	base: IPullRequestHeadOrBase;
+	base: IPullRequestHeadOrBaseModel;
 }

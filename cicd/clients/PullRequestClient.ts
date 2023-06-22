@@ -4,7 +4,7 @@ import { IPullRequestModel } from "../core/Models/IPullRequestModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { GitHubHttpStatusCodes, IssueOrPRState, MergeState } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
-import { IIssueOrPRRequestData } from "../core/Models/IIssueOrPRRequestData.ts";
+import { IIssueOrPRRequestData } from "../core/IIssueOrPRRequestData.ts";
 
 /**
  * Provides a client for interacting with pull requests.
