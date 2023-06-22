@@ -1,5 +1,6 @@
 import { ErrorModel } from "../core/Models/GraphQLModels/ErrorModel.ts";
 import { RequestResponseModel } from "../core/Models/GraphQLModels/RequestResponseModel.ts";
+import { BadCredentials } from "./Types.ts";
 import { Utils } from "./Utils.ts";
 
 /**
@@ -30,9 +31,9 @@ export abstract class GraphQLClient {
 
 	/**
 	 * Gets the response data from a request.
-	 * @param {Response} response The response from a request.
-	 * @param {boolean} throwWithErrors Whether or not to throw and error if the response contains errors.
-	 * @returns {Promise<RequestResponseModel>} The response data.
+	 * @param response The response from a request.
+	 * @param throwWithErrors Whether or not to throw and error if the response contains errors.
+	 * @returns The response data.
 	 * @remarks This method will throw an error if the response contains errors.
 	 */
 	protected async getResponseData(response: Response, throwWithErrors = true): Promise<RequestResponseModel> {
@@ -45,6 +46,9 @@ export abstract class GraphQLClient {
 			const error = `${errorMessages.join("\n")}`;
 
 			Utils.printAsGitHubError(error);
+			Deno.exit(1);
+		} else if (this.isBadCredentialError(responseData)) {
+			Utils.printAsGitHubError(`There was an issue making your GraphQL request.\nError: ${responseData.message}`);
 			Deno.exit(1);
 		}
 
@@ -96,5 +100,17 @@ export abstract class GraphQLClient {
 		key = "errors",
 	): responseData is RequestResponseModel & { [k in typeof key]: string } {
 		return key in responseData;
+	}
+
+	/**
+	 * Returns a value indicating whether or not the given object is a bad credentials object.
+	 * @param responseOrBadCreds The response or bad credentials object to check.
+	 * @returns True if the object is a bad credentials object, false otherwise.
+	 */
+	private isBadCredentialError(responseOrBadCreds: RequestResponseModel | BadCredentials): responseOrBadCreds is BadCredentials {
+		return "documentation_url" in responseOrBadCreds &&
+			"message" in responseOrBadCreds &&
+			responseOrBadCreds.message === "Bad credentials";
+
 	}
 }
