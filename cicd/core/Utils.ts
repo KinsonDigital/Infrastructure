@@ -103,11 +103,27 @@ export class Utils {
 	}
 
 	/**
-	 * Prints the given message as a GitHub error.
+	 * Prints the given {@link message} as a GitHub notice.
+	 * @param message The message to print.
+	 */
+	public static printAsGitHubNotice(message: string): void {
+		console.log(`::notice::${message}`);
+	}
+
+	/**
+	 * Prints the given {@link message} as a GitHub error.
 	 * @param message The message to print.
 	 */
 	public static printAsGitHubError(message: string): void {
 		console.log(`::error::${message}`);
+	}
+
+	/**
+	 * Prints the given {@link message} as a GitHub warning.
+	 * @param message The message to print.
+	 */
+	public static printAsGitHubWarning(message: string): void {
+		console.log(`::warning::${message}`);
 	}
 
 	/**
