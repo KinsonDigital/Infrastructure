@@ -1,4 +1,5 @@
 import { IssueClient } from "../clients/IssueClient.ts";
+import { OrgClient } from "../clients/OrgClient.ts";
 import { ProjectClient } from "../clients/ProjectClient.ts";
 import { PullRequestClient } from "../clients/PullRequestClient.ts";
 import { RepoClient } from "../clients/RepoClient.ts";
@@ -15,24 +16,28 @@ const scriptName = Utils.getScriptName();
 
 if (Deno.args.length != 6) {
 	let errorMsg = `The '${scriptName}' cicd script must have at least 3 arguments with an additional 2 optional arguments.`;
-	errorMsg += "\nThe 1st arg is required and must be the GitHub repo name.";
-	errorMsg += "\nThe 2nd arg is required and must be a valid pull request number.";
-	errorMsg += "\nThe 3rd arg is required and must be a GitHub pull request comment.";
-	errorMsg += "\nThe 4th arg is required and must be a valid GitHub user.";
-	errorMsg += "\nThe 5th arg is required and must be a valid relative file path";
+	errorMsg += "\nThe 1st arg is required and must be a valid organization name.";
+	errorMsg += "\nThe 2nd arg is required and must be the GitHub repo name.";
+	errorMsg += "\nThe 3rd arg is required and must be a valid GitHub user that has requested this script to run.";
+	errorMsg += "\nThe 4th arg is required and must be a valid pull request number.";
+	errorMsg += "\nThe 5th arg is required and must be a text that contains a sync command.";
+	errorMsg += "\nThe 6th arg is required and must be a valid GitHub user.";
+	errorMsg += "\nThe 7th arg is required and must be a valid relative file path";
 	errorMsg += " to the pull request sync template in a repository.";
-	errorMsg += "\nThe 6th arg is required and must be a valid GitHub token.";
+	errorMsg += "\nThe 8th arg is required and must be a valid GitHub token.";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 
-const repoName = Deno.args[0].trim();
-const prNumberStr = Deno.args[1].trim();
-const syncCommand = Deno.args[2].trim();
-const defaultReviewer = Deno.args[3].trim();
-let relativeTemplateFilePath = Deno.args[4].trim();
-const githubToken = Deno.args[5].trim();
+const organizationName = Deno.args[0].trim();
+const repoName = Deno.args[1].trim();
+const requestedByUser = Deno.args[2].trim();
+const prNumberStr = Deno.args[3].trim();
+const syncCommand = Deno.args[4].trim();
+const defaultReviewer = Deno.args[5].trim();
+let relativeTemplateFilePath = Deno.args[6].trim();
+const githubToken = Deno.args[7].trim();
 
 if (!(Utils.isNumeric(prNumberStr))) {
 	Utils.printAsGitHubError(`The pull request number '${prNumberStr}' is not a valid number.`);
@@ -83,6 +88,29 @@ if (await issueClient.issueExists(repoName, prNumber)) {
 	Deno.exit(0);
 }
 
+const userClient: UsersClient = new UsersClient(githubToken);
+
+const defaultReviewerDoesNotExist = !(await userClient.userExists(defaultReviewer));
+if (defaultReviewerDoesNotExist) {
+	Utils.printAsGitHubError(`The default reviewer '${defaultReviewer}' does not exist.`);
+	Deno.exit(1);
+}
+
+const requestedByUserDoesNotExist = !(await userClient.userExists(requestedByUser));
+if (requestedByUserDoesNotExist) {
+	Utils.printAsGitHubError(`The requested by user '${requestedByUser}' does not exist.`);
+	Deno.exit(1);
+}
+
+const orgClient: OrgClient = new OrgClient(githubToken);
+
+const userIsNotOrgMember = !(await orgClient.userIsOrgAdminMember(organizationName, requestedByUser));
+
+if (userIsNotOrgMember) {
+	Utils.printAsGitHubError(`The user '${requestedByUser}' is not member of the organization '${organizationName}' with the admin role.`);
+	Deno.exit(0);
+}
+
 const prTemplate = new PRTemplateManager();
 
 const prDoesNotExist = !(await prClient.pullRequestExists(repoName, prNumber));
@@ -97,14 +125,6 @@ if (prDoesNotExist) {
 		Utils.printAsGitHubNotice("Syncing is disabled.  Syncing will not occur.");
 		Deno.exit(0);
 	}
-}
-
-const userClient: UsersClient = new UsersClient(githubToken);
-
-const userDoesNotExist = !(await userClient.userExists(defaultReviewer));
-if (userDoesNotExist) {
-	Utils.printAsGitHubError(`The user '${defaultReviewer}' does not exist.`);
-	Deno.exit(1);
 }
 
 const templateFileDoesNotExist = !(await repoClient.fileExists(repoName, relativeTemplateFilePath));
