@@ -134,6 +134,33 @@ export class PRTemplateManager {
 		return lines.join("\n");
 	}
 
+	/**
+	 * Returns a value indicating whether or not the template is a PR sync template.
+	 * @param template The template to check.
+	 * @returns True if the template is a PR sync template, false otherwise.
+	 */
+	public isPRSyncTemplate(template: string): boolean {
+		const baseBranchSyntaxExists = template.match(this.baseBranchRegex) != null;
+		const headBranchSyntaxExists = template.match(this.headBranchRegex) != null;
+		const validIssueNumSyntaxExists = template.match(this.validIssueNumRegex) != null;
+		const titleSyntaxExists = template.match(this.titleRegex) != null;
+		const defaultReviewerSyntaxExists = template.match(this.defaultReviewerRegex) != null;
+		const assigneesSyntaxExists = template.match(this.assigneesRegex) != null;
+		const labelsSyntaxExists = template.match(this.labelsRegex) != null;
+		const projectsSyntaxExists = template.match(this.projectsRegex) != null;
+		const milestoneSyntaxExists = template.match(this.milestoneRegex) != null;
+
+		return baseBranchSyntaxExists &&
+			headBranchSyntaxExists &&
+			validIssueNumSyntaxExists &&
+			titleSyntaxExists &&
+			defaultReviewerSyntaxExists &&
+			assigneesSyntaxExists &&
+			labelsSyntaxExists &&
+			projectsSyntaxExists &&
+			milestoneSyntaxExists;
+	}
+
 	private showsAsPassing(line: string): boolean {
 		return line.match(this.lineInSyncRegex) != null && line.match(this.lineOutOfSyncRegex) === null;
 	}
