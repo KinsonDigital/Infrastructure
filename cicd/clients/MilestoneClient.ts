@@ -239,8 +239,8 @@ export class MilestoneClient extends GitHubClient {
 			Utils.printAsGitHubError(`The organization '${this.organization}' or repo '${repoName}' does not exist.`);
 			Deno.exit(1);
 		} else {
-			let errorMsg = `The request to close milestone '${milestoneName}' returned an error.`;
-			errorMsg += `\nError: ${response.status} - (${response.statusText})`;
+			let errorMsg = `An error occurred trying to close milestone '${milestoneName}(${milestone.number})'.`;
+			errorMsg += `\nError: ${response.status}(${response.statusText})`;
 
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);

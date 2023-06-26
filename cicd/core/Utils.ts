@@ -1,8 +1,10 @@
 import { GitHubHttpStatusCodes } from "./Enums.ts";
 import { Guard } from "./Guard.ts";
 import { IIssueModel } from "./Models/IIssueModel.ts";
+import { ILabelModel } from "./Models/ILabelModel.ts";
 import { IProjectModel } from "./Models/IProjectModel.ts";
 import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
+import { IUserModel } from "./Models/IUserModel.ts";
 
 /**
  * Provides utility functions.
@@ -108,7 +110,9 @@ export class Utils {
 	 * @param message The message to print.
 	 */
 	public static printAsGitHubNotice(message: string): void {
+		Utils.printEmptyLine();
 		console.log(`::notice::${message}`);
+		Utils.printEmptyLine();
 	}
 
 	/**
@@ -116,7 +120,9 @@ export class Utils {
 	 * @param message The message to print.
 	 */
 	public static printAsGitHubError(message: string): void {
+		Utils.printEmptyLine();
 		console.log(`::error::${message}`);
+		Utils.printEmptyLine();
 	}
 
 	/**
@@ -124,16 +130,19 @@ export class Utils {
 	 * @param message The message to print.
 	 */
 	public static printAsGitHubWarning(message: string): void {
+		Utils.printEmptyLine();
 		console.log(`::warning::${message}`);
+		Utils.printEmptyLine();
 	}
 
 	/**
 	 * Prints the given list of problems as errors.
 	 * @param problems The list of problems to print.
 	 * @param successMsg The message to print if there are no problems.
+	 * @param failureMsg The message to print if there are problems.
 	 * @returns A promise that resolves if there are no problems, otherwise rejects with the list of problems.
 	 */
-	public static printProblemList(problems: string[], successMsg: string): void {
+	public static printProblemList(problems: string[], successMsg: string, failureMsg: string): void {
 		const errorList: string[] = [];
 
 		// Display all of the issues that have been found as errors
@@ -143,16 +152,17 @@ export class Utils {
 			errorList.push(`${i + 1}. ${errorFound}`);
 		}
 
+		const msg = errorList.length > 0 ? failureMsg : successMsg;
+		console.log(msg);
+
 		if (errorList.length > 0) {
-			console.log(`::group::${problems.length} problem(s) found.`);
+			console.log(`::group::${errorList.length} problems found.`);
 
 			errorList.forEach((error) => {
 				this.printAsGitHubError(error);
 			});
 
 			console.log("::endgroup::");
-		} else {
-			console.log(`✅No problems found!!✅\n${successMsg}`);
 		}
 	}
 
@@ -163,7 +173,7 @@ export class Utils {
 	 */
 	public static throwIfErrors(response: Response): void {
 		if (response.status < GitHubHttpStatusCodes.OK) {
-			const errorMsg = `There was a problem with the request. Status code: ${response.status}(${response.statusText}).`;
+			const errorMsg = `There was a problem with the request. Error: ${response.status}(${response.statusText}).`;
 
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
@@ -272,10 +282,7 @@ export class Utils {
 	 * @param pr The pull request to compare with the issue.
 	 * @returns True if the assignees of the given {@link issue} and {@link pr} match, otherwise false.
 	 */
-	public static assigneesMatch(issue: IIssueModel, pr: IPullRequestModel): boolean {
-		const issueAssignees = issue.assignees;
-		const prAssignees = pr.assignees;
-
+	public static assigneesMatch(issueAssignees: IUserModel[], prAssignees: IUserModel[]): boolean {
 		if (issueAssignees.length === 0 && prAssignees.length === 0) {
 			return true;
 		}
@@ -299,10 +306,7 @@ export class Utils {
 	 * @param pr The pull request to compare with the issue.
 	 * @returns True if the labels of the issue and pull request match, otherwise false.
 	 */
-	public static labelsMatch(issue: IIssueModel, pr: IPullRequestModel): boolean {
-		const issueLabels = issue.labels;
-		const prLabels = pr.labels;
-
+	public static labelsMatch(issueLabels: ILabelModel[], prLabels: ILabelModel[]): boolean {
 		if (issueLabels.length === 0 && prLabels.length === 0) {
 			return true;
 		}
@@ -343,5 +347,25 @@ export class Utils {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Converts the given {@link number} to its ordinal representation.
+	 * @param number The number to convert.
+	 * @returns The ordinal representation of the given {@link number}.
+	 */
+	public static toOrdinal(number: number): string {
+		const suffixes = ["th", "st", "nd", "rd"];
+		const value = Math.abs(number) % 100;
+		const suffix = suffixes[(value - 20) % 10] || suffixes[value] || suffixes[0];
+	  
+		return `${number}${suffix}`;
+	}
+
+	/**
+	 * Prints an empty line to the console.
+	 */
+	public static printEmptyLine(): void {
+		console.log();
 	}
 }

@@ -19,7 +19,7 @@ let version = Deno.args[1].trim();
 version = version.startsWith("v") ? version.substring(1) : version;
 
 // Print out all of the arguments
-Utils.printInGroup("Arguments", [
+Utils.printInGroup("Script Arguments", [
 	`NuGet Package Name (Required): ${packageName}`,
 	`Package Version (Required): ${version}`,
 ]);

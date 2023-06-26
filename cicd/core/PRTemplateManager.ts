@@ -1,7 +1,6 @@
 import { RepoClient } from "../clients/RepoClient.ts";
 import { Guard } from "./Guard.ts";
 import { IPRTemplateSettings } from "./IPRTemplateSettings.ts";
-import { Utils } from "./Utils.ts";
 
 /**
  * Manages the pull request template.
@@ -17,8 +16,9 @@ export class PRTemplateManager {
 	private readonly projectsRegex = /<!--projects-->/gm;
 	private readonly milestoneRegex = /<!--milestone-->/gm;
 	private readonly issueNumTemplateVarRegex = /\${{\s*issue-number\s*}}/gm;
-	private readonly syncEnabledRegex = /<!--sync-enabled-->/gm;
-	private readonly syncDisabledRegex = /<!--sync-disabled-->/gm;
+	private readonly syncFlagRegex = /<!--sync-flag-->/gm;
+	private readonly syncEmptyCheckRegex = /- \[ \] /gm;
+	private readonly syncFullCheckRegex = /- \[(x|X)\] /gm;
 	private readonly isInSyncLineRegex = /(✅|❌) .+<!--.+-->/gm;
 	private readonly lineInSyncRegex = /✅ .+<!--.+-->/gm;
 	private readonly lineOutOfSyncRegex = /❌ .+<!--.+-->/gm;
@@ -71,8 +71,6 @@ export class PRTemplateManager {
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.projectsInSync);
 				} else if (line.match(this.milestoneRegex)) {
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.milestoneInSync);
-				} else if (line.match(this.syncEnabledRegex)) {
-				} else if (line.match(this.syncDisabledRegex)) {
 				}
 			}
 		}
@@ -80,6 +78,31 @@ export class PRTemplateManager {
 		return fileDataLines.join("\n");
 	}
 
+	/**
+	 * Returns a value indicating whether or not syncing is disabled in the template.
+	 * @param template The template to check.
+	 * @returns True if syncing is disabled, false otherwise.
+	 */
+	public syncingDisabled(template: string): boolean {
+		Guard.isNullOrEmptyOrUndefined(template, "syncingEnabled", "template");
+
+		const fileDataLines: string[] = template.split("\n");
+
+		for (let i = 0; i < fileDataLines.length; i++) {
+			const line = fileDataLines[i];
+
+			if (line.match(this.syncFlagRegex)) {
+				if (line.match(this.syncEmptyCheckRegex)) {
+					return true;
+				} else if (line.match(this.syncFullCheckRegex)) {
+					return false;
+				}
+			}
+		}
+
+		return false;
+	}
+	
 	/**
 	 * Updates the issue number template variable in the template.
 	 * @param template The template to update.
@@ -94,17 +117,21 @@ export class PRTemplateManager {
 	}
 
 	private lineItemShowsInSync(lineItem: string): boolean {
-		return lineItem.match(this.syncEnabledRegex) !== null;
+		return lineItem.match(this.syncFlagRegex) !== null;
 	}
 
-	private isLineInSync(line: string): boolean {
+	private showsAsPassing(line: string): boolean {
 		return line.match(this.lineInSyncRegex) != null && line.match(this.lineOutOfSyncRegex) === null;
 	}
 
-	private setLineSyncStatus(line: string, settingSyncStatus: boolean): string {
-		const lineIsInSync = this.isLineInSync(line);
-		const settingNotInSync = !settingSyncStatus;
+	private setLineSyncStatus(line: string, checkIsPassing: boolean | undefined): string {
+		const showsAsPassing = this.showsAsPassing(line);
+		const noStatusDefined = checkIsPassing === undefined;
 
-		return lineIsInSync && settingNotInSync ? line.replace(/✅/g, "❌") : line.replace(/❌/g, "✅");
+		if (noStatusDefined) {
+			return showsAsPassing ? line.replace(/✅/g, "❔") : line.replace(/❌/g, "❔");
+		}
+
+		return showsAsPassing && !checkIsPassing ? line.replace(/✅/g, "❌") : line.replace(/❌/g, "✅");
 	}
 }

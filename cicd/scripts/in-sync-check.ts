@@ -32,7 +32,7 @@ if (!(Utils.isNumeric(prNumberStr))) {
 const prNumber = Number.parseInt(prNumberStr);
 
 // Print out all of the arguments
-Utils.printInGroup("Arguments", [
+Utils.printInGroup("Script Arguments", [
 	`Repo Name (Required): ${repoName}`,
 	`Default Reviewer (Required): ${defaultReviewer}`,
 	`Pull Request Number (Required): ${prNumber}`,

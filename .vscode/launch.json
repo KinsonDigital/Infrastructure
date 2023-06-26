@@ -290,7 +290,7 @@
             ],
             "args": [
 				"Infrastructure",
-				"48",
+				"50",
 				"KinsonDigitalAdmin",
 				"cicd/templates/pr-sync-status-template.txt",
 				"fake-token",
@@ -304,10 +304,10 @@
             }
         },
 		{
-            "name": "Update PR Sync Status (DEBUG)",
+            "name": "Sync Bot Status Check (DEBUG)",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/update-pr-sync-status.ts",
+            "program": "${workspaceFolder}/cicd/scripts/sync-bot-status-check.ts",
             "cwd": "${workspaceFolder}/cicd",
             "runtimeArgs": [
                 "run",
@@ -316,9 +316,10 @@
             ],
             "args": [
 				"Infrastructure",
+				"50",
 				"KinsonDigitalAdmin",
-				"json-data",
-				"fake-token",
+				"pr",
+				""
 			],
             "attachSimplePort": 9229,
             "windows": {
@@ -342,7 +343,7 @@
             "args": [
 				"Infrastructure",
 				"KinsonDigitalAdmin",
-				"48",
+				"50",
 				"",
 			],
             "attachSimplePort": 9229,

@@ -62,9 +62,9 @@ export class WorkflowRunClient extends GitHubClient {
 
 		// If there is an error
 		if (response.status != GitHubHttpStatusCodes.OK) {
-			Utils.printAsGitHubError(
-				`The request to get the workflow runs returned error '${response.status} - (${response.statusText})'`,
-			);
+			let errorMsg = `An error occurred trying to get the workflow runs for the repository '${repoName}'.`;
+			errorMsg = `\n\tError: ${response.status}(${response.statusText})`;
+			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
@@ -388,11 +388,11 @@ export class WorkflowRunClient extends GitHubClient {
 		// If there is an error
 		switch (response.status) {
 			case GitHubHttpStatusCodes.Forbidden:
-			case GitHubHttpStatusCodes.NotFound:
-				Utils.printAsGitHubError(
-					`The request to delete the workflow returned error '${response.status} - (${response.statusText})'`,
-				);
+			case GitHubHttpStatusCodes.NotFound: {
+				let errorMsg = `An error occurred trying to delete the workflow run '${workflowRun.name}(${workflowRun.id})'`;
+				errorMsg += `Error: ${response.status}(${response.statusText})`, Utils.printAsGitHubError(errorMsg);
 				Deno.exit(1);
+			}
 		}
 	}
 }

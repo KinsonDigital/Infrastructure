@@ -22,4 +22,4 @@ This pull request closes #${{issue-number}}
 
 ---
 
-- [ ] Syncing enabled.  To disable syncing this pull request to its issue, check this box. <!--sync-enabled-->
+- [ ] Sync with the issue.  Use this to enable or disable this pull request from syncing with its associated issue. <!--sync-flag-->

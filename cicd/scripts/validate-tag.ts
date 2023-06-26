@@ -24,7 +24,7 @@ tag = tag.startsWith("v") ? tag : `v${Deno.args[2]}`;
 const token = Deno.args.length >= 4 ? Deno.args[3].trim() : "";
 
 // Print out all of the arguments
-Utils.printInGroup("Arguments", [
+Utils.printInGroup("Script Arguments", [
 	`Repo Name (Required): ${repoName}`,
 	`Tag Type (Required): ${tagType}`,
 	`Tag (Required): ${tag}`,

@@ -34,7 +34,7 @@ const label = Deno.args[4].trim();
 const token = Deno.args[5].trim();
 
 // Print out all of the arguments
-Utils.printInGroup("Arguments", [
+Utils.printInGroup("Script Arguments", [
 	`Repo Name (Required): ${repoName}`,
 	`Pull Request Number (Required): ${prNumber}`,
 	`Pull Request Head Branch (Required): ${headBranch}`,

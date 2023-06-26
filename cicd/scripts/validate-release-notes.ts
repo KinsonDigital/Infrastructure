@@ -33,7 +33,7 @@ const prLabel = Deno.args.length >= 5 ? Deno.args[4].trim() : "";
 const token = Deno.args.length >= 6 ? Deno.args[5].trim() : "";
 
 // Print out all of the arguments
-Utils.printInGroup("Arguments", [
+Utils.printInGroup("Script Arguments", [
 	`Repo Name (Required): ${repoName}`,
 	`Release Type (Required): ${releaseType}`,
 	`Version (Required): ${version}`,

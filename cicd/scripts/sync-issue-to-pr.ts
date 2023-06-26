@@ -13,14 +13,15 @@ import { Utils } from "../core/Utils.ts";
 
 const scriptName = Utils.getScriptName();
 
-if (Deno.args.length != 5) {
+if (Deno.args.length != 6) {
 	let errorMsg = `The '${scriptName}' cicd script must have at least 3 arguments with an additional 2 optional arguments.`;
 	errorMsg += "\nThe 1st arg is required and must be the GitHub repo name.";
 	errorMsg += "\nThe 2nd arg is required and must be a valid pull request number.";
-	errorMsg += "\nThe 3rd arg is required and must be a valid GitHub user.";
-	errorMsg += "\nThe 4th arg is required and must be a valid relative file path";
+	errorMsg += "\nThe 3rd arg is required and must be a GitHub pull request comment.";
+	errorMsg += "\nThe 4th arg is required and must be a valid GitHub user.";
+	errorMsg += "\nThe 5th arg is required and must be a valid relative file path";
 	errorMsg += " to the pull request sync template in a repository.";
-	errorMsg += "\nThe 5th arg is required and must be a valid GitHub token.";
+	errorMsg += "\nThe 6th arg is required and must be a valid GitHub token.";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
@@ -28,9 +29,10 @@ if (Deno.args.length != 5) {
 
 const repoName = Deno.args[0].trim();
 const prNumberStr = Deno.args[1].trim();
-const defaultReviewer = Deno.args[2].trim();
-let relativeTemplateFilePath = Deno.args[3].trim();
-const githubToken = Deno.args[4].trim();
+const syncCommand = Deno.args[2].trim();
+const defaultReviewer = Deno.args[3].trim();
+let relativeTemplateFilePath = Deno.args[4].trim();
+const githubToken = Deno.args[5].trim();
 
 if (!(Utils.isNumeric(prNumberStr))) {
 	Utils.printAsGitHubError(`The pull request number '${prNumberStr}' is not a valid number.`);
@@ -47,7 +49,7 @@ relativeTemplateFilePath = relativeTemplateFilePath.startsWith("/")
 	: relativeTemplateFilePath;
 
 // Print out all of the arguments
-Utils.printInGroup("Arguments", [
+Utils.printInGroup("Script Arguments", [
 	`Repo Name (Required): ${repoName}`,
 	`Pull Request Number (Required): ${prNumber}`,
 	`Default Reviewer (Required): ${defaultReviewer}`,
@@ -64,11 +66,37 @@ if (repoDoesNotExist) {
 }
 
 const prClient: PullRequestClient = new PullRequestClient(githubToken);
+const issueClient: IssueClient = new IssueClient(githubToken);
+
+// Validate that the comment contains the sync command
+if (!syncCommand.match(/\[run-sync\]/gm)) {
+	Utils.printAsGitHubNotice("Sync ignored.  The comment does not contain the '[run-sync]' sync command.");
+	Deno.exit(0);
+}
+
+if (await issueClient.issueExists(repoName, prNumber)) {
+	let ignoreMsg = `Sync ignored.  The pull request number is actually an issue number.`;
+	ignoreMsg = "\nThis occurs when the '[run-sync]' command is used in an issue comment.";
+	ignoreMsg += "\nThis command only works in pull request comments.";
+
+	Utils.printAsGitHubNotice(ignoreMsg);
+	Deno.exit(0);
+}
+
+const prTemplate = new PRTemplateManager();
 
 const prDoesNotExist = !(await prClient.pullRequestExists(repoName, prNumber));
 if (prDoesNotExist) {
 	Utils.printAsGitHubError(`A pull request with the number '${prNumber}' does not exist.`);
 	Deno.exit(1);
+} else {
+	// Check if syncing is disabled
+	const pr: IPullRequestModel = await prClient.getPullRequest(repoName, prNumber);
+
+	if (prTemplate.syncingDisabled(pr.body)) {
+		Utils.printAsGitHubNotice("Syncing is disabled.  Syncing will not occur.");
+		Deno.exit(0);
+	}
 }
 
 const userClient: UsersClient = new UsersClient(githubToken);
@@ -92,15 +120,13 @@ const headBranch = pr.head.ref;
 
 // If the branch is not a feature branch, exit
 // We do not want to sync a pull request for a branch that is not a feature branch
-if (!featureBranchRegex.test(headBranch)) {
+if (!headBranch.match(featureBranchRegex)) {
 	Utils.printAsGitHubError(`The head branch '${headBranch}' is not a feature branch.`);
 	Deno.exit(1);
 }
 
 const issueNumberStr = headBranch.replace("feature/", "").split("-")[0];
 const issueNumber = parseInt(issueNumberStr);
-
-const issueClient: IssueClient = new IssueClient(githubToken);
 
 const issueNumDoesNotExist = !(await issueClient.openIssueExists(repoName, issueNumber));
 
@@ -116,7 +142,6 @@ const issueLabels = issue.labels?.map((label) => label.name) ?? [];
 const projectClient: ProjectClient = new ProjectClient(githubToken);
 const issueProjects: IProjectModel[] = await projectClient.getIssueProjects(repoName, issueNumber);
 
-const prTemplate = new PRTemplateManager();
 let prDescription = await prTemplate.getPullRequestTemplate(repoName, relativeTemplateFilePath);
 
 // Find all issue template vars and replace them with the issue number
@@ -146,13 +171,20 @@ for (let i = 0; i < issueProjects.length; i++) {
 	}
 
 	await projectClient.addToProject(pr.node_id, proj.title);
+	Utils.printAsGitHubNotice(`The pr '${prNumber}' has been linked to issue '${issueNumber}'.`);
 }
 
-// Update the description of the issue to include metadata about the pr number
-const metadata = `\n\n<!--closed-by-pr:${prNumber}-->`;
+const prMetaDataRegex = /<!--closed-by-pr:[0-9]+-->/gm;
 
-const issueData: IIssueOrPRRequestData = {
-	body: issue.body += metadata,
-};
-
-await issueClient.updateIssue(repoName, issueNumber, issueData);
+// If the meta data does not exist
+if (!issue.body.match(prMetaDataRegex)) {
+	// Update the description of the issue to include metadata about the pr number
+	const prMetaData = `\n\n<!--closed-by-pr:${prNumber}-->`;
+	
+	const issueData: IIssueOrPRRequestData = {
+		body: issue.body += prMetaData,
+	};
+	
+	await issueClient.updateIssue(repoName, issueNumber, issueData);
+	Utils.printAsGitHubNotice(`PR link metadata added to the description of issue '${issueNumber}'.`);
+}

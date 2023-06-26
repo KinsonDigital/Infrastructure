@@ -28,7 +28,7 @@ const projectName: string = Deno.args[3].trim();
 const token = Deno.args[4].trim();
 
 // Print out all of the arguments
-Utils.printInGroup("Arguments", [
+Utils.printInGroup("Script Arguments", [
 	`Repo Name (Required): ${repoName}`,
 	`Issue Or PR Number (Required): ${issueOrPRNumber}`,
 	`Item Type (Required): ${itemType}`,
