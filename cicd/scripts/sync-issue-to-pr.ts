@@ -194,7 +194,7 @@ for (let i = 0; i < issueProjects.length; i++) {
 	}
 
 	await projectClient.addToProject(pr.node_id, proj.title);
-	Utils.printAsGitHubNotice(`The pr '${prNumber}' has been linked to issue '${issueNumber}'.`);
+	Utils.printAsGitHubNotice(`The pr '${prNumber}' has been added to the same project as issue '${issueNumber}'.`);
 }
 
 const prMetaDataRegex = /<!--closed-by-pr:[0-9]+-->/gm;
