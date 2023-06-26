@@ -166,8 +166,27 @@ export class OrgClient extends GitHubClient {
 		return result;
 	}
 
+
 	/**
-	 * Gets a value indicating whether or not a user with the name that matches the
+	 * Gets a list of all public and private members for an organization with a name that
+	 * matches the given {@link organization}.
+	 * @param organization The name of the organization.
+	 * @returns The list of admin members for an organization.
+	 */
+	public async getAllAdminMembers(organization: string): Promise<IUserModel[]> {
+		const result: IUserModel[] = [];
+
+		const allPrivateOrgMembers = await this.getPrivateAdminMembers(organization);
+		const allPublicOrgMembers = await this.getPublicAdminMembers(organization);
+
+		result.push(...allPrivateOrgMembers);
+		result.push(...allPublicOrgMembers);
+
+		return result;
+	}
+
+	/**
+	 * Gets a value indicating whether or not a user with a name that matches the
 	 * given {@link username} is a member of the organization.
 	 * @param organization The name of the organization.
 	 * @param username The username of the user that might exist in the organization.
@@ -175,6 +194,19 @@ export class OrgClient extends GitHubClient {
 	 */
 	public async userIsOrgMember(organization: string, username: string): Promise<boolean> {
 		const allOrgMembers = await this.getAllOrgMembers(organization);
+
+		return allOrgMembers.some((member) => member.login == username);
+	}
+
+	/**
+	 * Gets a value indicating whether or not a user with a name that matches the
+	 * given {@link username} is a ember of the organization with the admin role.
+	 * @param organization The name of the organization.
+	 * @param username The username of the user that might exist in the organization.
+	 * @returns True if the user is a member of the organization, false otherwise.
+	 */
+	public async userIsOrgAdminMember(organization: string, username: string): Promise<boolean> {
+		const allOrgMembers = await this.getAllAdminMembers(organization);
 
 		return allOrgMembers.some((member) => member.login == username);
 	}
