@@ -55,8 +55,11 @@ relativeTemplateFilePath = relativeTemplateFilePath.startsWith("/")
 
 // Print out all of the arguments
 Utils.printInGroup("Script Arguments", [
+	`Organization Name (Required): ${organizationName}`,
 	`Repo Name (Required): ${repoName}`,
+	`Requested By User (Required): ${requestedByUser}`,
 	`Pull Request Number (Required): ${prNumber}`,
+	`Sync Command (Required): ${syncCommand}`,
 	`Default Reviewer (Required): ${defaultReviewer}`,
 	`Relative Template File Path (Required): ${relativeTemplateFilePath}`,
 	`GitHub Token (Required): ${Utils.isNullOrEmptyOrUndefined(githubToken) ? "Not Provided" : "****"}`,
