@@ -24,4 +24,4 @@ This pull request closes #${{issue-number}}
 
 ---
 
-- [ ] Sync with the issue.  Use this to enable or disable this pull request from syncing with its associated issue. <!--sync-flag-->
+- [x] Sync with the issue.  Use this to enable or disable this pull request from syncing with its associated issue. <!--sync-flag-->

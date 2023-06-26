@@ -16,6 +16,7 @@ export class PRTemplateManager {
 	private readonly projectsRegex = /<!--projects-->/gm;
 	private readonly milestoneRegex = /<!--milestone-->/gm;
 	private readonly issueNumTemplateVarRegex = /\${{\s*issue-number\s*}}/gm;
+	private readonly issueNumRegex = /#[0-9]+/gm;
 	private readonly syncFlagRegex = /<!--sync-flag-->/gm;
 	private readonly syncEmptyCheckRegex = /- \[ \] /gm;
 	private readonly syncFullCheckRegex = /- \[(x|X)\] /gm;
@@ -109,15 +110,28 @@ export class PRTemplateManager {
 	 * @param issueNum The issue number to update.
 	 * @returns The updated template.
 	 */
-	public updateIssueVar(template: string, issueNum: number): string {
+	public updateIssueNum(template: string, issueNum: number): string {
 		Guard.isNullOrEmptyOrUndefined(template, "updateIssueVar", "template");
 		Guard.isLessThanOne(issueNum, "updateIssueVar", "issueNum");
 
-		return template.replace(this.issueNumTemplateVarRegex, issueNum.toString());
-	}
+		const isTemplateVarLine = template.match(this.issueNumTemplateVarRegex) != null;
+		const isIssueNumLine = template.match(this.issueNumRegex) != null;
 
-	private lineItemShowsInSync(lineItem: string): boolean {
-		return lineItem.match(this.syncFlagRegex) !== null;
+		const lines: string[] = template.split("\n");
+
+		for (let i = 0; i < lines.length; i++) {
+			const line = lines[i];
+
+			if (isTemplateVarLine) {
+				lines[i] = line.replace(this.issueNumTemplateVarRegex, issueNum.toString());
+			} else if (isIssueNumLine) {
+				lines[i] = line.replace(this.issueNumRegex, `#${issueNum}`);
+			}
+
+			break;
+		}
+
+		return lines.join("\n");
 	}
 
 	private showsAsPassing(line: string): boolean {

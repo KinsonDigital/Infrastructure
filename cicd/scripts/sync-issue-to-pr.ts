@@ -165,10 +165,10 @@ const issueLabels = issue.labels?.map((label) => label.name) ?? [];
 const projectClient: ProjectClient = new ProjectClient(githubToken);
 const issueProjects: IProjectModel[] = await projectClient.getIssueProjects(repoName, issueNumber);
 
+// TODO: Need to get a new template if the PR does not contain one, or just get the PRs template if it already has one
 let prDescription = await prTemplate.getPullRequestTemplate(repoName, relativeTemplateFilePath);
 
-// Find all issue template vars and replace them with the issue number
-prDescription = prTemplate.updateIssueVar(prDescription, issueNumber);
+prDescription = prTemplate.updateIssueNum(prDescription, issueNumber);
 
 // If the title does not match, sync the title
 const prData: IIssueOrPRRequestData = {
