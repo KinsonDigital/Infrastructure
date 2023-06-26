@@ -348,3 +348,23 @@ export enum PRTemplateVars {
 	 */
 	headBranch = "head-branch",
 }
+
+/**
+ * Represents the type of role in a GitHub organization.
+ */
+export enum OrgMemberRole {
+	/**
+	 * Any role.
+	 */
+	all = "all",
+
+	/**
+	 * The admin role.
+	 */
+	admin = "admin",
+
+	/**
+	 * The member role.
+	 */
+	member = "member",
+}
