@@ -1,6 +1,8 @@
 import { ILabelModel } from "./ILabelModel.ts";
-import { IPullRequestHeadOrBase } from "./IPullRequestHeadOrBase.ts";
+import { IMilestoneModel } from "./IMilestoneModel.ts";
+import { IPullRequestHeadOrBaseModel } from "./IPullRequestHeadOrBaseModel.ts";
 import { IPullRequestInfo } from "./IPullRequestInfo.ts";
+import { IUserModel } from "./IUserModel.ts";
 
 /**
  * Represents a GitHub pull request.
@@ -10,6 +12,11 @@ export interface IPullRequestModel {
 	 * Gets or sets the ID of the pull request.
 	 */
 	id: number;
+
+	/**
+	 * Gets or sets the node id of the pull request.
+	 */
+	node_id?: string;
 
 	/**
 	 * Gets or sets the title of the pull request.
@@ -22,9 +29,24 @@ export interface IPullRequestModel {
 	number: number;
 
 	/**
+	 * Gets or sets the body of the issue.
+	 */
+	body: string;
+
+	/**
+	 * Gets or sets the list of pull request reviewers.
+	 */
+	requested_reviewers: IUserModel[];
+
+	/**
+	 * Gets or sets the assignees.
+	 */
+	assignees: IUserModel[];
+
+	/**
 	 * Gets or sets the labels of the pull request.
 	 */
-	labels?: ILabelModel[];
+	labels: ILabelModel[];
 
 	/**
 	 * Gets or sets the state of the pull request.
@@ -37,6 +59,11 @@ export interface IPullRequestModel {
 	url: string;
 
 	/**
+	 * Gets or sets the milestone.
+	 */
+	milestone?: IMilestoneModel;
+
+	/**
 	 * Gets or sets the URL to the html page of the pull request.
 	 */
 	html_url?: string;
@@ -47,11 +74,6 @@ export interface IPullRequestModel {
 	draft?: boolean;
 
 	/**
-	 * Gets or sets the node id of the pull request.
-	 */
-	node_id?: string;
-
-	/**
 	 * Gets or sets additional information about the pull request.
 	 */
 	pull_request?: IPullRequestInfo;
@@ -59,10 +81,10 @@ export interface IPullRequestModel {
 	/**
 	 * Gets or sets the head branch of the pull request.
 	 */
-	head: IPullRequestHeadOrBase;
+	head: IPullRequestHeadOrBaseModel;
 
 	/**
 	 * Gets or sets the base branch of the pull request.
 	 */
-	base: IPullRequestHeadOrBase;
+	base: IPullRequestHeadOrBaseModel;
 }

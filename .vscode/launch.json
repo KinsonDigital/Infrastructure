@@ -276,6 +276,83 @@
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
+        },
+		{
+            "name": "Sync Issue To PR (DEBUG)",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/sync-issue-to-pr.ts",
+            "cwd": "${workspaceFolder}/cicd",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": [
+				"Infrastructure",
+				"50",
+				"KinsonDigitalAdmin",
+				"cicd/templates/pr-sync-status-template.txt",
+				"fake-token",
+			],
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+		{
+            "name": "Sync Bot Status Check (DEBUG)",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/sync-bot-status-check.ts",
+            "cwd": "${workspaceFolder}/cicd",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": [
+				"Infrastructure",
+				"47",
+				"KinsonDigitalAdmin",
+				"issue",
+				""
+			],
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+		{
+            "name": "In Sync Check (DEBUG)",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/in-sync-check.ts",
+            "cwd": "${workspaceFolder}/cicd",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": [
+				"Infrastructure",
+				"KinsonDigitalAdmin",
+				"50",
+				"",
+			],
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
         }
     ]
 }

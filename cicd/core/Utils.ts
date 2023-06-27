@@ -1,7 +1,10 @@
 import { GitHubHttpStatusCodes } from "./Enums.ts";
 import { Guard } from "./Guard.ts";
 import { IIssueModel } from "./Models/IIssueModel.ts";
+import { ILabelModel } from "./Models/ILabelModel.ts";
+import { IProjectModel } from "./Models/IProjectModel.ts";
 import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
+import { IUserModel } from "./Models/IUserModel.ts";
 
 /**
  * Provides utility functions.
@@ -23,14 +26,18 @@ export class Utils {
 
 	/**
 	 * Prints the lines of text in a GitHub group.
-	 * @param lines The lines of text to print.
+	 * @param lineOrLines The lines of text to print.
 	 */
-	public static printInGroup(title: string, lines: string[]): void {
+	public static printInGroup(title: string, lineOrLines: string | string[]): void {
 		console.log(`::group::${title}`);
 
-		lines.forEach((line) => {
-			console.log(line);
-		});
+		if (typeof lineOrLines === "string") {
+			console.log(lineOrLines);
+		} else {
+			lineOrLines.forEach((line) => {
+				console.log(line);
+			});
+		}
 
 		console.log("::endgroup::");
 	}
@@ -103,20 +110,43 @@ export class Utils {
 	}
 
 	/**
-	 * Prints the given message as a GitHub error.
+	 * Prints the given {@link message} as a GitHub notice.
+	 * @param message The message to print.
+	 */
+	public static printAsGitHubNotice(message: string): void {
+		Utils.printEmptyLine();
+		console.log(`::notice::${message}`);
+		Utils.printEmptyLine();
+	}
+
+	/**
+	 * Prints the given {@link message} as a GitHub error.
 	 * @param message The message to print.
 	 */
 	public static printAsGitHubError(message: string): void {
+		Utils.printEmptyLine();
 		console.log(`::error::${message}`);
+		Utils.printEmptyLine();
+	}
+
+	/**
+	 * Prints the given {@link message} as a GitHub warning.
+	 * @param message The message to print.
+	 */
+	public static printAsGitHubWarning(message: string): void {
+		Utils.printEmptyLine();
+		console.log(`::warning::${message}`);
+		Utils.printEmptyLine();
 	}
 
 	/**
 	 * Prints the given list of problems as errors.
 	 * @param problems The list of problems to print.
 	 * @param successMsg The message to print if there are no problems.
+	 * @param failureMsg The message to print if there are problems.
 	 * @returns A promise that resolves if there are no problems, otherwise rejects with the list of problems.
 	 */
-	public static printProblemList(problems: string[], successMsg: string): void {
+	public static printProblemList(problems: string[], successMsg: string, failureMsg: string): void {
 		const errorList: string[] = [];
 
 		// Display all of the issues that have been found as errors
@@ -127,7 +157,8 @@ export class Utils {
 		}
 
 		if (errorList.length > 0) {
-			console.log(`::group::${problems.length} problem(s) found.`);
+			Utils.printAsGitHubError(failureMsg);
+			console.log(`::group::${errorList.length} problems found.`);
 
 			errorList.forEach((error) => {
 				this.printAsGitHubError(error);
@@ -135,7 +166,7 @@ export class Utils {
 
 			console.log("::endgroup::");
 		} else {
-			console.log(`✅No problems found!!✅\n${successMsg}`);
+			Utils.printAsGitHubNotice(successMsg);
 		}
 	}
 
@@ -146,7 +177,7 @@ export class Utils {
 	 */
 	public static throwIfErrors(response: Response): void {
 		if (response.status < GitHubHttpStatusCodes.OK) {
-			const errorMsg = `There was a problem with the request. Status code: ${response.status}(${response.statusText}).`;
+			const errorMsg = `There was a problem with the request. Error: ${response.status}(${response.statusText}).`;
 
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
@@ -247,5 +278,98 @@ export class Utils {
 		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
 
 		return `https://github.com/${repoOwner}/${repoName}/labels`;
+	}
+
+	/**
+	 * Returns a value indicating whether or not the assignees of the given {@link issue} and {@link pr} match.
+	 * @param issue The issue to compare with the pull request.
+	 * @param pr The pull request to compare with the issue.
+	 * @returns True if the assignees of the given {@link issue} and {@link pr} match, otherwise false.
+	 */
+	public static assigneesMatch(issueAssignees: IUserModel[], prAssignees: IUserModel[]): boolean {
+		if (issueAssignees.length === 0 && prAssignees.length === 0) {
+			return true;
+		}
+
+		if (issueAssignees.length != prAssignees.length) {
+			return false;
+		}
+
+		for (let i = 0; i < issueAssignees.length; i++) {
+			if (issueAssignees[i].login != prAssignees[i].login) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Returns a value indicating whether or not the labels of the given {@link issue} and {@link pr} match.
+	 * @param issue The issue to to compare with the pull request.
+	 * @param pr The pull request to compare with the issue.
+	 * @returns True if the labels of the issue and pull request match, otherwise false.
+	 */
+	public static labelsMatch(issueLabels: ILabelModel[], prLabels: ILabelModel[]): boolean {
+		if (issueLabels.length === 0 && prLabels.length === 0) {
+			return true;
+		}
+
+		if (issueLabels.length != prLabels.length) {
+			return false;
+		}
+
+		for (let i = 0; i < issueLabels.length; i++) {
+			if (issueLabels[i].name != prLabels[i].name) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Returns a value indicating whether or not the organizational projects of the given
+	 * {@link issueProjects} and {@link prProjects} match.
+	 * @param issueProjects The issue projects to to compare with the pull request projects.
+	 * @param prProjects The pull request projects to compare with the issue projects.
+	 * @returns True if the labels of the issue and pull request match, otherwise false.
+	 */
+	public static orgProjectsMatch(issueProjects: IProjectModel[], prProjects: IProjectModel[]): boolean {
+		if (issueProjects.length === 0 && prProjects.length === 0) {
+			return true;
+		}
+
+		if (issueProjects.length != prProjects.length) {
+			return false;
+		}
+
+		for (let i = 0; i < issueProjects.length; i++) {
+			if (issueProjects[i].number != prProjects[i].number) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Converts the given {@link number} to its ordinal representation.
+	 * @param number The number to convert.
+	 * @returns The ordinal representation of the given {@link number}.
+	 */
+	public static toOrdinal(number: number): string {
+		const suffixes = ["th", "st", "nd", "rd"];
+		const value = Math.abs(number) % 100;
+		const suffix = suffixes[(value - 20) % 10] || suffixes[value] || suffixes[0];
+	  
+		return `${number}${suffix}`;
+	}
+
+	/**
+	 * Prints an empty line to the console.
+	 */
+	public static printEmptyLine(): void {
+		console.log();
 	}
 }

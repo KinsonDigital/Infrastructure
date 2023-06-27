@@ -4,6 +4,7 @@ import { IPullRequestModel } from "../core/Models/IPullRequestModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { GitHubHttpStatusCodes, IssueOrPRState, MergeState } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
+import { IIssueOrPRRequestData } from "../core/IIssueOrPRRequestData.ts";
 
 /**
  * Provides a client for interacting with pull requests.
@@ -94,7 +95,7 @@ export class PullRequestClient extends GitHubClient {
 
 		const queryParams =
 			`?page=${page}&per_page=${qtyPerPage}&state=${state}${labelListQueryParam}${milestoneNumberQueryParam}`;
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/issues${queryParams}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues${queryParams}`;
 
 		const response: Response = await this.fetchGET(url);
 
@@ -103,15 +104,17 @@ export class PullRequestClient extends GitHubClient {
 			switch (response.status) {
 				case GitHubHttpStatusCodes.MovedPermanently:
 				case GitHubHttpStatusCodes.ValidationFailed:
-					Utils.printAsGitHubError(
-						`The request to get a pull request returned error '${response.status} - (${response.statusText})'`,
-					);
+				case GitHubHttpStatusCodes.Unauthorized: {
+					let errorMsg = `An error occurred trying to get the pull requests for the repository '${repoName}'.`;
+					errorMsg += `\n\tError: ${response.status}(${response.statusText})`;
+					Utils.printAsGitHubError(errorMsg);
 					break;
-				case GitHubHttpStatusCodes.NotFound:
-					Utils.printAsGitHubError(
-						`The organization '${this.organization}' or repository '${repoName}' does not exist.`,
-					);
+				}
+				case GitHubHttpStatusCodes.NotFound: {
+					const errorMsg = `The organization '${this.organization}' or repository '${repoName}' does not exist.`;
+					Utils.printAsGitHubError(errorMsg);
 					break;
+				}
 			}
 
 			Deno.exit(1);
@@ -165,7 +168,7 @@ export class PullRequestClient extends GitHubClient {
 		Guard.isLessThanOne(prNumber, "getPullRequest", "prNumber");
 
 		// REST API Docs: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#get-a-pull-request
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/pulls/${prNumber}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/pulls/${prNumber}`;
 
 		const response: Response = await this.fetchGET(url);
 
@@ -175,10 +178,12 @@ export class PullRequestClient extends GitHubClient {
 				case GitHubHttpStatusCodes.NotModified:
 				case GitHubHttpStatusCodes.InternalServerError:
 				case GitHubHttpStatusCodes.ServiceUnavailable:
-					Utils.printAsGitHubError(
-						`The request to get pull request returned error '${response.status} - (${response.statusText})'`,
-					);
+				case GitHubHttpStatusCodes.Unauthorized: {
+					let errorMsg = `An error occurred trying to get the pull request '${prNumber}'.`;
+					errorMsg += `\n\tError '${response.status}(${response.statusText})'`;
+					Utils.printAsGitHubError(errorMsg);
 					break;
+				}
 				case GitHubHttpStatusCodes.NotFound:
 					Utils.printAsGitHubError(`The pull request number '${prNumber}' does not exist.`);
 					break;
@@ -214,13 +219,12 @@ export class PullRequestClient extends GitHubClient {
 		if (labelDoesNotExist) {
 			const labelsUrl = Utils.buildLabelsUrl(this.organization, repoName);
 			const prUrl = Utils.buildPullRequestUrl(this.organization, repoName, prNumber);
-
-			let errorMsg =
-				`::error::The label '${label}' attempting to be added to pull request '${prNumber}' does not exist in the repo '${repoName}'.`;
+			let errorMsg = `Could not add the label '${label}' to pull request '${prNumber}'.`;
+			errorMsg = `The label '${label}' does not exist in the repo '${repoName}'.`;
 			errorMsg += `\nRepo Labels: ${labelsUrl}`;
 			errorMsg += `\nPull Request: ${prUrl}`;
 
-			console.log(errorMsg);
+			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
@@ -228,7 +232,7 @@ export class PullRequestClient extends GitHubClient {
 		prLabels.push(label);
 
 		// REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${prNumber}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${prNumber}`;
 		const response: Response = await this.fetchPATCH(url, JSON.stringify({ labels: prLabels }));
 
 		// If there is an error
@@ -238,17 +242,15 @@ export class PullRequestClient extends GitHubClient {
 				case GitHubHttpStatusCodes.Gone:
 				case GitHubHttpStatusCodes.ValidationFailed:
 				case GitHubHttpStatusCodes.ServiceUnavailable:
-					Utils.printAsGitHubError(
-						`The request to add label '${label}' returned error '${response.status} - (${response.statusText})'`,
-					);
+				case GitHubHttpStatusCodes.Forbidden:
+				case GitHubHttpStatusCodes.Unauthorized: {
+					let errorMsg = `An error occurred trying to add the label '${label}' to pull request '${prNumber}'.`;
+					errorMsg += `\n\tError: ${response.status}(${response.statusText})`;
+					Utils.printAsGitHubError(errorMsg);
 					break;
+				}
 				case GitHubHttpStatusCodes.NotFound:
 					Utils.printAsGitHubError(`The pull request number '${prNumber}' does not exist.`);
-					break;
-				case GitHubHttpStatusCodes.Forbidden:
-					Utils.printAsGitHubError(
-						`The request to add label '${label}' was forbidden.  Check the auth token.`,
-					);
 					break;
 			}
 
@@ -267,7 +269,7 @@ export class PullRequestClient extends GitHubClient {
 		Guard.isLessThanOne(prNumber, "pullRequestExists", "prNumber");
 
 		// REST API Docs: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#list-pull-requests
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/pulls/${prNumber}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/pulls/${prNumber}`;
 
 		const response: Response = await this.fetchGET(url);
 
@@ -277,10 +279,12 @@ export class PullRequestClient extends GitHubClient {
 				case GitHubHttpStatusCodes.NotModified:
 				case GitHubHttpStatusCodes.InternalServerError:
 				case GitHubHttpStatusCodes.ServiceUnavailable:
-					Utils.printAsGitHubError(
-						`The request to get a pull request returned error '${response.status} - (${response.statusText})'`,
-					);
+				case GitHubHttpStatusCodes.Unauthorized: {
+					let errorMsg = `An error occurred checking if pull request '${prNumber}' exists.`;
+					errorMsg = `\n\tError: ${response.status}(${response.statusText})`;
+					Utils.printAsGitHubError(errorMsg);
 					break;
+				}
 				case GitHubHttpStatusCodes.NotFound:
 					return false;
 			}
@@ -301,6 +305,85 @@ export class PullRequestClient extends GitHubClient {
 		Guard.isLessThanOne(prNumber, "openPullRequestExists", "issueNumber");
 
 		return await this.openOrClosedPullRequestExists(repoName, prNumber, IssueOrPRState.open);
+	}
+
+	/**
+	 * Updates a pull request with the given {@link prNumber} in a repository that matches the given {@link repoName},
+	 * using the given {@link prRequestData}.
+	 * @param repoName The name of the repository.
+	 * @param prNumber The pull request number.
+	 * @param prRequestData The data to update the pull request with.
+	 */
+	public async updatePullRequest(repoName: string, prNumber: number, prRequestData: IIssueOrPRRequestData): Promise<void> {
+		Guard.isNullOrEmptyOrUndefined(repoName, "updatePullRequest", "repoName");
+		Guard.isLessThanOne(prNumber, "updatePullRequest", "prNumber");
+
+		const prDoesNotExist = !(await this.pullRequestExists(repoName, prNumber));
+
+		if (prDoesNotExist) {
+			Utils.printAsGitHubError(`A pull request with the number '${prNumber}' does not exist in the repo '${repoName}'.`);
+			Deno.exit(1);
+		}
+
+		repoName = repoName.trim();
+
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${prNumber}`;
+
+		const prBody: string = JSON.stringify(prRequestData);
+		const response = await this.fetchPATCH(url, prBody);
+
+		if (response.status != GitHubHttpStatusCodes.OK) {
+			if (response.status === GitHubHttpStatusCodes.NotFound) {
+				Utils.printAsGitHubError(`An pull request with the number '${prNumber}' does not exist.`);
+			} else {
+				switch (response.status) {
+					case GitHubHttpStatusCodes.MovedPermanently:
+					case GitHubHttpStatusCodes.Gone:
+					case GitHubHttpStatusCodes.ValidationFailed:
+					case GitHubHttpStatusCodes.ServiceUnavailable:
+					case GitHubHttpStatusCodes.Forbidden:
+					case GitHubHttpStatusCodes.Unauthorized: {
+						let errorMsg = `An error occurred trying to update pull request '${prNumber}'.`;
+						errorMsg += `\n\t'Error: ${response.status}(${response.statusText})`;
+
+						Utils.printAsGitHubError(errorMsg);
+						break;
+					}
+				}
+			}
+
+			Deno.exit(1);
+		}
+	}
+
+	/**
+	 * Requests a review from a reviewer that matches the given {@link reviewer} for a pull request that
+	 * matches the given {@link prNumber} in a repository that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
+	 * @param prNumber The pull request number.
+	 * @param reviewer The reviewer to request.
+	 */
+	public async requestReviewer(repoName: string, prNumber: number, reviewer: string): Promise<void> {
+		Guard.isNullOrEmptyOrUndefined(repoName, "requestReviewer", "repoName");
+		Guard.isLessThanOne(prNumber, "requestReviewer", "prNumber");
+		Guard.isNullOrEmptyOrUndefined(reviewer, "requestReviewer", "reviewer");
+
+		repoName = repoName.trim();
+		reviewer = reviewer.trim();
+
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/pulls/${prNumber}/requested_reviewers`;
+		const body = JSON.stringify({ reviewers: [reviewer] });
+
+		const response = await this.fetchPOST(url, body);
+
+		if (response.status != GitHubHttpStatusCodes.Created) {
+			let errorMsg = `An error occurred trying to request the reviewer '${reviewer}' for pull request '${prNumber}'.`;
+			errorMsg += `\n\t'Error: ${response.status}(${response.statusText})`;
+			errorMsg += `\n\t'PR: ${Utils.buildPullRequestUrl(this.organization, repoName, prNumber)}'`;
+
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
 	}
 
 	/**
@@ -345,6 +428,6 @@ export class PullRequestClient extends GitHubClient {
 			},
 		);
 
-		return issues.find((issue: IPullRequestModel) => issue.number === prNumber) !== undefined;
+		return issues.find((issue: IPullRequestModel) => issue.number === prNumber) != undefined;
 	}
 }

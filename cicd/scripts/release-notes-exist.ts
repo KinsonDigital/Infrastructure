@@ -19,7 +19,7 @@ let version: string = Deno.args[1].toLowerCase();
 version = version.startsWith("v") ? version : `v${version}`;
 
 // Print out all of the arguments
-Utils.printInGroup("Arguments", [
+Utils.printInGroup("Script Arguments", [
 	`Release Type (Required): ${releaseType}`,
 	`Version (Required): ${version}`,
 ]);
@@ -53,14 +53,12 @@ const relativeDirPath = `Documentation/ReleaseNotes/${notesDirName}`;
 const fileName = `Release-Notes-${version}.md`;
 const fullFilePath = `${baseDirPath}/${relativeDirPath}/${fileName}`;
 
-let pathInfo = "::group:: Release Notes File Path Info";
-pathInfo += `\nBase Directory Path: ${baseDirPath}`;
+let pathInfo = `\nBase Directory Path: ${baseDirPath}`;
 pathInfo += `\nRelative Directory Path: ${relativeDirPath}`;
 pathInfo += `\nFile Name: ${fileName}`;
 pathInfo += `\nFull File Path: ${fullFilePath}`;
-pathInfo += "\n::endgroup::";
 
-console.log(pathInfo);
+Utils.printInGroup("Release Notes File Path Info", pathInfo);
 
 if (File.DoesNotExist(fullFilePath)) {
 	Utils.printAsGitHubError(`The release notes '${fullFilePath}' does not exist.`);

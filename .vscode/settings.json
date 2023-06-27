@@ -31,6 +31,10 @@
 		"editor.tabSize": 4,
 	},
 	"editor.detectIndentation": false,
+	"[github-actions-workflow]": {
+		"editor.tabSize": 2,
+		"editor.insertSpaces": true
+	},
 	"rest-client.environmentVariables": {
 		"$shared": {
 			"repoOwner": "KinsonDigital",

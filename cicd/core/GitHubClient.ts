@@ -19,7 +19,7 @@ export abstract class GitHubClient extends WebAPIClient {
 	constructor(token?: string) {
 		super();
 
-		this.baseUrl = "https://api.github.com/repos";
+		this.baseUrl = "https://api.github.com";
 		this.headers.append("Accept", "application/vnd.github+json");
 		this.headers.append("X-GitHub-Api-Version", "2022-11-28");
 

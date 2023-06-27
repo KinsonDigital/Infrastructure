@@ -3,7 +3,7 @@ import { IRepoModel } from "./IRepoModel.ts";
 /**
  * Holds information about a pull requests head or base branches.
  */
-export interface IPullRequestHeadOrBase {
+export interface IPullRequestHeadOrBaseModel {
 	/**
 	 * Gets or sets the ref.
 	 */

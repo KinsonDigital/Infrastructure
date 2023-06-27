@@ -21,9 +21,9 @@ export abstract class WebAPIClient {
 	}
 
 	/**
-	 * Fetches a resource using the HTTP GET method.
-	 * @param url The URL to the resource to fetch.
-	 * @returns The response from the fetch request.
+	 * Gets a resource by performing an HTTP request using the GET method.
+	 * @param url The URL of the request.
+	 * @returns The response from the request.
 	 */
 	protected async fetchGET(url: string): Promise<Response> {
 		Guard.isNullOrEmptyOrUndefined(url, "fetchGET", "url");
@@ -35,10 +35,26 @@ export abstract class WebAPIClient {
 	}
 
 	/**
-	 * Fetches a resource using the HTTP GET method.
-	 * @param url The URL to the resource to fetch.
+	 * Creates a resource by performing an HTTP request using the POST method.
+	 * @param url The URL of the request.
 	 * @param body The body of the request.
-	 * @returns The response from the fetch request.
+	 * @returns The response from the request.
+	 */
+	protected async fetchPOST(url: string, body: string): Promise<Response> {
+		Guard.isNullOrEmptyOrUndefined(url, "fetchPOST", "url");
+
+		return await fetch(url, {
+			method: "POST",
+			headers: this.headers,
+			body: body,
+		});
+	}
+
+	/**
+	 * Updates a resource by performing an HTTP request using the PATCH method.
+	 * @param url The URL of the request.
+	 * @param body The body of the request.
+	 * @returns The response from the request.
 	 */
 	protected async fetchPATCH(url: string, body: string): Promise<Response> {
 		Guard.isNullOrEmptyOrUndefined(url, "fetchGET", "url");
@@ -52,10 +68,10 @@ export abstract class WebAPIClient {
 	}
 
 	/**
-	 * Deletes a resource using the HTTP DELETE method.
-	 * @param url The URL to the resource to fetch.
+	 * Deletes a resource by performing an HTTP request using the DELETE method.
+	 * @param url The URL of the request.
 	 * @param body The body of the request.
-	 * @returns The response from the fetch request.
+	 * @returns The response from the request.
 	 */
 	protected async fetchDELETE(url: string): Promise<Response> {
 		Guard.isNullOrEmptyOrUndefined(url, "fetchDELETE", "url");

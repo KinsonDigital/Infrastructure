@@ -19,6 +19,21 @@ export enum IssueOrPRState {
 }
 
 /**
+ * Represents the state of an issue.
+ */
+export enum IssueState {
+	/**
+	 * Opened issue.
+	 */
+	open = "open",
+
+	/**
+	 * A closed issue.
+	 */
+	closed = "closed",
+}
+
+/**
  * Represents the merge state of a pull request.
  */
 export enum MergeState {
@@ -50,6 +65,11 @@ export enum GitHubHttpStatusCodes {
 	 * - TRACE: The message body contains the request message as received by the server.
 	 */
 	OK = 200,
+
+	/**
+	 * Success, and the resource was created.
+	 */
+	Created = 201,
 
 	/**
 	 * The server successfully processed the request and is not returning any content.
@@ -87,6 +107,11 @@ export enum GitHubHttpStatusCodes {
 	 * occurrence on the web.
 	 */
 	NotFound = 404,
+
+	/**
+	 * The client request has not been completed because it lacks valid authentication credentials for the requested resource.
+	 */
+	Unauthorized = 401,
 
 	/**
 	 * This response is sent when the requested content has been permanently deleted from server, with no
@@ -287,4 +312,59 @@ export enum WorkflowRunStatus {
 	 * The workflow is currently pending.
 	 */
 	pending = "pending",
+}
+
+/**
+ * Represents the different reasons for the change in an issues state.
+ */
+export enum StateReason {
+	/**
+	 * The issue has been completed.
+	 */
+	completed = "completed",
+
+	/**
+	 * The issue was not planned.
+	 */
+	notPlanned = "not_planned",
+
+	/**
+	 * The issue was reopened.
+	 */
+	reopened = "reopened",
+}
+
+/**
+ * Represents the different template variables that can be used in a PR template.
+ */
+export enum PRTemplateVars {
+	/**
+	 * The issue number template variable.
+	 */
+	issueNumber = "issue-num",
+
+	/**
+	 * The head branch template variable.
+	 */
+	headBranch = "head-branch",
+}
+
+/**
+ * Represents the type of role in a GitHub organization.
+ */
+export enum OrgMemberRole {
+	/**
+	 * Any role.
+	 */
+	all = "all",
+
+	/**
+	 * The admin role.
+	 */
+	admin = "admin",
+
+	/**
+	 * The member role.
+	 */
+	member = "member",
 }

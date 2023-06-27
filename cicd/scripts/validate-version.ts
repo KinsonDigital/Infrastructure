@@ -30,7 +30,7 @@ if (versionTypeInvalid) {
 }
 
 // Print out all of the arguments
-Utils.printInGroup("Arguments", [
+Utils.printInGroup("Script Arguments", [
 	`Version (Required): ${version}`,
 	`Version Type (Required): ${versionType}`,
 ]);
@@ -61,5 +61,5 @@ if (versionIsInvalid) {
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 } else {
-	console.log(`✅The ${versionType} version '${version}' is valid!!✅`);
+	Utils.printAsGitHubNotice(`✅The ${versionType} version '${version}' is valid!!✅`);
 }

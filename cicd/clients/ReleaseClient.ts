@@ -36,7 +36,7 @@ export class ReleaseClient extends GitHubClient {
 		qtyPerPage = Utils.clamp(qtyPerPage, 1, 100);
 
 		const queryParams = `?page=${page}&per_page=${qtyPerPage}`;
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/releases${queryParams}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/releases${queryParams}`;
 
 		const response: Response = await this.fetchGET(url);
 
