@@ -26,7 +26,12 @@ export class OrgClient extends GitHubClient {
 	 * @returns The list of private members for the organization.
 	 * @remarks Requires authentication.
 	 */
-	public async getPrivateMembers(organization: string, page = 1, qtyPerPage = 100, role: OrgMemberRole = OrgMemberRole.all): Promise<[IUserModel[], Response]> {
+	public async getPrivateMembers(
+		organization: string,
+		page = 1,
+		qtyPerPage = 100,
+		role: OrgMemberRole = OrgMemberRole.all,
+	): Promise<[IUserModel[], Response]> {
 		page = page < 1 ? 1 : page;
 		qtyPerPage = Utils.clamp(qtyPerPage, 1, 100);
 
@@ -56,7 +61,12 @@ export class OrgClient extends GitHubClient {
 	 * @returns The list of public members for the organization.
 	 * @remarks Does not require authentication.
 	 */
-	public async getPublicMembers(organization: string, page = 1, qtyPerPage = 100, role: OrgMemberRole = OrgMemberRole.all): Promise<[IUserModel[], Response]> {
+	public async getPublicMembers(
+		organization: string,
+		page = 1,
+		qtyPerPage = 100,
+		role: OrgMemberRole = OrgMemberRole.all,
+	): Promise<[IUserModel[], Response]> {
 		page = page < 1 ? 1 : page;
 		qtyPerPage = Utils.clamp(qtyPerPage, 1, 100);
 
@@ -165,7 +175,6 @@ export class OrgClient extends GitHubClient {
 
 		return result;
 	}
-
 
 	/**
 	 * Gets a list of all public and private members for an organization with a name that

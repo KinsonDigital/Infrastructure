@@ -114,7 +114,9 @@ const orgClient: OrgClient = new OrgClient(githubToken);
 const userIsNotOrgMember = !(await orgClient.userIsOrgAdminMember(organizationName, requestedByUser));
 
 if (userIsNotOrgMember) {
-	Utils.printAsGitHubError(`The user '${requestedByUser}' is not member of the organization '${organizationName}' with the admin role.`);
+	let errorMsg = `The user '${requestedByUser}' is not member of the`;
+	errorMsg += ` organization '${organizationName}' with the admin role.`;
+	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(0);
 }
 
@@ -139,12 +141,11 @@ if (templateFileDoesNotExist) {
 	Deno.exit(1);
 }
 
-const featureBranchRegex = /^feature\/[1-9]+-(?!-)[a-z-]+$/gm;
 const headBranch = pr.head.ref;
 
 // If the branch is not a feature branch, exit
 // We do not want to sync a pull request for a branch that is not a feature branch
-if (!headBranch.match(featureBranchRegex)) {
+if (Utils.isNotFeatureBranch(headBranch)) {
 	Utils.printAsGitHubError(`The head branch '${headBranch}' is not a feature branch.`);
 	Deno.exit(1);
 }
@@ -167,7 +168,7 @@ const projectClient: ProjectClient = new ProjectClient(githubToken);
 const issueProjects: IProjectModel[] = await projectClient.getIssueProjects(repoName, issueNumber);
 
 // If the pr body is not a valid pr template, load a new one to replace it.
-let prDescription = isInitialSyncCommand || !prTemplate.isPRSyncTemplate(pr.body)
+const prDescription = isInitialSyncCommand || !prTemplate.isPRSyncTemplate(pr.body)
 	? await prTemplate.getPullRequestTemplate(repoName, relativeTemplateFilePath, issueNumber)
 	: pr.body;
 
@@ -190,11 +191,11 @@ await prClient.requestReviewer(repoName, prNumber, defaultReviewer);
 // Add all of the issue org projects to the PR
 for (let i = 0; i < issueProjects.length; i++) {
 	const proj = issueProjects[i];
-	
+
 	if (pr.node_id === undefined) {
 		continue;
 	}
-	
+
 	await projectClient.addToProject(pr.node_id, proj.title);
 	Utils.printAsGitHubNotice(`The pr '${prNumber}' has been added to the same project as issue '${issueNumber}'.`);
 }
@@ -204,9 +205,7 @@ const prMetaDataMatches = issue.body.match(prMetaDataRegex);
 const prMetaDataExists = prMetaDataMatches != null && prMetaDataMatches.length > 0;
 
 const prMetaData = `<!--closed-by-pr:${prNumber}-->`;
-const issueBody = prMetaDataExists
-	? issue.body.replace(prMetaDataRegex, prMetaData)
-	: issue.body + `\n\n${prMetaData}`;
+const issueBody = prMetaDataExists ? issue.body.replace(prMetaDataRegex, prMetaData) : issue.body + `\n\n${prMetaData}`;
 
 // Update the description of the issue to include metadata about the pr number
 const issueData: IIssueOrPRRequestData = {
@@ -222,7 +221,7 @@ const prProjects: IProjectModel[] = await projectClient.getPullRequestProjects(r
 
 const syncSettings: IPRTemplateSettings = {
 	issueNumber: issueNumber,
-	headBranchValid: pr.head.ref.match(featureBranchRegex) != null,
+	headBranchValid: Utils.isFeatureBranch(pr.head.ref),
 	baseBranchValid: pr.base.ref === "master" || pr.base.ref === "preview",
 	issueNumValid: true,
 	titleInSync: pr?.title === issue?.title,

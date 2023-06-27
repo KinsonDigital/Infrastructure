@@ -1,4 +1,3 @@
-import { ITagModel } from "../core/Models/ITagModel.ts";
 import { RepoClient } from "../clients/RepoClient.ts";
 import { TagClient } from "../clients/TagClient.ts";
 import { Utils } from "../core/Utils.ts";

@@ -12,6 +12,7 @@ import { IUserModel } from "./Models/IUserModel.ts";
 export class Utils {
 	private static readonly prodVersionRegex = /^v[0-9]+\.[0-9]+\.[0-9]+$/;
 	private static readonly prevVersionRegex = /^v[0-9]+\.[0-9]+\.[0-9]+-preview\.[0-9]+$/;
+	private static readonly featureBranchRegex = /^feature\/[1-9][0-9]*-(?!-)[a-z-]+/gm;
 
 	/**
 	 * Checks if the value is numeric.
@@ -362,7 +363,7 @@ export class Utils {
 		const suffixes = ["th", "st", "nd", "rd"];
 		const value = Math.abs(number) % 100;
 		const suffix = suffixes[(value - 20) % 10] || suffixes[value] || suffixes[0];
-	  
+
 		return `${number}${suffix}`;
 	}
 
@@ -371,5 +372,23 @@ export class Utils {
 	 */
 	public static printEmptyLine(): void {
 		console.log();
+	}
+
+	/**
+	 * Returns a value indicating whether or not the given {@link branchName} is a feature branch.
+	 * @param branchName The name of the branch to check.
+	 * @returns True if the given {@link branchName} is a feature branch, otherwise false.
+	 */
+	public static isFeatureBranch(branchName: string): boolean {
+		return branchName.match(this.featureBranchRegex) != null;
+	}
+
+	/**
+	 * Returns a value indicating whether or not the given {@link branchName} is a feature branch.
+	 * @param branchName The name of the branch to check.
+	 * @returns True if the given {@link branchName} is not a feature branch, otherwise false.
+	 */
+	public static isNotFeatureBranch(branchName: string): boolean {
+		return !this.isFeatureBranch(branchName);
 	}
 }

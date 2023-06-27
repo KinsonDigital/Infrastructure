@@ -65,10 +65,12 @@ prs.forEach((pr) => {
 	}
 });
 
-Utils.printProblemList(
-	problemsFound,
-	`✅All issues and pull requests in milestone '${milestoneTitle}' are closed and no pull requests are in draft.✅`,
-);
+let successMsg = `✅All issues and pull requests in milestone '${milestoneTitle}' are`;
+successMsg += " closed and no pull requests are in draft.✅";
+
+const failureMsg = `❌Something went wrong with closing all of the issues for milestone '${milestoneTitle}'.❌`;
+
+Utils.printProblemList(problemsFound, successMsg, failureMsg);
 
 if (problemsFound.length > 0) {
 	Deno.exit(1);
