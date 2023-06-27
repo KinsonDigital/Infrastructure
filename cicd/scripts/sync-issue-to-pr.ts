@@ -139,12 +139,11 @@ if (templateFileDoesNotExist) {
 	Deno.exit(1);
 }
 
-const featureBranchRegex = /^feature\/[1-9]+-(?!-)[a-z-]+$/gm;
 const headBranch = pr.head.ref;
 
 // If the branch is not a feature branch, exit
 // We do not want to sync a pull request for a branch that is not a feature branch
-if (!headBranch.match(featureBranchRegex)) {
+if (Utils.isNotFeatureBranch(headBranch)) {
 	Utils.printAsGitHubError(`The head branch '${headBranch}' is not a feature branch.`);
 	Deno.exit(1);
 }
@@ -222,7 +221,7 @@ const prProjects: IProjectModel[] = await projectClient.getPullRequestProjects(r
 
 const syncSettings: IPRTemplateSettings = {
 	issueNumber: issueNumber,
-	headBranchValid: pr.head.ref.match(featureBranchRegex) != null,
+	headBranchValid: Utils.isFeatureBranch(pr.head.ref),
 	baseBranchValid: pr.base.ref === "master" || pr.base.ref === "preview",
 	issueNumValid: true,
 	titleInSync: pr?.title === issue?.title,

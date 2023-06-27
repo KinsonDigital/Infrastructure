@@ -125,9 +125,8 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			if (!(await this.prClient.pullRequestExists(repoName, prNumber))) {
 				problemsFound.push(`The pull request '${prNumber}' does not exist.`);
 			} else {
-				const featureBranchRegex = /^feature\/[1-9]+-(?!-)[a-z-]+$/gm;
 				const headBranch = (await this.getPullRequest(repoName, prNumber)).head.ref;
-				const headBranchNotValid = headBranch.match(featureBranchRegex) === null;
+				const headBranchNotValid = Utils.isNotFeatureBranch(headBranch);
 		
 				// If the head branch is not a preview branch, no sync check is required. Just exit.
 				if (headBranchNotValid) {
@@ -251,8 +250,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		const prBaseBranch = (await this.getPullRequest(repoName, prNumber)).base.ref;
 		const prRequestedReviewers = (await this.getPullRequest(repoName, prNumber)).requested_reviewers;
 
-		const featureBranchRegex = /^feature\/[1-9]+-(?!-)[a-z-]+$/gm;
-		const headBranchIsValid = prHeadBranch.match(featureBranchRegex) != null;
+		const headBranchIsValid = Utils.isFeatureBranch(prHeadBranch);
 		const baseBranchIsValid = prBaseBranch === "master" || prBaseBranch === "preview";
 
 		const titleInSync = prTitle?.trim() === issueTitle?.trim();
