@@ -144,7 +144,8 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		// Syncing is disabled or the PR body does not contain a sync template
 		if (syncingDisabled) {
 			let syncDisabledMsg = `Syncing for pull request '${prNumber}' is disabled.`;
-			syncDisabledMsg += "\nTo enable syncing, check the 'Sync with the issue' checkbox.";
+			syncDisabledMsg += "\nMake sure that the pull request description contains a valid PR sync template";
+			syncDisabledMsg += "\n and make sure that syncing is enabled by checking the 'Sync with the issue' checkbox.";
 			syncDisabledMsg += `\nPR: ${Utils.buildPullRequestUrl(this.organization, repoName, prNumber)}`;
 
 			Utils.printAsGitHubNotice(syncDisabledMsg);
