@@ -31,7 +31,7 @@ jobs:
           $command = $eventName -eq "issue_comment" ? "${{ github.event.comment.body }}" : "[initial-sync]";
           
           echo "::group:: Event Data";
-          echo ${{ toJson(github.event) }};
+          echo "${{ toJson(github.event) }}";
           echo "::endgroup::";
           
           echo "Event Name: $eventName";
