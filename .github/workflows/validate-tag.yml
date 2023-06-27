@@ -22,9 +22,9 @@ on:
         description: The version of the CICD scripts to use
         type: string
     secrets:
-        cicd-rest-api:
-            description: The CICD REST API token
-            required: true
+      cicd-rest-api:
+        description: The CICD REST API token
+        required: true
       
         
 jobs:

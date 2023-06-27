@@ -1,5 +1,8 @@
 import { GitHubHttpStatusCodes, OrgMemberRole } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
+import { Guard } from "../core/Guard.ts";
+import { IOrgVarModel } from "../core/Models/IOrgVarModel.ts";
+import { IOrgVariablesModel } from "../core/Models/IOrgVariablesModel.ts";
 import { IUserModel } from "../core/Models/IUserModel.ts";
 import { Utils } from "../core/Utils.ts";
 
@@ -218,5 +221,33 @@ export class OrgClient extends GitHubClient {
 		const allOrgMembers = await this.getAllAdminMembers(organization);
 
 		return allOrgMembers.some((member) => member.login == username);
+	}
+
+	/**
+	 * Gets a list of all the organization's variables.
+	 * @param organization The name of the organization.
+	 * @returns A list of all the organization's variables.
+	 */
+	public async getVariables(organization: string): Promise<IOrgVarModel[]> {
+		Guard.isNullOrEmptyOrUndefined(organization, "getOrgVariables", "organization");
+
+		return await this.getAllData<IOrgVarModel>(async (page: number, qtyPerPage?: number) => {
+			const queryString = `?page=${page}&per_page=${qtyPerPage}`;
+			const url = `${this.baseUrl}/orgs/${organization}/actions/variables${queryString}`;
+
+			const response = await this.fetchGET(url);
+
+			if (response.status != GitHubHttpStatusCodes.OK) {
+				let errorMsg = `An error occurred when getting the variables for the organization '${this.organization}'.`;
+				errorMsg += `\nError: ${response.status}(${response.statusText})`;
+
+				Utils.printAsGitHubError(errorMsg);
+				Deno.exit(1);
+			}
+
+			const vars = await this.getResponseData<IOrgVariablesModel>(response);
+
+			return [vars.variables, response];
+		});
 	}
 }

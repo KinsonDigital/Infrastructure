@@ -35,10 +35,10 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @param scriptName The name of the script executing the runner.
 	 */
 	constructor(args: string[], scriptName: string) {
-		if (args.length != 5) {
+		if (args.length != 4) {
 			const argInfos: string[] = [];
 
-			for (let i = 0; i < 5; i++) {
+			for (let i = 0; i < args.length - 1; i++) {
 				argInfos.push(`${Utils.toOrdinal(i + 1)} Arg: $`);
 			}
 
@@ -47,13 +47,10 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			argInfos[1] = argInfos[1]
 				.replace("$", "Required and must be a valid issue or pull request number.");
 			argInfos[2] = argInfos[2]
-				.replace("$", "Required and must be a valid GitHub user requested to review the pull request.");
-			argInfos[3] = argInfos[3]
 				.replace("$", "Required and must be a valid case-insensitive workflow event type of 'issue' or 'pr'.");
-			argInfos[4] = argInfos[4]
-				.replace("$", "Required and must be a valid GitHub token.");
+			argInfos[3] = argInfos[3].replace("$", "Required and must be a valid GitHub token.");
 
-			argInfos.unshift(`The ${scriptName} cicd script must have 5 arguments.`);
+			argInfos.unshift(`The ${scriptName} cicd script must have 4 arguments.`);
 
 			Utils.printAsGitHubError(argInfos.join("\n"));
 			Deno.exit(1);
@@ -75,12 +72,11 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	public async run(): Promise<void> {
 		await super.run();
 
-		const [repoName, issueOrPrNumber, defaultReviewer, eventType, githubToken] = this.args;
+		const [repoName, issueOrPrNumber, eventType, githubToken] = this.args;
 
 		Utils.printInGroup("Script Arguments", [
 			`Repo Name (Required): ${repoName}`,
 			`${eventType === "issue" ? "Issue" : "Pull Request"} Number (Required): ${issueOrPrNumber}`,
-			`Default Reviewer (Required): ${defaultReviewer}`,
 			`Event Type (Required): ${eventType}`,
 			`GitHub Token (Required): ${Utils.isNullOrEmptyOrUndefined(githubToken) ? "Not Provided" : "****"}`,
 		]);
@@ -90,14 +86,30 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			Deno.exit(1);
 		}
 
-		if (!(await this.userClient.userExists(defaultReviewer))) {
-			Utils.printAsGitHubError(`The GitHub user '${defaultReviewer}' does not exist.`);
-			Deno.exit(1);
-		}
-
+		const DEFAULT_PR_REVIEWER = "DEFAULT_PR_REVIEWER";
 		const problemsFound: string[] = [];
 		let issueNumber = 0;
 		let prNumber = 0;
+
+		const repoVars = await this.repoClient.getVariables(repoName);
+		const defaultReviewerVar = repoVars.find((v) => v.name == DEFAULT_PR_REVIEWER);
+
+		// Make sure that the repo contains the default PR reviewer variable
+		if (defaultReviewerVar == undefined) {
+			let errorMsg = `The repository '${repoName}' does not have a variable named '${DEFAULT_PR_REVIEWER}'.`;
+			errorMsg += "\nThe value of this variable must be a valid GitHub user.";
+
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
+
+		const defaultReviewer = defaultReviewerVar.value;
+
+		if (!(await this.userClient.userExists(defaultReviewer))) {
+			const errorMsg = `The GitHub user '${defaultReviewer}' for the default pull request reviewer does not exist.`;
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
 
 		if (eventType === "issue") {
 			issueNumber = Number.parseInt(issueOrPrNumber);
