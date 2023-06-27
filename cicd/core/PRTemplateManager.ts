@@ -176,6 +176,6 @@ export class PRTemplateManager {
 			return showsAsPassing ? line.replace(/✅/g, "❔") : line.replace(/❌/g, "❔");
 		}
 
-		return showsAsPassing && !checkIsPassing ? line.replace(/✅/g, "❌") : line.replace(/❌/g, "✅");
+		return checkIsPassing ? line.replace(/❌/g, "✅") : line.replace(/✅/g, "❌");
 	}
 }
