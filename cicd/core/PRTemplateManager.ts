@@ -1,6 +1,7 @@
 import { RepoClient } from "../clients/RepoClient.ts";
 import { Guard } from "./Guard.ts";
 import { IPRTemplateSettings } from "./IPRTemplateSettings.ts";
+import { Utils } from "./Utils.ts";
 
 /**
  * Manages the pull request template.
@@ -85,7 +86,9 @@ export class PRTemplateManager {
 	 * @returns True if syncing is disabled, false otherwise.
 	 */
 	public syncingDisabled(template: string): boolean {
-		Guard.isNullOrEmptyOrUndefined(template, "syncingEnabled", "template");
+		if (Utils.isNullOrEmptyOrUndefined(template)) {
+			return false;
+		}
 
 		const fileDataLines: string[] = template.split("\n");
 
