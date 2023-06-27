@@ -166,7 +166,7 @@ const projectClient: ProjectClient = new ProjectClient(githubToken);
 const issueProjects: IProjectModel[] = await projectClient.getIssueProjects(repoName, issueNumber);
 
 // If the pr body is not a valid pr template, load a new one to replace it.
-let prDescription = isInitialSyncCommand || !prTemplate.isPRSyncTemplate(pr.body)
+const prDescription = isInitialSyncCommand || !prTemplate.isPRSyncTemplate(pr.body)
 	? await prTemplate.getPullRequestTemplate(repoName, relativeTemplateFilePath, issueNumber)
 	: pr.body;
 

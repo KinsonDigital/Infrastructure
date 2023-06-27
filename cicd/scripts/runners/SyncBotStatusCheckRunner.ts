@@ -39,7 +39,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 */
 	constructor(args: string[], scriptName: string) {
 		if (args.length != 5) {
-			let argDescriptions: string[] = [];
+			const argDescriptions: string[] = [];
 
 			for (let i = 0; i < 5; i++) {
 				argDescriptions.push(`${Utils.toOrdinal(i + 1)} Arg: $`);
@@ -94,8 +94,8 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		}
 
 		const problemsFound: string[] = [];
-		let issueNumber: number = 0;
-		let prNumber: number = 0;
+		let issueNumber = 0;
+		let prNumber = 0;
 		
 		if (eventType === "issue") {
 			issueNumber = Number.parseInt(issueOrPrNumber);	
@@ -401,6 +401,6 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			problems.push(`The pr projects do not match the issue projects.`);
 		}
 
-		return problems;;
+		return problems;
 	}
 }
