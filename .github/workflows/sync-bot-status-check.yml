@@ -26,11 +26,11 @@ on:
 
 
 # TODO: combine the pr sync process upon intial pr creation into this yaml instead of using a different workflow
-# if: startsWith(github.head_ref, 'feature/') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'feature/'))
 
 jobs:
   sync_bot_or_status_check:
     name: Run Sync Bot
+    if: (github.event_name == 'issues') || (github.event_name == 'pull_request' && startsWith(github.head_ref, 'feature/')) || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'feature/'))
     runs-on: ubuntu-latest
     steps:
       - name: Set Up Deno
