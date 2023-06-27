@@ -40,7 +40,22 @@ export abstract class GraphQLClient {
 		const responseText = await response.text();
 		const responseData = await JSON.parse(responseText);
 
-		if (throwWithErrors === true && this.containsErrors(responseData)) {
+		if (throwWithErrors === true) {
+			await this.throwIfErrors(responseText);
+		}
+
+		return responseData;
+	}
+
+	/**
+	 * Throws an error and exists the process if the response contains errors.
+	 * @param {response | string} response The response object or response text from a request.
+	 */
+	protected async throwIfErrors(response: Response | string): Promise<void> {
+		const responseText = this.isResponse(response) ? await response.text() : response;
+		const responseData = await JSON.parse(responseText);
+
+		if (this.containsErrors(responseData)) {
 			const errors: ErrorModel[] = this.getErrors(responseData);
 			const errorMessages: string[] = errors.map((e) => e.message);
 			const error = `${errorMessages.join("\n")}`;
@@ -113,5 +128,14 @@ export abstract class GraphQLClient {
 		return "documentation_url" in responseOrBadCreds &&
 			"message" in responseOrBadCreds &&
 			responseOrBadCreds.message === "Bad credentials";
+	}
+
+	/**
+	 * Gets a value indicating whether or not the given object is a Response object.
+	 * @param responseOrString The Response or string object to check.
+	 * @returns True if the object is a Response object, false otherwise.
+	 */
+	private isResponse(responseOrString: Response | string): responseOrString is Response {
+		return responseOrString instanceof Response;
 	}
 }
