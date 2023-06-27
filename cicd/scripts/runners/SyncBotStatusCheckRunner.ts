@@ -20,7 +20,7 @@ import { IssueState } from "../../core/Enums.ts";
  * 
  * TODO: Add more info about the bot side of the runner
  */
-export class SyncStatusCheckRunner extends ScriptRunner {
+export class SyncBotStatusCheckRunner extends ScriptRunner {
 	private issueClient: IssueClient;
 	private projClient: ProjectClient;
 	private prClient: PullRequestClient;
@@ -33,7 +33,7 @@ export class SyncStatusCheckRunner extends ScriptRunner {
 	private readonly organization: string = "KinsonDigital";
 
 	/**
-	 * Initializes a new instance of the {@link SyncStatusCheckRunner} class.
+	 * Initializes a new instance of the {@link SyncBotStatusCheckRunner} class.
 	 * @param args The script arguments.
 	 * @param scriptName The name of the script executing the runner.
 	 */
