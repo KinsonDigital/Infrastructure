@@ -5,6 +5,8 @@ import { Guard } from "../core/Guard.ts";
 import { IFileContentModel } from "../core/Models/IFileContentModel.ts";
 import { IRepoModel } from "../core/Models/IRepoModel.ts";
 import { Utils } from "../core/Utils.ts";
+import { IRepoVarModel } from "../core/Models/IRepoVarModel.ts";
+import { IRepoVariablesModel } from "../core/Models/IRepoVariablesModel.ts";
 
 /**
  * Provides a client for interacting with GitHub repositories.
@@ -173,5 +175,33 @@ export class RepoClient extends GitHubClient {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Gets a list of all the variables for a repository that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
+	 * @returns A list of all repositories variables.
+	 */
+	public async getVariables(repoName: string): Promise<IRepoVarModel[]> {
+		Guard.isNullOrEmptyOrUndefined(repoName, "getOrgVariables", "organization");
+
+		return await this.getAllData<IRepoVarModel>(async (page: number, qtyPerPage?: number) => {
+			const queryString = `?page=${page}&per_page=${qtyPerPage}`;
+			const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/actions/variables${queryString}`;
+
+			const response = await this.fetchGET(url);
+
+			if (response.status != GitHubHttpStatusCodes.OK) {
+				let errorMsg = `An error occurred when getting the variables for the organization '${this.organization}'.`;
+				errorMsg += `\nError: ${response.status}(${response.statusText})`;
+
+				Utils.printAsGitHubError(errorMsg);
+				Deno.exit(1);
+			}
+
+			const vars = await this.getResponseData<IRepoVariablesModel>(response);
+
+			return [vars.variables, response];
+		});
 	}
 }
