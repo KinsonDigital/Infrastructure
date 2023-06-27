@@ -15,15 +15,11 @@ export class ScriptDescriptions {
 		const descriptionFileName: string = scriptName.replace(extension, ".txt");
 		const scriptDescription: string = this.getScriptDescription(descriptionFileName);
 
-		console.log(`::group::Script Info`);
-
 		if (Utils.isNullOrEmptyOrUndefined(scriptDescription)) {
-			console.log(`::warning::A script description file was not found for the script '${scriptName}'.`);
+			Utils.printAsGitHubWarning(`::warning::A script description file was not found for the script '${scriptName}'.`);
 		} else {
-			console.log(scriptDescription);
+			Utils.printInGroup("Script Info", scriptDescription);
 		}
-
-		console.log("::endgroup::");
 	}
 
 	/**

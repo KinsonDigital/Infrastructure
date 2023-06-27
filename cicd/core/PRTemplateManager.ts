@@ -1,6 +1,7 @@
 import { RepoClient } from "../clients/RepoClient.ts";
 import { Guard } from "./Guard.ts";
 import { IPRTemplateSettings } from "./IPRTemplateSettings.ts";
+import { Utils } from "./Utils.ts";
 
 /**
  * Manages the pull request template.
@@ -16,6 +17,7 @@ export class PRTemplateManager {
 	private readonly projectsRegex = /<!--projects-->/gm;
 	private readonly milestoneRegex = /<!--milestone-->/gm;
 	private readonly issueNumTemplateVarRegex = /\${{\s*issue-number\s*}}/gm;
+	private readonly issueNumRegex = /#[0-9]+/gm;
 	private readonly syncFlagRegex = /<!--sync-flag-->/gm;
 	private readonly syncEmptyCheckRegex = /- \[ \] /gm;
 	private readonly syncFullCheckRegex = /- \[(x|X)\] /gm;
@@ -32,13 +34,31 @@ export class PRTemplateManager {
 		this.repoClient = new RepoClient(token);
 	}
 
-	public async getPullRequestTemplate(repoName: string, relativeTemplatePath: string): Promise<string> {
+	/**
+	 * Gets a pull request template with the a link to an issue that matches the given {@link issueNumber}.
+	 * @param repoName The name of the repository.
+	 * @param relativeTemplatePath The relative file path to the template.
+	 * @param issueNumber The issue number to use for linking the pull request to the issue.
+	 * @returns The pull request template.
+	 * @remarks The {@link relativeTemplatePath} is a file path that is located relative to the root
+	 * of a repository that matches the given {@link repoName}.
+	 */
+	public async getPullRequestTemplate(repoName: string, relativeTemplatePath: string, issueNumber: number): Promise<string> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getPullRequestTemplate", "repoName");
 		Guard.isNullOrEmptyOrUndefined(relativeTemplatePath, "getPullRequestTemplate", "relativeTemplatePath");
 
-		return await this.repoClient.getFileContent(repoName, relativeTemplatePath);
+		let templatedData = await this.repoClient.getFileContent(repoName, relativeTemplatePath);
+		templatedData = templatedData.replace(this.issueNumTemplateVarRegex, issueNumber.toString());
+
+		return templatedData;
 	}
 
+	/**
+	 * Processes the given {@link template} with the given {@link settings}.
+	 * @param template The template to process.
+	 * @param settings The various settings to use for processing the template.
+	 * @returns The template after processing.
+	 */
 	public processSyncTemplate(template: string, settings: IPRTemplateSettings): string {
 		Guard.isNullOrEmptyOrUndefined(template, "processSyncTemplate", "template");
 
@@ -84,7 +104,9 @@ export class PRTemplateManager {
 	 * @returns True if syncing is disabled, false otherwise.
 	 */
 	public syncingDisabled(template: string): boolean {
-		Guard.isNullOrEmptyOrUndefined(template, "syncingEnabled", "template");
+		if (Utils.isNullOrEmptyOrUndefined(template)) {
+			return true;
+		}
 
 		const fileDataLines: string[] = template.split("\n");
 
@@ -102,28 +124,49 @@ export class PRTemplateManager {
 
 		return false;
 	}
-	
+
 	/**
-	 * Updates the issue number template variable in the template.
-	 * @param template The template to update.
-	 * @param issueNum The issue number to update.
-	 * @returns The updated template.
+	 * Returns a value indicating whether or not the template is a PR sync template.
+	 * @param template The template to check.
+	 * @returns True if the template is a PR sync template, false otherwise.
 	 */
-	public updateIssueVar(template: string, issueNum: number): string {
-		Guard.isNullOrEmptyOrUndefined(template, "updateIssueVar", "template");
-		Guard.isLessThanOne(issueNum, "updateIssueVar", "issueNum");
+	public isPRSyncTemplate(template: string): boolean {
+		const baseBranchSyntaxExists = template.match(this.baseBranchRegex) != null;
+		const headBranchSyntaxExists = template.match(this.headBranchRegex) != null;
+		const validIssueNumSyntaxExists = template.match(this.validIssueNumRegex) != null;
+		const titleSyntaxExists = template.match(this.titleRegex) != null;
+		const defaultReviewerSyntaxExists = template.match(this.defaultReviewerRegex) != null;
+		const assigneesSyntaxExists = template.match(this.assigneesRegex) != null;
+		const labelsSyntaxExists = template.match(this.labelsRegex) != null;
+		const projectsSyntaxExists = template.match(this.projectsRegex) != null;
+		const milestoneSyntaxExists = template.match(this.milestoneRegex) != null;
 
-		return template.replace(this.issueNumTemplateVarRegex, issueNum.toString());
+		return baseBranchSyntaxExists &&
+			headBranchSyntaxExists &&
+			validIssueNumSyntaxExists &&
+			titleSyntaxExists &&
+			defaultReviewerSyntaxExists &&
+			assigneesSyntaxExists &&
+			labelsSyntaxExists &&
+			projectsSyntaxExists &&
+			milestoneSyntaxExists;
 	}
 
-	private lineItemShowsInSync(lineItem: string): boolean {
-		return lineItem.match(this.syncFlagRegex) !== null;
-	}
-
+	/**
+	 * Returns a value indicating whether or not the template lines is showing as passing.
+	 * @param line The template line to check.
+	 * @returns True if the line shows as passing, false otherwise.
+	 */
 	private showsAsPassing(line: string): boolean {
 		return line.match(this.lineInSyncRegex) != null && line.match(this.lineOutOfSyncRegex) === null;
 	}
 
+	/**
+	 * Updates the given template line to show the correct sync status.
+	 * @param line The line of text from the template to update.
+	 * @param checkIsPassing True if the line should be displayed as passing.
+	 * @returns The updated line.
+	 */
 	private setLineSyncStatus(line: string, checkIsPassing: boolean | undefined): string {
 		const showsAsPassing = this.showsAsPassing(line);
 		const noStatusDefined = checkIsPassing === undefined;
@@ -132,6 +175,6 @@ export class PRTemplateManager {
 			return showsAsPassing ? line.replace(/✅/g, "❔") : line.replace(/❌/g, "❔");
 		}
 
-		return showsAsPassing && !checkIsPassing ? line.replace(/✅/g, "❌") : line.replace(/❌/g, "✅");
+		return checkIsPassing ? line.replace(/❌/g, "✅") : line.replace(/✅/g, "❌");
 	}
 }

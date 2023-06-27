@@ -187,12 +187,12 @@ export class IssueClient extends GitHubClient {
 			const labelsUrl = `https://github.com/KinsonDigital/${repoName}/labels`;
 			const issueUrl = `https://github.com/KinsonDigital/${repoName}/issues/618`;
 
-			let errorMsg =
-				`::error::The label '${label}' attempting to be added to issue '${issueNumber}' does not exist in the repository '${repoName}'.`;
+			let errorMsg = `The label '${label}' attempting to be added to issue '${issueNumber}'`;
+			errorMsg += ` does not exist in the repository '${repoName}'.`;
 			errorMsg += `\nRepo Labels: ${labelsUrl}`;
 			errorMsg += `\nIssue: ${issueUrl}`;
 
-			console.log(errorMsg);
+			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
@@ -379,6 +379,6 @@ export class IssueClient extends GitHubClient {
 			},
 		);
 
-		return issues.find((issue: IIssueModel) => issue.number === issueNumber) !== undefined;
+		return issues.find((issue: IIssueModel) => issue.number === issueNumber) != undefined;
 	}
 }

@@ -316,9 +316,9 @@
             ],
             "args": [
 				"Infrastructure",
-				"50",
+				"47",
 				"KinsonDigitalAdmin",
-				"pr",
+				"issue",
 				""
 			],
             "attachSimplePort": 9229,

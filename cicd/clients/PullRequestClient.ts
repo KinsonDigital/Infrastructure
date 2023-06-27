@@ -224,7 +224,7 @@ export class PullRequestClient extends GitHubClient {
 			errorMsg += `\nRepo Labels: ${labelsUrl}`;
 			errorMsg += `\nPull Request: ${prUrl}`;
 
-			console.log(errorMsg);
+			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
@@ -428,6 +428,6 @@ export class PullRequestClient extends GitHubClient {
 			},
 		);
 
-		return issues.find((issue: IPullRequestModel) => issue.number === prNumber) !== undefined;
+		return issues.find((issue: IPullRequestModel) => issue.number === prNumber) != undefined;
 	}
 }

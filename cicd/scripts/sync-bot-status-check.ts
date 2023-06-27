@@ -1,9 +1,9 @@
 import { Utils } from "../core/Utils.ts";
-import { SyncStatusCheckRunner } from "./runners/SyncStatusCheckRunner.ts";
+import { SyncBotStatusCheckRunner } from "./runners/SyncBotStatusCheckRunner.ts";
 
 const scriptName = Utils.getScriptName();
 
-const runner: SyncStatusCheckRunner = new SyncStatusCheckRunner(Deno.args, scriptName);
+const runner: SyncBotStatusCheckRunner = new SyncBotStatusCheckRunner(Deno.args, scriptName);
 
 await runner.run();
 

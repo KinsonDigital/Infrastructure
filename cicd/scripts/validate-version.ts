@@ -61,5 +61,5 @@ if (versionIsInvalid) {
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 } else {
-	console.log(`✅The ${versionType} version '${version}' is valid!!✅`);
+	Utils.printAsGitHubNotice(`✅The ${versionType} version '${version}' is valid!!✅`);
 }

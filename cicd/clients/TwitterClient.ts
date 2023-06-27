@@ -30,7 +30,7 @@ export class TwitterClient extends WebAPIClient {
 	}
 
 	/**
-	 * tweet
+	 * Sends a tweet with the given {@link message}.
 	 * @description Manage setting up and tweeting the given status
 	 */
 	public async tweet(message: string): Promise<void> {
@@ -44,7 +44,7 @@ export class TwitterClient extends WebAPIClient {
 				Utils.printAsGitHubError(errorMsg);
 			});
 		} else {
-			console.log(`${tweetResult.data.id}\n${tweetResult.data.text}`);
+			Utils.printAsGitHubNotice(`${tweetResult.data.id}\n${tweetResult.data.text}`);
 		}
 	}
 }

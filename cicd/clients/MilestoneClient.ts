@@ -211,7 +211,7 @@ export class MilestoneClient extends GitHubClient {
 			},
 		);
 
-		return milestones.find((m) => m.title.trim() === milestoneName) !== undefined;
+		return milestones.find((m) => m.title.trim() === milestoneName) != undefined;
 	}
 
 	/**
@@ -234,7 +234,7 @@ export class MilestoneClient extends GitHubClient {
 
 		// If there is an error
 		if (response.status === GitHubHttpStatusCodes.OK) {
-			console.log(`✅The milestone '${milestoneName}' has been closed.✅`);
+			Utils.printAsGitHubNotice(`✅The milestone '${milestoneName}' has been closed.✅`);
 		} else if (response.status === GitHubHttpStatusCodes.NotFound) {
 			Utils.printAsGitHubError(`The organization '${this.organization}' or repo '${repoName}' does not exist.`);
 			Deno.exit(1);

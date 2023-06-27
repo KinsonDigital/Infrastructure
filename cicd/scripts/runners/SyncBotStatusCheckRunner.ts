@@ -12,6 +12,7 @@ import { IProjectModel } from "../../core/Models/IProjectModel.ts";
 import { IIssueOrPRRequestData } from "../../core/IIssueOrPRRequestData.ts";
 import { IPRTemplateSettings } from "../../core/IPRTemplateSettings.ts";
 import { PRTemplateManager } from "../../core/PRTemplateManager.ts";
+import { IssueState } from "../../core/Enums.ts";
 
 /**
  * Processes the sync bot status check script.  Used to run pull request static checks showing
@@ -19,7 +20,7 @@ import { PRTemplateManager } from "../../core/PRTemplateManager.ts";
  * 
  * TODO: Add more info about the bot side of the runner
  */
-export class SyncStatusCheckRunner extends ScriptRunner {
+export class SyncBotStatusCheckRunner extends ScriptRunner {
 	private issueClient: IssueClient;
 	private projClient: ProjectClient;
 	private prClient: PullRequestClient;
@@ -27,10 +28,12 @@ export class SyncStatusCheckRunner extends ScriptRunner {
 	private userClient: UsersClient;
 	private issue: IIssueModel | null = null;
 	private pr: IPullRequestModel | null = null;
+	private issueProjects: IProjectModel[] | null = null;
+	private prProjects: IProjectModel[] | null = null;
 	private readonly organization: string = "KinsonDigital";
 
 	/**
-	 * Initializes a new instance of the {@link SyncStatusCheckRunner} class.
+	 * Initializes a new instance of the {@link SyncBotStatusCheckRunner} class.
 	 * @param args The script arguments.
 	 * @param scriptName The name of the script executing the runner.
 	 */
@@ -106,7 +109,12 @@ export class SyncStatusCheckRunner extends ScriptRunner {
 				const prLinkMetaData = issueDescription.match(closedByPRRegex);
 
 				if (prLinkMetaData === null) {
-					problemsFound.push(`The issue '${issueNumber}' does not contain a pull request metadata.`);
+					let noticeMsg = `The issue '${issueNumber}' does not contain any pull request metadata.`;
+					noticeMsg += "\n\nThe expected metadata should come in the form of '<!--closed-by-pr:[0-9]+-->'";
+					noticeMsg += `Issue: ${Utils.buildIssueUrl(this.organization, repoName, issueNumber)}`;
+
+					Utils.printAsGitHubNotice(noticeMsg);
+					Deno.exit(0);
 				} else {
 					prNumber = Number.parseInt((<RegExpMatchArray> prLinkMetaData[0].match(/[0-9]+/gm))[0]);
 				}
@@ -136,23 +144,29 @@ export class SyncStatusCheckRunner extends ScriptRunner {
 
 		const prTemplateManager = new PRTemplateManager(githubToken);
 		const prTemplate = (await this.getPullRequest(repoName, prNumber)).body;
+		const syncingDisabled = prTemplateManager.syncingDisabled(prTemplate)
 
-		// If syncing is disabled, do not run the bot or status check process
-		if (prTemplateManager.syncingDisabled(prTemplate)) {
+		// Syncing is disabled or the PR body does not contain a sync template
+		if (syncingDisabled) {
 			let syncDisabledMsg = `Syncing for pull request '${prNumber}' is disabled.`;
-			syncDisabledMsg += "\nTo enable syncing, check the 'Sync with the issue' checkbox.";
+			syncDisabledMsg += "\nMake sure that the pull request description contains a valid PR sync template";
+			syncDisabledMsg += "\n and make sure that syncing is enabled by checking the 'Sync with the issue' checkbox.";
 			syncDisabledMsg += `\nPR: ${Utils.buildPullRequestUrl(this.organization, repoName, prNumber)}`;
 
 			Utils.printAsGitHubNotice(syncDisabledMsg);
 			Deno.exit(0);
 		}
 
-		problemsFound.push(...await this.runScript(repoName, defaultReviewer, issueNumber, prNumber));
+		if (eventType === "issue") {
+			await this.runAsSyncBot(repoName, defaultReviewer, issueNumber, prNumber);
+		} else {
+			problemsFound.push(...await this.runAsStatusCheck(repoName, defaultReviewer, issueNumber, prNumber));
+		}
 
 		const prUrl = `\nIssue: ${Utils.buildIssueUrl(this.organization, repoName, issueNumber)}`;
 		const issueUrl = `\nPull Request: ${Utils.buildPullRequestUrl(this.organization, repoName, prNumber)}`;
 
-		let successMsg = `✅No issues found. Issue '${issueNumber}' synced with pull request '${prNumber}'.`;
+		let successMsg = `✅No problems found. Issue '${issueNumber}' synced with pull request '${prNumber}'.`;
 		successMsg += prUrl;
 		successMsg += issueUrl;
 		
@@ -191,18 +205,45 @@ export class SyncStatusCheckRunner extends ScriptRunner {
 		}
 	}
 
-	private async runScript(repoName: string, defaultReviewer: string, issueNumber: number, prNumber: number): Promise<string[]> {
+	private async runAsSyncBot(repoName: string, defaultReviewer: string, issueNumber: number, prNumber: number): Promise<void> {
+		await this.syncIssueToPR(repoName, issueNumber, prNumber);
+		await this.updatePRBody(repoName, issueNumber, prNumber, defaultReviewer);
+	}
+
+	private async runAsStatusCheck(repoName: string, defaultReviewer: string, issueNumber: number, prNumber: number): Promise<string[]> {
 		const problemsFound: string[] = [];
-		const issueProjects: IProjectModel[] = await this.projClient.getIssueProjects(repoName, issueNumber);
-		const prProjects: IProjectModel[] = await this.projClient.getPullRequestProjects(repoName, prNumber);
+		const issueTitle = (await this.getIssue(repoName, issueNumber)).title;
+		const prTitle = (await this.getPullRequest(repoName, prNumber)).title;
+		const prHeadBranch = (await this.getPullRequest(repoName, prNumber)).head.ref;
+		const prBaseBranch = (await this.getPullRequest(repoName, prNumber)).base.ref;
+
+		const templateSettings = await this.buildTemplateSettings(repoName, defaultReviewer, issueNumber, prNumber);
 		
+		await this.updatePRBody(repoName, issueNumber, prNumber, defaultReviewer);
+
+		problemsFound.push(...this.buildProblemsList(
+			templateSettings,
+			issueTitle ?? "",
+			prTitle ?? "",
+			defaultReviewer,
+			prHeadBranch,
+			prBaseBranch));
+
+		Utils.printAsGitHubNotice(`✅The issue '${issueNumber}' and pull request '${prNumber}' sync status has been updated✅.`);
+
+		return problemsFound;
+	}
+
+	private async buildTemplateSettings(repoName: string, defaultReviewer: string, issueNumber: number, prNumber: number): Promise<IPRTemplateSettings> {
+		const issueProjects: IProjectModel[] = await this.getIssueOrgProjects(repoName, issueNumber);
+		const prProjects: IProjectModel[] = await this.getPullRequestOrgProjects(repoName, prNumber);
+
 		const issueTitle = (await this.getIssue(repoName, issueNumber)).title;
 		const issueAssignees = (await this.getIssue(repoName, issueNumber)).assignees;
 		const issueLabels = (await this.getIssue(repoName, issueNumber)).labels;
 		const issueMilestone = (await this.getIssue(repoName, issueNumber)).milestone;
 
 		const prTitle = (await this.getPullRequest(repoName, prNumber)).title;
-		const prBody = (await this.getPullRequest(repoName, prNumber)).body;
 		const prAssignees = (await this.getPullRequest(repoName, prNumber)).assignees;
 		const prLabels = (await this.getPullRequest(repoName, prNumber)).labels;
 		const prMilestone = (await this.getPullRequest(repoName, prNumber)).milestone;
@@ -213,6 +254,7 @@ export class SyncStatusCheckRunner extends ScriptRunner {
 		const featureBranchRegex = /^feature\/[1-9]+-(?!-)[a-z-]+$/gm;
 		const headBranchIsValid = prHeadBranch.match(featureBranchRegex) != null;
 		const baseBranchIsValid = prBaseBranch === "master" || prBaseBranch === "preview";
+
 		const titleInSync = prTitle?.trim() === issueTitle?.trim();
 		const defaultReviewerIsValid = prRequestedReviewers.some((r) => r.login === defaultReviewer);
 		
@@ -221,7 +263,7 @@ export class SyncStatusCheckRunner extends ScriptRunner {
 		
 		const milestoneInSync = issueMilestone?.number === prMilestone?.number;
 		const projectsInSync = Utils.orgProjectsMatch(issueProjects, prProjects);
-		
+
 		const templateSettings: IPRTemplateSettings = {};
 		templateSettings.issueNumber = issueNumber;
 		templateSettings.headBranchValid = headBranchIsValid;
@@ -234,21 +276,7 @@ export class SyncStatusCheckRunner extends ScriptRunner {
 		templateSettings.projectsInSync = projectsInSync;
 		templateSettings.milestoneInSync = milestoneInSync;
 
-		const prTemplateManager = new PRTemplateManager();
-		
-		const updatedPRDescription = prTemplateManager.processSyncTemplate(prBody, templateSettings);
-		
-		const prRequestData: IIssueOrPRRequestData = {
-			body: updatedPRDescription,
-		};
-		
-		await this.prClient.updatePullRequest(repoName, prNumber, prRequestData);
-		
-		problemsFound.push(...this.buildProblemsList(templateSettings, issueTitle ?? "", prTitle ?? "", prHeadBranch, prBaseBranch));
-
-		console.log(`✅The issue '${issueNumber}' and pull request '${prNumber}' sync status has been updated✅.`);
-
-		return problemsFound;
+		return templateSettings;
 	}
 
 	/**
@@ -258,8 +286,7 @@ export class SyncStatusCheckRunner extends ScriptRunner {
 	 * @returns 
 	 */
 	private async getIssue(repoName: string, issueNumber: number): Promise<IIssueModel> {
-		if (this.issue === null)
-		{
+		if (this.issue === null) {
 			this.issue = await this.issueClient.getIssue(repoName, issueNumber);
 		}
 
@@ -267,12 +294,61 @@ export class SyncStatusCheckRunner extends ScriptRunner {
 	}
 
 	private async getPullRequest(repoName: string, prNumber: number): Promise<IPullRequestModel> {
-		if (this.pr === null)
-		{
+		if (this.pr === null) {
 			this.pr = await this.prClient.getPullRequest(repoName, prNumber);
 		}
 
 		return this.pr;
+	}
+
+	private async getIssueOrgProjects(repoName: string, issueNumber: number): Promise<IProjectModel[]> {
+		if (this.issueProjects === null) {
+			this.issueProjects = await this.projClient.getIssueProjects(repoName, issueNumber);
+		}
+
+		return this.issueProjects;
+	}
+
+	private async getPullRequestOrgProjects(repoName: string, prNumber: number): Promise<IProjectModel[]> {
+		if (this.prProjects === null) {
+			this.prProjects = await this.projClient.getPullRequestProjects(repoName, prNumber);
+		}
+
+		return this.prProjects;
+	}
+	
+	private async syncIssueToPR(repoName: string, issueNumber: number, prNumber: number): Promise<void> {
+		const issue = await this.getIssue(repoName, issueNumber);
+		const issueLabels = issue.labels?.map((label) => label.name) ?? [];
+
+		const pr = await this.getPullRequest(repoName, prNumber);
+		const prTitle = pr.title;
+		
+		const prRequestData: IIssueOrPRRequestData = {
+			title: prTitle,
+			state: pr.state as IssueState,
+			state_reason: null,
+			assignees: issue.assignees?.map((i) => i.login) ?? [],
+			labels: issueLabels,
+			milestone: issue.milestone?.number ?? null,
+		};
+		
+		await this.prClient.updatePullRequest(repoName, prNumber, prRequestData);
+	}
+
+	private async updatePRBody(repoName: string, issueNumber: number, prNumber: number, defaultReviewer: string): Promise<void> {
+		const prBody = (await this.getPullRequest(repoName, prNumber)).body;
+
+		const templateSettings = await this.buildTemplateSettings(repoName, defaultReviewer, issueNumber, prNumber);
+		const prTemplateManager = new PRTemplateManager();
+		
+		const updatedPRDescription = prTemplateManager.processSyncTemplate(prBody, templateSettings);
+		
+		const prRequestData: IIssueOrPRRequestData = {
+			body: updatedPRDescription,
+		};
+		
+		await this.prClient.updatePullRequest(repoName, prNumber, prRequestData);
 	}
 
 	/**
@@ -290,6 +366,7 @@ export class SyncStatusCheckRunner extends ScriptRunner {
 		templateSettings: IPRTemplateSettings,
 		issueTitle = "",
 		prTitle = "",
+		defaultReviewer = "",
 		prHeadBranch = "",
 		prBaseBranch = ""): string[] {
 		const problems: string[] = [];
@@ -307,7 +384,7 @@ export class SyncStatusCheckRunner extends ScriptRunner {
 		}
 		
 		if (!templateSettings.defaultReviewerValid) {
-			problems.push(`The pr default reviewer '${templateSettings.defaultReviewerValid}' is not valid or set.`);
+			problems.push(`The pr default reviewer '${defaultReviewer}' is not valid or set.`);
 		}
 		
 		if (!templateSettings.assigneesInSync) {

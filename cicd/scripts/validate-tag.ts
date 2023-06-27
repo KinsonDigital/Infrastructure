@@ -59,7 +59,7 @@ switch (tagType) {
 if (tagIsInvalid) {
 	const tagTypeStr = tagType === "production" || tagType === "preview" ? tagType : "production or preview";
 
-	console.log(`The tag is not in the correct ${tagTypeStr} version syntax.`);
+	Utils.printAsGitHubError(`The tag is not in the correct ${tagTypeStr} version syntax.`);
 	Deno.exit(1);
 }
 
@@ -73,13 +73,9 @@ if (repoDoesNotExist) {
 
 const tagClient: TagClient = new TagClient(token);
 
-const tags: ITagModel[] = await tagClient.getTags(repoName);
-
-const tagNames: string[] = tags.map((t) => t.name);
-
-const tagExists = tagNames.some((t) => t === tag);
+const tagExists = await tagClient.tagExists(repoName, tag);
 
 if (tagExists) {
-	console.log(`The tag '${tag}' already exists.`);
+	Utils.printAsGitHubError(`The tag '${tag}' already exists.`);
 	Deno.exit(1);
 }
