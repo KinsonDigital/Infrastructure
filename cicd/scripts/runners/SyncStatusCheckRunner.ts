@@ -151,7 +151,7 @@ export class SyncStatusCheckRunner extends ScriptRunner {
 		}
 
 		if (eventType === "issue") {
-			problemsFound.push(...await this.runAsSyncBot(repoName, defaultReviewer, issueNumber, prNumber));
+			await this.runAsSyncBot(repoName, defaultReviewer, issueNumber, prNumber);
 		} else {
 			problemsFound.push(...await this.runAsStatusCheck(repoName, defaultReviewer, issueNumber, prNumber));
 		}
@@ -198,56 +198,22 @@ export class SyncStatusCheckRunner extends ScriptRunner {
 		}
 	}
 
-	private async runAsSyncBot(repoName: string, defaultReviewer: string, issueNumber: number, prNumber: number): Promise<string[]> {
-		const problemsFound: string[] = [];
-		
-		const issue = await this.getIssue(repoName, issueNumber);
-		const issueLabels = issue.labels?.map((label) => label.name) ?? [];
-
-		const pr = await this.getPullRequest(repoName, prNumber);
-		const prTitle = pr.title;
-		const prBody = pr.body;
-		
-		const templateSettings = await this.buildTemplateSettings(repoName, defaultReviewer, issueNumber, prNumber);
-
-		const prTemplateManager = new PRTemplateManager();
-		
-		const updatedPRDescription = prTemplateManager.processSyncTemplate(prBody, templateSettings);
-		
-		const prRequestData: IIssueOrPRRequestData = {
-			title: prTitle,
-			body: updatedPRDescription,
-			state: pr.state as IssueState,
-			state_reason: null,
-			assignees: issue.assignees?.map((i) => i.login) ?? [],
-			labels: issueLabels,
-			milestone: issue.milestone?.number ?? null,
-		};
-		
-		await this.prClient.updatePullRequest(repoName, prNumber, prRequestData);
-		
-		return problemsFound;
+	private async runAsSyncBot(repoName: string, defaultReviewer: string, issueNumber: number, prNumber: number): Promise<void> {
+		await this.syncIssueToPR(repoName, issueNumber, prNumber);
+		await this.updatePRBody(repoName, issueNumber, prNumber, defaultReviewer);
 	}
 
 	private async runAsStatusCheck(repoName: string, defaultReviewer: string, issueNumber: number, prNumber: number): Promise<string[]> {
 		const problemsFound: string[] = [];
-		const prBody = (await this.getPullRequest(repoName, prNumber)).body;
 		const issueTitle = (await this.getIssue(repoName, issueNumber)).title;
 		const prTitle = (await this.getPullRequest(repoName, prNumber)).title;
 		const prHeadBranch = (await this.getPullRequest(repoName, prNumber)).head.ref;
 		const prBaseBranch = (await this.getPullRequest(repoName, prNumber)).base.ref;
 
 		const templateSettings = await this.buildTemplateSettings(repoName, defaultReviewer, issueNumber, prNumber);
-		const prTemplateManager = new PRTemplateManager();
 		
-		const updatedPRDescription = prTemplateManager.processSyncTemplate(prBody, templateSettings);
-		
-		const prRequestData: IIssueOrPRRequestData = {
-			body: updatedPRDescription,
-		};
-		
-		await this.prClient.updatePullRequest(repoName, prNumber, prRequestData);
-		
+		await this.updatePRBody(repoName, issueNumber, prNumber, defaultReviewer);
+
 		problemsFound.push(...this.buildProblemsList(templateSettings, issueTitle ?? "", prTitle ?? "", prHeadBranch, prBaseBranch));
 
 		console.log(`✅The issue '${issueNumber}' and pull request '${prNumber}' sync status has been updated✅.`);
@@ -265,7 +231,6 @@ export class SyncStatusCheckRunner extends ScriptRunner {
 		const issueMilestone = (await this.getIssue(repoName, issueNumber)).milestone;
 
 		const prTitle = (await this.getPullRequest(repoName, prNumber)).title;
-		const prBody = (await this.getPullRequest(repoName, prNumber)).body;
 		const prAssignees = (await this.getPullRequest(repoName, prNumber)).assignees;
 		const prLabels = (await this.getPullRequest(repoName, prNumber)).labels;
 		const prMilestone = (await this.getPullRequest(repoName, prNumber)).milestone;
@@ -339,6 +304,40 @@ export class SyncStatusCheckRunner extends ScriptRunner {
 		return this.prProjects;
 	}
 	
+	private async syncIssueToPR(repoName: string, issueNumber: number, prNumber: number): Promise<void> {
+		const issue = await this.getIssue(repoName, issueNumber);
+		const issueLabels = issue.labels?.map((label) => label.name) ?? [];
+
+		const pr = await this.getPullRequest(repoName, prNumber);
+		const prTitle = pr.title;
+		
+		const prRequestData: IIssueOrPRRequestData = {
+			title: prTitle,
+			state: pr.state as IssueState,
+			state_reason: null,
+			assignees: issue.assignees?.map((i) => i.login) ?? [],
+			labels: issueLabels,
+			milestone: issue.milestone?.number ?? null,
+		};
+		
+		await this.prClient.updatePullRequest(repoName, prNumber, prRequestData);
+	}
+
+	private async updatePRBody(repoName: string, issueNumber: number, prNumber: number, defaultReviewer: string): Promise<void> {
+		const prBody = (await this.getPullRequest(repoName, prNumber)).body;
+
+		const templateSettings = await this.buildTemplateSettings(repoName, defaultReviewer, issueNumber, prNumber);
+		const prTemplateManager = new PRTemplateManager();
+		
+		const updatedPRDescription = prTemplateManager.processSyncTemplate(prBody, templateSettings);
+		
+		const prRequestData: IIssueOrPRRequestData = {
+			body: updatedPRDescription,
+		};
+		
+		await this.prClient.updatePullRequest(repoName, prNumber, prRequestData);
+	}
+
 	/**
 	 * Returns a value indicating whether or not the given {@link eventType} is valid.
 	 * @param eventType The type of event.
