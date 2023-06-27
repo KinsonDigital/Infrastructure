@@ -202,19 +202,23 @@ for (let i = 0; i < issueProjects.length; i++) {
 }
 
 const prMetaDataRegex = /<!--closed-by-pr:[0-9]+-->/gm;
+const prMetaDataMatches = issue.body.match(prMetaDataRegex);
+const prMetaDataExists = prMetaDataMatches != null && prMetaDataMatches.length > 0;
 
-// If the meta data does not exist
-if (!issue.body.match(prMetaDataRegex)) {
-	// Update the description of the issue to include metadata about the pr number
-	const prMetaData = `\n\n<!--closed-by-pr:${prNumber}-->`;
-	
-	const issueData: IIssueOrPRRequestData = {
-		body: issue.body += prMetaData,
-	};
-	
-	await issueClient.updateIssue(repoName, issueNumber, issueData);
-	Utils.printAsGitHubNotice(`PR link metadata added to the description of issue '${issueNumber}'.`);
-}
+const prMetaData = `<!--closed-by-pr:${prNumber}-->`;
+const issueBody = prMetaDataExists
+	? issue.body.replace(prMetaDataRegex, prMetaData)
+	: issue.body + `\n\n${prMetaData}`;
+
+// Update the description of the issue to include metadata about the pr number
+const issueData: IIssueOrPRRequestData = {
+	body: issueBody,
+};
+
+await issueClient.updateIssue(repoName, issueNumber, issueData);
+
+const subText = prMetaDataExists ? "updated in" : "added to";
+Utils.printAsGitHubNotice(`PR link metadata ${subText} the description of issue '${issueNumber}'.`);
 
 const prProjects: IProjectModel[] = await projectClient.getPullRequestProjects(repoName, prNumber);
 
