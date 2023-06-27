@@ -22,7 +22,7 @@ on:
   issues:
     types: [labeled, unlabeled, assigned, unassigned, milestoned, demilestoned]
   pull_request:
-    branches: [master, preview]  
+    branches: [master, preview]
 
 
 # TODO: combine the pr sync process upon intial pr creation into this yaml instead of using a different workflow
