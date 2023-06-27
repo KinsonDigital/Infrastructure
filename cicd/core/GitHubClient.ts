@@ -123,7 +123,11 @@ export abstract class GitHubClient extends WebAPIClient {
 			const linkHeader = this.headerParser.toLinkHeader(response);
 			const totalPagesLeft = linkHeader?.totalPages ?? 0;
 
-			const [groupA, groupB] = this.createAlternatePagesGroups(totalPagesLeft);
+			let [groupA, groupB] = this.createAlternatePagesGroups(totalPagesLeft);
+
+			// Remove the first page, this has already been pulled
+			groupA = groupA.filter(i => i != 1);
+			groupB = groupB.filter(i => i != 1);
 
 			const maxLen = Math.max(groupA.length, groupB.length);
 
@@ -145,17 +149,17 @@ export abstract class GitHubClient extends WebAPIClient {
 				// Wait for both requests from each group to finish
 				const [groupResultA, groupResultB] = await Promise.all(requests);
 
-				const groupItemsA = groupResultA[0];
+				const groupItemsA = groupResultA === undefined ? [] : groupResultA[0];
 
 				// Does the result from group A contain the data
-				if (until(groupItemsA)) {
+				if (groupItemsA.length > 0 && until(groupItemsA)) {
 					return groupItemsA;
 				}
 
-				const groupItemsB = groupResultB[0];
+				const groupItemsB = groupResultB === undefined ? [] : groupResultB[0];
 
 				// Does the result from group B contain the data
-				if (until(groupItemsB)) {
+				if (groupItemsB.length > 0 && until(groupItemsB)) {
 					return groupItemsB;
 				}
 
