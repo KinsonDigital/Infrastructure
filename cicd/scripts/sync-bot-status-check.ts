@@ -6,4 +6,3 @@ const scriptName = Utils.getScriptName();
 const runner: SyncBotStatusCheckRunner = new SyncBotStatusCheckRunner(Deno.args, scriptName);
 
 await runner.run();
-

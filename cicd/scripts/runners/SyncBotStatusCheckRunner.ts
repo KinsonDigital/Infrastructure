@@ -15,10 +15,7 @@ import { PRTemplateManager } from "../../core/PRTemplateManager.ts";
 import { IssueState } from "../../core/Enums.ts";
 
 /**
- * Processes the sync bot status check script.  Used to run pull request static checks showing
- * if an issue is properly synced with an associated pull request.
- * 
- * TODO: Add more info about the bot side of the runner
+ * Runs as a sync bot and a pull request status check.
  */
 export class SyncBotStatusCheckRunner extends ScriptRunner {
 	private issueClient: IssueClient;
@@ -39,24 +36,29 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 */
 	constructor(args: string[], scriptName: string) {
 		if (args.length != 5) {
-			const argDescriptions: string[] = [];
+			const argInfos: string[] = [];
 
 			for (let i = 0; i < 5; i++) {
-				argDescriptions.push(`${Utils.toOrdinal(i + 1)} Arg: $`);
+				argInfos.push(`${Utils.toOrdinal(i + 1)} Arg: $`);
 			}
 
-			argDescriptions[0] = argDescriptions[0].replace("$", "Required and must be a valid GitHub repository name.");
-			argDescriptions[1] = argDescriptions[1].replace("$", "Required and must be a valid issue or pull request number.");
-			argDescriptions[2] = argDescriptions[2].replace("$", "Required and must be a valid GitHub user requested to review the pull request.");
-			argDescriptions[3] = argDescriptions[3].replace("$", "Required and must be a valid case-insensitive workflow event type of 'issue' or 'pr'.");
-			argDescriptions[4] = argDescriptions[4].replace("$", "Required and must be a valid GitHub token.");
+			argInfos[0] = argInfos[0]
+				.replace("$", "Required and must be a valid GitHub repository name.");
+			argInfos[1] = argInfos[1]
+				.replace("$", "Required and must be a valid issue or pull request number.");
+			argInfos[2] = argInfos[2]
+				.replace("$", "Required and must be a valid GitHub user requested to review the pull request.");
+			argInfos[3] = argInfos[3]
+				.replace("$", "Required and must be a valid case-insensitive workflow event type of 'issue' or 'pr'.");
+			argInfos[4] = argInfos[4]
+				.replace("$", "Required and must be a valid GitHub token.");
 
-			argDescriptions.unshift(`The ${scriptName} cicd script must have 5 arguments.`);
+			argInfos.unshift(`The ${scriptName} cicd script must have 5 arguments.`);
 
-			Utils.printAsGitHubError(argDescriptions.join("\n"));
+			Utils.printAsGitHubError(argInfos.join("\n"));
 			Deno.exit(1);
 		}
-		
+
 		super(args);
 
 		const githubToken = args[args.length - 1];
@@ -66,7 +68,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		this.prClient = new PullRequestClient(githubToken);
 		this.userClient = new UsersClient(githubToken);
 	}
-	
+
 	/**
 	 * Runs the sync status check script.
 	 */
@@ -74,7 +76,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		await super.run();
 
 		const [repoName, issueOrPrNumber, defaultReviewer, eventType, githubToken] = this.args;
-	
+
 		Utils.printInGroup("Script Arguments", [
 			`Repo Name (Required): ${repoName}`,
 			`${eventType === "issue" ? "Issue" : "Pull Request"} Number (Required): ${issueOrPrNumber}`,
@@ -96,9 +98,9 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		const problemsFound: string[] = [];
 		let issueNumber = 0;
 		let prNumber = 0;
-		
+
 		if (eventType === "issue") {
-			issueNumber = Number.parseInt(issueOrPrNumber);	
+			issueNumber = Number.parseInt(issueOrPrNumber);
 
 			if (!(await this.issueClient.openIssueExists(repoName, issueNumber))) {
 				problemsFound.push(`The issue '${issueNumber}' does not exist.`);
@@ -127,12 +129,12 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			} else {
 				const headBranch = (await this.getPullRequest(repoName, prNumber)).head.ref;
 				const headBranchNotValid = Utils.isNotFeatureBranch(headBranch);
-		
+
 				// If the head branch is not a preview branch, no sync check is required. Just exit.
 				if (headBranchNotValid) {
 					let noticeMsg = `The head branch '${headBranch}' is not a feature branch.`;
 					noticeMsg += "\nSync checks and processing ignored.";
-		
+
 					Utils.printAsGitHubNotice(noticeMsg);
 					Deno.exit(0);
 				} else {
@@ -143,7 +145,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 
 		const prTemplateManager = new PRTemplateManager(githubToken);
 		const prTemplate = (await this.getPullRequest(repoName, prNumber)).body;
-		const syncingDisabled = prTemplateManager.syncingDisabled(prTemplate)
+		const syncingDisabled = prTemplateManager.syncingDisabled(prTemplate);
 
 		// Syncing is disabled or the PR body does not contain a sync template
 		if (syncingDisabled) {
@@ -168,7 +170,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		let successMsg = `✅No problems found. Issue '${issueNumber}' synced with pull request '${prNumber}'.`;
 		successMsg += prUrl;
 		successMsg += issueUrl;
-		
+
 		let failureMsg = `❌Issue '${issueNumber}' is not fully synced with pull request '${prNumber}'❌`;
 		failureMsg += prUrl;
 		failureMsg += issueUrl;
@@ -185,7 +187,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @inheritdoc
 	 */
 	protected validateArgs(args: string[]): void {
-		args = args.map(arg => arg.trim());
+		args = args.map((arg) => arg.trim());
 
 		const issueOrPRNumberStr = args[1];
 		const eventType = args[3];
@@ -198,7 +200,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		if (!this.isValidEventType(eventType)) {
 			let errorMsg = `The event type '${eventType}' is not valid.`;
 			errorMsg += `\nThe event type must be either 'issue' or 'pr' case-insensitive value.`;
-		
+
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
@@ -209,7 +211,12 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		await this.updatePRBody(repoName, issueNumber, prNumber, defaultReviewer);
 	}
 
-	private async runAsStatusCheck(repoName: string, defaultReviewer: string, issueNumber: number, prNumber: number): Promise<string[]> {
+	private async runAsStatusCheck(
+		repoName: string,
+		defaultReviewer: string,
+		issueNumber: number,
+		prNumber: number,
+	): Promise<string[]> {
 		const problemsFound: string[] = [];
 		const issueTitle = (await this.getIssue(repoName, issueNumber)).title;
 		const prTitle = (await this.getPullRequest(repoName, prNumber)).title;
@@ -217,7 +224,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		const prBaseBranch = (await this.getPullRequest(repoName, prNumber)).base.ref;
 
 		const templateSettings = await this.buildTemplateSettings(repoName, defaultReviewer, issueNumber, prNumber);
-		
+
 		await this.updatePRBody(repoName, issueNumber, prNumber, defaultReviewer);
 
 		problemsFound.push(...this.buildProblemsList(
@@ -226,14 +233,20 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			prTitle ?? "",
 			defaultReviewer,
 			prHeadBranch,
-			prBaseBranch));
+			prBaseBranch,
+		));
 
 		Utils.printAsGitHubNotice(`✅The issue '${issueNumber}' and pull request '${prNumber}' sync status has been updated✅.`);
 
 		return problemsFound;
 	}
 
-	private async buildTemplateSettings(repoName: string, defaultReviewer: string, issueNumber: number, prNumber: number): Promise<IPRTemplateSettings> {
+	private async buildTemplateSettings(
+		repoName: string,
+		defaultReviewer: string,
+		issueNumber: number,
+		prNumber: number,
+	): Promise<IPRTemplateSettings> {
 		const issueProjects: IProjectModel[] = await this.getIssueOrgProjects(repoName, issueNumber);
 		const prProjects: IProjectModel[] = await this.getPullRequestOrgProjects(repoName, prNumber);
 
@@ -255,10 +268,10 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 
 		const titleInSync = prTitle?.trim() === issueTitle?.trim();
 		const defaultReviewerIsValid = prRequestedReviewers.some((r) => r.login === defaultReviewer);
-		
+
 		const assigneesInSync = Utils.assigneesMatch(issueAssignees, prAssignees);
 		const labelsInSync = Utils.labelsMatch(issueLabels, prLabels);
-		
+
 		const milestoneInSync = issueMilestone?.number === prMilestone?.number;
 		const projectsInSync = Utils.orgProjectsMatch(issueProjects, prProjects);
 
@@ -278,10 +291,9 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	}
 
 	/**
-	 * 
 	 * @param repoName The name of the repository.
-	 * @param issueNumber 
-	 * @returns 
+	 * @param issueNumber
+	 * @returns
 	 */
 	private async getIssue(repoName: string, issueNumber: number): Promise<IIssueModel> {
 		if (this.issue === null) {
@@ -314,14 +326,14 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 
 		return this.prProjects;
 	}
-	
+
 	private async syncIssueToPR(repoName: string, issueNumber: number, prNumber: number): Promise<void> {
 		const issue = await this.getIssue(repoName, issueNumber);
 		const issueLabels = issue.labels?.map((label) => label.name) ?? [];
 
 		const pr = await this.getPullRequest(repoName, prNumber);
 		const prTitle = pr.title;
-		
+
 		const prRequestData: IIssueOrPRRequestData = {
 			title: prTitle,
 			state: pr.state as IssueState,
@@ -330,7 +342,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			labels: issueLabels,
 			milestone: issue.milestone?.number ?? null,
 		};
-		
+
 		await this.prClient.updatePullRequest(repoName, prNumber, prRequestData);
 	}
 
@@ -339,13 +351,13 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 
 		const templateSettings = await this.buildTemplateSettings(repoName, defaultReviewer, issueNumber, prNumber);
 		const prTemplateManager = new PRTemplateManager();
-		
+
 		const updatedPRDescription = prTemplateManager.processSyncTemplate(prBody, templateSettings);
-		
+
 		const prRequestData: IIssueOrPRRequestData = {
 			body: updatedPRDescription,
 		};
-		
+
 		await this.prClient.updatePullRequest(repoName, prNumber, prRequestData);
 	}
 
@@ -366,37 +378,38 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		prTitle = "",
 		defaultReviewer = "",
 		prHeadBranch = "",
-		prBaseBranch = ""): string[] {
+		prBaseBranch = "",
+	): string[] {
 		const problems: string[] = [];
 
 		if (!templateSettings.headBranchValid) {
 			problems.push(`The head branch '${prHeadBranch}' is not a valid feature branch.`);
 		}
-		
+
 		if (!templateSettings.baseBranchValid) {
 			problems.push(`The base branch '${prBaseBranch}' is not a valid base branch.`);
 		}
-		
+
 		if (!templateSettings.titleInSync) {
 			problems.push(`The pr title '${prTitle}' does not match with the issue title '${issueTitle}'.`);
 		}
-		
+
 		if (!templateSettings.defaultReviewerValid) {
 			problems.push(`The pr default reviewer '${defaultReviewer}' is not valid or set.`);
 		}
-		
+
 		if (!templateSettings.assigneesInSync) {
 			problems.push(`The pr assignees do not match the issue assignees.`);
 		}
-		
+
 		if (!templateSettings.labelsInSync) {
 			problems.push(`The pr labels do not match the issue labels.`);
 		}
-		
+
 		if (!templateSettings.milestoneInSync) {
 			problems.push(`The pr milestone does not match the issue milestone.`);
 		}
-		
+
 		if (!templateSettings.projectsInSync) {
 			problems.push(`The pr projects do not match the issue projects.`);
 		}

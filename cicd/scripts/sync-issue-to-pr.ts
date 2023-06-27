@@ -114,7 +114,9 @@ const orgClient: OrgClient = new OrgClient(githubToken);
 const userIsNotOrgMember = !(await orgClient.userIsOrgAdminMember(organizationName, requestedByUser));
 
 if (userIsNotOrgMember) {
-	Utils.printAsGitHubError(`The user '${requestedByUser}' is not member of the organization '${organizationName}' with the admin role.`);
+	let errorMsg = `The user '${requestedByUser}' is not member of the`;
+	errorMsg += ` organization '${organizationName}' with the admin role.`;
+	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(0);
 }
 
@@ -189,11 +191,11 @@ await prClient.requestReviewer(repoName, prNumber, defaultReviewer);
 // Add all of the issue org projects to the PR
 for (let i = 0; i < issueProjects.length; i++) {
 	const proj = issueProjects[i];
-	
+
 	if (pr.node_id === undefined) {
 		continue;
 	}
-	
+
 	await projectClient.addToProject(pr.node_id, proj.title);
 	Utils.printAsGitHubNotice(`The pr '${prNumber}' has been added to the same project as issue '${issueNumber}'.`);
 }
@@ -203,9 +205,7 @@ const prMetaDataMatches = issue.body.match(prMetaDataRegex);
 const prMetaDataExists = prMetaDataMatches != null && prMetaDataMatches.length > 0;
 
 const prMetaData = `<!--closed-by-pr:${prNumber}-->`;
-const issueBody = prMetaDataExists
-	? issue.body.replace(prMetaDataRegex, prMetaData)
-	: issue.body + `\n\n${prMetaData}`;
+const issueBody = prMetaDataExists ? issue.body.replace(prMetaDataRegex, prMetaData) : issue.body + `\n\n${prMetaData}`;
 
 // Update the description of the issue to include metadata about the pr number
 const issueData: IIssueOrPRRequestData = {

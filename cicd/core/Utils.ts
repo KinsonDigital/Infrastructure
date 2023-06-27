@@ -363,7 +363,7 @@ export class Utils {
 		const suffixes = ["th", "st", "nd", "rd"];
 		const value = Math.abs(number) % 100;
 		const suffix = suffixes[(value - 20) % 10] || suffixes[value] || suffixes[0];
-	  
+
 		return `${number}${suffix}`;
 	}
 
