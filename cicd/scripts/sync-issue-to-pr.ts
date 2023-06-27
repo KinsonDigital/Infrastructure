@@ -77,9 +77,12 @@ if (repoDoesNotExist) {
 const prClient: PullRequestClient = new PullRequestClient(githubToken);
 const issueClient: IssueClient = new IssueClient(githubToken);
 
+const isRunSyncCommand = syncCommand.match(/\[run-sync\]/gm) != undefined;
+const isInitialSyncCommand = syncCommand.match(/\[initial-sync\]/gm) != undefined;
+
 // Validate that the comment contains the sync command
-if (!syncCommand.match(/\[run-sync\]/gm)) {
-	Utils.printAsGitHubNotice("Sync ignored.  The comment does not contain the '[run-sync]' sync command.");
+if (!isRunSyncCommand && !isInitialSyncCommand) {
+	Utils.printAsGitHubNotice("Sync ignored.  The comment does not contain the '[run-sync]' or '[initial-sync]' sync command.");
 	Deno.exit(0);
 }
 
@@ -116,16 +119,15 @@ if (userIsNotOrgMember) {
 }
 
 const prTemplate = new PRTemplateManager();
+let pr: IPullRequestModel = await prClient.getPullRequest(repoName, prNumber);
 
 const prDoesNotExist = !(await prClient.pullRequestExists(repoName, prNumber));
 if (prDoesNotExist) {
 	Utils.printAsGitHubError(`A pull request with the number '${prNumber}' does not exist.`);
 	Deno.exit(1);
 } else {
-	// Check if syncing is disabled
-	const pr: IPullRequestModel = await prClient.getPullRequest(repoName, prNumber);
-
-	if (prTemplate.syncingDisabled(pr.body)) {
+	// Check if syncing is disabled but only if a [run-sync] command
+	if (isRunSyncCommand && prTemplate.syncingDisabled(pr.body)) {
 		Utils.printAsGitHubNotice("Syncing is disabled.  Syncing will not occur.");
 		Deno.exit(0);
 	}
@@ -136,8 +138,6 @@ if (templateFileDoesNotExist) {
 	Utils.printAsGitHubError(`The template file '${relativeTemplateFilePath}' does not exist in the repository '${repoName}.`);
 	Deno.exit(1);
 }
-
-let pr: IPullRequestModel = await prClient.getPullRequest(repoName, prNumber);
 
 const featureBranchRegex = /^feature\/[1-9]+-(?!-)[a-z-]+$/gm;
 const headBranch = pr.head.ref;
@@ -152,10 +152,10 @@ if (!headBranch.match(featureBranchRegex)) {
 const issueNumberStr = headBranch.replace("feature/", "").split("-")[0];
 const issueNumber = parseInt(issueNumberStr);
 
-const issueNumDoesNotExist = !(await issueClient.openIssueExists(repoName, issueNumber));
+const issueDoesNotExist = !(await issueClient.openIssueExists(repoName, issueNumber));
 
-if (issueNumDoesNotExist) {
-	Utils.printAsGitHubError(`The issue number '#${issueNumber}' in the head branch '${headBranch}' does not exist.`);
+if (issueDoesNotExist) {
+	Utils.printAsGitHubError(`An issue with the number '#${issueNumber}' from the head branch '${headBranch}' does not exist.`);
 	Deno.exit(1);
 }
 
@@ -167,9 +167,9 @@ const projectClient: ProjectClient = new ProjectClient(githubToken);
 const issueProjects: IProjectModel[] = await projectClient.getIssueProjects(repoName, issueNumber);
 
 // If the pr body is not a valid pr template, load a new one to replace it.
-let prDescription = prTemplate.isPRSyncTemplate(pr.body)
-	? pr.body
-	: await prTemplate.getPullRequestTemplate(repoName, relativeTemplateFilePath);
+let prDescription = isInitialSyncCommand || !prTemplate.isPRSyncTemplate(pr.body)
+	? await prTemplate.getPullRequestTemplate(repoName, relativeTemplateFilePath)
+	: pr.body;
 
 prDescription = prTemplate.updateIssueNum(prDescription, issueNumber);
 
