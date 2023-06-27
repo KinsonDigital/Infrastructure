@@ -184,7 +184,10 @@ pullRequests.forEach((pr) => {
 	}
 });
 
-Utils.printProblemList(problemsFound, `The release notes for version '${version}' are valid!!`);
+const successMsg = `✅The release notes for version '${version}' are valid!!✅`;
+const failureMsg = `❌There were issues with the '${version}' release notes.❌`;
+
+Utils.printProblemList(problemsFound, successMsg, failureMsg);
 
 if (problemsFound.length > 0) {
 	Deno.exit(1);
