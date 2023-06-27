@@ -42,6 +42,10 @@ jobs:
         run: |
           $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH}}/sync-bot-status-check.ts";
 
+          echo "::group:: Event Data";
+          echo ${{ toJson(github.event) }};
+          echo "::endgroup::";
+
           $eventName = "${{ github.event_name }}";
           $manuallyExecuted = $eventName -eq "workflow_dispatch";
           $eventType = $eventName -eq "issues" ? "issue" : "pr";
@@ -80,6 +84,10 @@ jobs:
       - name: Run Sync Status Check
         run: |
           $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH}}/sync-bot-status-check.ts";
+
+          echo "::group:: Event Data";
+          echo ${{ toJson(github.event) }};
+          echo "::endgroup::";
 
           $eventType = "pr";
           $eventName = "${{ github.event_name }}";
