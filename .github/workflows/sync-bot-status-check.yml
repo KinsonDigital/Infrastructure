@@ -40,40 +40,36 @@ jobs:
 
       - name: Run Bot
         run: |
-          echo "Head Ref: ${{ github.head_ref}}";
+          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH}}/sync-bot-status-check.ts";
 
-          # $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH}}/sync-bot-status-check.ts";
-
-          # $eventName = "${{ github.event_name }}";
+          $eventName = "${{ github.event_name }}";
           
-          # echo "Event Name: $eventName";
-          # echo "Project Name: ${{ vars.PROJECT_NAME }}";
-          # echo "Default PR Reviewer: ${{ vars.DEFAULT_PR_REVIEWER }}";
+          echo "Event Name: $eventName";
+          echo "Project Name: ${{ vars.PROJECT_NAME }}";
+          echo "Default PR Reviewer: ${{ vars.DEFAULT_PR_REVIEWER }}";
 
-          # if ($eventName -eq "workflow_dispatch") {
-          #   echo "Manual Execution:";
-          #   echo "`tRun Type: ${{ inputs.run-type }}";
-          #   echo "`tIssue Or PR Number: ${{ inputs.issurOrPRNumber }}";
+          if ($eventName -eq "workflow_dispatch") {
+            $eventType = "${{ inputs.run-type }}" -eq "Sync Bot" ? "issue" : "pr";
+            $issurOrPRNumber = ${{ inputs.issurOrPRNumber }};
 
-          #   $eventType = "${{ inputs.run-type }}" -eq "Sync Bot" ? "issue" : "pr";
-          #   $issueNumber = "${{ inputs.issurOrPRNumber }}";
-            
-          #   if ($eventName -eq "workflow_dispatch" -and $issueNumber -le 0) {
-          #     echo "The issue or PR number must be a value greater than 0.";
-          #     exit 1;
-          #   }
-          # } else {
-          #   $eventType = $eventName -eq "issues" ? "issue" : "pr";
-          #   $issueNumber = $eventName -eq "issues" ? "${{ github.event.issue.number }}" : "${{ github.event.number }}";
+            echo "`Run Type: ${{ inputs.run-type }}";
 
-          #   echo "Issue Or PR Number: $issueNumber";
-          # }
+            if ($issurOrPRNumber -le 0) {
+              echo "The issue or PR number must be a value greater than 0.";
+              exit 1;
+            }
+          } else {
+            $eventType = $eventName -eq "issues" ? "issue" : "pr";
+            $issurOrPRNumber = $eventName -eq "issues" ? ${{ github.event.issue.number }} : ${{ github.event.number }};
+          }
 
-          # deno run `
-          #   --allow-net `
-          #   "$scriptUrl" `
-          #   "${{ vars.PROJECT_NAME }}" `
-          #   "$issueNumber" `
-          #   "${{ vars.DEFAULT_PR_REVIEWER }}" `
-          #   "$eventType" `
-          #   "${{ secrets.CICD_REST_API }}";
+          echo "Issue Or PR Number: $issurOrPRNumber";
+
+          deno run `
+            --allow-net `
+            "$scriptUrl" `
+            "${{ vars.PROJECT_NAME }}" `
+            "$issurOrPRNumber" `
+            "${{ vars.DEFAULT_PR_REVIEWER }}" `
+            "$eventType" `
+            "${{ secrets.CICD_REST_API }}";
