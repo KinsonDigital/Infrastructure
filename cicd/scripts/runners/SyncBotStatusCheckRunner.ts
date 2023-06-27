@@ -95,12 +95,11 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		const repoVars = await this.repoClient.getVariables(repoName);
 		const defaultReviewerVar = repoVars.find((v) => v.name == DEFAULT_PR_REVIEWER);
 
-		
 		// Make sure that the repo contains the default PR reviewer variable
 		if (defaultReviewerVar == undefined) {
 			let errorMsg = `The repository '${repoName}' does not have a variable named '${DEFAULT_PR_REVIEWER}'.`;
 			errorMsg += "\nThe value of this variable must be a valid GitHub user.";
-			
+
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
@@ -108,7 +107,8 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		const defaultReviewer = defaultReviewerVar.value;
 
 		if (!(await this.userClient.userExists(defaultReviewer))) {
-			Utils.printAsGitHubError(`The GitHub user '${defaultReviewer}' for the default pull request reviewer does not exist.`);
+			const errorMsg = `The GitHub user '${defaultReviewer}' for the default pull request reviewer does not exist.`;
+			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
