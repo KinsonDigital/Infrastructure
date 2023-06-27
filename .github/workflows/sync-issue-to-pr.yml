@@ -28,7 +28,7 @@ jobs:
           $eventName = "${{ github.event_name }}";
           $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH}}/sync-issue-to-pr.ts";
           $prNumber = $eventName -eq "pull_request" ? "${{ github.event.number }}" : "${{ github.event.issue.number }}";
-          $command = $eventName -eq "issue_comment" ? "${{ github.event.comment.body }}" : "[run-sync]";
+          $command = $eventName -eq "issue_comment" ? "${{ github.event.comment.body }}" : "[initial-sync]";
           
           
           echo "Event Name: $eventName";
