@@ -87,7 +87,7 @@ export class PRTemplateManager {
 	 */
 	public syncingDisabled(template: string): boolean {
 		if (Utils.isNullOrEmptyOrUndefined(template)) {
-			return false;
+			return true;
 		}
 
 		const fileDataLines: string[] = template.split("\n");
