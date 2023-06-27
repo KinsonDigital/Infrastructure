@@ -216,7 +216,13 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		
 		await this.updatePRBody(repoName, issueNumber, prNumber, defaultReviewer);
 
-		problemsFound.push(...this.buildProblemsList(templateSettings, issueTitle ?? "", prTitle ?? "", prHeadBranch, prBaseBranch));
+		problemsFound.push(...this.buildProblemsList(
+			templateSettings,
+			issueTitle ?? "",
+			prTitle ?? "",
+			defaultReviewer,
+			prHeadBranch,
+			prBaseBranch));
 
 		console.log(`✅The issue '${issueNumber}' and pull request '${prNumber}' sync status has been updated✅.`);
 
@@ -355,6 +361,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		templateSettings: IPRTemplateSettings,
 		issueTitle = "",
 		prTitle = "",
+		defaultReviewer = "",
 		prHeadBranch = "",
 		prBaseBranch = ""): string[] {
 		const problems: string[] = [];
@@ -372,7 +379,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		}
 		
 		if (!templateSettings.defaultReviewerValid) {
-			problems.push(`The pr default reviewer '${templateSettings.defaultReviewerValid}' is not valid or set.`);
+			problems.push(`The pr default reviewer '${defaultReviewer}' is not valid or set.`);
 		}
 		
 		if (!templateSettings.assigneesInSync) {
