@@ -50,17 +50,17 @@ jobs:
 
           if ($eventName -eq "workflow_dispatch") {
             $eventType = "${{ inputs.run-type }}" -eq "Sync Bot" ? "issue" : "pr";
-            $issurOrPRNumber = ${{ inputs.issurOrPRNumber }};
+            $issurOrPRNumber = "${{ inputs.issurOrPRNumber }}";
 
             echo "`Run Type: ${{ inputs.run-type }}";
 
-            if ($issurOrPRNumber -le 0) {
+            if ($issurOrPRNumber -eq "0") {
               echo "The issue or PR number must be a value greater than 0.";
               exit 1;
             }
           } else {
             $eventType = $eventName -eq "issues" ? "issue" : "pr";
-            $issurOrPRNumber = $eventName -eq "issues" ? ${{ github.event.issue.number }} : ${{ github.event.number }};
+            $issurOrPRNumber = $eventName -eq "issues" ? "${{ github.event.issue.number }}" : "${{ github.event.number }}";
           }
 
           echo "Issue Or PR Number: $issurOrPRNumber";
