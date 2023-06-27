@@ -287,12 +287,12 @@ export class Utils {
 			return true;
 		}
 
-		if (issueAssignees.length !== prAssignees.length) {
+		if (issueAssignees.length != prAssignees.length) {
 			return false;
 		}
 
 		for (let i = 0; i < issueAssignees.length; i++) {
-			if (issueAssignees[i].login !== prAssignees[i].login) {
+			if (issueAssignees[i].login != prAssignees[i].login) {
 				return false;
 			}
 		}
@@ -311,12 +311,12 @@ export class Utils {
 			return true;
 		}
 
-		if (issueLabels.length !== prLabels.length) {
+		if (issueLabels.length != prLabels.length) {
 			return false;
 		}
 
 		for (let i = 0; i < issueLabels.length; i++) {
-			if (issueLabels[i].name !== prLabels[i].name) {
+			if (issueLabels[i].name != prLabels[i].name) {
 				return false;
 			}
 		}
@@ -336,12 +336,12 @@ export class Utils {
 			return true;
 		}
 
-		if (issueProjects.length !== prProjects.length) {
+		if (issueProjects.length != prProjects.length) {
 			return false;
 		}
 
 		for (let i = 0; i < issueProjects.length; i++) {
-			if (issueProjects[i].number !== prProjects[i].number) {
+			if (issueProjects[i].number != prProjects[i].number) {
 				return false;
 			}
 		}

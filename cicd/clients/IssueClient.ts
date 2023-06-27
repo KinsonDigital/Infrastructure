@@ -379,6 +379,6 @@ export class IssueClient extends GitHubClient {
 			},
 		);
 
-		return issues.find((issue: IIssueModel) => issue.number === issueNumber) !== undefined;
+		return issues.find((issue: IIssueModel) => issue.number === issueNumber) != undefined;
 	}
 }

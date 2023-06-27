@@ -428,6 +428,6 @@ export class PullRequestClient extends GitHubClient {
 			},
 		);
 
-		return issues.find((issue: IPullRequestModel) => issue.number === prNumber) !== undefined;
+		return issues.find((issue: IPullRequestModel) => issue.number === prNumber) != undefined;
 	}
 }

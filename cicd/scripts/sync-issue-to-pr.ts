@@ -6,6 +6,7 @@ import { RepoClient } from "../clients/RepoClient.ts";
 import { UsersClient } from "../clients/UsersClient.ts";
 import { IssueState } from "../core/Enums.ts";
 import { IIssueOrPRRequestData } from "../core/IIssueOrPRRequestData.ts";
+import { IPRTemplateSettings } from "../core/IPRTemplateSettings.ts";
 import { IIssueModel } from "../core/Models/IIssueModel.ts";
 import { IProjectModel } from "../core/Models/IProjectModel.ts";
 import { IPullRequestModel } from "../core/Models/IPullRequestModel.ts";
@@ -136,7 +137,7 @@ if (templateFileDoesNotExist) {
 	Deno.exit(1);
 }
 
-const pr: IPullRequestModel = await prClient.getPullRequest(repoName, prNumber);
+let pr: IPullRequestModel = await prClient.getPullRequest(repoName, prNumber);
 
 const featureBranchRegex = /^feature\/[1-9]+-(?!-)[a-z-]+$/gm;
 const headBranch = pr.head.ref;
@@ -174,7 +175,7 @@ prDescription = prTemplate.updateIssueNum(prDescription, issueNumber);
 
 // If the title does not match, sync the title
 const prData: IIssueOrPRRequestData = {
-	title: issue.title !== pr.title ? issue.title ?? "" : pr.title ?? "",
+	title: issue.title,
 	body: prDescription,
 	state: pr.state as IssueState,
 	state_reason: null,
@@ -184,17 +185,18 @@ const prData: IIssueOrPRRequestData = {
 };
 
 await prClient.updatePullRequest(repoName, prNumber, prData);
+pr = await prClient.getPullRequest(repoName, prNumber);
 
 await prClient.requestReviewer(repoName, prNumber, defaultReviewer);
 
 // Add all of the issue org projects to the PR
 for (let i = 0; i < issueProjects.length; i++) {
 	const proj = issueProjects[i];
-
+	
 	if (pr.node_id === undefined) {
 		continue;
 	}
-
+	
 	await projectClient.addToProject(pr.node_id, proj.title);
 	Utils.printAsGitHubNotice(`The pr '${prNumber}' has been added to the same project as issue '${issueNumber}'.`);
 }
@@ -213,3 +215,32 @@ if (!issue.body.match(prMetaDataRegex)) {
 	await issueClient.updateIssue(repoName, issueNumber, issueData);
 	Utils.printAsGitHubNotice(`PR link metadata added to the description of issue '${issueNumber}'.`);
 }
+
+const prProjects: IProjectModel[] = await projectClient.getPullRequestProjects(repoName, prNumber);
+
+const syncSettings: IPRTemplateSettings = {
+	issueNumber: issueNumber,
+	headBranchValid: pr.head.ref.match(featureBranchRegex) != null,
+	baseBranchValid: pr.base.ref === "master" || pr.base.ref === "preview",
+	issueNumValid: true,
+	titleInSync: pr?.title === issue?.title,
+	defaultReviewerValid: true,
+	assigneesInSync: Utils.assigneesMatch(issue.assignees, pr.assignees),
+	labelsInSync: Utils.labelsMatch(issue.labels, pr.labels),
+	projectsInSync: Utils.orgProjectsMatch(issueProjects, prProjects),
+	milestoneInSync: pr.milestone?.number === issue.milestone?.number,
+};
+
+const newPRSyncBody = prTemplate.processSyncTemplate(prDescription, syncSettings);
+
+const syncPRData: IIssueOrPRRequestData = {
+	title: issue.title,
+	body: newPRSyncBody,
+	state: pr.state as IssueState,
+	state_reason: null,
+	milestone: issue.milestone?.number ?? null,
+	labels: issueLabels,
+	assignees: issue.assignees?.map((i) => i.login) ?? [],
+};
+
+await prClient.updatePullRequest(repoName, prNumber, syncPRData);

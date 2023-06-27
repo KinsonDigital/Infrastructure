@@ -211,7 +211,7 @@ export class MilestoneClient extends GitHubClient {
 			},
 		);
 
-		return milestones.find((m) => m.title.trim() === milestoneName) !== undefined;
+		return milestones.find((m) => m.title.trim() === milestoneName) != undefined;
 	}
 
 	/**
