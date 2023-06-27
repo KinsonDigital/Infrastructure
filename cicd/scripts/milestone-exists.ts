@@ -19,7 +19,7 @@ const milestoneTitle = Deno.args[1].trim();
 const token = Deno.args.length >= 3 ? Deno.args[2].trim() : "";
 
 // Print out all of the arguments
-Utils.printInGroup("Arguments", [
+Utils.printInGroup("Script Arguments", [
 	`Repo Name (Required): ${repoName}`,
 	`Milestone (Required): ${milestoneTitle}`,
 	`GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,

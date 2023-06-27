@@ -19,7 +19,7 @@ let version: string = Deno.args[1].toLowerCase();
 version = version.startsWith("v") ? version : `v${version}`;
 
 // Print out all of the arguments
-Utils.printInGroup("Arguments", [
+Utils.printInGroup("Script Arguments", [
 	`Release Type (Required): ${releaseType}`,
 	`Version (Required): ${version}`,
 ]);

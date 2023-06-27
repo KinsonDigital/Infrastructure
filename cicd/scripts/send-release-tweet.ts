@@ -33,7 +33,7 @@ const relativeTemplateFilePath = "/cicd/templates/release-tweet-template.txt";
 const templateRepoName = "Infrastructure";
 
 // Print out all of the arguments
-Utils.printInGroup("Arguments", [
+Utils.printInGroup("Script Arguments", [
 	`Project Name (Required): ${projectName}`,
 	`Version (Required): ${version}`,
 	`Repository Owner (Required): ${repoOwner}`,

@@ -20,7 +20,7 @@ const milestoneName: string = Deno.args[1].trim();
 const token = Deno.args[2].trim();
 
 // Print out all of the arguments
-Utils.printInGroup("Arguments", [
+Utils.printInGroup("Script Arguments", [
 	`Repo Name (Required): ${repoName}`,
 	`Milestone Name (Required): ${milestoneName}`,
 	`GitHub Token (Required): ****`,

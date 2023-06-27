@@ -3,52 +3,52 @@
  */
 export interface IPRTemplateSettings {
 	/**
-	 * Gets or sets the template path relative to the repository root of where it is contained.
-	 */
-	relativeTemplatePath: string;
-
-	/**
 	 * Gets or sets the issue number.
-	*/
-	issueNumber: number;
+	 */
+	issueNumber?: number;
 
 	/**
-	 * Gets or sets the name of the head branch.
+	 * Gets or sets a value indicating whether or not the head branch is valid.
 	 */
-	headBranch: string;
-	
+	headBranchValid?: boolean;
+
+	/**
+	 * Gets or sets a value indicating whether or not the base branch is valid.
+	 */
+	baseBranchValid?: boolean;
+
 	/**
 	 * Gets or sets a value indicating whether or not the issue number is valid.
 	 */
-	issueNumValid: boolean;
+	issueNumValid?: boolean;
 
 	/**
 	 * Gets or sets a value indicating whether or not the title is in sync.
 	 */
-	titleInSync: boolean;
+	titleInSync?: boolean;
 
 	/**
-	 * Gets or sets a value indicating whether or not the reviewer list has the default reviewer.
+	 * Gets or sets a value indicating whether or not one of the list of reviewers is the default reviewer.
 	 */
-	defaultReviewerInSync: boolean;
+	defaultReviewerValid?: boolean;
 
 	/**
 	 * Gets or sets a value indicating whether or not the assignees are in sync.
 	 */
-	assigneesInSync: boolean;
+	assigneesInSync?: boolean;
 
 	/**
 	 * Gets or sets a value indicating whether or not the labels are in sync.
 	 */
-	labelsInSync: boolean;
+	labelsInSync?: boolean;
 
 	/**
 	 * Gets or sets a value indicating whether or not the projects are in sync.
 	 */
-	projectsInSync: boolean;
+	projectsInSync?: boolean;
 
 	/**
 	 * Gets or sets a value indicating whether or not the milestone is in sync.
 	 */
-	milestoneInSync: boolean;
+	milestoneInSync?: boolean;
 }

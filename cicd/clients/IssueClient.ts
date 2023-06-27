@@ -5,6 +5,7 @@ import { ILabelModel } from "../core/Models/ILabelModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { GitHubHttpStatusCodes, IssueOrPRState } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
+import { IIssueOrPRRequestData } from "../core/IIssueOrPRRequestData.ts";
 
 /**
  * Provides a client for interacting with issues.
@@ -93,7 +94,7 @@ export class IssueClient extends GitHubClient {
 
 		const queryParams =
 			`?page=${page}&per_page=${qtyPerPage}&state=${state}${labelListQueryParam}${milestoneNumberQueryParam}`;
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/issues${queryParams}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues${queryParams}`;
 
 		const response: Response = await this.fetchGET(url);
 
@@ -102,15 +103,17 @@ export class IssueClient extends GitHubClient {
 			switch (response.status) {
 				case GitHubHttpStatusCodes.MovedPermanently:
 				case GitHubHttpStatusCodes.ValidationFailed:
-					Utils.printAsGitHubError(
-						`The request to get an issue returned error '${response.status} - (${response.statusText})'`,
-					);
+				case GitHubHttpStatusCodes.Unauthorized: {
+					let errorMsg = `An error occurred trying to get the issues for the repository '${repoName}'.`;
+					errorMsg += `\n\tError: ${response.status}(${response.statusText})`;
+					Utils.printAsGitHubError(errorMsg);
 					break;
-				case GitHubHttpStatusCodes.NotFound:
-					Utils.printAsGitHubError(
-						`The organization '${this.organization}' or repository '${repoName}' does not exist.`,
-					);
+				}
+				case GitHubHttpStatusCodes.NotFound: {
+					const errorMsg = `The organization '${this.organization}' or repository '${repoName}' does not exist.`;
+					Utils.printAsGitHubError(errorMsg);
 					break;
+				}
 			}
 
 			Deno.exit(1);
@@ -132,7 +135,7 @@ export class IssueClient extends GitHubClient {
 		Guard.isLessThanOne(issueNumber, "getIssue", "issueNumber");
 
 		// REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#get-an-issue
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${issueNumber}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${issueNumber}`;
 
 		const response: Response = await this.fetchGET(url);
 
@@ -141,13 +144,15 @@ export class IssueClient extends GitHubClient {
 			switch (response.status) {
 				case GitHubHttpStatusCodes.MovedPermanently:
 				case GitHubHttpStatusCodes.NotModified:
+				case GitHubHttpStatusCodes.Unauthorized:
+				case GitHubHttpStatusCodes.Gone: {
+					let errorMsg = `An error occurred trying to get issue '${issueNumber}'.`;
+					errorMsg += `\n\tError: ${response.status}(${response.statusText})`;
+					Utils.printAsGitHubError(errorMsg);
+					break;
+				}
 				case GitHubHttpStatusCodes.NotFound:
 					Utils.printAsGitHubError(`The repository '${repoName}' or issue '${issueNumber}' does not exist.`);
-					break;
-				case GitHubHttpStatusCodes.Gone:
-					Utils.printAsGitHubError(
-						`The request to get an issue returned error '${response.status} - (${response.statusText})'`,
-					);
 					break;
 			}
 
@@ -195,7 +200,7 @@ export class IssueClient extends GitHubClient {
 		prLabels.push(label);
 
 		// REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${issueNumber}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${issueNumber}`;
 
 		const response: Response = await this.fetchPATCH(url, JSON.stringify({ labels: prLabels }));
 
@@ -206,17 +211,15 @@ export class IssueClient extends GitHubClient {
 				case GitHubHttpStatusCodes.Gone:
 				case GitHubHttpStatusCodes.ValidationFailed:
 				case GitHubHttpStatusCodes.ServiceUnavailable:
-					Utils.printAsGitHubError(
-						`The request to add label '${label}' returned error '${response.status} - (${response.statusText})'`,
-					);
+				case GitHubHttpStatusCodes.Forbidden:
+				case GitHubHttpStatusCodes.Unauthorized: {
+					let errorMsg = `An error occurred trying to add the label '${label}' to issue '${issueNumber}'.`;
+					errorMsg += `\n\tError: ${response.status}(${response.statusText})`;
+					Utils.printAsGitHubError(errorMsg);
 					break;
+				}
 				case GitHubHttpStatusCodes.NotFound:
 					Utils.printAsGitHubError(`An issue with the number '${issueNumber}' does not exist.`);
-					break;
-				case GitHubHttpStatusCodes.Forbidden:
-					Utils.printAsGitHubError(
-						`The request to add label '${label}' was forbidden.  Check the auth token.`,
-					);
 					break;
 			}
 
@@ -236,7 +239,7 @@ export class IssueClient extends GitHubClient {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getLabels", "repoName");
 		Guard.isLessThanOne(issueNumber, "getLabels", "issueNumber");
 
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/issues/${issueNumber}/labels`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${issueNumber}/labels`;
 
 		const response: Response = await this.fetchGET(url);
 
@@ -245,10 +248,12 @@ export class IssueClient extends GitHubClient {
 			switch (response.status) {
 				case GitHubHttpStatusCodes.MovedPermanently:
 				case GitHubHttpStatusCodes.Gone:
-					Utils.printAsGitHubError(
-						`The request to get labels returned error '${response.status} - (${response.statusText})'`,
-					);
+				case GitHubHttpStatusCodes.Unauthorized: {
+					let errorMsg = `There was an issue getting the labels for issue '${issueNumber}'.`;
+					errorMsg += `\n\tError: ${response.status}(${response.statusText})`;
+					Utils.printAsGitHubError(errorMsg);
 					break;
+				}
 				case GitHubHttpStatusCodes.NotFound:
 					Utils.printAsGitHubError(`An issue with the number '${issueNumber}' does not exist.`);
 					break;
@@ -260,6 +265,20 @@ export class IssueClient extends GitHubClient {
 		const responseData = <ILabelModel[]> await this.getResponseData(response);
 
 		return responseData.map((label: ILabelModel) => label.name);
+	}
+
+	/**
+	 * Returns a value indicating whether or not an issue with the given {@link issueNumber} exists regardless
+	 * of its state, in a repository that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
+	 * @param issueNumber The issue number.
+	 * @returns True if the issue exists, otherwise false.
+	 */
+	public async issueExists(repoName: string, issueNumber: number): Promise<boolean> {
+		Guard.isNullOrEmptyOrUndefined(repoName, "openIssueExist", "repoName");
+		Guard.isLessThanOne(issueNumber, "openIssueExist", "issueNumber");
+
+		return await this.openOrClosedIssueExists(repoName, issueNumber, IssueOrPRState.any);
 	}
 
 	/**
@@ -291,6 +310,48 @@ export class IssueClient extends GitHubClient {
 	}
 
 	/**
+	 * Updates an issue with the given {@link issueNumber} in a repository that matches the given {@link repoName},
+	 * using the given {@link issueData}.
+	 * @param repoName The name of the repository.
+	 * @param issueNumber The issue number.
+	 * @param issueData The data to update the issue with.
+	 */
+	public async updateIssue(repoName: string, issueNumber: number, issueData: IIssueOrPRRequestData): Promise<void> {
+		Guard.isNullOrEmptyOrUndefined(repoName, "updateIssue", "repoName");
+		Guard.isLessThanOne(issueNumber, "updateIssue", "issueNumber");
+
+		repoName = repoName.trim();
+
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${issueNumber}`;
+
+		const issueBody: string = JSON.stringify(issueData);
+		const response = await this.fetchPATCH(url, issueBody);
+
+		if (response.status != GitHubHttpStatusCodes.OK) {
+			if (response.status === GitHubHttpStatusCodes.NotFound) {
+				Utils.printAsGitHubError(`An issue with the number '${issueNumber}' does not exist.`);
+			} else {
+				switch (response.status) {
+					case GitHubHttpStatusCodes.MovedPermanently:
+					case GitHubHttpStatusCodes.Gone:
+					case GitHubHttpStatusCodes.ValidationFailed:
+					case GitHubHttpStatusCodes.ServiceUnavailable:
+					case GitHubHttpStatusCodes.Unauthorized:
+					case GitHubHttpStatusCodes.Forbidden: {
+						let errorMsg = `An error occurred trying to update issue '${issueNumber}'.`;
+						errorMsg += `\n\t'Error: ${response.status}(${response.statusText})`;
+
+						Utils.printAsGitHubError(errorMsg);
+						break;
+					}
+				}
+			}
+
+			Deno.exit(1);
+		}
+	}
+
+	/**
 	 * Checks if an issue with the given {@link issueNumber } exists with the given {@link state} in a
 	 * repository that matches the given {@link repoName}.
 	 * @param repoName The name of the repository.
@@ -318,6 +379,6 @@ export class IssueClient extends GitHubClient {
 			},
 		);
 
-		return issues.find((issue: IIssueModel) => issue.number === issueNumber) !== undefined;
+		return issues.find((issue: IIssueModel) => issue.number === issueNumber) != undefined;
 	}
 }

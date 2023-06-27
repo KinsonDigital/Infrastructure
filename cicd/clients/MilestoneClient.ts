@@ -171,7 +171,7 @@ export class MilestoneClient extends GitHubClient {
 		qtyPerPage = Utils.clamp(qtyPerPage, 1, 100);
 
 		const queryParams = `?state=all&page=${page}&per_page=${qtyPerPage}`;
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/milestones${queryParams}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/milestones${queryParams}`;
 
 		const response: Response = await this.fetchGET(url);
 
@@ -211,7 +211,7 @@ export class MilestoneClient extends GitHubClient {
 			},
 		);
 
-		return milestones.find((m) => m.title.trim() === milestoneName) !== undefined;
+		return milestones.find((m) => m.title.trim() === milestoneName) != undefined;
 	}
 
 	/**
@@ -229,7 +229,7 @@ export class MilestoneClient extends GitHubClient {
 
 		const milestone: IMilestoneModel = await this.getMilestoneByName(repoName, milestoneName);
 
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/milestones/${milestone.number}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/milestones/${milestone.number}`;
 		const response: Response = await this.fetchPATCH(url, JSON.stringify({ state: "closed" }));
 
 		// If there is an error
@@ -239,8 +239,8 @@ export class MilestoneClient extends GitHubClient {
 			Utils.printAsGitHubError(`The organization '${this.organization}' or repo '${repoName}' does not exist.`);
 			Deno.exit(1);
 		} else {
-			let errorMsg = `The request to close milestone '${milestoneName}' returned an error.`;
-			errorMsg += `\nError: ${response.status} - (${response.statusText})`;
+			let errorMsg = `An error occurred trying to close milestone '${milestoneName}(${milestone.number})'.`;
+			errorMsg += `\nError: ${response.status}(${response.statusText})`;
 
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);

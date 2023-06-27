@@ -1,0 +1,17 @@
+@pushEvent = push
+@prEvent = pull_request
+
+
+# Get Completed Workflow Runs With Push Events
+GET  {{hostAddress}}/repos/{{repoOwner}}/{{repoName}}/actions/runs?event={{pushEvent}}&status=completed&page=1&per_page=100
+
+###
+
+# Get Completed Workflow Runs With Pull Request Events
+GET  {{hostAddress}}/repos/{{repoOwner}}/{{repoName}}/actions/runs?event={{prEvent}}&status=completed&page=1&per_page=10
+
+###
+
+# Get Failed Workflow Runs
+
+GET  {{hostAddress}}/repos/{{repoOwner}}/{{repoName}}/actions/runs?status=failure&page=1&per_page=10

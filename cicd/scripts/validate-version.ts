@@ -30,7 +30,7 @@ if (versionTypeInvalid) {
 }
 
 // Print out all of the arguments
-Utils.printInGroup("Arguments", [
+Utils.printInGroup("Script Arguments", [
 	`Version (Required): ${version}`,
 	`Version Type (Required): ${versionType}`,
 ]);

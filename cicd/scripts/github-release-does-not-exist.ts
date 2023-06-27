@@ -19,7 +19,7 @@ const tagName = Deno.args[1].trim();
 const githubToken = Deno.args.length >= 3 ? Deno.args[2].trim() : "";
 
 // Print out all of the arguments
-Utils.printInGroup("Arguments", [
+Utils.printInGroup("Script Arguments", [
 	`Repository Name (Required): ${repoName}`,
 	`Tag Name (Required): ${tagName}`,
 	`GitHub Token (Optional): ${githubToken}`,

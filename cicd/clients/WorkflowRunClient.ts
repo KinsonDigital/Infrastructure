@@ -56,15 +56,15 @@ export class WorkflowRunClient extends GitHubClient {
 		const eventParam = event === WorkflowEvent.any ? "" : `&event=${event}`;
 		const statusParam = status === WorkflowRunStatus.any ? "" : `&status=${status}`;
 		const queryParams = `?page=${page}&per_page=${qtyPerPage}${branchParam}${eventParam}${statusParam}`;
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/actions/runs${queryParams}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/actions/runs${queryParams}`;
 
 		const response: Response = await this.fetchGET(url);
 
 		// If there is an error
 		if (response.status != GitHubHttpStatusCodes.OK) {
-			Utils.printAsGitHubError(
-				`The request to get the workflow runs returned error '${response.status} - (${response.statusText})'`,
-			);
+			let errorMsg = `An error occurred trying to get the workflow runs for the repository '${repoName}'.`;
+			errorMsg = `\n\tError: ${response.status}(${response.statusText})`;
+			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
@@ -381,18 +381,18 @@ export class WorkflowRunClient extends GitHubClient {
 	public async deleteWorkflow(repoName: string, workflowRun: IWorkflowRunModel): Promise<void> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "deleteWorkflow", "repoName");
 
-		const url = `${this.baseUrl}/${this.organization}/${repoName}/actions/runs/${workflowRun.id}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/actions/runs/${workflowRun.id}`;
 
 		const response: Response = await this.fetchDELETE(url);
 
 		// If there is an error
 		switch (response.status) {
 			case GitHubHttpStatusCodes.Forbidden:
-			case GitHubHttpStatusCodes.NotFound:
-				Utils.printAsGitHubError(
-					`The request to delete the workflow returned error '${response.status} - (${response.statusText})'`,
-				);
+			case GitHubHttpStatusCodes.NotFound: {
+				let errorMsg = `An error occurred trying to delete the workflow run '${workflowRun.name}(${workflowRun.id})'`;
+				errorMsg += `Error: ${response.status}(${response.statusText})`, Utils.printAsGitHubError(errorMsg);
 				Deno.exit(1);
+			}
 		}
 	}
 }

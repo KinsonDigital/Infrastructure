@@ -22,7 +22,6 @@ export enum IssueOrPRState {
  * Represents the state of an issue.
  */
 export enum IssueState {
-
 	/**
 	 * Opened issue.
 	 */
@@ -348,4 +347,24 @@ export enum PRTemplateVars {
 	 * The head branch template variable.
 	 */
 	headBranch = "head-branch",
+}
+
+/**
+ * Represents the type of role in a GitHub organization.
+ */
+export enum OrgMemberRole {
+	/**
+	 * Any role.
+	 */
+	all = "all",
+
+	/**
+	 * The admin role.
+	 */
+	admin = "admin",
+
+	/**
+	 * The member role.
+	 */
+	member = "member",
 }

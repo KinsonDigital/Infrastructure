@@ -6,6 +6,8 @@ import { Guard } from "../core/Guard.ts";
 import { Utils } from "../core/Utils.ts";
 import { createLinkItemToProjectMutation } from "../core/GraphQLMutations/AddToProjectMutation.ts";
 import { createGetIssueProjectsQuery } from "../core/GraphQLQueries/GetIssueProjectsQuery.ts";
+import { createGetPullRequestProjectsQuery } from "../core/GraphQLQueries/GetPullRequestProjectsQuery.ts";
+import { BadCredentials } from "../core/Types.ts";
 
 /**
  * Gets or saves data related to GitHub organization projects.
@@ -26,7 +28,7 @@ export class ProjectClient extends GraphQLClient {
 	 */
 	public async getOrgProjects(): Promise<IProjectModel[]> {
 		const query = createOrgProjectsQuery(this.organization);
-		const response = await this.fetch(query);
+		const response = await this.fetchPOST(query);
 
 		const responseData: RequestResponseModel = await this.getResponseData(response);
 
@@ -48,16 +50,17 @@ export class ProjectClient extends GraphQLClient {
 	}
 
 	/**
-	 * Adds an issue or pull request with the given {@link nodeId} to the project with the given {@link projectName}.
-	 * @param nodeId The node id of an issue or pull request.
+	 * Adds an issue or pull request with the given {@link contentId} to a project with the given {@link projectName}.
+	 * @param contentId The node id of an issue or pull request.
 	 * @param projectName The name of the project.
 	 * @throws Throws an error if the project does not exist.
 	 */
-	public async addToProject(nodeId: string, projectName: string): Promise<void> {
-		Guard.isNullOrEmptyOrUndefined(nodeId, "addToProject");
-		Guard.isNullOrEmptyOrUndefined(projectName, "addToProject");
+	public async addToProject(contentId: string, projectName: string): Promise<void> {
+		const funcName = "addToProject";
+		Guard.isNullOrEmptyOrUndefined(contentId, funcName);
+		Guard.isNullOrEmptyOrUndefined(projectName, funcName);
 
-		nodeId = nodeId.trim();
+		contentId = contentId.trim();
 		projectName = projectName.trim();
 
 		const projects = await this.getOrgProjects();
@@ -69,8 +72,8 @@ export class ProjectClient extends GraphQLClient {
 			Deno.exit(1);
 		}
 
-		const query = createLinkItemToProjectMutation(nodeId, project.id);
-		const response = await this.fetch(query);
+		const query = createLinkItemToProjectMutation(contentId, project.id);
+		const response = await this.fetchPOST(query);
 
 		Utils.throwIfErrors(response);
 	}
@@ -90,10 +93,32 @@ export class ProjectClient extends GraphQLClient {
 		repoName = repoName.trim();
 
 		const query = createGetIssueProjectsQuery(this.organization, repoName, issueNumber);
-		const response = await this.fetch(query);
+		const response = await this.fetchPOST(query);
+
+		const responseData: RequestResponseModel | BadCredentials = await this.getResponseData(response);
+
+		return <IProjectModel[]> responseData.data.repository.issue.projectsV2.nodes;
+	}
+
+	/**
+	 * Gets a list of the organizational projects for a pull request that has the given {@link prNumber},
+	 * in a repository with a name that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
+	 * @param prNumber The issue number.
+	 * @returns The list of organizational projects that the issue is assigned to.
+	 */
+	public async getPullRequestProjects(repoName: string, prNumber: number): Promise<IProjectModel[]> {
+		const funcName = "getPullRequestProjects";
+		Guard.isNullOrEmptyOrUndefined(repoName, funcName);
+		Guard.isLessThanOne(prNumber, funcName);
+
+		repoName = repoName.trim();
+
+		const query = createGetPullRequestProjectsQuery(this.organization, repoName, prNumber);
+		const response = await this.fetchPOST(query);
 
 		const responseData: RequestResponseModel = await this.getResponseData(response);
 
-		return <IProjectModel[]> responseData.data.repository.issue.projectsV2.nodes;
+		return <IProjectModel[]> responseData.data.repository.pullRequest.projectsV2.nodes;
 	}
 }

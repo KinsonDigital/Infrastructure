@@ -33,7 +33,7 @@ const prLabel = Deno.args.length >= 5 ? Deno.args[4].trim() : "";
 const token = Deno.args.length >= 6 ? Deno.args[5].trim() : "";
 
 // Print out all of the arguments
-Utils.printInGroup("Arguments", [
+Utils.printInGroup("Script Arguments", [
 	`Repo Name (Required): ${repoName}`,
 	`Release Type (Required): ${releaseType}`,
 	`Version (Required): ${version}`,
@@ -102,7 +102,7 @@ const issues = (await milestoneClient.getIssues(repoName, version))
 		}
 
 		const shouldNotIgnore = ignoreLabels.every((ignoreLabel) =>
-			issue.labels.every((issueLabel) => issueLabel.name != ignoreLabel)
+			issue.labels?.every((issueLabel) => issueLabel.name != ignoreLabel) ?? true
 		);
 		const shouldIgnore = !shouldNotIgnore;
 
@@ -117,7 +117,7 @@ const issues = (await milestoneClient.getIssues(repoName, version))
 const pullRequests = (await milestoneClient.getPullRequests(repoName, version))
 	.filter((pr: IPullRequestModel) => {
 		const shouldNotIgnore = ignoreLabels.length <= 0 || ignoreLabels.every((ignoreLabel) => {
-			return pr.labels.every((prLabel) => prLabel.name != ignoreLabel);
+			return pr.labels?.every((prLabel) => prLabel.name != ignoreLabel) ?? true;
 		});
 		const shouldIgnore = !shouldNotIgnore;
 
@@ -125,8 +125,8 @@ const pullRequests = (await milestoneClient.getPullRequests(repoName, version))
 			ignoredPullRequests.push(pr);
 		}
 
-		return (pr.pull_request.merged_at != null && shouldNotIgnore) &&
-			pr.labels.some((label) => label.name === prLabel);
+		return (pr.pull_request?.merged_at != null && shouldNotIgnore) &&
+			pr.labels?.some((label) => label.name === prLabel);
 	});
 
 if (ignoredIssues.length > 0) {
