@@ -20,7 +20,7 @@ on:
         type: number
         default: 0
   issues:
-    types: [edited, labeled, unlabeled, assigned, unassigned, milestoned, demilestoned]
+    types: [labeled, unlabeled, assigned, unassigned, milestoned, demilestoned]
   pull_request:
     branches: [master, preview]  
 
@@ -104,5 +104,5 @@ jobs:
             "$issurOrPRNumber" `
             "${{ vars.DEFAULT_PR_REVIEWER }}" `
             "$eventType" `
-            "${{ github.token }}";
+            "${{ secrets.CICD_REST_API }}";
           
