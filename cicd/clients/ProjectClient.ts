@@ -75,7 +75,7 @@ export class ProjectClient extends GraphQLClient {
 		const query = createLinkItemToProjectMutation(contentId, project.id);
 		const response = await this.fetchPOST(query);
 
-		Utils.throwIfErrors(response);
+		await this.throwIfErrors(response);
 	}
 
 	/**
