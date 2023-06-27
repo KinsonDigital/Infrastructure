@@ -15,17 +15,14 @@ import { Utils } from "../core/Utils.ts";
 
 const scriptName = Utils.getScriptName();
 
-if (Deno.args.length != 8) {
-	let errorMsg = `The '${scriptName}' cicd script must have at 8 arguments.`;
+if (Deno.args.length != 6) {
+	let errorMsg = `The '${scriptName}' cicd script must have at 6 arguments.`;
 	errorMsg += "\nThe 1st arg is required and must be a valid organization name.";
 	errorMsg += "\nThe 2nd arg is required and must be the GitHub repo name.";
 	errorMsg += "\nThe 3rd arg is required and must be a valid GitHub user that has requested this script to run.";
 	errorMsg += "\nThe 4th arg is required and must be a valid pull request number.";
 	errorMsg += "\nThe 5th arg is required and must be a text that contains a sync command.";
-	errorMsg += "\nThe 6th arg is required and must be a valid GitHub user.";
-	errorMsg += "\nThe 7th arg is required and must be a valid relative file path";
-	errorMsg += " to the pull request sync template in a repository.";
-	errorMsg += "\nThe 8th arg is required and must be a valid GitHub token.";
+	errorMsg += "\nThe 6th arg is required and must be a valid GitHub token.";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
@@ -36,23 +33,16 @@ const repoName = Deno.args[1].trim();
 const requestedByUser = Deno.args[2].trim();
 const prNumberStr = Deno.args[3].trim();
 const syncCommand = Deno.args[4].trim();
-const defaultReviewer = Deno.args[5].trim();
-let relativeTemplateFilePath = Deno.args[6].trim();
-const githubToken = Deno.args[7].trim();
+const githubToken = Deno.args[5].trim();
 
 if (!(Utils.isNumeric(prNumberStr))) {
 	Utils.printAsGitHubError(`The pull request number '${prNumberStr}' is not a valid number.`);
 	Deno.exit(1);
 }
 
+const DEFAULT_PR_REVIEWER = "DEFAULT_PR_REVIEWER";
+const RELATIVE_PR_SYNC_TEMPLATE_FILE_PATH = "RELATIVE_PR_SYNC_TEMPLATE_FILE_PATH";
 const prNumber = Number.parseInt(prNumberStr);
-
-// Make sure that there are no backslashes and that it does not start with a forward slash
-relativeTemplateFilePath = relativeTemplateFilePath.replaceAll("\\", "/");
-relativeTemplateFilePath = relativeTemplateFilePath.replaceAll("//", "/");
-relativeTemplateFilePath = relativeTemplateFilePath.startsWith("/")
-	? relativeTemplateFilePath.substring(1)
-	: relativeTemplateFilePath;
 
 // Print out all of the arguments
 Utils.printInGroup("Script Arguments", [
@@ -61,12 +51,51 @@ Utils.printInGroup("Script Arguments", [
 	`Requested By User (Required): ${requestedByUser}`,
 	`Pull Request Number (Required): ${prNumber}`,
 	`Sync Command (Required): ${syncCommand}`,
-	`Default Reviewer (Required): ${defaultReviewer}`,
-	`Relative Template File Path (Required): ${relativeTemplateFilePath}`,
 	`GitHub Token (Required): ${Utils.isNullOrEmptyOrUndefined(githubToken) ? "Not Provided" : "****"}`,
 ]);
 
+const orgClient: OrgClient = new OrgClient(githubToken);
 const repoClient: RepoClient = new RepoClient(githubToken);
+
+const repoVars = await repoClient.getVariables(repoName);
+
+const defaultReviewerVar = repoVars.find((v) => v.name == DEFAULT_PR_REVIEWER);
+
+// Make sure that the repo contains the default PR reviewer variable
+if (defaultReviewerVar == undefined) {
+	let errorMsg = `The repository '${repoName}' does not have a variable named '${DEFAULT_PR_REVIEWER}'.`;
+	errorMsg += "\nThe value of this variable must be a valid GitHub user.";
+
+	Utils.printAsGitHubError(errorMsg);
+	Deno.exit(1);
+}
+
+const relativeTemplateFilePathVar = repoVars.find((v) => v.name == RELATIVE_PR_SYNC_TEMPLATE_FILE_PATH);
+
+// Make sure that the repo contains the relative pr sync template path variable
+if (relativeTemplateFilePathVar == undefined) {
+	let errorMsg = `The repository '${repoName}' does not have a variable named '${RELATIVE_PR_SYNC_TEMPLATE_FILE_PATH}'.`;
+	errorMsg +=
+		"\nThe value of this variable must be a file path relative to the root of the repository that contains the sync template.";
+
+	Utils.printAsGitHubError(errorMsg);
+	Deno.exit(1);
+}
+
+let relativeTemplateFilePath = relativeTemplateFilePathVar.value;
+
+// Make sure that there are no backslashes and that it does not start with a forward slash
+relativeTemplateFilePath = relativeTemplateFilePath.replaceAll("\\", "/");
+relativeTemplateFilePath = relativeTemplateFilePath.replaceAll("//", "/");
+relativeTemplateFilePath = relativeTemplateFilePath.startsWith("/")
+	? relativeTemplateFilePath.substring(1)
+	: relativeTemplateFilePath;
+
+const templateFileDoesNotExist = !(await repoClient.fileExists(repoName, relativeTemplateFilePath));
+if (templateFileDoesNotExist) {
+	Utils.printAsGitHubError(`The template file '${relativeTemplateFilePath}' does not exist in the repository '${repoName}.`);
+	Deno.exit(1);
+}
 
 const repoDoesNotExist = !(await repoClient.repoExists(repoName));
 if (repoDoesNotExist) {
@@ -97,6 +126,8 @@ if (await issueClient.issueExists(repoName, prNumber)) {
 
 const userClient: UsersClient = new UsersClient(githubToken);
 
+const defaultReviewer = defaultReviewerVar.value;
+
 const defaultReviewerDoesNotExist = !(await userClient.userExists(defaultReviewer));
 if (defaultReviewerDoesNotExist) {
 	Utils.printAsGitHubError(`The default reviewer '${defaultReviewer}' does not exist.`);
@@ -108,8 +139,6 @@ if (requestedByUserDoesNotExist) {
 	Utils.printAsGitHubError(`The requested by user '${requestedByUser}' does not exist.`);
 	Deno.exit(1);
 }
-
-const orgClient: OrgClient = new OrgClient(githubToken);
 
 const userIsNotOrgMember = !(await orgClient.userIsOrgAdminMember(organizationName, requestedByUser));
 
@@ -133,12 +162,6 @@ if (prDoesNotExist) {
 		Utils.printAsGitHubNotice("Syncing is disabled.  Syncing will not occur.");
 		Deno.exit(0);
 	}
-}
-
-const templateFileDoesNotExist = !(await repoClient.fileExists(repoName, relativeTemplateFilePath));
-if (templateFileDoesNotExist) {
-	Utils.printAsGitHubError(`The template file '${relativeTemplateFilePath}' does not exist in the repository '${repoName}.`);
-	Deno.exit(1);
 }
 
 const headBranch = pr.head.ref;
