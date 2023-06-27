@@ -43,7 +43,7 @@ jobs:
           $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH}}/sync-bot-status-check.ts";
 
           echo "::group:: Event Data";
-          echo "${{ toJson(github.event) }}";
+          echo "${{ github.event }}";
           echo "::endgroup::";
 
           $eventName = "${{ github.event_name }}";
@@ -86,7 +86,7 @@ jobs:
           $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH}}/sync-bot-status-check.ts";
 
           echo "::group:: Event Data";
-          echo "${{ toJson(github.event) }}";
+          echo "${{ github.event }}";
           echo "::endgroup::";
 
           $eventType = "pr";
