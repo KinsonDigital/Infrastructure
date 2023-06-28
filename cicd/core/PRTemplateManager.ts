@@ -57,10 +57,12 @@ export class PRTemplateManager {
 	 * Processes the given {@link template} with the given {@link settings}.
 	 * @param template The template to process.
 	 * @param settings The various settings to use for processing the template.
-	 * @returns The template after processing.
+	 * @returns The template after processing as well as a list of items synced.
 	 */
-	public processSyncTemplate(template: string, settings: IPRTemplateSettings): string {
+	public processSyncTemplate(template: string, settings: IPRTemplateSettings): [string, string[]] {
 		Guard.isNullOrEmptyOrUndefined(template, "processSyncTemplate", "template");
+
+		const statusOfSyncItems: string[] = [];
 
 		template = template.replace(/(?:\r\n|\r|\n)/g, "\n");
 
@@ -74,28 +76,66 @@ export class PRTemplateManager {
 			// If the line is a sync line with any sync status
 			if (isInSyncLine) {
 				if (line.match(this.headBranchRegex)) {
+					const statusEmoji = settings.headBranchValid ? "✅" : "❌";
+					const statusMsg = `${statusEmoji}The head branch is ${settings.headBranchValid ? "" : "not"} valid.`;
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.headBranchValid);
+
+					statusOfSyncItems.push(statusMsg);
 				} else if (line.match(this.baseBranchRegex)) {
+					const statusEmoji = settings.baseBranchValid ? "✅" : "❌";
+					const statusMsg = `${statusEmoji}The base branch is ${settings.baseBranchValid ? "" : "not"} valid.`;
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.baseBranchValid);
+
+					statusOfSyncItems.push(statusMsg);
 				} else if (line.match(this.validIssueNumRegex)) {
+					const statusEmoji = settings.issueNumValid ? "✅" : "❌";
+					const statusMsg = `${statusEmoji}The issue number is ${settings.issueNumValid ? "" : "not"} valid.`;
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.issueNumValid);
+
+					statusOfSyncItems.push(statusMsg);
 				} else if (line.match(this.titleRegex)) {
+					const statusEmoji = settings.titleInSync ? "✅" : "❌";
+					const statusMsg = `${statusEmoji}The title is ${settings.titleInSync ? "" : "not"} in sync.`;
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.titleInSync);
+
+					statusOfSyncItems.push(statusMsg);
 				} else if (line.match(this.defaultReviewerRegex)) {
+					const statusEmoji = settings.defaultReviewerValid ? "✅" : "❌";
+					const statusMsg = `${statusEmoji}The default reviewer is ${
+						settings.defaultReviewerValid ? "" : "not"
+					} valid.`;
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.defaultReviewerValid);
+
+					statusOfSyncItems.push(statusMsg);
 				} else if (line.match(this.assigneesRegex)) {
+					const statusEmoji = settings.assigneesInSync ? "✅" : "❌";
+					const statusMsg = `${statusEmoji}The assignees are ${settings.assigneesInSync ? "" : "not"} in sync.`;
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.assigneesInSync);
+
+					statusOfSyncItems.push(statusMsg);
 				} else if (line.match(this.labelsRegex)) {
+					const statusEmoji = settings.labelsInSync ? "✅" : "❌";
+					const statusMsg = `${statusEmoji}The labels are ${settings.labelsInSync ? "" : "not"} in sync.`;
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.labelsInSync);
+
+					statusOfSyncItems.push(statusMsg);
 				} else if (line.match(this.projectsRegex)) {
+					const statusEmoji = settings.projectsInSync ? "✅" : "❌";
+					const statusMsg = `${statusEmoji}The projects are ${settings.projectsInSync ? "" : "not"} in sync.`;
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.projectsInSync);
+
+					statusOfSyncItems.push(statusMsg);
 				} else if (line.match(this.milestoneRegex)) {
+					const statusEmoji = settings.milestoneInSync ? "✅" : "❌";
+					const statusMsg = `${statusEmoji}The milestone is ${settings.milestoneInSync ? "" : "not"} in sync.`;
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.milestoneInSync);
+
+					statusOfSyncItems.push(statusMsg);
 				}
 			}
 		}
 
-		return fileDataLines.join("\n");
+		return [fileDataLines.join("\n"), statusOfSyncItems];
 	}
 
 	/**

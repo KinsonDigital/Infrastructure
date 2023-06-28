@@ -42,6 +42,7 @@ if (!(Utils.isNumeric(prNumberStr))) {
 
 const DEFAULT_PR_REVIEWER = "DEFAULT_PR_REVIEWER";
 const RELATIVE_PR_SYNC_TEMPLATE_FILE_PATH = "RELATIVE_PR_SYNC_TEMPLATE_FILE_PATH";
+const PR_SYNC_TEMPLATE_REPO_NAME = "PR_SYNC_TEMPLATE_REPO_NAME";
 const prNumber = Number.parseInt(prNumberStr);
 
 // Print out all of the arguments
@@ -75,8 +76,20 @@ const relativeTemplateFilePathVar = repoVars.find((v) => v.name == RELATIVE_PR_S
 // Make sure that the repo contains the relative pr sync template path variable
 if (relativeTemplateFilePathVar == undefined) {
 	let errorMsg = `The repository '${repoName}' does not have a variable named '${RELATIVE_PR_SYNC_TEMPLATE_FILE_PATH}'.`;
-	errorMsg +=
-		"\nThe value of this variable must be a file path relative to the root of the repository that contains the sync template.";
+	errorMsg += "\nThe value of this variable must be a file path relative to ";
+	errorMsg += "the root of the repository that contains the sync template.";
+
+	Utils.printAsGitHubError(errorMsg);
+	Deno.exit(1);
+}
+
+const prSyncTemplateRepoNameVar = repoVars.find((v) => v.name == PR_SYNC_TEMPLATE_REPO_NAME);
+
+// Make sure that the repo contains the pr sync template repo name variable
+if (prSyncTemplateRepoNameVar == undefined) {
+	let errorMsg = `The repository '${repoName}' does not have a variable named '${PR_SYNC_TEMPLATE_REPO_NAME}'.`;
+	errorMsg += "\nThe value of this variable must be the name of the repository";
+	errorMsg += " that contains the pull request sync template.";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
@@ -91,7 +104,9 @@ relativeTemplateFilePath = relativeTemplateFilePath.startsWith("/")
 	? relativeTemplateFilePath.substring(1)
 	: relativeTemplateFilePath;
 
-const templateFileDoesNotExist = !(await repoClient.fileExists(repoName, relativeTemplateFilePath));
+const prSyncTemplateRepoName = prSyncTemplateRepoNameVar.value;
+
+const templateFileDoesNotExist = !(await repoClient.fileExists(prSyncTemplateRepoName, relativeTemplateFilePath));
 if (templateFileDoesNotExist) {
 	Utils.printAsGitHubError(`The template file '${relativeTemplateFilePath}' does not exist in the repository '${repoName}.`);
 	Deno.exit(1);
@@ -192,7 +207,7 @@ const issueProjects: IProjectModel[] = await projectClient.getIssueProjects(repo
 
 // If the pr body is not a valid pr template, load a new one to replace it.
 const prDescription = isInitialSyncCommand || !prTemplate.isPRSyncTemplate(pr.body)
-	? await prTemplate.getPullRequestTemplate(repoName, relativeTemplateFilePath, issueNumber)
+	? await prTemplate.getPullRequestTemplate(prSyncTemplateRepoName, relativeTemplateFilePath, issueNumber)
 	: pr.body;
 
 // If the title does not match, sync the title
@@ -255,7 +270,7 @@ const syncSettings: IPRTemplateSettings = {
 	milestoneInSync: pr.milestone?.number === issue.milestone?.number,
 };
 
-const newPRSyncBody = prTemplate.processSyncTemplate(prDescription, syncSettings);
+const [newPRSyncBody, statusOfSyncItems] = prTemplate.processSyncTemplate(prDescription, syncSettings);
 
 const syncPRData: IIssueOrPRRequestData = {
 	title: issue.title,
@@ -268,3 +283,7 @@ const syncPRData: IIssueOrPRRequestData = {
 };
 
 await prClient.updatePullRequest(repoName, prNumber, syncPRData);
+
+statusOfSyncItems.forEach((syncItemStatusMsg) => {
+	Utils.printAsGitHubNotice(syncItemStatusMsg);
+});
