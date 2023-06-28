@@ -202,7 +202,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		args = args.map((arg) => arg.trim());
 
 		const issueOrPRNumberStr = args[1];
-		const eventType = args[3];
+		const eventType = args[2];
 
 		if (!Utils.isNumeric(issueOrPRNumberStr)) {
 			Utils.printAsGitHubError(`The ${eventType} number '${issueOrPRNumberStr}' is not a valid number.`);
