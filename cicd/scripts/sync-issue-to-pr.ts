@@ -270,7 +270,7 @@ const syncSettings: IPRTemplateSettings = {
 	milestoneInSync: pr.milestone?.number === issue.milestone?.number,
 };
 
-const newPRSyncBody = prTemplate.processSyncTemplate(prDescription, syncSettings);
+const [newPRSyncBody, statusOfSyncItems] = prTemplate.processSyncTemplate(prDescription, syncSettings);
 
 const syncPRData: IIssueOrPRRequestData = {
 	title: issue.title,
@@ -283,3 +283,7 @@ const syncPRData: IIssueOrPRRequestData = {
 };
 
 await prClient.updatePullRequest(repoName, prNumber, syncPRData);
+
+statusOfSyncItems.forEach(syncItemStatusMsg => {
+	Utils.printAsGitHubNotice(syncItemStatusMsg);
+});

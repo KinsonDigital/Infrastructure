@@ -427,13 +427,17 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		const templateSettings = await this.buildTemplateSettings(repoName, defaultReviewer, issueNumber, prNumber);
 		const prTemplateManager = new PRTemplateManager();
 
-		const updatedPRDescription = prTemplateManager.processSyncTemplate(prBody, templateSettings);
+		const [updatedPRDescription, statusOfSyncItems] = prTemplateManager.processSyncTemplate(prBody, templateSettings);
 
 		const prRequestData: IIssueOrPRRequestData = {
 			body: updatedPRDescription,
 		};
 
 		await this.prClient.updatePullRequest(repoName, prNumber, prRequestData);
+
+		statusOfSyncItems.forEach(syncItemStatusMsg => {
+			Utils.printAsGitHubNotice(syncItemStatusMsg);
+		});
 	}
 
 	/**
