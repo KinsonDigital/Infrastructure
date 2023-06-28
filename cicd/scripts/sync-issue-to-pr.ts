@@ -77,7 +77,7 @@ const relativeTemplateFilePathVar = repoVars.find((v) => v.name == RELATIVE_PR_S
 if (relativeTemplateFilePathVar == undefined) {
 	let errorMsg = `The repository '${repoName}' does not have a variable named '${RELATIVE_PR_SYNC_TEMPLATE_FILE_PATH}'.`;
 	errorMsg += "\nThe value of this variable must be a file path relative to ";
-	errorMsg +=	"the root of the repository that contains the sync template.";
+	errorMsg += "the root of the repository that contains the sync template.";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
@@ -284,6 +284,6 @@ const syncPRData: IIssueOrPRRequestData = {
 
 await prClient.updatePullRequest(repoName, prNumber, syncPRData);
 
-statusOfSyncItems.forEach(syncItemStatusMsg => {
+statusOfSyncItems.forEach((syncItemStatusMsg) => {
 	Utils.printAsGitHubNotice(syncItemStatusMsg);
 });

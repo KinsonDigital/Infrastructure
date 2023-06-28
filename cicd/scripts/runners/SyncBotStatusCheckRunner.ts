@@ -357,7 +357,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 
 	/**
 	 * Gets a list of organization projects associated with an issue with the given {@link issueNumber} from a repository
-	 * with a name that matches the given {@link repoName}. 
+	 * with a name that matches the given {@link repoName}.
 	 * @param repoName The name of the repository.
 	 * @param issueNumber The issue number.
 	 * @returns The projects associated with the issue.
@@ -373,7 +373,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 
 	/**
 	 * Gets a list of organization projects associated with a pull request with the given {@link issueNumber} from a repository
-	 * with a name that matches the given {@link repoName}. 
+	 * with a name that matches the given {@link repoName}.
 	 * @param repoName The name of the repository.
 	 * @param prNumber The pull request number.
 	 * @returns The projects associated with the pull request.
@@ -435,7 +435,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 
 		await this.prClient.updatePullRequest(repoName, prNumber, prRequestData);
 
-		statusOfSyncItems.forEach(syncItemStatusMsg => {
+		statusOfSyncItems.forEach((syncItemStatusMsg) => {
 			Utils.printAsGitHubNotice(syncItemStatusMsg);
 		});
 	}

@@ -101,7 +101,9 @@ export class PRTemplateManager {
 					statusOfSyncItems.push(statusMsg);
 				} else if (line.match(this.defaultReviewerRegex)) {
 					const statusEmoji = settings.defaultReviewerValid ? "✅" : "❌";
-					const statusMsg = `${statusEmoji}The default reviewer is ${settings.defaultReviewerValid ? "" : "not"} valid.`;
+					const statusMsg = `${statusEmoji}The default reviewer is ${
+						settings.defaultReviewerValid ? "" : "not"
+					} valid.`;
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.defaultReviewerValid);
 
 					statusOfSyncItems.push(statusMsg);
