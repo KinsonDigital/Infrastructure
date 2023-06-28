@@ -218,11 +218,26 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		}
 	}
 
+	/**
+	 * Runs the script as a sync bot.
+	 * @param repoName The name of the repository.
+	 * @param defaultReviewer The default pull request reviewer.
+	 * @param issueNumber The issue number.
+	 * @param prNumber The pull request number.
+	 */
 	private async runAsSyncBot(repoName: string, defaultReviewer: string, issueNumber: number, prNumber: number): Promise<void> {
-		await this.syncIssueToPR(repoName, issueNumber, prNumber);
+		await this.syncPullRequestToIssue(repoName, prNumber, issueNumber);
 		await this.updatePRBody(repoName, issueNumber, prNumber, defaultReviewer);
 	}
 
+	/**
+	 * Runs the script as a status check.
+	 * @param repoName The name of the repository.
+	 * @param defaultReviewer The default pull request reviewer.
+	 * @param issueNumber The issue number.
+	 * @param prNumber The pull request number.
+	 * @returns The list of problems found.
+	 */
 	private async runAsStatusCheck(
 		repoName: string,
 		defaultReviewer: string,
@@ -253,6 +268,15 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		return problemsFound;
 	}
 
+	/**
+	 * Builds the pull request sync template settings for processing the template to show the sync status
+	 * between the pull request and the issue.
+	 * @param repoName The name of the repository.
+	 * @param defaultReviewer The default pull request reviewer.
+	 * @param issueNumber The issue number.
+	 * @param prNumber The pull request number.
+	 * @returns The template settings to use for processing the pull request sync template.
+	 */
 	private async buildTemplateSettings(
 		repoName: string,
 		defaultReviewer: string,
@@ -315,6 +339,14 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		return this.issue;
 	}
 
+	/**
+	 * Gets a pull request from a repository with a name that matches the given {@link repoName}
+	 * with a pull request number that matches the given {@link prNumber}.
+	 * @param repoName The name of the repository.
+	 * @param prNumber The pull request number.
+	 * @returns The pull request.
+	 * @remarks Caches the pull request on the first call.
+	 */
 	private async getPullRequest(repoName: string, prNumber: number): Promise<IPullRequestModel> {
 		if (this.pr === null) {
 			this.pr = await this.prClient.getPullRequest(repoName, prNumber);
@@ -323,6 +355,14 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		return this.pr;
 	}
 
+	/**
+	 * Gets a list of organization projects associated with an issue with the given {@link issueNumber} from a repository
+	 * with a name that matches the given {@link repoName}. 
+	 * @param repoName The name of the repository.
+	 * @param issueNumber The issue number.
+	 * @returns The projects associated with the issue.
+	 * @remarks Caches the projects on the first call.
+	 */
 	private async getIssueOrgProjects(repoName: string, issueNumber: number): Promise<IProjectModel[]> {
 		if (this.issueProjects === null) {
 			this.issueProjects = await this.projClient.getIssueProjects(repoName, issueNumber);
@@ -331,6 +371,14 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		return this.issueProjects;
 	}
 
+	/**
+	 * Gets a list of organization projects associated with a pull request with the given {@link issueNumber} from a repository
+	 * with a name that matches the given {@link repoName}. 
+	 * @param repoName The name of the repository.
+	 * @param prNumber The pull request number.
+	 * @returns The projects associated with the pull request.
+	 * @remarks Caches the projects on the first call.
+	 */
 	private async getPullRequestOrgProjects(repoName: string, prNumber: number): Promise<IProjectModel[]> {
 		if (this.prProjects === null) {
 			this.prProjects = await this.projClient.getPullRequestProjects(repoName, prNumber);
@@ -339,7 +387,14 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		return this.prProjects;
 	}
 
-	private async syncIssueToPR(repoName: string, issueNumber: number, prNumber: number): Promise<void> {
+	/**
+	 * Syncs a pull request with the given {@link prNumber} to an issue with the given {@link issueNumber} in a repository
+	 * with a name that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
+	 * @param prNumber The pull request number.
+	 * @param issueNumber The issue number.
+	 */
+	private async syncPullRequestToIssue(repoName: string, prNumber: number, issueNumber: number): Promise<void> {
 		const issue = await this.getIssue(repoName, issueNumber);
 		const issueLabels = issue.labels?.map((label) => label.name) ?? [];
 
@@ -358,6 +413,14 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		await this.prClient.updatePullRequest(repoName, prNumber, prRequestData);
 	}
 
+	/**
+	 * Updates the body pull request sync template of a pull request with the given {@link prNumber} in a repository
+	 * with a name that matches the given {@link repoName} with the given {@link defaultReviewer}.
+	 * @param repoName The name of the repository.
+	 * @param issueNumber The issue number.
+	 * @param prNumber The pull request number.
+	 * @param defaultReviewer The default pull request reviewer.
+	 */
 	private async updatePRBody(repoName: string, issueNumber: number, prNumber: number, defaultReviewer: string): Promise<void> {
 		const prBody = (await this.getPullRequest(repoName, prNumber)).body;
 
@@ -384,6 +447,16 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		return eventType === "issue" || eventType === "pr";
 	}
 
+	/**
+	 * Creates a list of problems related to the given {@link templateSettings}.
+	 * @param templateSettings The template settings.
+	 * @param issueTitle The title of the issue.
+	 * @param prTitle The title of the pull request.
+	 * @param defaultReviewer The default reviewer of the pull request.
+	 * @param prHeadBranch The head branch of the pull request.
+	 * @param prBaseBranch The base branch of the pull request.
+	 * @returns A list of problems related to the given {@link templateSettings}.
+	 */
 	private buildProblemsList(
 		templateSettings: IPRTemplateSettings,
 		issueTitle = "",
