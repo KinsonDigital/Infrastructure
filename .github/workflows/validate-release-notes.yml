@@ -53,7 +53,7 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
-      - name: Validate Release Notes
+      - name: Validate Release Notes Exist
         run: |
           $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/release-notes-exist.ts";
         
@@ -75,8 +75,9 @@ jobs:
             1. RepoName
             2. ReleaseType
             3. Version
-            4. PRLabel
-            5. GitHubToken          
+            4. Ignore Label List - Comma delimited values
+            5. PRLabel
+            6. GitHubToken          
           #>
           deno run `
             --allow-read --allow-net `
