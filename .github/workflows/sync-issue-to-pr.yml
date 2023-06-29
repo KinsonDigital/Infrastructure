@@ -29,7 +29,7 @@ jobs:
       - name: Sync
         run: |
           $eventName = "${{ github.event_name }}";
-          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH}}/sync-issue-to-pr.ts";
+          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}/sync-issue-to-pr.ts";
           $prNumber = $eventName -eq "pull_request" ? "${{ github.event.number }}" : "${{ github.event.issue.number }}";
           $command = $eventName -eq "issue_comment" ? "${{ github.event.comment.body }}" : "[initial-sync]";
           
@@ -43,7 +43,7 @@ jobs:
           deno run `
             --allow-net `
             "$scriptUrl" `
-            "${{ vars.ORGANIZATION_NAME}}" `
+            "${{ vars.ORGANIZATION_NAME }}" `
             "${{ vars.PROJECT_NAME }}" `
             "${{ github.event.sender.login }}" `
             "$prNumber" `

@@ -134,7 +134,7 @@ jobs:
     steps:
       - name: Validate Branch
         run: |
-          $branch = "${{ github.ref_name  }}"
+          $branch = "${{ github.ref_name }}"
 
           if ($branch -ne "${{ inputs.run-branch }}") {
             Write-Host "The branch '$branch' is invalid. This release can only run on '${{ inputs.run-branch }}' branches."
@@ -180,7 +180,7 @@ jobs:
     needs: validate_version
     uses: KinsonDigital/Infrastructure/.github/workflows/validate-release-notes.yml@v5.0.0
     with:
-      project-name: "${{ inputs.project-name}}"
+      project-name: "${{ inputs.project-name }}"
       version: "${{ needs.validate_version.outputs.version }}"
       pr-label: "${{ inputs.pr-include-notes-label }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
@@ -265,9 +265,9 @@ jobs:
             -c ${{ inputs.build-config }};
 
       - name: Publish Nuget Package
-        if: "${{ inputs.dry-run == 'false' }}"
+        if: ${{ inputs.dry-run == false }}
         run: |
-          $version = "${{ needs.validate_version.outputs.version}}";
+          $version = "${{ needs.validate_version.outputs.version }}";
           $version = $version.StartsWith("v") ? $version.Substring(1) : $version;
           
           dotnet nuget push `
@@ -276,7 +276,7 @@ jobs:
             --source https://api.nuget.org/v3/index.json;
 
       - name: Preview Release
-        if: "${{ inputs.dry-run == 'false' }}"
+        if: ${{ inputs.dry-run == false }}
         uses: softprops/action-gh-release@v0.1.15
         with: 
           name: "🚀Preview Release - ${{ needs.validate_version.outputs.version }}" 
@@ -292,7 +292,7 @@ jobs:
           deno-version: v1.x
 
       - name: Close Milestone
-        if: "${{ inputs.dry-run == 'false' }}"
+        if: ${{ inputs.dry-run == false }}
         run: |
           $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/close-milestone.ts";
         
@@ -309,7 +309,7 @@ jobs:
             "${{ secrets.cicd-rest-api }}";
 
       - name: Send Twitter Announcement
-        if: "${{ inputs.send-release-tweet == 'true' && inputs.dry-run == 'false' }}"
+        if: ${{ inputs.send-release-tweet == true && inputs.dry-run == false }}
         run: |
           $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/send-release-tweet.ts";
 

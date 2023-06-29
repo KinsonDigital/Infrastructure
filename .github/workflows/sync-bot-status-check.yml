@@ -38,7 +38,7 @@ jobs:
 
       - name: Run Sync Bot
         run: |
-          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH}}/sync-bot-status-check.ts";
+          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}/sync-bot-status-check.ts";
 
           $eventName = "${{ github.event_name }}";
           $manuallyExecuted = $eventName -eq "workflow_dispatch";
@@ -78,7 +78,7 @@ jobs:
 
       - name: Run Sync Status Check
         run: |
-          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH}}/sync-bot-status-check.ts";
+          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}/sync-bot-status-check.ts";
 
           $eventType = "pr";
           $eventName = "${{ github.event_name }}";
