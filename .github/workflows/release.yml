@@ -265,7 +265,7 @@ jobs:
             -c ${{ inputs.build-config }};
 
       - name: Publish Nuget Package
-        if: "${{ inputs.dry-run == 'false' }}"
+        if: "${{ inputs.dry-run == false }}"
         run: |
           $version = "${{ needs.validate_version.outputs.version}}";
           $version = $version.StartsWith("v") ? $version.Substring(1) : $version;
@@ -276,7 +276,7 @@ jobs:
             --source https://api.nuget.org/v3/index.json;
 
       - name: Preview Release
-        if: "${{ inputs.dry-run == 'false' }}"
+        if: "${{ inputs.dry-run == false }}"
         uses: softprops/action-gh-release@v0.1.15
         with: 
           name: "🚀Preview Release - ${{ needs.validate_version.outputs.version }}" 
@@ -292,7 +292,7 @@ jobs:
           deno-version: v1.x
 
       - name: Close Milestone
-        if: "${{ inputs.dry-run == 'false' }}"
+        if: "${{ inputs.dry-run == false }}"
         run: |
           $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/close-milestone.ts";
         
@@ -309,7 +309,7 @@ jobs:
             "${{ secrets.cicd-rest-api }}";
 
       - name: Send Twitter Announcement
-        if: "${{ inputs.send-release-tweet == 'true' && inputs.dry-run == 'false' }}"
+        if: "${{ inputs.send-release-tweet == 'true' && inputs.dry-run == false }}"
         run: |
           $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/send-release-tweet.ts";
 
