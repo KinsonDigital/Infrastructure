@@ -5,7 +5,6 @@ import { ProjectClient } from "../../clients/ProjectClient.ts";
 import { PullRequestClient } from "../../clients/PullRequestClient.ts";
 import { EventType } from "../../core/Types.ts";
 import { RepoClient } from "../../clients/RepoClient.ts";
-import { UsersClient } from "../../clients/UsersClient.ts";
 import { IPullRequestModel } from "../../core/Models/IPullRequestModel.ts";
 import { IIssueModel } from "../../core/Models/IIssueModel.ts";
 import { IProjectModel } from "../../core/Models/IProjectModel.ts";
@@ -22,7 +21,6 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	private projClient: ProjectClient;
 	private prClient: PullRequestClient;
 	private repoClient: RepoClient;
-	private userClient: UsersClient;
 	private issue: IIssueModel | null = null;
 	private pr: IPullRequestModel | null = null;
 	private issueProjects: IProjectModel[] | null = null;
@@ -63,7 +61,6 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		this.issueClient = new IssueClient(githubToken);
 		this.projClient = new ProjectClient(githubToken);
 		this.prClient = new PullRequestClient(githubToken);
-		this.userClient = new UsersClient(githubToken);
 	}
 
 	/**
@@ -86,30 +83,9 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			Deno.exit(1);
 		}
 
-		const DEFAULT_PR_REVIEWER = "DEFAULT_PR_REVIEWER";
 		const problemsFound: string[] = [];
 		let issueNumber = 0;
 		let prNumber = 0;
-
-		const repoVars = await this.repoClient.getVariables(repoName);
-		const defaultReviewerVar = repoVars.find((v) => v.name == DEFAULT_PR_REVIEWER);
-
-		// Make sure that the repo contains the default PR reviewer variable
-		if (defaultReviewerVar == undefined) {
-			let errorMsg = `The repository '${repoName}' does not have a variable named '${DEFAULT_PR_REVIEWER}'.`;
-			errorMsg += "\nThe value of this variable must be a valid GitHub user.";
-
-			Utils.printAsGitHubError(errorMsg);
-			Deno.exit(1);
-		}
-
-		const defaultReviewer = defaultReviewerVar.value;
-
-		if (!(await this.userClient.userExists(defaultReviewer))) {
-			const errorMsg = `The GitHub user '${defaultReviewer}' for the default pull request reviewer does not exist.`;
-			Utils.printAsGitHubError(errorMsg);
-			Deno.exit(1);
-		}
 
 		if (eventType === "issue") {
 			issueNumber = Number.parseInt(issueOrPrNumber);
@@ -171,9 +147,9 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		}
 
 		if (eventType === "issue") {
-			await this.runAsSyncBot(repoName, defaultReviewer, issueNumber, prNumber);
+			await this.runAsSyncBot(repoName, issueNumber, prNumber);
 		} else {
-			problemsFound.push(...await this.runAsStatusCheck(repoName, defaultReviewer, issueNumber, prNumber));
+			problemsFound.push(...await this.runAsStatusCheck(repoName, issueNumber, prNumber));
 		}
 
 		const prUrl = `\nIssue: ${Utils.buildIssueUrl(this.organization, repoName, issueNumber)}`;
@@ -221,26 +197,23 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	/**
 	 * Runs the script as a sync bot.
 	 * @param repoName The name of the repository.
-	 * @param defaultReviewer The default pull request reviewer.
 	 * @param issueNumber The issue number.
 	 * @param prNumber The pull request number.
 	 */
-	private async runAsSyncBot(repoName: string, defaultReviewer: string, issueNumber: number, prNumber: number): Promise<void> {
+	private async runAsSyncBot(repoName: string, issueNumber: number, prNumber: number): Promise<void> {
 		await this.syncPullRequestToIssue(repoName, prNumber, issueNumber);
-		await this.updatePRBody(repoName, issueNumber, prNumber, defaultReviewer);
+		await this.updatePRBody(repoName, issueNumber, prNumber);
 	}
 
 	/**
 	 * Runs the script as a status check.
 	 * @param repoName The name of the repository.
-	 * @param defaultReviewer The default pull request reviewer.
 	 * @param issueNumber The issue number.
 	 * @param prNumber The pull request number.
 	 * @returns The list of problems found.
 	 */
 	private async runAsStatusCheck(
 		repoName: string,
-		defaultReviewer: string,
 		issueNumber: number,
 		prNumber: number,
 	): Promise<string[]> {
@@ -250,15 +223,14 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		const prHeadBranch = (await this.getPullRequest(repoName, prNumber)).head.ref;
 		const prBaseBranch = (await this.getPullRequest(repoName, prNumber)).base.ref;
 
-		const templateSettings = await this.buildTemplateSettings(repoName, defaultReviewer, issueNumber, prNumber);
+		const templateSettings = await this.buildTemplateSettings(repoName, issueNumber, prNumber);
 
-		await this.updatePRBody(repoName, issueNumber, prNumber, defaultReviewer);
+		await this.updatePRBody(repoName, issueNumber, prNumber);
 
 		problemsFound.push(...this.buildProblemsList(
 			templateSettings,
 			issueTitle ?? "",
 			prTitle ?? "",
-			defaultReviewer,
 			prHeadBranch,
 			prBaseBranch,
 		));
@@ -272,14 +244,12 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * Builds the pull request sync template settings for processing the template to show the sync status
 	 * between the pull request and the issue.
 	 * @param repoName The name of the repository.
-	 * @param defaultReviewer The default pull request reviewer.
 	 * @param issueNumber The issue number.
 	 * @param prNumber The pull request number.
 	 * @returns The template settings to use for processing the pull request sync template.
 	 */
 	private async buildTemplateSettings(
 		repoName: string,
-		defaultReviewer: string,
 		issueNumber: number,
 		prNumber: number,
 	): Promise<IPRTemplateSettings> {
@@ -297,13 +267,11 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		const prMilestone = (await this.getPullRequest(repoName, prNumber)).milestone;
 		const prHeadBranch = (await this.getPullRequest(repoName, prNumber)).head.ref;
 		const prBaseBranch = (await this.getPullRequest(repoName, prNumber)).base.ref;
-		const prRequestedReviewers = (await this.getPullRequest(repoName, prNumber)).requested_reviewers;
 
 		const headBranchIsValid = Utils.isFeatureBranch(prHeadBranch);
 		const baseBranchIsValid = prBaseBranch === "master" || prBaseBranch === "preview";
 
 		const titleInSync = prTitle?.trim() === issueTitle?.trim();
-		const defaultReviewerIsValid = prRequestedReviewers.some((r) => r.login === defaultReviewer);
 
 		const assigneesInSync = Utils.assigneesMatch(issueAssignees, prAssignees);
 		const labelsInSync = Utils.labelsMatch(issueLabels, prLabels);
@@ -317,7 +285,6 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		templateSettings.baseBranchValid = baseBranchIsValid;
 		templateSettings.issueNumValid = true;
 		templateSettings.titleInSync = titleInSync;
-		templateSettings.defaultReviewerValid = defaultReviewerIsValid;
 		templateSettings.assigneesInSync = assigneesInSync;
 		templateSettings.labelsInSync = labelsInSync;
 		templateSettings.projectsInSync = projectsInSync;
@@ -415,16 +382,15 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 
 	/**
 	 * Updates the body pull request sync template of a pull request with the given {@link prNumber} in a repository
-	 * with a name that matches the given {@link repoName} with the given {@link defaultReviewer}.
+	 * with a name that matches the given {@link repoName}.
 	 * @param repoName The name of the repository.
 	 * @param issueNumber The issue number.
 	 * @param prNumber The pull request number.
-	 * @param defaultReviewer The default pull request reviewer.
 	 */
-	private async updatePRBody(repoName: string, issueNumber: number, prNumber: number, defaultReviewer: string): Promise<void> {
+	private async updatePRBody(repoName: string, issueNumber: number, prNumber: number): Promise<void> {
 		const prBody = (await this.getPullRequest(repoName, prNumber)).body;
 
-		const templateSettings = await this.buildTemplateSettings(repoName, defaultReviewer, issueNumber, prNumber);
+		const templateSettings = await this.buildTemplateSettings(repoName, issueNumber, prNumber);
 		const prTemplateManager = new PRTemplateManager();
 
 		const [updatedPRDescription, statusOfSyncItems] = prTemplateManager.processSyncTemplate(prBody, templateSettings);
@@ -456,7 +422,6 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @param templateSettings The template settings.
 	 * @param issueTitle The title of the issue.
 	 * @param prTitle The title of the pull request.
-	 * @param defaultReviewer The default reviewer of the pull request.
 	 * @param prHeadBranch The head branch of the pull request.
 	 * @param prBaseBranch The base branch of the pull request.
 	 * @returns A list of problems related to the given {@link templateSettings}.
@@ -465,7 +430,6 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		templateSettings: IPRTemplateSettings,
 		issueTitle = "",
 		prTitle = "",
-		defaultReviewer = "",
 		prHeadBranch = "",
 		prBaseBranch = "",
 	): string[] {
@@ -481,10 +445,6 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 
 		if (!templateSettings.titleInSync) {
 			problems.push(`The pr title '${prTitle}' does not match with the issue title '${issueTitle}'.`);
-		}
-
-		if (!templateSettings.defaultReviewerValid) {
-			problems.push(`The pr default reviewer '${defaultReviewer}' is not valid or set.`);
 		}
 
 		if (!templateSettings.assigneesInSync) {

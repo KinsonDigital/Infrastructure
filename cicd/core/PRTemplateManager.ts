@@ -11,13 +11,11 @@ export class PRTemplateManager {
 	private readonly headBranchRegex = /<!--head-branch-->/gm;
 	private readonly validIssueNumRegex = /<!--valid-issue-number-->/gm;
 	private readonly titleRegex = /<!--title-->/gm;
-	private readonly defaultReviewerRegex = /<!--default-reviewer-->/gm;
 	private readonly assigneesRegex = /<!--assignees-->/gm;
 	private readonly labelsRegex = /<!--labels-->/gm;
 	private readonly projectsRegex = /<!--projects-->/gm;
 	private readonly milestoneRegex = /<!--milestone-->/gm;
 	private readonly issueNumTemplateVarRegex = /\${{\s*issue-number\s*}}/gm;
-	private readonly issueNumRegex = /#[0-9]+/gm;
 	private readonly syncFlagRegex = /<!--sync-flag-->/gm;
 	private readonly syncEmptyCheckRegex = /- \[ \] /gm;
 	private readonly syncFullCheckRegex = /- \[(x|X)\] /gm;
@@ -77,57 +75,49 @@ export class PRTemplateManager {
 			if (isInSyncLine) {
 				if (line.match(this.headBranchRegex)) {
 					const statusEmoji = settings.headBranchValid ? "✅" : "❌";
-					const statusMsg = `${statusEmoji}The head branch is ${settings.headBranchValid ? "" : "not"} valid.`;
+					const statusMsg = `${statusEmoji}The head branch is${settings.headBranchValid ? " " : " not"} valid.`;
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.headBranchValid);
 
 					statusOfSyncItems.push(statusMsg);
 				} else if (line.match(this.baseBranchRegex)) {
 					const statusEmoji = settings.baseBranchValid ? "✅" : "❌";
-					const statusMsg = `${statusEmoji}The base branch is ${settings.baseBranchValid ? "" : "not"} valid.`;
+					const statusMsg = `${statusEmoji}The base branch is${settings.baseBranchValid ? " " : " not"} valid.`;
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.baseBranchValid);
 
 					statusOfSyncItems.push(statusMsg);
 				} else if (line.match(this.validIssueNumRegex)) {
 					const statusEmoji = settings.issueNumValid ? "✅" : "❌";
-					const statusMsg = `${statusEmoji}The issue number is ${settings.issueNumValid ? "" : "not"} valid.`;
+					const statusMsg = `${statusEmoji}The issue number is${settings.issueNumValid ? " " : " not"} valid.`;
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.issueNumValid);
 
 					statusOfSyncItems.push(statusMsg);
 				} else if (line.match(this.titleRegex)) {
 					const statusEmoji = settings.titleInSync ? "✅" : "❌";
-					const statusMsg = `${statusEmoji}The title is ${settings.titleInSync ? "" : "not"} in sync.`;
+					const statusMsg = `${statusEmoji}The title is${settings.titleInSync ? " " : " not"} in sync.`;
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.titleInSync);
-
-					statusOfSyncItems.push(statusMsg);
-				} else if (line.match(this.defaultReviewerRegex)) {
-					const statusEmoji = settings.defaultReviewerValid ? "✅" : "❌";
-					const statusMsg = `${statusEmoji}The default reviewer is ${
-						settings.defaultReviewerValid ? "" : "not"
-					} valid.`;
-					fileDataLines[i] = this.setLineSyncStatus(line, settings.defaultReviewerValid);
 
 					statusOfSyncItems.push(statusMsg);
 				} else if (line.match(this.assigneesRegex)) {
 					const statusEmoji = settings.assigneesInSync ? "✅" : "❌";
-					const statusMsg = `${statusEmoji}The assignees are ${settings.assigneesInSync ? "" : "not"} in sync.`;
+					const statusMsg = `${statusEmoji}The assignees are${settings.assigneesInSync ? " " : " not"} in sync.`;
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.assigneesInSync);
 
 					statusOfSyncItems.push(statusMsg);
 				} else if (line.match(this.labelsRegex)) {
 					const statusEmoji = settings.labelsInSync ? "✅" : "❌";
-					const statusMsg = `${statusEmoji}The labels are ${settings.labelsInSync ? "" : "not"} in sync.`;
+					const statusMsg = `${statusEmoji}The labels are${settings.labelsInSync ? " " : " not"} in sync.`;
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.labelsInSync);
 
 					statusOfSyncItems.push(statusMsg);
 				} else if (line.match(this.projectsRegex)) {
 					const statusEmoji = settings.projectsInSync ? "✅" : "❌";
-					const statusMsg = `${statusEmoji}The projects are ${settings.projectsInSync ? "" : "not"} in sync.`;
+					const statusMsg = `${statusEmoji}The projects are${settings.projectsInSync ? " " : " not"} in sync.`;
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.projectsInSync);
 
 					statusOfSyncItems.push(statusMsg);
 				} else if (line.match(this.milestoneRegex)) {
 					const statusEmoji = settings.milestoneInSync ? "✅" : "❌";
-					const statusMsg = `${statusEmoji}The milestone is ${settings.milestoneInSync ? "" : "not"} in sync.`;
+					const statusMsg = `${statusEmoji}The milestone is${settings.milestoneInSync ? " " : " not"} in sync.`;
 					fileDataLines[i] = this.setLineSyncStatus(line, settings.milestoneInSync);
 
 					statusOfSyncItems.push(statusMsg);
@@ -175,7 +165,6 @@ export class PRTemplateManager {
 		const headBranchSyntaxExists = template.match(this.headBranchRegex) != null;
 		const validIssueNumSyntaxExists = template.match(this.validIssueNumRegex) != null;
 		const titleSyntaxExists = template.match(this.titleRegex) != null;
-		const defaultReviewerSyntaxExists = template.match(this.defaultReviewerRegex) != null;
 		const assigneesSyntaxExists = template.match(this.assigneesRegex) != null;
 		const labelsSyntaxExists = template.match(this.labelsRegex) != null;
 		const projectsSyntaxExists = template.match(this.projectsRegex) != null;
@@ -185,7 +174,6 @@ export class PRTemplateManager {
 			headBranchSyntaxExists &&
 			validIssueNumSyntaxExists &&
 			titleSyntaxExists &&
-			defaultReviewerSyntaxExists &&
 			assigneesSyntaxExists &&
 			labelsSyntaxExists &&
 			projectsSyntaxExists &&
