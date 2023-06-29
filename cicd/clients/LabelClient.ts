@@ -56,7 +56,7 @@ export class LabelClient extends GitHubClient {
 		Guard.isNullOrEmptyOrUndefined(label, funcName, "label");
 		Guard.isNullOrEmptyOrUndefined(label, funcName, "label");
 
-		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/labels${label}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/labels/${label}`;
 		const response: Response = await this.fetchGET(url);
 
 		if (response.status === GitHubHttpStatusCodes.NotFound) {
