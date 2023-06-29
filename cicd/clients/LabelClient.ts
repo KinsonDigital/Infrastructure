@@ -64,9 +64,10 @@ export class LabelClient extends GitHubClient {
 		} else if (response.status === GitHubHttpStatusCodes.OK) {
 			return true;
 		} else {
-			Utils.printAsGitHubError(
-				`There was an issue getting the repository label '${label}'. ${response.status} - ${response.statusText}`,
-			);
+			let errorMsg = `There was an issue getting the repository label '${label}'.`;
+			errorMsg += `Error: ${response.status} - ${response.statusText}`;
+
+			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 	}
