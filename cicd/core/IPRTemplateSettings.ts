@@ -28,11 +28,6 @@ export interface IPRTemplateSettings {
 	titleInSync?: boolean;
 
 	/**
-	 * Gets or sets a value indicating whether or not one of the list of reviewers is the default reviewer.
-	 */
-	defaultReviewerValid?: boolean;
-
-	/**
 	 * Gets or sets a value indicating whether or not the assignees are in sync.
 	 */
 	assigneesInSync?: boolean;

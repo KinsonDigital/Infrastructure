@@ -62,13 +62,12 @@ const repoVars = await repoClient.getVariables(repoName);
 
 const defaultReviewerVar = repoVars.find((v) => v.name == DEFAULT_PR_REVIEWER);
 
-// Make sure that the repo contains the default PR reviewer variable
+// If the repo does not contain the default PR reviewer variable, just skip the request review process
 if (defaultReviewerVar == undefined) {
-	let errorMsg = `The repository '${repoName}' does not have a variable named '${DEFAULT_PR_REVIEWER}'.`;
-	errorMsg += "\nThe value of this variable must be a valid GitHub user.";
+	let noticeMsg = `The repository '${repoName}' does not have the optional variable named '${DEFAULT_PR_REVIEWER}'.`;
+	noticeMsg += "\nThe review will not be requested for the pull request.";
 
-	Utils.printAsGitHubError(errorMsg);
-	Deno.exit(1);
+	Utils.printAsGitHubNotice(noticeMsg);
 }
 
 const relativeTemplateFilePathVar = repoVars.find((v) => v.name == RELATIVE_PR_SYNC_TEMPLATE_FILE_PATH);
@@ -141,12 +140,19 @@ if (await issueClient.issueExists(repoName, prNumber)) {
 
 const userClient: UsersClient = new UsersClient(githubToken);
 
-const defaultReviewer = defaultReviewerVar.value;
+const defaultReviewerVarExists = defaultReviewerVar != undefined;
 
-const defaultReviewerDoesNotExist = !(await userClient.userExists(defaultReviewer));
-if (defaultReviewerDoesNotExist) {
-	Utils.printAsGitHubError(`The default reviewer '${defaultReviewer}' does not exist.`);
-	Deno.exit(1);
+if (defaultReviewerVarExists) {
+	const defaultReviewer = defaultReviewerVar.value;
+
+	// If the default reviewer is not a valid GitHub user
+	if (!(await userClient.userExists(defaultReviewer))) {
+		let errorMsg = `The default reviewer '${defaultReviewer}' does not exist.`;
+		errorMsg += `\nVerify that the value of the '${DEFAULT_PR_REVIEWER}' repository variable is correct.`;
+
+		Utils.printAsGitHubError(errorMsg);
+		Deno.exit(1);
+	}
 }
 
 const requestedByUserDoesNotExist = !(await userClient.userExists(requestedByUser));
@@ -224,7 +230,11 @@ const prData: IIssueOrPRRequestData = {
 await prClient.updatePullRequest(repoName, prNumber, prData);
 pr = await prClient.getPullRequest(repoName, prNumber);
 
-await prClient.requestReviewer(repoName, prNumber, defaultReviewer);
+if (defaultReviewerVarExists) {
+	const defaultReviewer = defaultReviewerVar.value;
+	await prClient.requestReviewer(repoName, prNumber, defaultReviewer);
+	Utils.printAsGitHubNotice(`The reviewer '${defaultReviewer}' has been requested for the pull request`);
+}
 
 // Add all of the issue org projects to the PR
 for (let i = 0; i < issueProjects.length; i++) {
@@ -263,7 +273,6 @@ const syncSettings: IPRTemplateSettings = {
 	baseBranchValid: pr.base.ref === "master" || pr.base.ref === "preview",
 	issueNumValid: true,
 	titleInSync: pr?.title === issue?.title,
-	defaultReviewerValid: true,
 	assigneesInSync: Utils.assigneesMatch(issue.assignees, pr.assignees),
 	labelsInSync: Utils.labelsMatch(issue.labels, pr.labels),
 	projectsInSync: Utils.orgProjectsMatch(issueProjects, prProjects),

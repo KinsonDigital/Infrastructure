@@ -7,7 +7,6 @@ This pull request closes #${{issue-number}}
 ✅ The pull request base branch must be a 'master' or 'preview' branch. <!--base-branch-->
 ✅ The pull request head branch contains a valid issue number. <!--valid-issue-number-->
 ✅ The pull request title matches the linked issue title exactly. <!--title-->
-✅ At a minimum, the user @KinsonDigitalAdmin has been requested to review this pull request. <!--default-reviewer-->
 ✅ The pull request assignees match the assignees of the issue. <!--assignees-->
 ✅ The pull request labels match the labels of the issue. <!--labels-->
 ✅ The pull request organizational projects match the organizational projects of the issue. <!--projects-->
