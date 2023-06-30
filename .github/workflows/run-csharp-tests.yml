@@ -51,7 +51,7 @@ jobs:
               exit 1; # Fail Workflow
           } else {
             Write-Host "Project File Path Resolved To: $result";
-            "file-path=$result" >> $env.GITHUB_OUTPUT;
+            "file-path=$result" >> $env:GITHUB_OUTPUT;
           }
 
       - uses: actions/setup-dotnet@v3
