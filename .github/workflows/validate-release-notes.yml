@@ -17,10 +17,6 @@ on:
         required: true
         description: The version of the release notes to validate
         type: string
-      pr-label:
-        required: true
-        description: The label required to force inclusion of a pull request in the release notes
-        type: string
       cicd-scripts-version:
         required: true
         description: The version of the CICD scripts to use
@@ -86,5 +82,4 @@ jobs:
             "preview" `
             "${{ inputs.version }}" `
             "🚀Preview Release" `
-            "${{ inputs.pr-label }}" `
             "${{ secrets.cicd-rest-api }}";

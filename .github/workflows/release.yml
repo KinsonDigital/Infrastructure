@@ -182,7 +182,6 @@ jobs:
     with:
       project-name: "${{ inputs.project-name }}"
       version: "${{ needs.validate_version.outputs.version }}"
-      pr-label: "${{ inputs.pr-include-notes-label }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
     secrets:
       cicd-rest-api: "${{ secrets.cicd-rest-api }}"
