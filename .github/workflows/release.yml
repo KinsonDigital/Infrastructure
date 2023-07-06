@@ -316,11 +316,11 @@ jobs:
             1. RepoOwner
             2. ProjectName
             3. Version
-            4. DiscordInviteCode
-            5. TwitterConsumerApiKey
-            6. TwitterConsumerApiSecret
-            7. TwitterAccessToken
-            8. TwitterAccessTokenSecret
+            4. TwitterConsumerApiKey
+            5. TwitterConsumerApiSecret
+            6. TwitterAccessToken
+            7. TwitterAccessTokenSecret
+            8. GitHubToken
           #>
           deno run `
             --allow-read --allow-net --allow-env `
@@ -328,8 +328,8 @@ jobs:
             "${{ vars.ORGANIZATION_NAME }}" `
             "${{ inputs.project-name }}" `
             "${{ needs.validate_version.outputs.version }}" `
-            "${{ vars.DISCORD_INVITE_CODE }}" `
             "${{ secrets.twitter-consumer-api-key }}" `
             "${{ secrets.twitter-consumer-api-secret }}" `
             "${{ secrets.twitter-access-token }}" `
-            "${{ secrets.twitter-access-token-secret }}";
+            "${{ secrets.twitter-access-token-secret }}" `
+            "${{ secrets.cicd-rest-api }}";
