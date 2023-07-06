@@ -9,6 +9,10 @@ defaults:
 on:
   workflow_call:
     inputs:
+      org-name:
+        required: true
+        description: The name of GitHub organization
+        type: string
       project-name:
         required: true
         description: The name of the C# project to validate
@@ -60,8 +64,11 @@ jobs:
           deno run `
             --allow-read `
             "$scriptUrl" `
+            "${{ inputs.org-name }}" `
+            "${{ inputs.project-name }}" `
             "preview" `
-            "${{ inputs.version }}";
+            "${{ inputs.version }}" `
+            "${{ secrets.cicd-rest-api }}";
 
       - name: Validate Release Notes
         run: |

@@ -180,6 +180,7 @@ jobs:
     needs: validate_version
     uses: KinsonDigital/Infrastructure/.github/workflows/validate-release-notes.yml@v5.0.0
     with:
+      org-name: "${{ vars.ORGANIZATION_NAME }}"
       project-name: "${{ inputs.project-name }}"
       version: "${{ needs.validate_version.outputs.version }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
