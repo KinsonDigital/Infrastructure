@@ -18,8 +18,7 @@ if (Deno.args.length < 3) {
 	errorMsg += "\nThe 4th arg is optional and must be a comma delimited list of labels for issues ignore.";
 	errorMsg += "\n\tProviding no argument or empty will allow issues and prs with any label.";
 
-	errorMsg += "\nThe 5th arg is optional and must be a label of a PR to enforce the PR to be in the release notes.";
-	errorMsg += "\nThe 6th arg is optional and must be the GitHub token.";
+	errorMsg += "\nThe 5th arg is optional and must be the GitHub token.";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
@@ -29,8 +28,7 @@ const repoName = Deno.args[0].trim();
 const releaseType = Deno.args[1].trim().toLocaleLowerCase();
 let version = Deno.args[2].trim().toLowerCase();
 const ignoreLabelsArg = Deno.args.length >= 4 ? Deno.args[3].trim() : "";
-const prLabel = Deno.args.length >= 5 ? Deno.args[4].trim() : "";
-const token = Deno.args.length >= 6 ? Deno.args[5].trim() : "";
+const token = Deno.args.length >= 5 ? Deno.args[4].trim() : "";
 
 // Print out all of the arguments
 Utils.printInGroup("Script Arguments", [
@@ -38,7 +36,6 @@ Utils.printInGroup("Script Arguments", [
 	`Release Type (Required): ${releaseType}`,
 	`Version (Required): ${version}`,
 	`Ignore Labels (Optional): ${ignoreLabelsArg}`,
-	`PR Label (Optional): ${Utils.isNullOrEmptyOrUndefined(prLabel) ? "Not Provided" : prLabel}`,
 	`GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,
 ]);
 
@@ -56,18 +53,24 @@ const firstLetter = releaseType.slice(0, 1).toUpperCase();
 const releaseTypeTitle = `${firstLetter}${allButFirstLetter}`;
 
 if (releaseTypeTitle != "Production" && releaseTypeTitle != "Preview") {
-	Utils.printAsGitHubError(
-		`The release type '${releaseTypeTitle}' is invalid.  It must be either 'Production' or 'Preview'.`,
-	);
+	const errorMsg = `The release type '${releaseTypeTitle}' is invalid.  It must be either 'Production' or 'Preview'.`;
+	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
-
+	
 // Make sure the version starts with a 'v'
 version = version.startsWith("v") ? version : `v${version}`;
 
 const ignoreLabels: string[] = Utils.isNullOrEmptyOrUndefined(ignoreLabelsArg)
 	? []
 	: ignoreLabelsArg.trim().split(",").map((label) => label.trim());
+
+const prLabelRepoVarName = "PR_INCLUDE_NOTES_LABEL";
+const repoVars = await repoClient.getVariables(repoName);
+
+const prLabel = repoVars.some(v => v.name != prLabelRepoVarName)
+	? repoVars.find(v => v.name == prLabelRepoVarName)?.value
+	: "";
 
 const noPRLabel = Utils.isNullOrEmptyOrUndefined(prLabel);
 const prLabelGiven = !noPRLabel;
@@ -92,7 +95,7 @@ const ignoredIssues: IIssueModel[] = [];
 const ignoredPullRequests: IPullRequestModel[] = [];
 const ignoredItemList: string[] = [];
 
-const milestoneClient = new MilestoneClient();
+const milestoneClient = new MilestoneClient(token);
 
 // Filter out any issues that have a label included in the ignore label list
 const issues = (await milestoneClient.getIssues(repoName, version))
