@@ -17,10 +17,10 @@ import { IssueState } from "../../core/Enums.ts";
  * Runs as a sync bot and a pull request status check.
  */
 export class SyncBotStatusCheckRunner extends ScriptRunner {
-	private issueClient: IssueClient;
-	private projClient: ProjectClient;
-	private prClient: PullRequestClient;
-	private repoClient: RepoClient;
+	private readonly issueClient: IssueClient;
+	private readonly projClient: ProjectClient;
+	private readonly prClient: PullRequestClient;
+	private readonly repoClient: RepoClient;
 	private issue: IIssueModel | null = null;
 	private pr: IPullRequestModel | null = null;
 	private issueProjects: IProjectModel[] | null = null;
