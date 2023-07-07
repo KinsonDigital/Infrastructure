@@ -261,12 +261,13 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		const issueLabels = (await this.getIssue(repoName, issueNumber)).labels;
 		const issueMilestone = (await this.getIssue(repoName, issueNumber)).milestone;
 
-		const prTitle = (await this.getPullRequest(repoName, prNumber)).title;
-		const prAssignees = (await this.getPullRequest(repoName, prNumber)).assignees;
-		const prLabels = (await this.getPullRequest(repoName, prNumber)).labels;
-		const prMilestone = (await this.getPullRequest(repoName, prNumber)).milestone;
-		const prHeadBranch = (await this.getPullRequest(repoName, prNumber)).head.ref;
-		const prBaseBranch = (await this.getPullRequest(repoName, prNumber)).base.ref;
+		const pr = await this.prClient.getPullRequest(repoName, prNumber);
+		const prTitle = pr.title;
+		const prAssignees = pr.assignees;
+		const prLabels = pr.labels;
+		const prMilestone = pr.milestone;
+		const prHeadBranch = pr.head.ref;
+		const prBaseBranch = pr.base.ref;
 
 		const headBranchIsValid = Utils.isFeatureBranch(prHeadBranch);
 		const baseBranchIsValid = prBaseBranch === "master" || prBaseBranch === "preview";
