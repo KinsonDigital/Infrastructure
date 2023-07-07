@@ -53,40 +53,22 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
-      - name: Validate Release Notes Exist
-        run: |
-          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/release-notes-exist.ts";
-        
-          <# Deno Args:
-            1. ReleaseType
-            2. Version
-          #>
-          deno run `
-            --allow-read `
-            "$scriptUrl" `
-            "${{ inputs.org-name }}" `
-            "${{ inputs.project-name }}" `
-            "preview" `
-            "${{ inputs.version }}" `
-            "${{ secrets.cicd-rest-api }}";
-
       - name: Validate Release Notes
         run: |
           $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/validate-release-notes.ts";
         
           <# Deno Args:
-            1. RepoName
-            2. ReleaseType
-            3. Version
-            4. Ignore Label List - Comma delimited values
-            5. PRLabel
-            6. GitHubToken          
+            1. GitHub Orgnization Name
+            2. GitHub Repo Name
+            3. Release Type
+            4. Version
+            5. GitHub PAT Token
           #>
           deno run `
             --allow-read --allow-net `
             "$scriptUrl" `
+            "${{ inputs.org-name }}" `
             "${{ inputs.project-name }}" `
             "preview" `
             "${{ inputs.version }}" `
-            "🚀Preview Release" `
             "${{ secrets.cicd-rest-api }}";
