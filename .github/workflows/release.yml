@@ -115,7 +115,7 @@ jobs:
           if ($sdkVersion -match $sdkVersionRegex) {
             Write-Host "The dotnet SDK version is valid.";
           } else {
-            Write-Host "::error::The dotnet SDK version is not valid.\nThe version format is: 'x.x.x'";
+            Write-Host "::error::The dotnet SDK version is not valid.\nThe version format is: '#.#.#'";
             exit 1;
           }
 

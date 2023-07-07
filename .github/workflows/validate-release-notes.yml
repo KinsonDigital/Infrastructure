@@ -119,7 +119,7 @@ jobs:
           <# Deno Args:
             1. GitHub Orgnization Name
             2. GitHub Repo Name
-            3. Release Type
+            3. Release Type - Either 'Preview' or 'Production'
             4. Version
             5. GitHub PAT Token
           #>
