@@ -17,7 +17,7 @@ if (Deno.args.length != 7) {
 	errorMsg += "\nThe 5th arg is required and must be a valid twitter consumer api secret.";
 	errorMsg += "\nThe 6th arg is required and must be a valid twitter access token key.";
 	errorMsg += "\nThe 7th arg is required and must be a valid twitter access token secret.";
-	errorMsg += "\nThe 8th arg is required and must be the GitHub token.";
+	errorMsg += "\nThe 8th arg is required and must be a GitHub PAT (Personal Access Token).";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);

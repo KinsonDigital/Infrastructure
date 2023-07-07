@@ -13,7 +13,7 @@ if (Deno.args.length != 5) {
 	errorMsg += "\nThe 2nd arg is required and must be a repository name.";
 	errorMsg += "\nThe 3rd arg is required and must be a case-insensitive value of 'production' or 'preview'.";
 	errorMsg += "\nThe 4th arg is required and must be the version of the notes.";
-	errorMsg += "\nThe 5th arg is required and must be the GitHub token.";
+	errorMsg += "\nThe 5th arg is required and must be a GitHub PAT (Personal Access Token).";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);

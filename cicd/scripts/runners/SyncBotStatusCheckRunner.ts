@@ -46,7 +46,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 				.replace("$", "Required and must be a valid issue or pull request number.");
 			argInfos[2] = argInfos[2]
 				.replace("$", "Required and must be a valid case-insensitive workflow event type of 'issue' or 'pr'.");
-			argInfos[3] = argInfos[3].replace("$", "Required and must be a valid GitHub token.");
+			argInfos[3] = argInfos[3].replace("$", "Required and must be a GitHub PAT (Personal Access Token).");
 
 			argInfos.unshift(`The ${scriptName} cicd script must have 4 arguments.`);
 

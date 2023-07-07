@@ -22,7 +22,7 @@ if (Deno.args.length != 6) {
 	errorMsg += "\nThe 3rd arg is required and must be a valid GitHub user that has requested this script to run.";
 	errorMsg += "\nThe 4th arg is required and must be a valid pull request number.";
 	errorMsg += "\nThe 5th arg is required and must be a text that contains a sync command.";
-	errorMsg += "\nThe 6th arg is required and must be a valid GitHub token.";
+	errorMsg += "\nThe 6th arg is required and must be a valid GitHub PAT (Personal Access Token).";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
