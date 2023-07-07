@@ -69,9 +69,9 @@ jobs:
           # Get the release version and make sure it starts with the letter 'v'
           $releaseVersion = "${{ steps.get-version.outputs.version }}";
 
-          Write-Host "Release Version Before Mutation: $releaseVersion";
+          echo "Release Version Before Mutation: $releaseVersion";
           $releaseVersion = $releaseVersion.StartsWith("v") ? $releaseVersion : "v" + $releaseVersion;
-          Write-Host "Release Version After Mutation: $releaseVersion";
+          echo "Release Version After Mutation: $releaseVersion";
 
           # Set the output of this step
           "version=$releaseVersion" >> $env:GITHUB_OUTPUT;
