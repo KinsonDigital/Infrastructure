@@ -145,7 +145,7 @@ jobs:
   validate_version:
     name: Validate Version
     needs: validate_branch
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v5.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v7.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
@@ -154,9 +154,9 @@ jobs:
 
 
   validate_tag:
-    name: Validate Version
+    name: Validate Tag
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-tag.yml@v5.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-tag.yml@v7.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       tag-name: "${{ needs.validate_version.outputs.version }}"
@@ -168,7 +168,7 @@ jobs:
   nuget_pkg_does_not_exist:
     name: Validate NuGet Package Does Not Exist
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/nuget-package-does-not-exist.yml@v5.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/nuget-package-does-not-exist.yml@v7.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       version: "${{ needs.validate_version.outputs.version }}"
@@ -178,7 +178,7 @@ jobs:
   validate_release_notes:
     name: Validate Release Notes
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-release-notes.yml@v5.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-release-notes.yml@v7.0.0
     with:
       org-name: "${{ vars.ORGANIZATION_NAME }}"
       project-name: "${{ inputs.project-name }}"
@@ -191,7 +191,7 @@ jobs:
   validate_milestone_status:
     name: Validate Milestone Status
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-milestone-status.yml@v5.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-milestone-status.yml@v7.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       version: "${{ needs.validate_version.outputs.version }}"
@@ -203,7 +203,7 @@ jobs:
   validate_github_release:
     name: GitHub Release Does Not Exist
     needs: [validate_version]
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-github-release.yml@v5.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-github-release.yml@v7.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       version: "${{ needs.validate_version.outputs.version }}"
@@ -215,7 +215,7 @@ jobs:
   build_project:
     name: Build Main Project
     needs: [validate_tag, nuget_pkg_does_not_exist, validate_release_notes, validate_milestone_status, validate_github_release]
-    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v5.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v7.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       build-config: "${{ inputs.build-config }}"
@@ -225,7 +225,7 @@ jobs:
   run_tests:
     name: Run Tests
     needs: [validate_tag, nuget_pkg_does_not_exist, validate_release_notes, validate_milestone_status, validate_github_release]
-    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v5.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v7.0.0
     with:
       project-name: "${{ inputs.project-name }}Tests"
       build-config: "${{ inputs.build-config }}"
@@ -235,7 +235,7 @@ jobs:
   build_script_url:
     name: Build Script URL
     needs: [validate_tag, nuget_pkg_does_not_exist, validate_release_notes, validate_milestone_status, validate_github_release]
-    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v5.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v7.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
