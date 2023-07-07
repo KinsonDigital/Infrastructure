@@ -11,46 +11,46 @@ on:
     inputs:
       project-name:
         required: true
-        description: The name of the C# project to validate
+        description: The name of the C# project to validate.
         type: string
       run-branch:
         required: true
-        description: The name of the branch to run the workflow on
+        description: The name of the branch to run the workflow.
         type: string
       net-sdk-version:
         required: true
-        description: The version of the .NET SDK to use
+        description: The version of the .NET SDK to use.
         type: string
       relative-release-notes-dir-path:
         required: true
-        description: The relative directory path to the release notes
+        description: The relative directory path to the release notes.
         type: string
       release-notes-file-name-prefix:
         required: true
-        description: The prefix of the release notes file name.  This is what is prefixed before the version number
+        description: The prefix of the release notes file name.  This is what is prefixed before the version number.
         type: string
       build-config:
         required: true
-        description: The build configuration to use. This is either 'Debug' or 'Release'
+        description: The build configuration to use. This is either 'Debug' or 'Release'.
         default: Debug
         type: string
       cicd-scripts-version:
         required: true
-        description: The version of the CICD scripts to use
+        description: The version of the CICD scripts to use.
         type: string
       pr-include-notes-label:
         required: false
-        description: The label on a pull request that forces its inclusion in the release notes
+        description: The label on a pull request that forces its inclusion in the release notes.
         type: string
         default: ""
       send-release-tweet:
         required: false
-        description: If true, sends a tweet about the release to twitter
+        description: If true, sends a tweet about the release to twitter.
         default: false
         type: boolean
       dry-run:
         required: false
-        description: If true, the release will not be created
+        description: If true, the release will not be created.
         default: false
         type: boolean
     secrets:
@@ -81,7 +81,7 @@ jobs:
     steps:
       - name: Validate Inputs
         run: |
-          # Verify that the project anme workflow input is not empty
+          # Verify that the project name workflow input is not empty
           if ("${{ inputs.project-name }}" -eq "") {
             Write-Host "The 'project-name' workflow input cannot be empty.";
             exit 1;

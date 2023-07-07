@@ -11,15 +11,15 @@ on:
     inputs:
       project-name:
         required: true
-        description: The name of the C# project to validate
+        description: The name of the C# project to validate.
         type: string
       tag-name:
         required: true
-        description: The name of the tag to validate
+        description: The name of the tag to validate.
         type: string
       cicd-scripts-version:
         required: true
-        description: The version of the CICD scripts to use
+        description: The version of the CICD scripts to use.
         type: string
     secrets:
       cicd-rest-api:

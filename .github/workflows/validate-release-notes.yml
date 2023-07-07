@@ -11,19 +11,19 @@ on:
     inputs:
       org-name:
         required: true
-        description: The name of GitHub organization
+        description: The name of GitHub organization.
         type: string
       project-name:
         required: true
-        description: The name of the C# project to validate
+        description: The name of the C# project to validate.
         type: string
       version:
         required: true
-        description: The version of the release notes to validate
+        description: The version of the release notes to validate.
         type: string
       cicd-scripts-version:
         required: true
-        description: The version of the CICD scripts to use
+        description: The version of the CICD scripts to use.
         type: string
     secrets:
       cicd-rest-api:
