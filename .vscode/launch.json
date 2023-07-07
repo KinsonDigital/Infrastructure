@@ -342,7 +342,6 @@
             "args": [
 				"Infrastructure",
 				"47",
-				"KinsonDigitalAdmin",
 				"issue",
 				"${env:CICD_REST_API}",
 			],
