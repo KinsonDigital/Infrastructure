@@ -17,6 +17,10 @@ on:
         required: true
         description: The name of the C# project to validate.
         type: string
+      release-type:
+        required: true
+        description: The type of release to validate.  Either 'Preview' or 'Production'.
+        type: string
       version:
         required: true
         description: The version of the release notes to validate.
@@ -69,6 +73,6 @@ jobs:
             "$scriptUrl" `
             "${{ inputs.org-name }}" `
             "${{ inputs.project-name }}" `
-            "preview" `
+            "${{ inputs.release-type }}" `
             "${{ inputs.version }}" `
             "${{ secrets.cicd-rest-api }}";
