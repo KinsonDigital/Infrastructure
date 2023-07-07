@@ -422,7 +422,7 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 
 	/**
 	 * Gets all of the pull requests that are in a milestone with a title that matches the given {@link milestoneTitle},
-	 * and that have a label that matches the given {@link prIncludeLabel}.
+	 * and that has a label that matches the given {@link prIncludeLabel}.
 	 * @param repoName The name of the repository.
 	 * @param milestoneTitle The title of the milestone.
 	 * @param prIncludeLabel The label on a pull request to include the pull request in the release notes.
@@ -455,7 +455,8 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 	}
 
 	/**
-	 * Validates that the given list of {@link labels} exist in the repository.
+	 * Validates that the given list of {@link labels} exist in a repository with a name
+	 * that matches the given {@link repoName}.
 	 * @param repoName The name of the repository that contains the labels.
 	 * @param labels The list of labels to validate.
 	 */

@@ -45,7 +45,7 @@ export class LabelClient extends GitHubClient {
 
 	/**
 	 * Gets a list of all the labels for a repository with a name that matches the {@link repoName}.
-	 * @param repoName the name of the repository that contains the labels.
+	 * @param repoName The name of the repository that contains the labels.
 	 * @returns The list of repository labels.
 	 */
 	public async getAllLabels(repoName: string): Promise<ILabelModel[]> {
