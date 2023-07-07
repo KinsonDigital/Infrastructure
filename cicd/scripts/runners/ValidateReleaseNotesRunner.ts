@@ -124,7 +124,7 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 				ignoredItemList.push(`${issue.title} (Issue #${issue.number}) - ${issueUrl})}`);
 			});
 		}
-		
+
 		if (ignoredPullRequests.length > 0) {
 			ignoredPullRequests.forEach((pr) => {
 				const prUrl = Utils.buildPullRequestUrl(orgName, repoName, pr.number);
@@ -145,7 +145,7 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 		// If the title is incorrect, add to the list of errors found
 		if (releaseNoteFileData.match(titleRegex) === null) {
 			let problemMsg = `The title of the release notes is incorrect.`;
-			problemMsg += ` Expected '${releaseTypeTitle} ${releaseType} Release Notes - ${version}'.`,
+			problemMsg += ` Expected '${releaseTypeTitle} ${releaseType} Release Notes - ${version}'.`;
 			problemsFound.push(problemMsg);
 		}
 
@@ -163,7 +163,7 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 
 			if (!prLinks.includes(prLink)) {
 				let problemMsg = `The pr link for issue '${pr.number}' with the label '${prIncludeLabel}'`;
-				problemMsg += ` does not exist in the release notes.`,
+				problemMsg += ` does not exist in the release notes.`;
 				problemsFound.push(problemMsg);
 			}
 		});
@@ -221,7 +221,9 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 
 		const allVars: IRepoVarModel[] = [];
 
-		const repoVarsNotInOrg = repoVars.filter(repoVar => orgVars.find(orgVar => orgVar.name === repoVar.name) === undefined);
+		const repoVarsNotInOrg = repoVars.filter((repoVar) =>
+			orgVars.find((orgVar) => orgVar.name === repoVar.name) === undefined
+		);
 
 		allVars.push(...orgVars);
 		allVars.push(...repoVarsNotInOrg);
@@ -271,22 +273,28 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 		let relativeDirPath = "";
 
 		if (releaseType === "production") {
-			const relativeProdReleaseNotesDirPathVar = this.vars.find(variable => variable.name === relativeProdReleaseNotesDirPathVarName);
-			
+			const relativeProdReleaseNotesDirPathVar = this.vars.find((variable) =>
+				variable.name === relativeProdReleaseNotesDirPathVarName
+			);
+
 			if (relativeProdReleaseNotesDirPathVar === undefined) {
 				let errorMsg = `The '${this.scriptName}' cicd script requires an organization`;
-				errorMsg += `\n or repository variable named '${relativeProdReleaseNotesDirPathVarName}' with a valid relative file path.`;
+				errorMsg += `\n or repository variable named '${relativeProdReleaseNotesDirPathVarName}'`;
+				errorMsg += " with a valid relative file path.";
 				Utils.printAsGitHubError(errorMsg);
 				Deno.exit(1);
 			}
 
 			relativeDirPath = relativeProdReleaseNotesDirPathVar.value.trim();
 		} else {
-			const relativePrevReleaseNotesDirPathVar = this.vars.find(variable => variable.name === relativePrevReleaseNotesDirPathVarName);
+			const relativePrevReleaseNotesDirPathVar = this.vars.find((variable) =>
+				variable.name === relativePrevReleaseNotesDirPathVarName
+			);
 
 			if (relativePrevReleaseNotesDirPathVar === undefined) {
 				let errorMsg = `The '${this.scriptName}' cicd script requires an organization`;
-				errorMsg += `\n or repository variable named '${relativePrevReleaseNotesDirPathVarName}' with a valid relative file path.`;
+				errorMsg += `\n or repository variable named '${relativePrevReleaseNotesDirPathVarName}'`;
+				errorMsg += " with a valid relative file path.";
 				Utils.printAsGitHubError(errorMsg);
 				Deno.exit(1);
 			}
@@ -298,7 +306,9 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 		relativeDirPath = relativeDirPath.replaceAll("//", "/");
 
 		relativeDirPath = relativeDirPath.startsWith("/") ? relativeDirPath.substring(1) : relativeDirPath;
-		relativeDirPath = relativeDirPath.endsWith("/") ? relativeDirPath.substring(0, relativeDirPath.length - 1) : relativeDirPath;
+		relativeDirPath = relativeDirPath.endsWith("/")
+			? relativeDirPath.substring(0, relativeDirPath.length - 1)
+			: relativeDirPath;
 
 		return relativeDirPath;
 	}
@@ -310,14 +320,13 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 	private getFileNamePrefix(): string {
 		const releaseNotesFileNamePrefixVarName = "RELEASE_NOTES_FILE_NAME_PREFIX";
 
-		const releaseNotesFileNamePrefixVar = this.vars.find(variable => variable.name === releaseNotesFileNamePrefixVarName);
-	
+		const releaseNotesFileNamePrefixVar = this.vars.find((variable) => variable.name === releaseNotesFileNamePrefixVarName);
+
 		if (releaseNotesFileNamePrefixVar === undefined) {
 			let errorMsg = `The '${this.scriptName}' cicd script requires an organization`;
 			errorMsg += `\n or repository variable named '${releaseNotesFileNamePrefixVarName}'`;
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
-
 		}
 
 		return releaseNotesFileNamePrefixVar.value;
@@ -333,7 +342,7 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 	private getReleaseNotesTitle(repoName: string, version: string, releaseType: string): string {
 		const titleSection = Utils.firstLetterToUpper(releaseType);
 
-		return `${repoName} ${titleSection} Release Notes - ${version}`
+		return `${repoName} ${titleSection} Release Notes - ${version}`;
 	}
 
 	/**
@@ -346,7 +355,7 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 
 		const ignoreLabelsVarName = "IGNORE_LABELS";
 
-		const ignoreLabelsVar = this.vars.find(variable => variable.name === ignoreLabelsVarName);
+		const ignoreLabelsVar = this.vars.find((variable) => variable.name === ignoreLabelsVarName);
 
 		if (ignoreLabelsVar === undefined) {
 			return [];
@@ -356,8 +365,8 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 			if (varValue.indexOf(",") === -1) {
 				labels.push(varValue);
 			} else {
-				const ignoreLabels = ignoreLabelsVar.value.split(",").map(label => label.trim());
-				
+				const ignoreLabels = ignoreLabelsVar.value.split(",").map((label) => label.trim());
+
 				labels.push(...ignoreLabels);
 			}
 		}
@@ -374,7 +383,7 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 	private getPullRequestIncludeLabel(): string {
 		const prLabelRepoVarName = "PR_INCLUDE_NOTES_LABEL";
 
-		return this.vars.find(v => v.name == prLabelRepoVarName)?.value ?? "";
+		return this.vars.find((v) => v.name == prLabelRepoVarName)?.value ?? "";
 	}
 
 	/**
@@ -418,7 +427,11 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 	 * @param prIncludeLabel The label on a pull request to include the pull request in the release notes.
 	 * @returns The pull requests that are in the milestone.
 	 */
-	private async getMilestonePullRequests(repoName: string, milestoneTitle: string, prIncludeLabel: string): Promise<[IPullRequestModel[], IPullRequestModel[]]> {
+	private async getMilestonePullRequests(
+		repoName: string,
+		milestoneTitle: string,
+		prIncludeLabel: string,
+	): Promise<[IPullRequestModel[], IPullRequestModel[]]> {
 		const ignoredPullRequests: IPullRequestModel[] = [];
 		const ignoreLabels: string[] = await this.getIgnoreLabels(repoName);
 
@@ -468,7 +481,7 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 	 */
 	private async getLabels(repoName: string): Promise<ILabelModel[]> {
 		if (this.cachedRepoLabels.length <= 0) {
-			const repoLabels: ILabelModel[] = await this.labelClient.getAllLabels(repoName)
+			const repoLabels: ILabelModel[] = await this.labelClient.getAllLabels(repoName);
 
 			this.cachedRepoLabels.push(...repoLabels);
 		}

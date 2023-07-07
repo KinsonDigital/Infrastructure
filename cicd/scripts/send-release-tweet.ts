@@ -49,12 +49,12 @@ Utils.printInGroup("Script Arguments", [
 const orgClient: OrgClient = new OrgClient(token);
 const repoClient: RepoClient = new RepoClient(token);
 
-const orgVars = await orgClient.getVariables(orgName)
+const orgVars = await orgClient.getVariables(orgName);
 const repoVars = await repoClient.getVariables(repoName);
 
 const allVars: IRepoVarModel[] = [];
 
-const repoVarsNotInOrg = repoVars.filter(repoVar => orgVars.find(orgVar => orgVar.name === repoVar.name) === undefined);
+const repoVarsNotInOrg = repoVars.filter((repoVar) => orgVars.find((orgVar) => orgVar.name === repoVar.name) === undefined);
 
 allVars.push(...orgVars);
 allVars.push(...repoVarsNotInOrg);
@@ -62,7 +62,7 @@ allVars.push(...repoVarsNotInOrg);
 const discordInviteCodeVarName = "DISCORD_INVITE_CODE";
 
 // Check for the discord invite code
-const discordInviteCodeVar = allVars.find(variable => variable.name === discordInviteCodeVarName);
+const discordInviteCodeVar = allVars.find((variable) => variable.name === discordInviteCodeVarName);
 
 if (discordInviteCodeVar == undefined) {
 	let errorMsg = `The '${scriptName}' cicd script requires an organization`;
@@ -76,10 +76,9 @@ if (discordInviteCodeVar == undefined) {
 	Deno.exit(1);
 }
 
-
 // Check for the relative template file repo name
 const relativeTemplateFileRepoNameVarName = "RELEASE_TWEET_TEMPLATE_REPO_NAME";
-const relativeTemplateFileRepoNameVar = allVars.find(variable => variable.name === relativeTemplateFileRepoNameVarName);
+const relativeTemplateFileRepoNameVar = allVars.find((variable) => variable.name === relativeTemplateFileRepoNameVarName);
 
 if (relativeTemplateFileRepoNameVar == undefined) {
 	let errorMsg = `The '${scriptName}' cicd script requires an organization`;
@@ -90,7 +89,7 @@ if (relativeTemplateFileRepoNameVar == undefined) {
 
 // Check for the relative template file path
 const relativeTemplateFilePathVarName = "RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH";
-const relativeTemplateFilePathVar = allVars.find(variable => variable.name === relativeTemplateFilePathVarName);
+const relativeTemplateFilePathVar = allVars.find((variable) => variable.name === relativeTemplateFilePathVarName);
 
 if (relativeTemplateFilePathVar == undefined) {
 	let errorMsg = `The '${scriptName}' cicd script requires an organization`;
