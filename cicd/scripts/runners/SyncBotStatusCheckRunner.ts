@@ -388,7 +388,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @param prNumber The pull request number.
 	 */
 	private async updatePRBody(repoName: string, issueNumber: number, prNumber: number): Promise<void> {
-		const prBody = (await this.getPullRequest(repoName, prNumber)).body;
+		const prBody = (await this.prClient.getPullRequest(repoName, prNumber)).body;
 
 		const templateSettings = await this.buildTemplateSettings(repoName, issueNumber, prNumber);
 		const prTemplateManager = new PRTemplateManager();
