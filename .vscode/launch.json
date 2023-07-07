@@ -97,7 +97,11 @@
                 "--inspect-wait",
                 "--allow-all"
             ],
-            "args": ["Infrastructure", "v1.2.3-preview.4", "fake-token"],
+            "args": [
+				"Infrastructure",
+				"v1.2.3-preview.4",
+				"${env:CICD_REST_API}",
+			],
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
@@ -139,7 +143,13 @@
                 "--inspect-wait",
                 "--allow-all"
             ],
-            "args": ["CASL", "preview", "v1.0.0-preview.13", "🚀Preview Release", "dependency update"],
+            "args": [
+				"KinsonDigital",
+				"Infrastructure",
+				"preview",
+				"v1.0.0-preview.1",
+				"${env:CICD_REST_API}",
+			],
             "attachSimplePort": 9229,
             "windows": {
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
@@ -159,7 +169,13 @@
                 "--inspect-wait",
                 "--allow-all"
             ],
-            "args": ["Infrastructure", "24", "pr", "KD-Team", "fake-token"],
+            "args": [
+				"Infrastructure",
+				"24",
+				"pr",
+				"KD-Team",
+				"${env:CICD_REST_API}",
+			],
             "attachSimplePort": 9229,
             "windows": {
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
@@ -179,7 +195,11 @@
                 "--inspect-wait",
                 "--allow-all"
             ],
-            "args": ["Infrastructure", "v1.2.3-preview.4", "fake-token"],
+            "args": [
+				"Infrastructure",
+				"v1.2.3-preview.4",
+				"${env:CICD_REST_API}",
+			],
             "attachSimplePort": 9229,
             "windows": {
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
@@ -268,7 +288,11 @@
                 "--inspect-wait",
                 "--allow-all"
             ],
-            "args": ["Infrastructure", "v1.0.0-preview.10", ""],
+            "args": [
+				"Infrastructure",
+				"v1.0.0-preview.10",
+				"${env:CICD_REST_API}",
+			],
             "attachSimplePort": 9229,
             "windows": {
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
@@ -294,7 +318,7 @@
 				"CalvinWilkinson",
 				"227",
 				"[initial-sync]",
-				"token",
+				"${env:CICD_REST_API}",
 			],
             "attachSimplePort": 9229,
             "windows": {
@@ -320,7 +344,7 @@
 				"47",
 				"KinsonDigitalAdmin",
 				"issue",
-				""
+				"${env:CICD_REST_API}",
 			],
             "attachSimplePort": 9229,
             "windows": {
