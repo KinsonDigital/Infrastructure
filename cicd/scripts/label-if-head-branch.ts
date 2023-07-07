@@ -12,7 +12,7 @@ if (Deno.args.length != 5) {
 	errorMsg += "\nThe 3rd arg is required and must be the head branch of the pull request.";
 	errorMsg += "\nThe 4th arg is required and must be the intended head branch of the pull request.";
 	errorMsg += "\nThe 5th arg is required and must be the label to add if the head branch of the pull request is correct.";
-	errorMsg += "\nThe 6th arg is required and must be the GitHub token.";
+	errorMsg += "\nThe 6th arg is required and must be a GitHub PAT (Personal Access Token).";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
