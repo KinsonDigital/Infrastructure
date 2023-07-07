@@ -9,7 +9,7 @@ if (Deno.args.length != 3) {
 	let errorMsg = `The '${scriptName}' cicd script must have 3 arguments.`;
 	errorMsg += "\nThe 1st arg is required and must be the GitHub repo name.";
 	errorMsg += "\nThe 2nd arg is required and must be a valid milestone name.";
-	errorMsg += "\nThe 3rd arg is required and must be a valid GitHub token.";
+	errorMsg += "\nThe 3rd arg is required and must be a valid GitHub PAT (Personal Access Token).";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);

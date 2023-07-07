@@ -10,7 +10,7 @@ if (Deno.args.length < 3) {
 	errorMsg += "\nThe 1st arg is required and must be a valid GitHub repo.";
 	errorMsg += "\nThe 2nd arg is required and must be either 'production', 'preview' or 'either'.";
 	errorMsg += "\nThe 3rd arg is required and must be the name of the tag.";
-	errorMsg += "\nThe 4th arg is optional and must be a GitHub token.";
+	errorMsg += "\nThe 4th arg is optional and must be a GitHub PAT (Personal Access Token).";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);

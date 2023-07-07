@@ -8,7 +8,7 @@ if (Deno.args.length < 2) {
 	let errorMsg = `The '${scriptName}' cicd script must have at least 2 arguments and 1 optional argument.`;
 	errorMsg += "\nThe 1st arg is required and must be a the name of the repository.";
 	errorMsg += "\nThe 2nd arg is required and must be the name of the tag for the release.";
-	errorMsg += "\nThe 2nd arg is optional and must be a valid GitHub token with the required permissions.";
+	errorMsg += "\nThe 2nd arg is optional and must be a GitHub PAT (Personal Access Token).";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);

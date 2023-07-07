@@ -391,4 +391,20 @@ export class Utils {
 	public static isNotFeatureBranch(branchName: string): boolean {
 		return !this.isFeatureBranch(branchName);
 	}
+
+	/**
+	 * Converts the given {@link value} to a string with its first letter converted to upper case.
+	 * @param value The value to convert.
+	 * @returns The given {@link value} with its first letter converted to upper case.
+	 */
+	public static firstLetterToUpper(value: string): string {
+		if (Utils.isNullOrEmptyOrUndefined(value)) {
+			return value;
+		}
+
+		const allButFirstLetter = value.slice(1);
+		const firstLetter = value.slice(0, 1).toUpperCase();
+
+		return `${firstLetter}${allButFirstLetter}`;
+	}
 }
