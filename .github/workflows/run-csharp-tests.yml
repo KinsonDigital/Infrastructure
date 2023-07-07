@@ -39,19 +39,19 @@ jobs:
 
           # If null, no project file was found
           if (!$result) {
-            Write-Host "::error::Project file not found";
+            echo "::error::Project file not found";
             exit 1; # Fail Workflow
           } elseif ($resultType -ne "String") {
-            Write-Host "::error::Found too many project files!!";
+            echo "::error::Found too many project files!!";
 
             foreach ($item in $result) {
-                Write-Host "`t$item";
+                echo "`t$item";
             }
 
               exit 1; # Fail Workflow
           } else {
-            Write-Host "Project File Path Resolved To: $result";
-            "file-path=$result" >> $env.GITHUB_OUTPUT;
+            echo "Project File Path Resolved To: $result";
+            "file-path=$result" >> $env:GITHUB_OUTPUT;
           }
 
       - uses: actions/setup-dotnet@v3
