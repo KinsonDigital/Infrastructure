@@ -83,6 +83,7 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 		]);
 
 		version = version.startsWith("v") ? version : `v${version}`;
+		releaseType = releaseType.toLowerCase();
 
 		const repoDoesNotExist = !(await this.repoClient.repoExists(repoName));
 
