@@ -25,7 +25,7 @@ export class LabelClient extends GitHubClient {
 	 * @returns A list of labels in the repo.
 	 * @remarks Does not require authentication.
 	 */
-	public async getLabels(repoName: string, page: number, qtyPerPage: number): Promise<ILabelModel[]> {
+	public async getLabels(repoName: string, page: number, qtyPerPage: number): Promise<[ILabelModel[], Response]> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getLabels", "repoName");
 
 		page = page < 1 ? 1 : page;
@@ -40,7 +40,28 @@ export class LabelClient extends GitHubClient {
 			Deno.exit(1);
 		}
 
-		return <ILabelModel[]> await this.getResponseData(response);
+		return [await this.getResponseData(response), response];
+	}
+
+	/**
+	 * Gets a list of all the labels for a repository with a name that matches the {@link repoName}.
+	 * @param repoName the name of the repository that contains the labels.
+	 * @returns The list of repository labels.
+	 */
+	public async getAllLabels(repoName: string): Promise<ILabelModel[]> {
+		Guard.isNullOrEmptyOrUndefined(repoName, "getAllLabels", "repoName");
+
+		const result: ILabelModel[] = [];
+
+		await this.getAllData(async (page, qtyPerPage) => {
+			const [labels, response] = await this.getLabels(repoName, page, qtyPerPage ?? 100);
+
+			result.push(...labels);
+
+			return [labels, response];
+		});
+
+		return result;
 	}
 
 	/**
