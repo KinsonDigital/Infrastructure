@@ -17,6 +17,7 @@ import { IssueState } from "../../core/Enums.ts";
  * Runs as a sync bot and a pull request status check.
  */
 export class SyncBotStatusCheckRunner extends ScriptRunner {
+	private readonly prTemplateManager: PRTemplateManager;
 	private readonly issueClient: IssueClient;
 	private readonly projClient: ProjectClient;
 	private readonly prClient: PullRequestClient;
@@ -57,6 +58,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		super(args);
 
 		const githubToken = args[args.length - 1];
+		this.prTemplateManager = new PRTemplateManager(githubToken);
 		this.repoClient = new RepoClient(githubToken);
 		this.issueClient = new IssueClient(githubToken);
 		this.projClient = new ProjectClient(githubToken);
@@ -131,9 +133,8 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			}
 		}
 
-		const prTemplateManager = new PRTemplateManager(githubToken);
 		const prTemplate = (await this.getPullRequest(repoName, prNumber)).body;
-		const syncingDisabled = prTemplateManager.syncingDisabled(prTemplate);
+		const syncingDisabled = this.prTemplateManager.syncingDisabled(prTemplate);
 
 		// Syncing is disabled or the PR body does not contain a sync template
 		if (syncingDisabled) {
@@ -269,8 +270,10 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		const prHeadBranch = pr.head.ref;
 		const prBaseBranch = pr.base.ref;
 
+		const allowedPRBaseBranches = await this.getAllowedPRBaseBranches(repoName);
+
 		const headBranchIsValid = Utils.isFeatureBranch(prHeadBranch);
-		const baseBranchIsValid = prBaseBranch === "master" || prBaseBranch === "preview";
+		const baseBranchIsValid = allowedPRBaseBranches.some((branch) => branch === prBaseBranch);
 
 		const titleInSync = prTitle?.trim() === issueTitle?.trim();
 
@@ -323,6 +326,42 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		return this.pr;
 	}
 
+	/**
+	 * Gets the list of allowed base branches for a repository with a name that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
+	 * @returns The list of allowed base branches.
+	 */
+	private async getAllowedPRBaseBranches(repoName: string): Promise<string[]> {
+		// This repo variable is optional
+		const prSyncBaseBranchesVarName = "PR_SYNC_BASE_BRANCHES";
+		const defaultBranches = ["main", "preview"];
+		const repoVars = (await this.repoClient.getVariables(repoName)).filter(v => v.name === prSyncBaseBranchesVarName);
+		
+		if (repoVars.length === 0) {
+			let noticeMsg = "The PR_SYNC_BASE_BRANCHES variable does not exist.";
+			noticeMsg += `\nUsing the default branches: ${defaultBranches.join(", ")}.`;
+
+			Utils.printAsGitHubNotice(noticeMsg);
+			return defaultBranches;
+		} else {
+			const prSyncBaseBranchesVar = repoVars[0];
+
+			if (Utils.isNullOrEmptyOrUndefined(prSyncBaseBranchesVar.value)) {
+				let warningMsg = "The PR_SYNC_BASE_BRANCHES variable contains no value.";
+				warningMsg += `\nUsing the default branches: ${defaultBranches.join(", ")}.`;
+				Utils.printAsGitHubWarning(warningMsg);
+
+				return defaultBranches;
+			}
+
+			const prSyncBaseBranches = prSyncBaseBranchesVar.value.split(",")
+				.map(v => v.trim())
+				.filter((i) => !Utils.isNullOrEmptyOrUndefined(i));
+
+			return prSyncBaseBranches.length > 0 ? prSyncBaseBranches : defaultBranches;
+		}
+	}
+	
 	/**
 	 * Gets a list of organization projects associated with an issue with the given {@link issueNumber} from a repository
 	 * with a name that matches the given {@link repoName}.
@@ -392,9 +431,8 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		const prBody = (await this.prClient.getPullRequest(repoName, prNumber)).body;
 
 		const templateSettings = await this.buildTemplateSettings(repoName, issueNumber, prNumber);
-		const prTemplateManager = new PRTemplateManager();
 
-		const [updatedPRDescription, statusOfSyncItems] = prTemplateManager.processSyncTemplate(prBody, templateSettings);
+		const [updatedPRDescription, statusOfSyncItems] = this.prTemplateManager.processSyncTemplate(prBody, templateSettings);
 
 		const prRequestData: IIssueOrPRRequestData = {
 			body: updatedPRDescription,
