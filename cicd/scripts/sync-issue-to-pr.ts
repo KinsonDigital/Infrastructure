@@ -55,7 +55,6 @@ Utils.printInGroup("Script Arguments", [
 	`GitHub Token (Required): ${Utils.isNullOrEmptyOrUndefined(githubToken) ? "Not Provided" : "****"}`,
 ]);
 
-const orgClient: OrgClient = new OrgClient(githubToken);
 const repoClient: RepoClient = new RepoClient(githubToken);
 
 const repoVars = await repoClient.getVariables(repoName);
@@ -94,6 +93,7 @@ if (prSyncTemplateRepoNameVar == undefined) {
 	Deno.exit(1);
 }
 
+const prSyncTemplateRepoName = prSyncTemplateRepoNameVar.value;
 let relativeTemplateFilePath = relativeTemplateFilePathVar.value;
 
 // Make sure that there are no backslashes and that it does not start with a forward slash
@@ -102,8 +102,6 @@ relativeTemplateFilePath = relativeTemplateFilePath.replaceAll("//", "/");
 relativeTemplateFilePath = relativeTemplateFilePath.startsWith("/")
 	? relativeTemplateFilePath.substring(1)
 	: relativeTemplateFilePath;
-
-const prSyncTemplateRepoName = prSyncTemplateRepoNameVar.value;
 
 const templateFileDoesNotExist = !(await repoClient.fileExists(prSyncTemplateRepoName, relativeTemplateFilePath));
 if (templateFileDoesNotExist) {
@@ -117,9 +115,6 @@ if (repoDoesNotExist) {
 	Deno.exit(1);
 }
 
-const prClient: PullRequestClient = new PullRequestClient(githubToken);
-const issueClient: IssueClient = new IssueClient(githubToken);
-
 const isRunSyncCommand = syncCommand.match(/\[run-sync\]/gm) != undefined;
 const isInitialSyncCommand = syncCommand.match(/\[initial-sync\]/gm) != undefined;
 
@@ -128,6 +123,8 @@ if (!isRunSyncCommand && !isInitialSyncCommand) {
 	Utils.printAsGitHubNotice("Sync ignored.  The comment does not contain the '[run-sync]' or '[initial-sync]' sync command.");
 	Deno.exit(0);
 }
+
+const issueClient: IssueClient = new IssueClient(githubToken);
 
 if (await issueClient.issueExists(repoName, prNumber)) {
 	let ignoreMsg = `Sync ignored.  The pull request number is actually an issue number.`;
@@ -138,9 +135,8 @@ if (await issueClient.issueExists(repoName, prNumber)) {
 	Deno.exit(0);
 }
 
-const userClient: UsersClient = new UsersClient(githubToken);
-
 const defaultReviewerVarExists = defaultReviewerVar != undefined;
+const userClient: UsersClient = new UsersClient(githubToken);
 
 if (defaultReviewerVarExists) {
 	const defaultReviewer = defaultReviewerVar.value;
@@ -161,6 +157,7 @@ if (requestedByUserDoesNotExist) {
 	Deno.exit(1);
 }
 
+const orgClient: OrgClient = new OrgClient(githubToken);
 const userIsNotOrgMember = !(await orgClient.userIsOrgAdminMember(organizationName, requestedByUser));
 
 if (userIsNotOrgMember) {
@@ -169,6 +166,8 @@ if (userIsNotOrgMember) {
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(0);
 }
+
+const prClient: PullRequestClient = new PullRequestClient(githubToken);
 
 const prTemplate = new PRTemplateManager();
 let pr: IPullRequestModel = await prClient.getPullRequest(repoName, prNumber);
@@ -208,9 +207,6 @@ const issue: IIssueModel = await issueClient.getIssue(repoName, issueNumber);
 
 const issueLabels = issue.labels?.map((label) => label.name) ?? [];
 
-const projectClient: ProjectClient = new ProjectClient(githubToken);
-const issueProjects: IProjectModel[] = await projectClient.getIssueProjects(repoName, issueNumber);
-
 // If the pr body is not a valid pr template, load a new one to replace it.
 const prDescription = isInitialSyncCommand || !prTemplate.isPRSyncTemplate(pr.body)
 	? await prTemplate.getPullRequestTemplate(prSyncTemplateRepoName, relativeTemplateFilePath, issueNumber)
@@ -235,6 +231,9 @@ if (defaultReviewerVarExists) {
 	await prClient.requestReviewer(repoName, prNumber, defaultReviewer);
 	Utils.printAsGitHubNotice(`The reviewer '${defaultReviewer}' has been requested for the pull request`);
 }
+
+const projectClient: ProjectClient = new ProjectClient(githubToken);
+const issueProjects: IProjectModel[] = await projectClient.getIssueProjects(repoName, issueNumber);
 
 // Add all of the issue org projects to the PR
 for (let i = 0; i < issueProjects.length; i++) {
