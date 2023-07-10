@@ -60,13 +60,14 @@ export class PRTemplateManager {
 			case 2:
 				baseBranchesText = `a '${allowedPRBaseBranches[0]}' or '${allowedPRBaseBranches[1]}' branch.`;
 				break;
-			default:
+			default: {
 				// get all of the branches except the last one
 				const allBranchesButLast = allowedPRBaseBranches.slice(0, allowedPRBaseBranches.length - 1);
 				const lastBranch = allowedPRBaseBranches[allowedPRBaseBranches.length - 1];
 
 				baseBranchesText = `a '${allBranchesButLast.join("', '")}', or '${lastBranch}' branch.`;
 				break;
+			}
 		}
 
 		templatedData = templatedData.replace(this.branchesTemplateVarRegex, baseBranchesText);
