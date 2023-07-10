@@ -192,7 +192,7 @@ export class PullRequestClient extends GitHubClient {
 			Deno.exit(1);
 		}
 
-		return await this.getResponseData(response);
+		return <IPullRequestModel> await this.getResponseData(response);
 	}
 
 	/**
