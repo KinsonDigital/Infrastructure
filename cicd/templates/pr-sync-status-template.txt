@@ -4,7 +4,7 @@ To allow this pull request to be merged, please make sure that the following ite
 This pull request closes #${{issue-number}}
 
 ✅ The pull request head branch must be a feature branch with the syntax `feature/<issue-num>-sync-testing`. <!--head-branch-->
-✅ The pull request base branch must be a 'master' or 'preview' branch. <!--base-branch-->
+✅ The pull request base branch must be ${{branches}} <!--base-branch-->
 ✅ The pull request head branch contains a valid issue number. <!--valid-issue-number-->
 ✅ The pull request title matches the linked issue title exactly. <!--title-->
 ✅ The pull request assignees match the assignees of the issue. <!--assignees-->

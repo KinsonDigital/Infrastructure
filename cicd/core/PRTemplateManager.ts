@@ -16,6 +16,7 @@ export class PRTemplateManager {
 	private readonly projectsRegex = /<!--projects-->/gm;
 	private readonly milestoneRegex = /<!--milestone-->/gm;
 	private readonly issueNumTemplateVarRegex = /\${{\s*issue-number\s*}}/gm;
+	private readonly branchesTemplateVarRegex = /\${{\s*branches\s*}}/gm;
 	private readonly syncFlagRegex = /<!--sync-flag-->/gm;
 	private readonly syncEmptyCheckRegex = /- \[ \] /gm;
 	private readonly syncFullCheckRegex = /- \[(x|X)\] /gm;
@@ -47,6 +48,28 @@ export class PRTemplateManager {
 
 		let templatedData = await this.repoClient.getFileContent(repoName, relativeTemplatePath);
 		templatedData = templatedData.replace(this.issueNumTemplateVarRegex, issueNumber.toString());
+
+		const allowedPRBaseBranches = await this.getAllowedPRBaseBranches(repoName);
+
+		let baseBranchesText = "";
+
+		switch (allowedPRBaseBranches.length) {
+			case 1:
+				baseBranchesText = `the branch '${allowedPRBaseBranches[0]}'`;
+				break;
+			case 2:
+				baseBranchesText = `a '${allowedPRBaseBranches[0]}' or '${allowedPRBaseBranches[1]}' branch.`;
+				break;
+			default:
+				// get all of the branches except the last one
+				const allBranchesButLast = allowedPRBaseBranches.slice(0, allowedPRBaseBranches.length - 1);
+				const lastBranch = allowedPRBaseBranches[allowedPRBaseBranches.length - 1];
+
+				baseBranchesText = `a '${allBranchesButLast.join("', '")}', or '${lastBranch}' branch.`;
+				break;
+		}
+
+		templatedData = templatedData.replace(this.branchesTemplateVarRegex, baseBranchesText);
 
 		return templatedData;
 	}
@@ -178,6 +201,34 @@ export class PRTemplateManager {
 			labelsSyntaxExists &&
 			projectsSyntaxExists &&
 			milestoneSyntaxExists;
+	}
+
+	/**
+	 * Gets the list of allowed base branches for a repository with a name that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
+	 * @returns The list of allowed base branches.
+	 */
+	public async getAllowedPRBaseBranches(repoName: string): Promise<string[]> {
+		// This repo variable is optional
+		const prSyncBaseBranchesVarName = "PR_SYNC_BASE_BRANCHES";
+		const defaultBranches = ["main", "preview"];
+		const repoVars = (await this.repoClient.getVariables(repoName)).filter(v => v.name === prSyncBaseBranchesVarName);
+		
+		if (repoVars.length === 0) {
+			return defaultBranches;
+		} else {
+			const prSyncBaseBranchesVar = repoVars[0];
+
+			if (Utils.isNullOrEmptyOrUndefined(prSyncBaseBranchesVar.value)) {
+				return defaultBranches;
+			}
+
+			const prSyncBaseBranches = prSyncBaseBranchesVar.value.split(",")
+				.map(v => v.trim())
+				.filter((i) => !Utils.isNullOrEmptyOrUndefined(i));
+
+			return prSyncBaseBranches.length > 0 ? prSyncBaseBranches : defaultBranches;
+		}
 	}
 
 	/**
