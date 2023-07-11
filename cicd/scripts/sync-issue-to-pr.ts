@@ -52,7 +52,7 @@ Utils.printInGroup("Script Arguments", [
 	`Requested By User (Required): ${requestedByUser}`,
 	`Pull Request Number (Required): ${prNumber}`,
 	`Sync Command (Required): ${syncCommand}`,
-	`GitHub Token (Required): ${Utils.isNullOrEmptyOrUndefined(githubToken) ? "Not Provided" : "****"}`,
+	`GitHub Token (Required): "****"`,
 ]);
 
 const repoClient: RepoClient = new RepoClient(githubToken);
@@ -169,7 +169,7 @@ if (userIsNotOrgMember) {
 
 const prClient: PullRequestClient = new PullRequestClient(githubToken);
 
-const prTemplate = new PRTemplateManager();
+const prTemplateManager = new PRTemplateManager(githubToken);
 let pr: IPullRequestModel = await prClient.getPullRequest(repoName, prNumber);
 
 const prDoesNotExist = !(await prClient.pullRequestExists(repoName, prNumber));
@@ -178,7 +178,7 @@ if (prDoesNotExist) {
 	Deno.exit(1);
 } else {
 	// Check if syncing is disabled but only if a [run-sync] command
-	if (isRunSyncCommand && prTemplate.syncingDisabled(pr.body)) {
+	if (isRunSyncCommand && prTemplateManager.syncingDisabled(pr.body)) {
 		Utils.printAsGitHubNotice("Syncing is disabled.  Syncing will not occur.");
 		Deno.exit(0);
 	}
@@ -208,8 +208,8 @@ const issue: IIssueModel = await issueClient.getIssue(repoName, issueNumber);
 const issueLabels = issue.labels?.map((label) => label.name) ?? [];
 
 // If the pr body is not a valid pr template, load a new one to replace it.
-const prDescription = isInitialSyncCommand || !prTemplate.isPRSyncTemplate(pr.body)
-	? await prTemplate.getPullRequestTemplate(prSyncTemplateRepoName, relativeTemplateFilePath, issueNumber)
+const prDescription = isInitialSyncCommand || !prTemplateManager.isPRSyncTemplate(pr.body)
+	? await prTemplateManager.getPullRequestTemplate(prSyncTemplateRepoName, relativeTemplateFilePath, issueNumber)
 	: pr.body;
 
 // If the title does not match, sync the title
@@ -264,12 +264,15 @@ await issueClient.updateIssue(repoName, issueNumber, issueData);
 const subText = prMetaDataExists ? "updated in" : "added to";
 Utils.printAsGitHubNotice(`PR link metadata ${subText} the description of issue '${issueNumber}'.`);
 
+const allowedPRBaseBranches = await prTemplateManager.getAllowedPRBaseBranches(repoName);
+const prBaseBranchValid = allowedPRBaseBranches.some((branch) => branch === pr.base.ref);
+
 const prProjects: IProjectModel[] = await projectClient.getPullRequestProjects(repoName, prNumber);
 
 const syncSettings: IPRTemplateSettings = {
 	issueNumber: issueNumber,
 	headBranchValid: Utils.isFeatureBranch(pr.head.ref),
-	baseBranchValid: pr.base.ref === "master" || pr.base.ref === "preview",
+	baseBranchValid: prBaseBranchValid,
 	issueNumValid: true,
 	titleInSync: pr?.title === issue?.title,
 	assigneesInSync: Utils.assigneesMatch(issue.assignees, pr.assignees),
@@ -278,7 +281,7 @@ const syncSettings: IPRTemplateSettings = {
 	milestoneInSync: pr.milestone?.number === issue.milestone?.number,
 };
 
-const [newPRSyncBody, statusOfSyncItems] = prTemplate.processSyncTemplate(prDescription, syncSettings);
+const [newPRSyncBody, statusOfSyncItems] = prTemplateManager.processSyncTemplate(prDescription, syncSettings);
 
 const syncPRData: IIssueOrPRRequestData = {
 	title: issue.title,
