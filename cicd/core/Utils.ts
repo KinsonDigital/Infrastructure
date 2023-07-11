@@ -1,4 +1,4 @@
-import { GitHubHttpStatusCodes } from "./Enums.ts";
+import { GitHubHttpStatusCodes, GitHubLogType } from "./Enums.ts";
 import { Guard } from "./Guard.ts";
 import { IIssueModel } from "./Models/IIssueModel.ts";
 import { ILabelModel } from "./Models/ILabelModel.ts";
@@ -169,6 +169,41 @@ export class Utils {
 		} else {
 			Utils.printAsGitHubNotice(successMsg);
 		}
+	}
+
+	/**
+	 * Prints the given list of {@link items} as a numbered list with each item prefixed with the given {@link prefix},
+	 * and logged to the GitHub console based on the given {@link logType}.
+	 * @param prefix The prefix to use for each item.
+	 * @param items The items to print.
+	 * @param logType The type of logging to use.
+	 */
+	public static printAsNumberedList(prefix: string, items: string[], logType: GitHubLogType = GitHubLogType.normal): void {
+		const argInfos: string[] = [];
+
+		for (let i = 0; i < items.length - 1; i++) {
+			argInfos.push(`${Utils.toOrdinal(i + 1)}${prefix}${items[i]}}`);
+		}
+
+		argInfos.forEach(info => {
+			switch (logType) {
+				case GitHubLogType.normal:
+					console.log(info);
+					break;
+				case GitHubLogType.notice:
+					Utils.printAsGitHubNotice(info);
+					break;
+				case GitHubLogType.warning:
+					Utils.printAsGitHubWarning(info);
+					break;
+				case GitHubLogType.error:
+					Utils.printAsGitHubError(info);
+					break;
+				default:
+					console.log(info);
+					break;
+			}
+		});
 	}
 
 	/**

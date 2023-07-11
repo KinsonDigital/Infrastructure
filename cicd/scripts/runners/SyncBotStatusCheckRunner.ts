@@ -11,7 +11,7 @@ import { IProjectModel } from "../../core/Models/IProjectModel.ts";
 import { IIssueOrPRRequestData } from "../../core/IIssueOrPRRequestData.ts";
 import { IPRTemplateSettings } from "../../core/IPRTemplateSettings.ts";
 import { PRTemplateManager } from "../../core/PRTemplateManager.ts";
-import { IssueState } from "../../core/Enums.ts";
+import { GitHubLogType, IssueState } from "../../core/Enums.ts";
 
 /**
  * Runs as a sync bot and a pull request status check.
@@ -35,23 +35,14 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 */
 	constructor(args: string[], scriptName: string) {
 		if (args.length != 4) {
-			const argInfos: string[] = [];
+			const argDescriptions = [
+				`The ${scriptName} cicd script must have 4 arguments.`,
+				"Required and must be a valid GitHub repository name.",
+				"Required and must be a valid issue or pull request number.",
+				"Required and must be a valid case-insensitive workflow event type of 'issue' or 'pr'.",
+				"Required and must be a GitHub PAT (Personal Access Token)."];
 
-			for (let i = 0; i < args.length - 1; i++) {
-				argInfos.push(`${Utils.toOrdinal(i + 1)} Arg: $`);
-			}
-
-			argInfos[0] = argInfos[0]
-				.replace("$", "Required and must be a valid GitHub repository name.");
-			argInfos[1] = argInfos[1]
-				.replace("$", "Required and must be a valid issue or pull request number.");
-			argInfos[2] = argInfos[2]
-				.replace("$", "Required and must be a valid case-insensitive workflow event type of 'issue' or 'pr'.");
-			argInfos[3] = argInfos[3].replace("$", "Required and must be a GitHub PAT (Personal Access Token).");
-
-			argInfos.unshift(`The ${scriptName} cicd script must have 4 arguments.`);
-
-			Utils.printAsGitHubError(argInfos.join("\n"));
+			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.error);
 			Deno.exit(1);
 		}
 
