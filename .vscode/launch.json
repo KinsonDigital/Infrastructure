@@ -15,6 +15,7 @@
                 "--inspect-wait",
                 "--allow-all"
             ],
+			"args": ["${env:CICD_REST_API}"],
             "attachSimplePort": 9229,
             "windows": {
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
@@ -314,9 +315,9 @@
             ],
             "args": [
 				"KinsonDigital",
-				"CASL",
+				"Infrastructure",
 				"CalvinWilkinson",
-				"227",
+				"94",
 				"[initial-sync]",
 				"${env:CICD_REST_API}",
 			],
