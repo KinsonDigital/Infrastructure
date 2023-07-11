@@ -159,7 +159,15 @@ export class IssueClient extends GitHubClient {
 			Deno.exit(1);
 		}
 
-		return <IIssueModel> await this.getResponseData(response);
+		const issue = <IIssueModel> await this.getResponseData(response);
+
+		if (Utils.isIssue(issue)) {
+			return issue;
+		} else {
+			const errorMsg = `The issue '${issueNumber}' in the repository '${repoName}' is not an issue.`;
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
 	}
 
 	/**

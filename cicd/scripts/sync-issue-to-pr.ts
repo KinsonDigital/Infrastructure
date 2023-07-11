@@ -52,10 +52,9 @@ Utils.printInGroup("Script Arguments", [
 	`Requested By User (Required): ${requestedByUser}`,
 	`Pull Request Number (Required): ${prNumber}`,
 	`Sync Command (Required): ${syncCommand}`,
-	`GitHub Token (Required): ${Utils.isNullOrEmptyOrUndefined(githubToken) ? "Not Provided" : "****"}`,
+	`GitHub Token (Required): "****"`,
 ]);
 
-const orgClient: OrgClient = new OrgClient(githubToken);
 const repoClient: RepoClient = new RepoClient(githubToken);
 
 const repoVars = await repoClient.getVariables(repoName);
@@ -94,6 +93,7 @@ if (prSyncTemplateRepoNameVar == undefined) {
 	Deno.exit(1);
 }
 
+const prSyncTemplateRepoName = prSyncTemplateRepoNameVar.value;
 let relativeTemplateFilePath = relativeTemplateFilePathVar.value;
 
 // Make sure that there are no backslashes and that it does not start with a forward slash
@@ -102,8 +102,6 @@ relativeTemplateFilePath = relativeTemplateFilePath.replaceAll("//", "/");
 relativeTemplateFilePath = relativeTemplateFilePath.startsWith("/")
 	? relativeTemplateFilePath.substring(1)
 	: relativeTemplateFilePath;
-
-const prSyncTemplateRepoName = prSyncTemplateRepoNameVar.value;
 
 const templateFileDoesNotExist = !(await repoClient.fileExists(prSyncTemplateRepoName, relativeTemplateFilePath));
 if (templateFileDoesNotExist) {
@@ -117,9 +115,6 @@ if (repoDoesNotExist) {
 	Deno.exit(1);
 }
 
-const prClient: PullRequestClient = new PullRequestClient(githubToken);
-const issueClient: IssueClient = new IssueClient(githubToken);
-
 const isRunSyncCommand = syncCommand.match(/\[run-sync\]/gm) != undefined;
 const isInitialSyncCommand = syncCommand.match(/\[initial-sync\]/gm) != undefined;
 
@@ -128,6 +123,8 @@ if (!isRunSyncCommand && !isInitialSyncCommand) {
 	Utils.printAsGitHubNotice("Sync ignored.  The comment does not contain the '[run-sync]' or '[initial-sync]' sync command.");
 	Deno.exit(0);
 }
+
+const issueClient: IssueClient = new IssueClient(githubToken);
 
 if (await issueClient.issueExists(repoName, prNumber)) {
 	let ignoreMsg = `Sync ignored.  The pull request number is actually an issue number.`;
@@ -138,9 +135,8 @@ if (await issueClient.issueExists(repoName, prNumber)) {
 	Deno.exit(0);
 }
 
-const userClient: UsersClient = new UsersClient(githubToken);
-
 const defaultReviewerVarExists = defaultReviewerVar != undefined;
+const userClient: UsersClient = new UsersClient(githubToken);
 
 if (defaultReviewerVarExists) {
 	const defaultReviewer = defaultReviewerVar.value;
@@ -161,6 +157,7 @@ if (requestedByUserDoesNotExist) {
 	Deno.exit(1);
 }
 
+const orgClient: OrgClient = new OrgClient(githubToken);
 const userIsNotOrgMember = !(await orgClient.userIsOrgAdminMember(organizationName, requestedByUser));
 
 if (userIsNotOrgMember) {
@@ -170,7 +167,9 @@ if (userIsNotOrgMember) {
 	Deno.exit(0);
 }
 
-const prTemplate = new PRTemplateManager();
+const prClient: PullRequestClient = new PullRequestClient(githubToken);
+
+const prTemplateManager = new PRTemplateManager(githubToken);
 let pr: IPullRequestModel = await prClient.getPullRequest(repoName, prNumber);
 
 const prDoesNotExist = !(await prClient.pullRequestExists(repoName, prNumber));
@@ -179,7 +178,7 @@ if (prDoesNotExist) {
 	Deno.exit(1);
 } else {
 	// Check if syncing is disabled but only if a [run-sync] command
-	if (isRunSyncCommand && prTemplate.syncingDisabled(pr.body)) {
+	if (isRunSyncCommand && prTemplateManager.syncingDisabled(pr.body)) {
 		Utils.printAsGitHubNotice("Syncing is disabled.  Syncing will not occur.");
 		Deno.exit(0);
 	}
@@ -208,12 +207,9 @@ const issue: IIssueModel = await issueClient.getIssue(repoName, issueNumber);
 
 const issueLabels = issue.labels?.map((label) => label.name) ?? [];
 
-const projectClient: ProjectClient = new ProjectClient(githubToken);
-const issueProjects: IProjectModel[] = await projectClient.getIssueProjects(repoName, issueNumber);
-
 // If the pr body is not a valid pr template, load a new one to replace it.
-const prDescription = isInitialSyncCommand || !prTemplate.isPRSyncTemplate(pr.body)
-	? await prTemplate.getPullRequestTemplate(prSyncTemplateRepoName, relativeTemplateFilePath, issueNumber)
+const prDescription = isInitialSyncCommand || !prTemplateManager.isPRSyncTemplate(pr.body)
+	? await prTemplateManager.getPullRequestTemplate(prSyncTemplateRepoName, relativeTemplateFilePath, issueNumber)
 	: pr.body;
 
 // If the title does not match, sync the title
@@ -235,6 +231,9 @@ if (defaultReviewerVarExists) {
 	await prClient.requestReviewer(repoName, prNumber, defaultReviewer);
 	Utils.printAsGitHubNotice(`The reviewer '${defaultReviewer}' has been requested for the pull request`);
 }
+
+const projectClient: ProjectClient = new ProjectClient(githubToken);
+const issueProjects: IProjectModel[] = await projectClient.getIssueProjects(repoName, issueNumber);
 
 // Add all of the issue org projects to the PR
 for (let i = 0; i < issueProjects.length; i++) {
@@ -265,12 +264,15 @@ await issueClient.updateIssue(repoName, issueNumber, issueData);
 const subText = prMetaDataExists ? "updated in" : "added to";
 Utils.printAsGitHubNotice(`PR link metadata ${subText} the description of issue '${issueNumber}'.`);
 
+const allowedPRBaseBranches = await prTemplateManager.getAllowedPRBaseBranches(repoName);
+const prBaseBranchValid = allowedPRBaseBranches.some((branch) => branch === pr.base.ref);
+
 const prProjects: IProjectModel[] = await projectClient.getPullRequestProjects(repoName, prNumber);
 
 const syncSettings: IPRTemplateSettings = {
 	issueNumber: issueNumber,
 	headBranchValid: Utils.isFeatureBranch(pr.head.ref),
-	baseBranchValid: pr.base.ref === "master" || pr.base.ref === "preview",
+	baseBranchValid: prBaseBranchValid,
 	issueNumValid: true,
 	titleInSync: pr?.title === issue?.title,
 	assigneesInSync: Utils.assigneesMatch(issue.assignees, pr.assignees),
@@ -279,7 +281,7 @@ const syncSettings: IPRTemplateSettings = {
 	milestoneInSync: pr.milestone?.number === issue.milestone?.number,
 };
 
-const [newPRSyncBody, statusOfSyncItems] = prTemplate.processSyncTemplate(prDescription, syncSettings);
+const [newPRSyncBody, statusOfSyncItems] = prTemplateManager.processSyncTemplate(prDescription, syncSettings);
 
 const syncPRData: IIssueOrPRRequestData = {
 	title: issue.title,
