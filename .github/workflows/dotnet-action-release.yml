@@ -154,7 +154,7 @@ jobs:
   validate_version:
     name: Validate Version
     needs: validate_branch
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v7.3.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v8.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       release-type: "${{ inputs.release-type }}"
@@ -166,7 +166,7 @@ jobs:
   validate_tag:
     name: Validate Tag
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-tag.yml@v7.3.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-tag.yml@v8.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       release-type: "${{ inputs.release-type }}"
@@ -179,7 +179,7 @@ jobs:
   validate_release_notes:
     name: Validate Release Notes
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-release-notes.yml@v7.3.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-release-notes.yml@v8.0.0
     with:
       org-name: "${{ vars.ORGANIZATION_NAME }}"
       project-name: "${{ inputs.project-name }}"
@@ -193,7 +193,7 @@ jobs:
   validate_github_release:
     name: GitHub Release Does Not Exist
     needs: [validate_version]
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-github-release.yml@v7.3.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-github-release.yml@v8.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       version: "${{ needs.validate_version.outputs.version }}"
@@ -205,7 +205,7 @@ jobs:
   build_project:
     name: Build Main Project
     needs: [validate_tag, validate_release_notes, validate_github_release]
-    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v7.3.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v8.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       build-config: "${{ inputs.build-config }}"
@@ -215,7 +215,7 @@ jobs:
   run_tests:
     name: Run Tests
     needs: [validate_tag, validate_release_notes, validate_github_release]
-    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v7.3.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v8.0.0
     with:
       project-name: "${{ inputs.project-name }}Tests"
       build-config: "${{ inputs.build-config }}"
