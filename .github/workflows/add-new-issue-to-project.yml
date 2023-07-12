@@ -42,7 +42,7 @@ jobs:
           $projects = $orgProjects.Where({ $_.title -eq "${{ vars.ORG_PROJECT_NAME }}" });
           
           if ($projects.Count -eq 0) {
-              Write-Host "The project '${{ vars.ORG_PROJECT_NAME }}' was not found.  Check that the organization variable 'ORG_PROJECT_NAME' exists and is set correctly?";
+              Write-Host "::error::The project '${{ vars.ORG_PROJECT_NAME }}' was not found.  Check that the organization variable 'ORG_PROJECT_NAME' exists and is set correctly?";
               exit 1;
           }
           

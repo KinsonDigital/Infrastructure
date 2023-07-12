@@ -40,7 +40,7 @@ jobs:
         run: |
           # Verify that the project name workflow input is not empty
           if ("${{ inputs.project-name }}" -eq "") {
-            Write-Host "The 'project-name' workflow input cannot be empty.";
+            Write-Host "::error::The 'project-name' workflow input cannot be empty.";
             exit 1;
           }
 
@@ -49,7 +49,7 @@ jobs:
 
           # Verify that the release type is only 'Preview' or 'Production'
           if ($releaseType -ne "Preview" -and $releaseType -ne "Production") {
-            Write-Host "The release type '$releaseType' is invalid.  Valid values are 'Preview' or 'Production'.";
+            Write-Host "::error::The release type '$releaseType' is invalid.  Valid values are 'Preview' or 'Production'.";
             exit 1;
           }
 
@@ -59,7 +59,7 @@ jobs:
           
           # Verify that the cicd script version has valid syntax
           if ($tagName -match $tagNameRegex) {
-            Write-Host "The tag name is valid.";
+            Write-Host "::notice::The tag name is valid.";
           } else {
             Write-Host "::error::The tag name is not valid.\nThe version format is: 'v#.#.#'";
             exit 1;
@@ -71,7 +71,7 @@ jobs:
           
           # Verify that the cicd script version has valid syntax
           if ($cicdScriptVersion -match $cicdScriptVersionRegex) {
-            Write-Host "The cicd script version is valid.";
+            Write-Host "::notice::The cicd script version is valid.";
           } else {
             Write-Host "::error::The cicd script version is not valid.\nThe version format is: 'v#.#.#'";
             exit 1;

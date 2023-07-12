@@ -36,9 +36,9 @@ jobs:
           $scriptVersionRegEx = "v[0-9]+\.[0-9]+\.[0-9]+";
 
           if ($cicdScriptsVersion -match $scriptVersionRegEx) {
-            Write-Host "The 'cicd-scripts-version' workflow input value of '$cicdScriptsVersion' is valid.";
+            Write-Host "::notice::The 'cicd-scripts-version' workflow input value of '$cicdScriptsVersion' is valid.";
           } else {
-            Write-Host "The 'cicd-scripts-version' workflow input value of '$cicdScriptsVersion' has invalid syntax.";
+            Write-Host "::error::The 'cicd-scripts-version' workflow input value of '$cicdScriptsVersion' has invalid syntax.";
             exit 1;
           }
 
@@ -48,7 +48,7 @@ jobs:
           # Construct the URL to the organizations CICD scripts
           $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ inputs.cicd-scripts-version }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
 
-          Write-Host "Script URL Before Mutation: $scriptUrl";
+          Write-Host "::notice::Script URL Before Mutation: $scriptUrl";
           
           # Make sure that no double forward or backward slashes make it through
           $scriptUrl = $scriptUrl.Replace("\ ", "/");
@@ -57,6 +57,6 @@ jobs:
           # Make sure that the URL does not end with a forward or backward slash
           $scriptUrl = $scriptUrl.EndsWith("/") ? $scriptUrl.Substring(0, $scriptUrl.Length - 1) : $scriptUrl;
 
-          Write-Host "Script URL After Mutation: $scriptUrl";
+          Write-Host "::notice::Script URL After Mutation: $scriptUrl";
 
           "scriptUrl=$scriptUrl" >> "$env:GITHUB_OUTPUT";

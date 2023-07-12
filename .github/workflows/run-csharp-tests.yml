@@ -50,7 +50,7 @@ jobs:
 
               exit 1; # Fail Workflow
           } else {
-            Write-Host "Project File Path Resolved To: $result";
+            Write-Host "::notice::Project File Path Resolved To: $result";
             "file-path=$result" >> $env:GITHUB_OUTPUT;
           }
 

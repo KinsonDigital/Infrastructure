@@ -64,7 +64,7 @@ jobs:
         run: |
           # Verify that the project name workflow input is not empty
           if ("${{ inputs.project-name }}" -eq "") {
-            Write-Host "The 'project-name' workflow input cannot be empty.";
+            Write-Host "::error::The 'project-name' workflow input cannot be empty.";
             exit 1;
           }
 
@@ -73,14 +73,14 @@ jobs:
 
           # Verify that the release type is only 'Preview' or 'Production'
           if ($releaseType -ne "Preview" -and $releaseType -ne "Production") {
-            Write-Host "The release type '$releaseType' is invalid.  Valid values are 'Preview' or 'Production'.";
+            Write-Host "::error::The release type '$releaseType' is invalid.  Valid values are 'Preview' or 'Production'.";
             exit 1;
           }
 
 
           # Verify that the run branch workflow input is not empty
           if ("${{ inputs.run-branch }}" -eq "") {
-            Write-Host "The 'run-branch' workflow input cannot be empty.";
+            Write-Host "::error::The 'run-branch' workflow input cannot be empty.";
             exit 1;
           }
 
@@ -90,7 +90,7 @@ jobs:
           
           # Verify that the dotnet sdk version has valid syntax
           if ($sdkVersion -match $sdkVersionRegex) {
-            Write-Host "The dotnet SDK version is valid.";
+            Write-Host "::notice::The dotnet SDK version is valid.";
           } else {
             Write-Host "::error::The dotnet SDK version is not valid.\nThe version format is: '#.#.#'";
             exit 1;
@@ -103,14 +103,14 @@ jobs:
           
           # Verify that the relative release notes dir path does not start or end with a with a forward or back slash
           if ($dirPath.StartsWith($backSlash) -or $dirPath.StartsWith($forwardSlash) -or $dirPath.EndsWith($backSlash) -or $dirPath.EndsWith($forwardSlash)) {
-            Write-Host "The 'relative-release-notes-dir-path' cannot start or end with a forward or back slash.";
+            Write-Host "::error::The 'relative-release-notes-dir-path' cannot start or end with a forward or back slash.";
             exit 1;
           }
 
 
           # Verify that the release notes file name prefix workflow input is not empty
           if ("${{ inputs.release-notes-file-name-prefix }}" -eq "") {
-            Write-Host "The 'release-notes-file-name-prefix' workflow input cannot be empty.";
+            Write-Host "::error::The 'release-notes-file-name-prefix' workflow input cannot be empty.";
             exit 1;
           }
 
@@ -119,7 +119,7 @@ jobs:
 
           # Verify that the build config is only 'Debug' or 'Release'
           if ($buildConfig -ne "Debug" -and $buildConfig -ne "Release") {
-            Write-Host "The build configuration '$buildConfig' is invalid.  The build configuration can only be 'Debug' or 'Release'.";
+            Write-Host "::error::The build configuration '$buildConfig' is invalid.  The build configuration can only be 'Debug' or 'Release'.";
             exit 1;
           }
 
@@ -129,7 +129,7 @@ jobs:
           
           # Verify that the cicd script version has valid syntax
           if ($cicdScriptVersion -match $cicdScriptVersionRegex) {
-            Write-Host "The cicd script version is valid.";
+            Write-Host "::notice::The cicd script version is valid.";
           } else {
             Write-Host "::error::The cicd script version is not valid.\nThe version format is: 'v#.#.#'";
             exit 1;
@@ -146,7 +146,7 @@ jobs:
           $branch = "${{ github.ref_name }}"
 
           if ($branch -ne "${{ inputs.run-branch }}") {
-            Write-Host "The branch '$branch' is invalid. This release can only run on '${{ inputs.run-branch }}' branches."
+            Write-Host "::error::The branch '$branch' is invalid. This release can only run on '${{ inputs.run-branch }}' branches."
             exit 1;
           }
 
@@ -190,7 +190,7 @@ jobs:
           $filePath = "$dirPath$fileName";
 
           if (-not(Test-Path $filePath)) {
-            Write-Host "The release notes file '$filePath' does not exist.";
+            Write-Host "::error::The release notes file '$filePath' does not exist.";
             exit 1;
           }
 
