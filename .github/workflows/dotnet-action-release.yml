@@ -188,11 +188,16 @@ jobs:
     steps:
       - name: Release Notes Exist
         run: |
-          $dirPath = "${{ github.workspace }}/${{ inputs.relative-release-notes-dir-path }}";
-          $fileNamePrefix = "${{ inputs.release-notes-file-name-prefix }}";
+          $relativeDirPath = "${{ inputs.relative-release-notes-dir-path }}";
+        
+          # Remove all leading forwaard slashes until non are left
+          $relativeDirPath = $relativeDirPath.Replace("\", "/");
+          $relativeDirPath = $relativeDirPath.TrimStart("/").TrimEnd("/");
+
+          $dirPath = "${{ github.workspace }}/$relativeDirPath";
           $version = "${{ needs.validate_version.outputs.version }}";
-          $fileName = "$fileNamePrefix$version.md";
-          $filePath = "$dirPath$fileName";
+          $fileName = "${{ inputs.release-notes-file-name-prefix }}$version.md";
+          $filePath = "$dirPath/$fileName";
 
           if (-not(Test-Path $filePath)) {
             Write-Host "::error::The release notes file '$filePath' does not exist.";
