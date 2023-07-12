@@ -368,3 +368,28 @@ export enum OrgMemberRole {
 	 */
 	member = "member",
 }
+
+/**
+ * Represents the different types of log messages that can be printed to the GitHub console.
+ */
+export enum GitHubLogType {
+	/**
+	 * Normal log message.
+	 */
+	normal,
+
+	/**
+	 * Log message that is a notice.
+	 */
+	notice,
+
+	/**
+	 * Log message that is a warning.
+	 */
+	warning,
+
+	/**
+	 * Log message that is an error.
+	 */
+	error,
+}

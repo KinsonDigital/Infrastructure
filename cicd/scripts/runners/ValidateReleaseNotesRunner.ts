@@ -9,6 +9,7 @@ import { File } from "../../core/File.ts";
 import { IIssueModel } from "../../core/Models/IIssueModel.ts";
 import { IPullRequestModel } from "../../core/Models/IPullRequestModel.ts";
 import { ILabelModel } from "../../core/Models/ILabelModel.ts";
+import { GitHubLogType } from "../../core/Enums.ts";
 
 /**
  * Used to validate release notes.
@@ -31,26 +32,15 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 	 */
 	constructor(args: string[], scriptName: string) {
 		if (args.length != 5) {
-			const argInfos: string[] = [];
+			const argDescriptions = [
+				`The ${scriptName} cicd script must have 5 arguments.`,
+				"Required and must be a valid GitHub organization name.",
+				"Required and must be a valid GitHub repository name.",
+				"Required and must be the type of release.\n\tValid values are 'production' and 'preview' and are case-insensitive.",
+				"Required and must be a valid preview or production version.",
+				"Required and must be a GitHub PAT (Personal Access Token)."];
 
-			for (let i = 0; i < args.length - 1; i++) {
-				argInfos.push(`${Utils.toOrdinal(i + 1)} Arg: $`);
-			}
-
-			argInfos[0] = argInfos[0]
-				.replace("$", "Required and must be a valid GitHub organization name.");
-			argInfos[1] = argInfos[1]
-				.replace("$", "Required and must be a valid GitHub repository name.");
-
-			let typeOfReleaseMsg = "Required and must be the type of release.";
-			typeOfReleaseMsg += "\n\tValid values are 'production' and 'preview' and are case-insensitive.";
-			argInfos[2] = argInfos[2].replace("$", typeOfReleaseMsg);
-			argInfos[3] = argInfos[3].replace("$", "Required and must be a valid preview or production version.");
-			argInfos[4] = argInfos[4].replace("$", "Required and must be a GitHub PAT (Personal Access Token).");
-
-			argInfos.unshift(`The ${scriptName} cicd script must have 5 arguments.`);
-
-			Utils.printAsGitHubError(argInfos.join("\n"));
+			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.error);
 			Deno.exit(1);
 		}
 
