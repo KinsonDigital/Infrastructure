@@ -92,7 +92,7 @@ jobs:
 
   build_script_url:
     name: Build Script URL
-    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v7.0.3
+    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v7.3.0
     with:
       project-name: ${{ inputs.project-name }}
       cicd-scripts-version: ${{ inputs.cicd-scripts-version }}
