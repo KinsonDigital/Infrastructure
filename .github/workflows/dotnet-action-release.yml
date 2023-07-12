@@ -236,6 +236,6 @@ jobs:
         name: "🚀${{ inputs.release-type }} Release - v${{ needs.validate_version.outputs.version }}" 
         body_path: "${{ github.workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
         files: "${{ github.workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
-        tag_name: "v${{ needs.validate_version.outputs.version }}"
+        tag_name: "${{ needs.validate_version.outputs.version }}"
         prerelease: ${{ inputs.release-type == 'Preview' }}
         draft: false
