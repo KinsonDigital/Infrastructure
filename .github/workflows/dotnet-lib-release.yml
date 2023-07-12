@@ -1,4 +1,4 @@
-name: 🚀Perform Release
+name: 🚀Perform DotNet Lib Release
 run-name: Perform ${{ inputs.release-type }} Release (${{ inputs.build-config }} Build)
 
 
