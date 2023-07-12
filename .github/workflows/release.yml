@@ -1,4 +1,5 @@
 name: 🚀Perform Release
+run-name: Perform ${{ inputs.release-type }} Release (${{ inputs.build-config }} Build)
 
 
 defaults:
@@ -101,7 +102,7 @@ jobs:
 
           # Verify that the release type is only 'Preview' or 'Production'
           if ($releaseType -ne "Preview" -and $releaseType -ne "Production") {
-            Write-Host "The release type '$releaseType' is invalid.  Valid values are 'Preview' or 'Production'.";
+            echo "The release type '$releaseType' is invalid.  Valid values are 'Preview' or 'Production'.";
             exit 1;
           }
 
@@ -138,7 +139,7 @@ jobs:
 
           # Verify that the release notes file name prefix workflow input is not empty
           if ("${{ inputs.release-notes-file-name-prefix }}" -eq "") {
-            Write-Host "The 'release-notes-file-name-prefix' workflow input cannot be empty.";
+            echo "The 'release-notes-file-name-prefix' workflow input cannot be empty.";
             exit 1;
           }
 
@@ -157,9 +158,9 @@ jobs:
           
           # Verify that the cicd script version has valid syntax
           if ($cicdScriptVersion -match $cicdScriptVersionRegex) {
-            Write-Host "The cicd script version is valid.";
+            echo "The cicd script version is valid.";
           } else {
-            Write-Host "::error::The cicd script version is not valid.\nThe version format is: 'v#.#.#'";
+            echo "::error::The cicd script version is not valid.\nThe version format is: 'v#.#.#'";
             exit 1;
           }
 
@@ -282,7 +283,7 @@ jobs:
 
 
   perform_release:
-    name: Perform Release
+    name: Perform ${{ inputs.release-type }} Release
     runs-on: ubuntu-latest
     needs: [validate_version, build_project, run_tests, build_script_url]
     steps:
@@ -335,11 +336,11 @@ jobs:
             --api-key ${{ secrets.nuget-org-api-key }} `
             --source https://api.nuget.org/v3/index.json;
 
-      - name: Preview Release
+      - name: Creating ${{ inputs.release-type }} Release
         if: ${{ inputs.dry-run == false }}
         uses: softprops/action-gh-release@v0.1.15
         with: 
-          name: "🚀Preview Release - ${{ needs.validate_version.outputs.version }}" 
+          name: "🚀${{ inputs.release-type }} Release - v${{ needs.validate_version.outputs.version }}" 
           body_path: "${{ github.workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
           files: "${{ github.workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
           tag_name: "${{ needs.validate_version.outputs.version }}"
