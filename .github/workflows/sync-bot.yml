@@ -12,7 +12,7 @@ on:
 
 
 jobs:
-  sync_bot_issue_change:
+  sync_bot:
     name: Sync Bot
     if: ${{ !github.event.issue.pull_request }}
     runs-on: ubuntu-latest
