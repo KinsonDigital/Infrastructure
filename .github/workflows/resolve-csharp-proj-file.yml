@@ -11,15 +11,15 @@ on:
     inputs:
       project-name:
         required: true
-        description: The name of the C# project to validate
+        description: "The name of the C# project to validate."
         type: string
       base-path:
         required: false
-        description: The base directory path to start the search from
+        description: The base directory path to start the search.
         type: string
     outputs:
       project-file-path:
-        description: The resolve csharp project file path
+        description: The resolve csharp project file path.
         value: ${{ jobs.resolve_proj_file_path.outputs.project-file-path }}
 
 
@@ -45,17 +45,17 @@ jobs:
 
         # If null, no project file was found
         if (!$result) {
-            echo "::error::Project file not found";
-            exit 1; # Fail Workflow
+          Write-Host "::error::Project file not found";
+          exit 1; # Fail Workflow
         } elseif ($resultType -ne "String") {
-            echo "::error::Found too many project files!!";
+          Write-Host "::error::Found too many project files!!";
 
-            foreach ($item in $result) {
-                echo "`t$item";
-            }
+          foreach ($item in $result) {
+              Write-Host "`t$item";
+          }
 
-            exit 1; # Fail Workflow
+          exit 1; # Fail Workflow
         } else {
-            echo "Resolved file path 👉🏼 $result";
-            "project-file-path=$result" >> $env:GITHUB_OUTPUT;
+          Write-Host "::notice::Project File Path Resolved To: $result";
+          "project-file-path=$result" >> $env:GITHUB_OUTPUT;
         }

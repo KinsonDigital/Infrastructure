@@ -11,57 +11,51 @@ on:
     inputs:
       project-name:
         required: true
-        description: The name of the C# project to validate
+        description: "The name of the C# project to validate."
         type: string
       build-config:
         required: true
-        description: The build configuration to use (e.g. 'Debug', 'Release')
+        description: The build configuration to use (e.g. 'Debug', 'Release').
         type: string
       net-sdk-version:
         required: true
-        description: The .NET SDK version to use (e.g. '7.0.x')
+        description: The .NET SDK version to use (e.g. '7.0.x').
         type: string
+      base-path:
+        required: false
+        description: The base directory path to start the search.
+        type: string
+      runs-on:
+        required: false
+        description: The type of machine to run the job on.
+        type: string
+        default: ubuntu-latest
 
 
 jobs:
+  resolve_proj_file_path:
+    name: Resolving ${{ inputs.project-name }} Project File Path
+    uses: KinsonDigital/Infrastructure/.github/workflows/resolve-csharp-proj-file.yml@v8.1.0
+    with:
+      project-name: ${{ inputs.project-name }}
+      base-path: ${{ inputs.base-path }}
+
+
   run_unit_tests:
     name: Run Unit Tests
-    runs-on: ubuntu-latest # TODO: Turn this into an input but not required and with default value of ubuntu-latest
+    needs: resolve_proj_file_path
+    runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v3
-
-      - name: Resolve Project File Path
-        id: resolve-file-path
-        run: |
-          $result = Get-ChildItem -Path "${{ github.workspace }}/**/${{ inputs.project-name }}.csproj" -Recurse | ForEach-Object{$_.FullName};
-
-          $resultType = $result ? $result.GetType().Name : $null;
-
-          # If null, no project file was found
-          if (!$result) {
-            echo "::error::Project file not found";
-            exit 1; # Fail Workflow
-          } elseif ($resultType -ne "String") {
-            echo "::error::Found too many project files!!";
-
-            foreach ($item in $result) {
-                echo "`t$item";
-            }
-
-              exit 1; # Fail Workflow
-          } else {
-            echo "Project File Path Resolved To: $result";
-            "file-path=$result" >> $env:GITHUB_OUTPUT;
-          }
 
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ inputs.net-sdk-version }}
 
       - name: Restore Dependencies
-        run: dotnet restore "${{ steps.resolve-file-path.outputs.file-path }}"
+        run: dotnet restore "${{ needs.resolve_proj_file_path.outputs.project-file-path }}"
 
       - name: Execute Unit Tests
-        run: dotnet build "${{ steps.resolve-file-path.outputs.file-path }}" `
+        run: dotnet build "${{ needs.resolve_proj_file_path.outputs.project-file-path }}" `
           -c ${{ inputs.build-config }} `
           --no-restore

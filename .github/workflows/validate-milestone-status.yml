@@ -11,26 +11,26 @@ on:
     inputs:
       project-name:
         required: true
-        description: The name of the C# project to validate
+        description: "The name of the C# project to validate."
         type: string
       version:
         required: true
-        description: The version of the milestone to validate
+        description: The version of the milestone to validate.
         type: string
       cicd-scripts-version:
         required: true
-        description: The version of the CICD scripts to use
+        description: The version of the CICD scripts to use.
         type: string
     secrets:
       cicd-pat:
-        description: The CICD personal access token
+        description: The CICD personal access token.
         required: true
       
 
 jobs:
   build_script_url:
     name: Build Script URL
-    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v8.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v8.1.0
     with:
       project-name: ${{ inputs.project-name }}
       cicd-scripts-version: ${{ inputs.cicd-scripts-version }}
