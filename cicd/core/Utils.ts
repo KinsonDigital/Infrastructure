@@ -451,4 +451,21 @@ export class Utils {
 	public static normalizeLineEndings(value: string): string {
 		return value.indexOf("\\r\\n") === -1 ? value.replaceAll("\\r\\n", "\\n") : value;
 	}
+
+	/**
+	 * Removes any white space from the start of the given {@link value}.
+	 * @param value The value to remove the starting white space from.
+	 * @returns The given {@link value} with the starting white space removed.
+	 */
+	public static removeStartingWhiteSpace(value: string): string {
+		if (Utils.isNullOrEmptyOrUndefined(value)) {
+			return value;
+		}
+
+		while (value.startsWith(" ") || value.startsWith("\t")) {
+			value = value.slice(1);
+		}
+
+		return value;
+	}
 }
