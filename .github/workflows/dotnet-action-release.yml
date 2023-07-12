@@ -176,18 +176,23 @@ jobs:
       cicd-pat: "${{ secrets.cicd-pat }}"
 
 
-  validate_release_notes:
-    name: Validate Release Notes
+  validate_release_notes_exist:
+    name: Validate Release Notes Exist
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-release-notes.yml@v8.0.0
-    with:
-      org-name: "${{ vars.ORGANIZATION_NAME }}"
-      project-name: "${{ inputs.project-name }}"
-      release-type: "${{ inputs.release-type }}"
-      version: "${{ needs.validate_version.outputs.version }}"
-      cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
-    secrets:
-      cicd-pat: "${{ secrets.cicd-pat }}"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Release Notes Exist
+        run: |
+          $dirPath = "${{ github.workspace }}/${{ inputs.relative-release-notes-dir-path }}";
+          $fileNamePrefix = "${{ inputs.release-notes-file-name-prefix }}";
+          $version = "${{ needs.validate_version.outputs.version }}";
+          $fileName = "$fileNamePrefix$version.md";
+          $filePath = "$dirPath$fileName";
+
+          if (-not(Test-Path $filePath)) {
+            Write-Host "The release notes file '$filePath' does not exist.";
+            exit 1;
+          }
 
 
   validate_github_release:
@@ -204,7 +209,7 @@ jobs:
 
   build_project:
     name: Build Main Project
-    needs: [validate_tag, validate_release_notes, validate_github_release]
+    needs: [validate_tag, validate_release_notes_exist, validate_github_release]
     uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v8.0.0
     with:
       project-name: "${{ inputs.project-name }}"
@@ -214,7 +219,7 @@ jobs:
 
   run_tests:
     name: Run Tests
-    needs: [validate_tag, validate_release_notes, validate_github_release]
+    needs: [validate_tag, validate_release_notes_exist, validate_github_release]
     uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v8.0.0
     with:
       project-name: "${{ inputs.project-name }}Tests"
