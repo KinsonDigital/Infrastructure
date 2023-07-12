@@ -43,6 +43,11 @@ on:
         required: true
         description: The version of the CICD scripts to use.
         type: string
+      runs-on:
+        required: false
+        description: The type of machine to run the job on.
+        type: string
+        default: ubuntu-latest
       pr-include-notes-label:
         required: false
         description: The label on a pull request that forces its inclusion in the release notes.
@@ -213,6 +218,7 @@ jobs:
     uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v8.0.0
     with:
       project-name: "${{ inputs.project-name }}"
+      runs-on: "${{ inputs.runs-on }}"
       build-config: "${{ inputs.build-config }}"
       net-sdk-version: "${{ inputs.net-sdk-version }}"
 
@@ -223,6 +229,7 @@ jobs:
     uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v8.0.0
     with:
       project-name: "${{ inputs.project-name }}Tests"
+      runs-on: "${{ inputs.runs-on }}"
       build-config: "${{ inputs.build-config }}"
       net-sdk-version: "${{ inputs.net-sdk-version }}"
         

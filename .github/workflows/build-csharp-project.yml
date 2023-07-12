@@ -26,12 +26,17 @@ on:
         required: false
         description: The base directory path to start the search.
         type: string
+      runs-on:
+        required: false
+        description: The type of machine to run the job on.
+        type: string
+        default: ubuntu-latest
 
 
 jobs:
   build_project:
     name: Building ${{ inputs.project-name }} Project
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v3
 
