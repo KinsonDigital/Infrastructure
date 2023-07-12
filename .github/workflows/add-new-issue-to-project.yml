@@ -17,7 +17,7 @@ env:
 
 jobs:
   add_issue_to_project:
-    name: Add Issue To Project
+    name: Add Issue ${{ github.event.issue.number }} To Project
     runs-on: ubuntu-latest
     steps:
       - name: Add To Project

@@ -11,7 +11,7 @@ on:
     inputs:
       project-name:
         required: true
-        description: The name of the C# project to validate.
+        description: "The name of the C# project to validate."
         type: string
       release-type:
         required: true
@@ -27,7 +27,7 @@ on:
         value: ${{ jobs.validate_version.outputs.version }}
     secrets:
       cicd-pat:
-        description: The CICD personal access token
+        description: The CICD personal access token.
         required: true
         
 

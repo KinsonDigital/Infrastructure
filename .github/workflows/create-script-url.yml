@@ -1,4 +1,5 @@
 name: Create Script URL
+run-name: Create Script URL (${{ inputs.cicd-scripts-version }})
 
 
 defaults:
@@ -11,21 +12,21 @@ on:
     inputs:
       project-name:
         required: true
-        description: The name of the C# project to validate
+        description: "The name of the C# project to validate."
         type: string
       cicd-scripts-version:
         required: true
-        description: The version of the CICD scripts to use
+        description: The version of the CICD scripts to use.
         type: string
     outputs:
       script-url:
-        description: The URL to the CICD scripts
+        description: The URL to the CICD scripts.
         value: ${{ jobs.get_script_url.outputs.script-url }}
 
 
 jobs:
   get_script_url:
-    name: Get CICD Scripts URL
+    name: Getting CICD Scripts URL
     runs-on: ubuntu-latest
     outputs:
       script-url: ${{ steps.create-url.outputs.scriptUrl }}

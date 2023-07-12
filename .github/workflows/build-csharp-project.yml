@@ -1,4 +1,5 @@
 name: Build C# Project
+run-name: Build Project (${{ inputs.project-name }})
 
 
 defaults:
@@ -11,25 +12,25 @@ on:
     inputs:
       project-name:
         required: true
-        description: The name of the C# project to validate
+        description: "The name of the C# project to validate."
         type: string
       build-config:
         required: true
-        description: The build configuration to use (e.g. 'Debug', 'Release')
+        description: The build configuration to use (e.g. 'Debug', 'Release').
         type: string
       net-sdk-version:
         required: true
-        description: The .NET SDK version to use (e.g. '7.0.x')
+        description: The .NET SDK version to use (e.g. '7.0.x').
         type: string
       base-path:
         required: false
-        description: The base directory path to start the search from
+        description: The base directory path to start the search.
         type: string
 
 
 jobs:
   build_project:
-    name: Build Project
+    name: Building ${{ inputs.project-name }} Project
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -64,10 +65,10 @@ jobs:
         with:
           dotnet-version: ${{ inputs.net-sdk-version }}
 
-      - name: Restore Dependencies
+      - name: Restore ${{ inputs.project-name }} Dependencies
         run: dotnet restore "${{ steps.resolve-file-path.outputs.project-file-path }}"
 
-      - name: Build Project
+      - name: Build Project ${{ inputs.project-name }}
         run: dotnet build "${{ steps.resolve-file-path.outputs.project-file-path }}" `
           -c ${{ inputs.build-config }} `
           --no-restore

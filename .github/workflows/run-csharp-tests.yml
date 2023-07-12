@@ -11,15 +11,15 @@ on:
     inputs:
       project-name:
         required: true
-        description: The name of the C# project to validate
+        description: "The name of the C# project to validate."
         type: string
       build-config:
         required: true
-        description: The build configuration to use (e.g. 'Debug', 'Release')
+        description: The build configuration to use (e.g. 'Debug', 'Release').
         type: string
       net-sdk-version:
         required: true
-        description: The .NET SDK version to use (e.g. '7.0.x')
+        description: The .NET SDK version to use (e.g. '7.0.x').
         type: string
 
 

@@ -32,8 +32,8 @@ jobs:
           Write-Host "::notice::Issue: $issueNumber";
 
           if ($manuallyExecuted -and $issueNumber -eq "0") {
-              Write-Host "::error::The issue or PR number must be a value greater than 0.";
-              exit 1;
+            Write-Host "::error::The issue or PR number must be a value greater than 0.";
+            exit 1;
           }
 
           <# Deno Args:

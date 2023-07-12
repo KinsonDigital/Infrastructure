@@ -12,7 +12,7 @@ on:
     inputs:
       project-name:
         required: true
-        description: The name of the C# project to validate.
+        description: "The name of the C# project to validate."
         type: string
       release-type:
         required: true
@@ -65,22 +65,22 @@ on:
         type: boolean
     secrets:
       cicd-pat:
-        description: The CICD personal access token
+        description: The CICD personal access token.
         required: true
       nuget-org-api-key:
-        description: The NuGet.org API key
+        description: The NuGet.org API key.
         required: true
       twitter-consumer-api-key:
-        description: "The Twitter consumer API key"
+        description: The Twitter consumer API key.
         required: false
       twitter-consumer-api-secret:
-        description: "The Twitter consumer API secret"
+        description: The Twitter consumer API secret.
         required: false
       twitter-access-token:
-        description: "The Twitter access token"
+        description: The Twitter access token.
         required: false
       twitter-access-token-secret:
-        description: "The Twitter access token secret"
+        description: The Twitter access token secret.
         required: false
   
 
