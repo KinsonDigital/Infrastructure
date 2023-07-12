@@ -4,7 +4,7 @@
 
 </div>
 
-<h1 style="border:0;font-weight:bold" align="center">My Project</h1>
+<h1 style="border:0;font-weight:bold" align="center">CASL</h1>
 
 <div align="center">
 
@@ -26,21 +26,21 @@ This library is still under development and is not at v1.0.0 yet!!  However, all
 
 <h2 style="font-weight:bold" align="center">📖 About My Project 📖</h2>
 
-My project is cool
+This is about my project!!
 
 <h2 style="font-weight:bold" align="center">✨ Features ✨</h2>
 
 ### Feature 1
 
-This is the coolest feature.
+Cooler than feature 2
 
 ### Feature 2
 
-This is cooler than feature 1.
+Not as good as feature 1
 
 <h2 style="font-weight:bold;" align="center">🙏🏼 Contributing 🙏🏼</h2>
 
-Interested in contributing? If so, please do.
+Please contribute!!
 
 <h2 style="font-weight:bold;" align="center">🔧 Maintainers 🔧</h2>
 
@@ -54,7 +54,7 @@ Interested in contributing? If so, please do.
 
 <div align="center">
 
-LICENSE BADGES HERE
+LICENSE STUFF
 
 </div>
 
