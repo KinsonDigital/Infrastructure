@@ -47,6 +47,11 @@ on:
         description: The label on a pull request that forces its inclusion in the release notes.
         type: string
         default: ""
+      transpile-readme:
+        required: false
+        description: If true, transpiles the README.md file HTML to markdown.
+        default: false
+        type: boolean
       send-release-tweet:
         required: false
         description: If true, sends a tweet about the release to twitter.
@@ -292,6 +297,26 @@ jobs:
       - name: Setup Nuget
         uses: NuGet/setup-nuget@v1
 
+      - name: Set Up Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Transpile README
+        if: inputs.transpile-readme == true
+        run: |
+          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/transpile-readme.ts";
+          $readmeDirPath = "${{ github.workspace }}";
+
+          <# Deno Args:
+            1. Readme file directory path
+          #>
+          deno run `
+            --allow-read="$readmeDirPath" `
+            --allow-write="$readmeDirPath" `
+            "$scriptUrl" `
+            "$readmeDirPath";
+
       - name: Create Nuget Package
         run: |
           dotnet pack `
@@ -320,11 +345,6 @@ jobs:
           tag_name: "${{ needs.validate_version.outputs.version }}"
           prerelease: true
           draft: false
-
-      - name: Set Up Deno
-        uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
 
       - name: Close Milestone
         if: ${{ inputs.dry-run == false }}
