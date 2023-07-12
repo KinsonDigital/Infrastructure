@@ -160,7 +160,7 @@ jobs:
       release-type: "${{ inputs.release-type }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
     secrets:
-      cicd-rest-api: "${{ secrets.cicd-rest-api }}"
+      cicd-pat: "${{ secrets.cicd-pat }}"
 
 
   validate_tag:
@@ -173,7 +173,7 @@ jobs:
       tag-name: "${{ needs.validate_version.outputs.version }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
     secrets:
-      cicd-rest-api: "${{ secrets.cicd-rest-api }}"
+      cicd-pat: "${{ secrets.cicd-pat }}"
 
 
   validate_release_notes:
@@ -187,7 +187,7 @@ jobs:
       version: "${{ needs.validate_version.outputs.version }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
     secrets:
-      cicd-rest-api: "${{ secrets.cicd-rest-api }}"
+      cicd-pat: "${{ secrets.cicd-pat }}"
 
 
   validate_github_release:
@@ -199,7 +199,7 @@ jobs:
       version: "${{ needs.validate_version.outputs.version }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
     secrets:
-      cicd-rest-api: "${{ secrets.cicd-rest-api }}"
+      cicd-pat: "${{ secrets.cicd-pat }}"
 
 
   build_project:

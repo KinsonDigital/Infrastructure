@@ -64,8 +64,8 @@ on:
         default: false
         type: boolean
     secrets:
-      cicd-rest-api:
-        description: The CICD REST API token
+      cicd-pat:
+        description: The CICD personal access token
         required: true
       nuget-org-api-key:
         description: The NuGet.org API key
@@ -189,7 +189,7 @@ jobs:
       release-type: "${{ inputs.release-type }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
     secrets:
-      cicd-rest-api: "${{ secrets.cicd-rest-api }}"
+      cicd-pat: "${{ secrets.cicd-pat }}"
 
 
   validate_tag:
@@ -202,7 +202,7 @@ jobs:
       tag-name: "${{ needs.validate_version.outputs.version }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
     secrets:
-      cicd-rest-api: "${{ secrets.cicd-rest-api }}"
+      cicd-pat: "${{ secrets.cicd-pat }}"
 
 
   nuget_pkg_does_not_exist:
@@ -226,7 +226,7 @@ jobs:
       version: "${{ needs.validate_version.outputs.version }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
     secrets:
-      cicd-rest-api: "${{ secrets.cicd-rest-api }}"
+      cicd-pat: "${{ secrets.cicd-pat }}"
 
 
   validate_milestone_status:
@@ -238,7 +238,7 @@ jobs:
       version: "${{ needs.validate_version.outputs.version }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
     secrets:
-      cicd-rest-api: "${{ secrets.cicd-rest-api }}"
+      cicd-pat: "${{ secrets.cicd-pat }}"
 
 
   validate_github_release:
@@ -250,7 +250,7 @@ jobs:
       version: "${{ needs.validate_version.outputs.version }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
     secrets:
-      cicd-rest-api: "${{ secrets.cicd-rest-api }}"
+      cicd-pat: "${{ secrets.cicd-pat }}"
 
 
   build_project:
@@ -362,7 +362,7 @@ jobs:
             "$scriptUrl" `
             "${{ inputs.project-name }}" `
             "${{ needs.validate_version.outputs.version }}" `
-            "${{ secrets.cicd-rest-api }}";
+            "${{ secrets.cicd-pat }}";
 
       - name: Send Twitter Announcement
         if: ${{ inputs.send-release-tweet == true && inputs.dry-run == false }}
@@ -389,4 +389,4 @@ jobs:
             "${{ secrets.twitter-consumer-api-secret }}" `
             "${{ secrets.twitter-access-token }}" `
             "${{ secrets.twitter-access-token-secret }}" `
-            "${{ secrets.cicd-rest-api }}";
+            "${{ secrets.cicd-pat }}";

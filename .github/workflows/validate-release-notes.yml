@@ -30,8 +30,8 @@ on:
         description: The version of the CICD scripts to use.
         type: string
     secrets:
-      cicd-rest-api:
-        description: The CICD REST API token
+      cicd-pat:
+        description: The CICD personal access token
         required: true
       
 
@@ -129,4 +129,4 @@ jobs:
             "${{ inputs.project-name }}" `
             "${{ inputs.release-type }}" `
             "${{ inputs.version }}" `
-            "${{ secrets.cicd-rest-api }}";
+            "${{ secrets.cicd-pat }}";

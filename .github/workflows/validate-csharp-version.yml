@@ -26,8 +26,8 @@ on:
         description: The version pulled from the csproj file.
         value: ${{ jobs.validate_version.outputs.version }}
     secrets:
-      cicd-rest-api:
-        description: The CICD REST API token
+      cicd-pat:
+        description: The CICD personal access token
         required: true
         
 
@@ -88,7 +88,7 @@ jobs:
         with:
           repo-owner: ${{ vars.ORGANIZATION_NAME }}
           repo-name: ${{ inputs.project-name }}
-          repo-token: ${{ secrets.cicd-rest-api }}
+          repo-token: ${{ secrets.cicd-pat }}
           branch-name: '${{ github.ref_name }}'
           file-format: 'xml' # Not case sensitive
           file-path: '${{ inputs.project-name }}/${{ inputs.project-name }}.csproj'
