@@ -442,4 +442,13 @@ export class Utils {
 
 		return `${firstLetter}${allButFirstLetter}`;
 	}
+
+	/**
+	 * Normalizes any endings in the given {@link value}.
+	 * @param value The value with line endings to normalize.
+	 * @returns The given {@link value} with normalized line endings.
+	 */
+	public static normalizeLineEndings(value: string): string {
+		return value.indexOf("\\r\\n") === -1 ? value.replaceAll("\\r\\n", "\\n") : value;
+	}
 }
