@@ -15,7 +15,10 @@
                 "--inspect-wait",
                 "--allow-all"
             ],
-			"args": ["${env:CICD_REST_API}"],
+			"args": [
+				"${env:CICD_REST_API}",
+				"${workspaceFolder}",
+			],
             "attachSimplePort": 9229,
             "windows": {
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
@@ -345,6 +348,29 @@
 				"47",
 				"issue",
 				"${env:CICD_REST_API}",
+			],
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+		{
+            "name": "Transpile README (DEBUG)",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/transpile-readme.ts",
+            "cwd": "${workspaceFolder}/cicd",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": [
+				"${env:CICD_REST_API}",
+				"${workspaceFolder}",
 			],
             "attachSimplePort": 9229,
             "windows": {
