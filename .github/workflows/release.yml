@@ -338,13 +338,13 @@ jobs:
 
       - name: Creating ${{ inputs.release-type }} Release
         if: ${{ inputs.dry-run == false }}
-        uses: softprops/action-gh-release@v0.1.15
+        uses: softprops/action-gh-release@v1
         with: 
           name: "🚀${{ inputs.release-type }} Release - v${{ needs.validate_version.outputs.version }}" 
           body_path: "${{ github.workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
           files: "${{ github.workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
           tag_name: "${{ needs.validate_version.outputs.version }}"
-          prerelease: true
+          prerelease: ${{ inputs.release-type == 'Preview' }}
           draft: false
 
       - name: Close Milestone
