@@ -26,9 +26,44 @@ on:
 
 
 jobs:
-  sync_bot:
-    name: Sync Bot
-    if: (github.event_name == 'issues') || (github.event_name == 'workflow_dispatch' && inputs.run-type == 'Sync Bot' && startsWith(github.head_ref, 'feature/'))
+  sync_bot_issue_change:
+    name: Sync Bot (Issue Change)
+    if: ${{ !github.event.issue.pull_request }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set Up Deno
+        if: startsWith(github.ref_name, 'feature/')
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Run Sync Bot (Issue Change)
+        if: startsWith(github.ref_name, 'feature/')
+        run: |
+          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH}}/sync-bot-status-check.ts";
+
+          $issueNumber = "${{ github.event.issue.number }}";
+
+          echo "Project Name: ${{ vars.PROJECT_NAME }}";
+          echo "Issue: $issueNumber";
+
+          if ($manuallyExecuted -and $issueNumber -eq "0") {
+            echo "The issue or PR number must be a value greater than 0.";
+            exit 1;
+          }
+
+          deno run `
+            --allow-net `
+            "$scriptUrl" `
+            "${{ vars.PROJECT_NAME }}" `
+            "$issueNumber" `
+            "issue" `
+            "${{ secrets.CICD_REST_API }}";
+
+
+  sync_bot_manual_run:
+    name: Sync Bot (Manual Run)
+    if: (github.event_name == 'workflow_dispatch' && inputs.run-type == 'Sync Bot' && startsWith(github.head_ref, 'feature/'))
     runs-on: ubuntu-latest
     steps:
       - name: Set Up Deno
@@ -36,19 +71,16 @@ jobs:
         with:
           deno-version: v1.x
 
-      - name: Run Sync Bot
+      - name: Run Sync Bot (Manual Run)
+        if: startsWith(github.head_ref, 'feature/')
         run: |
-          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}/sync-bot-status-check.ts";
+          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH}}/sync-bot-status-check.ts";
 
-          $eventName = "${{ github.event_name }}";
-          $manuallyExecuted = $eventName -eq "workflow_dispatch";
-
-          $eventType = $eventName -eq "issues" ? "issue" : "pr";
-          $issurOrPRNumber = $manuallyExecuted ? "${{ inputs.issurOrPRNumber }}" : "${{ github.event.issue.number }}";
+          $issurOrPRNumber = "${{ inputs.issurOrPRNumber }}";
 
           echo "Event Name: $eventName";
           echo "Project Name: ${{ vars.PROJECT_NAME }}";
-          echo "Issue Or PR Number: $issurOrPRNumber";
+          echo "PR Number: $issurOrPRNumber";
 
           if ($manuallyExecuted -and $issurOrPRNumber -eq "0") {
             echo "The issue or PR number must be a value greater than 0.";
@@ -60,15 +92,15 @@ jobs:
             "$scriptUrl" `
             "${{ vars.PROJECT_NAME }}" `
             "$issurOrPRNumber" `
-            "$eventType" `
+            "pr" `
             "${{ secrets.CICD_REST_API }}";
 
 
   status_check:
     name: Sync Status Check
     if: |
-      (github.event_name == 'issues') ||
-        (github.event_name == 'workflow_dispatch' && inputs.run-type == 'Sync Bot' && startsWith(github.head_ref, 'feature/'))
+      (github.event_name == 'pull_request' && startsWith(github.head_ref, 'feature/')) ||
+      (github.event_name == 'workflow_dispatch' && inputs.run-type == 'Sync Status Check' && startsWith(github.head_ref, 'feature/'))
     runs-on: ubuntu-latest
     steps:
       - name: Set Up Deno
@@ -78,19 +110,18 @@ jobs:
 
       - name: Run Sync Status Check
         run: |
-          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}/sync-bot-status-check.ts";
+          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH}}/sync-bot-status-check.ts";
 
-          $eventType = "pr";
           $eventName = "${{ github.event_name }}";
           $manuallyExecuted = $eventName -eq "workflow_dispatch";
-          $issurOrPRNumber = $manuallyExecuted ? "${{ inputs.issurOrPRNumber }}" : "${{ github.event.number }}";
-          
+          $prNumber = $manuallyExecuted ? "${{ inputs.issurOrPRNumber }}" : "${{ github.event.number }}";
+
           echo "Event Name: $eventName";
           echo "Project Name: ${{ vars.PROJECT_NAME }}";
-          echo "PR Number: $issurOrPRNumber";
-          echo "Event Type: $eventType";
+          echo "PR Number: $prNumber";
+          echo "Event Type: pr";
 
-          if ($manuallyExecuted -and $issurOrPRNumber -eq "0") {
+          if ($manuallyExecuted -and $prNumber -eq "0") {
             echo "The issue or PR number must be a value greater than 0.";
             exit 1;
           }
@@ -99,6 +130,6 @@ jobs:
             --allow-net `
             "$scriptUrl" `
             "${{ vars.PROJECT_NAME }}" `
-            "$issurOrPRNumber" `
-            "$eventType" `
+            "$prNumber" `
+            "pr" `
             "${{ secrets.CICD_REST_API }}";
