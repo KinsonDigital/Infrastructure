@@ -1,4 +1,5 @@
-name: 🚀Perform Release
+name: 🚀Perform DotNet Lib Release
+run-name: Perform ${{ inputs.release-type }} Release (${{ inputs.build-config }} Build)
 
 
 defaults:
@@ -63,8 +64,8 @@ on:
         default: false
         type: boolean
     secrets:
-      cicd-rest-api:
-        description: The CICD REST API token
+      cicd-pat:
+        description: The CICD personal access token
         required: true
       nuget-org-api-key:
         description: The NuGet.org API key
@@ -101,7 +102,7 @@ jobs:
 
           # Verify that the release type is only 'Preview' or 'Production'
           if ($releaseType -ne "Preview" -and $releaseType -ne "Production") {
-            Write-Host "The release type '$releaseType' is invalid.  Valid values are 'Preview' or 'Production'.";
+            echo "The release type '$releaseType' is invalid.  Valid values are 'Preview' or 'Production'.";
             exit 1;
           }
 
@@ -138,7 +139,7 @@ jobs:
 
           # Verify that the release notes file name prefix workflow input is not empty
           if ("${{ inputs.release-notes-file-name-prefix }}" -eq "") {
-            Write-Host "The 'release-notes-file-name-prefix' workflow input cannot be empty.";
+            echo "The 'release-notes-file-name-prefix' workflow input cannot be empty.";
             exit 1;
           }
 
@@ -157,9 +158,9 @@ jobs:
           
           # Verify that the cicd script version has valid syntax
           if ($cicdScriptVersion -match $cicdScriptVersionRegex) {
-            Write-Host "The cicd script version is valid.";
+            echo "The cicd script version is valid.";
           } else {
-            Write-Host "::error::The cicd script version is not valid.\nThe version format is: 'v#.#.#'";
+            echo "::error::The cicd script version is not valid.\nThe version format is: 'v#.#.#'";
             exit 1;
           }
 
@@ -182,32 +183,32 @@ jobs:
   validate_version:
     name: Validate Version
     needs: validate_branch
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v7.0.3
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v8.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       release-type: "${{ inputs.release-type }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
     secrets:
-      cicd-rest-api: "${{ secrets.cicd-rest-api }}"
+      cicd-pat: "${{ secrets.cicd-pat }}"
 
 
   validate_tag:
     name: Validate Tag
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-tag.yml@v7.0.3
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-tag.yml@v8.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       release-type: "${{ inputs.release-type }}"
       tag-name: "${{ needs.validate_version.outputs.version }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
     secrets:
-      cicd-rest-api: "${{ secrets.cicd-rest-api }}"
+      cicd-pat: "${{ secrets.cicd-pat }}"
 
 
   nuget_pkg_does_not_exist:
     name: Validate NuGet Package Does Not Exist
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/nuget-package-does-not-exist.yml@v7.0.3
+    uses: KinsonDigital/Infrastructure/.github/workflows/nuget-package-does-not-exist.yml@v8.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       version: "${{ needs.validate_version.outputs.version }}"
@@ -217,7 +218,7 @@ jobs:
   validate_release_notes:
     name: Validate Release Notes
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-release-notes.yml@v7.0.3
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-release-notes.yml@v8.0.0
     with:
       org-name: "${{ vars.ORGANIZATION_NAME }}"
       project-name: "${{ inputs.project-name }}"
@@ -225,37 +226,37 @@ jobs:
       version: "${{ needs.validate_version.outputs.version }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
     secrets:
-      cicd-rest-api: "${{ secrets.cicd-rest-api }}"
+      cicd-pat: "${{ secrets.cicd-pat }}"
 
 
   validate_milestone_status:
     name: Validate Milestone Status
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-milestone-status.yml@v7.0.3
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-milestone-status.yml@v8.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       version: "${{ needs.validate_version.outputs.version }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
     secrets:
-      cicd-rest-api: "${{ secrets.cicd-rest-api }}"
+      cicd-pat: "${{ secrets.cicd-pat }}"
 
 
   validate_github_release:
     name: GitHub Release Does Not Exist
     needs: [validate_version]
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-github-release.yml@v7.0.3
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-github-release.yml@v8.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       version: "${{ needs.validate_version.outputs.version }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
     secrets:
-      cicd-rest-api: "${{ secrets.cicd-rest-api }}"
+      cicd-pat: "${{ secrets.cicd-pat }}"
 
 
   build_project:
     name: Build Main Project
     needs: [validate_tag, nuget_pkg_does_not_exist, validate_release_notes, validate_milestone_status, validate_github_release]
-    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v7.0.3
+    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v8.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       build-config: "${{ inputs.build-config }}"
@@ -265,7 +266,7 @@ jobs:
   run_tests:
     name: Run Tests
     needs: [validate_tag, nuget_pkg_does_not_exist, validate_release_notes, validate_milestone_status, validate_github_release]
-    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v7.0.3
+    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v8.0.0
     with:
       project-name: "${{ inputs.project-name }}Tests"
       build-config: "${{ inputs.build-config }}"
@@ -275,14 +276,14 @@ jobs:
   build_script_url:
     name: Build Script URL
     needs: [validate_tag, nuget_pkg_does_not_exist, validate_release_notes, validate_milestone_status, validate_github_release]
-    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v7.0.3
+    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v8.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
 
 
   perform_release:
-    name: Perform Release
+    name: Perform ${{ inputs.release-type }} Release
     runs-on: ubuntu-latest
     needs: [validate_version, build_project, run_tests, build_script_url]
     steps:
@@ -335,15 +336,15 @@ jobs:
             --api-key ${{ secrets.nuget-org-api-key }} `
             --source https://api.nuget.org/v3/index.json;
 
-      - name: Preview Release
+      - name: Creating ${{ inputs.release-type }} Release
         if: ${{ inputs.dry-run == false }}
-        uses: softprops/action-gh-release@v0.1.15
+        uses: softprops/action-gh-release@v1
         with: 
-          name: "🚀Preview Release - ${{ needs.validate_version.outputs.version }}" 
+          name: "🚀${{ inputs.release-type }} Release - v${{ needs.validate_version.outputs.version }}" 
           body_path: "${{ github.workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
           files: "${{ github.workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
           tag_name: "${{ needs.validate_version.outputs.version }}"
-          prerelease: true
+          prerelease: ${{ inputs.release-type == 'Preview' }}
           draft: false
 
       - name: Close Milestone
@@ -361,7 +362,7 @@ jobs:
             "$scriptUrl" `
             "${{ inputs.project-name }}" `
             "${{ needs.validate_version.outputs.version }}" `
-            "${{ secrets.cicd-rest-api }}";
+            "${{ secrets.cicd-pat }}";
 
       - name: Send Twitter Announcement
         if: ${{ inputs.send-release-tweet == true && inputs.dry-run == false }}
@@ -388,4 +389,4 @@ jobs:
             "${{ secrets.twitter-consumer-api-secret }}" `
             "${{ secrets.twitter-access-token }}" `
             "${{ secrets.twitter-access-token-secret }}" `
-            "${{ secrets.cicd-rest-api }}";
+            "${{ secrets.cicd-pat }}";

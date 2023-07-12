@@ -22,15 +22,15 @@ on:
         description: The version of the CICD scripts to use
         type: string
     secrets:
-      cicd-rest-api:
-        description: The CICD REST API token
+      cicd-pat:
+        description: The CICD personal access token
         required: true
       
 
 jobs:
   build_script_url:
     name: Build Script URL
-    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v7.0.3
+    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v8.0.0
     with:
       project-name: ${{ inputs.project-name }}
       cicd-scripts-version: ${{ inputs.cicd-scripts-version }}
@@ -60,5 +60,5 @@ jobs:
             "$scriptUrl" `
             "${{ inputs.project-name }}" `
             "${{ inputs.version }}" `
-            "${{ secrets.cicd-rest-api }}";
+            "${{ secrets.cicd-pat }}";
 
