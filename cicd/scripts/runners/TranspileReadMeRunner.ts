@@ -45,6 +45,7 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	/**
 	 * Runs the transpile readme script.
 	 */
+	// deno-lint-ignore require-await
 	public async run(): Promise<void> {
 		let dirPath = this.args[0].replaceAll("\\", "/");
 		dirPath = dirPath.endsWith("/") ? dirPath.slice(0, dirPath.length - 1) : dirPath;
