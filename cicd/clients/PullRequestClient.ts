@@ -401,6 +401,57 @@ export class PullRequestClient extends GitHubClient {
 	}
 
 	/**
+	 * Creates a new pull request in a repository with a name that matches the given {@link repoName},
+	 * using the given {@link title}, {@link headBranch}, {@link baseBranch}, and {@link description}.
+	 * @param repoName The name of the repository..
+	 * @param title The title of the pull request.
+	 * @param headBranch The name of the branch that contains the changes for the pull request.
+	 * @param baseBranch The name of the branch that the changes will be pulled into.
+	 * @param description The description of the pull request.
+	 * @param maintainerCanModify The value indicating whether or not maintainers can modify the pull request.
+	 * @param isDraft The value indicating whether or not the pull request is a draft pull request.
+	 * @returns The newly created pull request.
+	 */
+	public async createPullRequest(
+		repoName: string,
+		title: string,
+		headBranch: string,
+		baseBranch: string,
+		description: string = "",
+		maintainerCanModify: boolean = true,
+		isDraft: boolean = true): Promise<IPullRequestModel> {
+		const funcName = "createPullRequest";
+		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNullOrEmptyOrUndefined(title, funcName, "title");
+		Guard.isNullOrEmptyOrUndefined(headBranch, funcName, "headBranch");
+		Guard.isNullOrEmptyOrUndefined(baseBranch, funcName, "baseBranch");
+
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/pulls`;
+		const body = {
+			owner: `${this.organization}`,
+			repo: `${repoName}`,
+			title: title,
+			head: headBranch,
+			base: baseBranch,
+			body: description,
+			maintainer_can_modify: maintainerCanModify,
+			draft: isDraft
+		};
+
+		const response = await this.fetchPOST(url, JSON.stringify(body));
+
+		if (response.status != GitHubHttpStatusCodes.Created) {
+			const errorMsg = `Error: ${response.status}(${response.statusText})`;
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
+
+		const newPullRequest = await response.json() as IPullRequestModel;
+
+		return newPullRequest;
+	}
+
+	/**
 	 * Checks if a pull request with the given {@link prNumber } exists with the given {@link state} in a
 	 * repository that matches the given {@link repoName}.
 	 * @param repoName The name of the repository.
