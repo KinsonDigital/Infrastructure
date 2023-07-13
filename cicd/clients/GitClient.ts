@@ -1,26 +1,27 @@
-import { GitHubHttpStatusCodes } from "../core/Enums.ts";
-import { GitHubClient } from "../core/GitHubClient.ts";
+import { GraphQLClient } from "../core/GraphQLClient.ts";
+import { createGetBranchesQuery } from "../core/GraphQLQueries/GetBranchesQuery.ts";
 import { Guard } from "../core/Guard.ts";
-import { IGitBranch } from "../core/Models/IGitBranch.ts";
-import { IGitRef } from "../core/Models/IGitRef.ts";
+import { IPageInfoModel } from "../core/Models/GraphQLModels/IPageInfoModel.ts";
+import { IGitBranchModel } from "../core/Models/GraphQLModels/IGitBranchModel.ts";
 import { Utils } from "../core/Utils.ts";
+import { RepoClient } from "./RepoClient.ts";
+import { getCreateBranchMutation } from "../core/GraphQLMutations/CreateBranchMutation.ts";
 
 /**
- * Provides a client for interacting with GitHub GIT repositories.
+ * Provides a client for to perform git operations for a GitHub repository.
  */
-export class GitClient extends GitHubClient {
+export class GitClient extends GraphQLClient {
 	private readonly repoOwner: string;
 	private readonly repoName: string;
-	
+	private readonly repoClient: RepoClient;
+
 	/**
 	 * Initializes a new instance of the {@link GitClient} class.
 	 * @param repoOwner The owner of the repository.
 	 * @param repoName The name of the repository.
 	 * @param token The GitHub token to use for authentication.
-	 * @remarks If no {@link token} is provided, the {@link GitClient} will not be able to perform
-	 * operations that require authentication.
 	 */
-	constructor(repoOwner: string, repoName: string, token?: string) {
+	constructor(repoOwner: string, repoName: string, token: string) {
 		const funcName = "GitClient.Ctor";
 		Guard.isNullOrEmptyOrUndefined(repoOwner, funcName, "repoOwner");
 		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
@@ -29,67 +30,84 @@ export class GitClient extends GitHubClient {
 
 		this.repoOwner = repoOwner;
 		this.repoName = repoName;
+		this.repoClient = new RepoClient(token);
 	}
 
 	/**
 	 * Gets a branch with the given branch {@link name}.
 	 * @param name The name of the branch.
 	 * @returns The branch.
-	 * @remarks Does not require authentication.
 	 */
-	public async getBranch(name: string): Promise<IGitBranch> {
+	public async getBranch(name: string): Promise<IGitBranchModel> {
 		Guard.isNullOrEmptyOrUndefined(name, "getBranch", "name");
 
-		const branches = await this.getBranches();
+		const branches: IGitBranchModel[] = await this.getBranches((branch) => branch.name === name);
 
-		const branch = branches.find((b) => b.name === name);
-
-		if (branch === undefined) {
-			const errorMsg = `The branch '${branch}' was not found.`;
-			Utils.printAsGitHubError(errorMsg);
+		if (branches.length <= 0) {
+			Utils.printAsGitHubError(`The branch '${name}' does not exist.`);
 			Deno.exit(1);
 		}
 
-		return branch;
+		return branches.filter((branch) => branch.name === name)[0];
 	}
 
 	/**
 	 * Gets a list of branches for a repository.
+	 * @param untilPredicate Used to determine when to stop getting branches.
 	 * @returns The list of branches for the repository.
-	 * @remarks Does not require authentication.
+	 * @remarks If the {@link untilPredicate} is not provided, all branches will be returned.
 	 */
-	public async getBranches(): Promise<IGitBranch[]> {
-		const url = `${this.baseUrl}/repos/${this.repoOwner}/${this.repoName}/git/matching-refs/heads`;
+	public async getBranches(untilPredicate?: (branch: IGitBranchModel) => boolean): Promise<IGitBranchModel[]> {
+		const result: IGitBranchModel[] = [];
+		let pageInfo: IPageInfoModel = { hasNextPage: true, hasPreviousPage: false };
 
-		const response = await this.fetchGET(url);
+		// As long as there is another page worth of information
+		while (pageInfo.hasNextPage) {
+			const cursor: string = Utils.isNullOrEmptyOrUndefined(pageInfo.endCursor) ? "" : <string> pageInfo.endCursor;
 
-		if (response.status != GitHubHttpStatusCodes.OK) {
-			Utils.printAsGitHubError(`Error: ${response.status}(${response.statusText})`);
-			Deno.exit(1);
+			const query: string = result.length <= 0
+				? createGetBranchesQuery(this.repoOwner, this.repoName)
+				: createGetBranchesQuery(this.repoOwner, this.repoName, 100, cursor);
+
+			const responseData = await this.executeQuery(query);
+
+			pageInfo = <IPageInfoModel> responseData.data.repository.refs.pageInfo;
+
+			const branches = <IGitBranchModel[]> responseData.data.repository.refs.nodes.map((node: any) => {
+				return {
+					id: node.id,
+					name: node.name,
+					oid: node.target.oid,
+				};
+			});
+
+			for (let i = 0; i < branches.length; i++) {
+				const branch = branches[i];
+
+				const stopPulling: boolean = untilPredicate != null &&
+					untilPredicate != undefined &&
+					untilPredicate(branch);
+
+				result.push(branch);
+
+				if (stopPulling) {
+					return result;
+				}
+			}
 		}
 
-		const gitRefs = <IGitRef[]> await response.json();
-
-		const gitBranches: IGitBranch[] = gitRefs.map((gitRef) => {
-			return {
-				name: gitRef.ref.replace("refs/heads/", ""),
-				sha: gitRef.object.sha,
-			};
-		});
-
-		return gitBranches;
+		return result;
 	}
 
 	/**
 	 * Gets a value indicating whether or not a branch with the given branch {@link name} exists.
 	 * @param name The name of the branch.
 	 * @returns True if the branch exists; otherwise, false.
-	 * @remarks Does not require authentication.
 	 */
 	public async branchExists(name: string): Promise<boolean> {
 		Guard.isNullOrEmptyOrUndefined(name, "branchExists", "name");
 
-		const branches = await this.getBranches();
+		const branches: IGitBranchModel[] = await this.getBranches((branch) => branch.name === name);
 
 		return branches.some((branch) => branch.name === name);
 	}
@@ -99,7 +117,7 @@ export class GitClient extends GitHubClient {
 	 * @param newBranchName The name of the branch.
 	 * @remarks Requires authentication.
 	 */
-	public async createBranch(newBranchName: string, branchFromName: string): Promise<IGitBranch> {
+	public async createBranch(newBranchName: string, branchFromName: string): Promise<IGitBranchModel> {
 		const funcName = "createBranch";
 		Guard.isNullOrEmptyOrUndefined(newBranchName, funcName, "newBranchName");
 		Guard.isNullOrEmptyOrUndefined(branchFromName, funcName, "branchFromName");
@@ -112,24 +130,23 @@ export class GitClient extends GitHubClient {
 
 		const fromBranch = await this.getBranch(branchFromName);
 
-		const body = {
-			ref: `refs/heads/${newBranchName}`,
-			sha: fromBranch.sha,
-		};
+		const repo = await this.repoClient.getRepoByName(this.repoName);
 
-		const url = `${this.baseUrl}/repos/${this.repoOwner}/${this.repoName}/git/refs`;
-		const response = await this.fetchPOST(url, JSON.stringify(body));
-
-		if (response.status != GitHubHttpStatusCodes.Created) {
-			Utils.printAsGitHubError(`Error: ${response.status}(${response.statusText})`);
+		if (Utils.isNullOrEmptyOrUndefined(repo.node_id)) {
+			const errorMsg = `The repository '${this.repoName}' did not return a required node ID.`;
+			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
-		
-		const newRef = <IGitRef> await response.json();
+
+		const mutation: string = getCreateBranchMutation(repo.node_id, newBranchName, fromBranch.oid);
+
+		const responseData = await this.executeQuery(mutation);
+		const newBranch = responseData.data.createRef.ref;
 
 		return {
-			name: newRef.ref.replace("refs/heads/", ""),
-			sha: newRef.object.sha,
-		}
+			id: newBranch.id,
+			name: newBranch.name,
+			oid: newBranch.target.oid,
+		};
 	}
 }
