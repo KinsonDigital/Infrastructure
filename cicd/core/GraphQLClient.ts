@@ -7,8 +7,8 @@ import { Utils } from "./Utils.ts";
  * Provides a base class for HTTP clients.
  */
 export abstract class GraphQLClient {
+	private baseUrl = "https://api.github.com/graphql";
 	protected readonly organization = "KinsonDigital";
-	protected baseUrl = "https://api.github.com/graphql";
 	protected readonly headers: Headers = new Headers();
 
 	/**
@@ -17,7 +17,6 @@ export abstract class GraphQLClient {
 	 * @remarks If no token is provided, then the client will not be authenticated.
 	 */
 	constructor(token: string) {
-		// this.headers.append("Accept", "application/vnd.github.v3+.json");
 		this.headers.append("Authorization", `Bearer ${token}`);
 	}
 
@@ -76,14 +75,16 @@ export abstract class GraphQLClient {
 	 * @param query The GraphQL query to use for the request.
 	 * @returns The response from the request.
 	 */
-	protected async fetchPOST(query: string): Promise<Response> {
+	protected async executeQuery(query: string): Promise<RequestResponseModel> {
 		const body: string = JSON.stringify({ query });
 
-		return await fetch(this.baseUrl, {
+		const response = await fetch(this.baseUrl, {
 			method: "POST",
 			body: body,
 			headers: this.headers,
 		});
+
+		return await this.getResponseData(response);
 	}
 
 	/**

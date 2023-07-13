@@ -28,9 +28,7 @@ export class ProjectClient extends GraphQLClient {
 	 */
 	public async getOrgProjects(): Promise<IProjectModel[]> {
 		const query = createOrgProjectsQuery(this.organization);
-		const response = await this.fetchPOST(query);
-
-		const responseData: RequestResponseModel = await this.getResponseData(response);
+		const responseData = await this.executeQuery(query);
 
 		return <IProjectModel[]> responseData.data.organization.projectsV2.nodes;
 	}
@@ -73,9 +71,7 @@ export class ProjectClient extends GraphQLClient {
 		}
 
 		const query = createLinkItemToProjectMutation(contentId, project.id);
-		const response = await this.fetchPOST(query);
-
-		await this.throwIfErrors(response);
+		await this.executeQuery(query);
 	}
 
 	/**
@@ -93,9 +89,7 @@ export class ProjectClient extends GraphQLClient {
 		repoName = repoName.trim();
 
 		const query = createGetIssueProjectsQuery(this.organization, repoName, issueNumber);
-		const response = await this.fetchPOST(query);
-
-		const responseData: RequestResponseModel | BadCredentials = await this.getResponseData(response);
+		const responseData = await this.executeQuery(query);
 
 		return <IProjectModel[]> responseData.data.repository.issue.projectsV2.nodes;
 	}
@@ -115,9 +109,7 @@ export class ProjectClient extends GraphQLClient {
 		repoName = repoName.trim();
 
 		const query = createGetPullRequestProjectsQuery(this.organization, repoName, prNumber);
-		const response = await this.fetchPOST(query);
-
-		const responseData: RequestResponseModel = await this.getResponseData(response);
+		const responseData = await this.executeQuery(query);
 
 		return <IProjectModel[]> responseData.data.repository.pullRequest.projectsV2.nodes;
 	}
