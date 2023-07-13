@@ -38,7 +38,8 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 				"Required and must be a valid GitHub repository name.",
 				"Required and must be the type of release.\n\tValid values are 'production' and 'preview' and are case-insensitive.",
 				"Required and must be a valid preview or production version.",
-				"Required and must be a GitHub PAT (Personal Access Token)."];
+				"Required and must be a GitHub PAT (Personal Access Token).",
+			];
 
 			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.error);
 			Deno.exit(1);

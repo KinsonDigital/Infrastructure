@@ -32,7 +32,8 @@ export class TranspileReadMeRunner extends ScriptRunner {
 		if (args.length != 1) {
 			const argDescriptions = [
 				`The ${scriptName} cicd script must have 1 argument.`,
-				`Required and must be a valid directory path to the 'README.md' file.`];
+				`Required and must be a valid directory path to the 'README.md' file.`,
+			];
 
 			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.error);
 			Deno.exit(1);
@@ -100,10 +101,9 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	 * @returns The transpiled content.
 	 */
 	private transpileHeaderTags(content: string): string {
-		const headers  = content.match(this.headerTagRegEx)?.filter((h) => h) ?? [];
+		const headers = content.match(this.headerTagRegEx)?.filter((h) => h) ?? [];
 
 		for (const headerHtml of headers) {
-
 			let headerContent = headerHtml.replace(this.headerStartTagRegEx, "");
 			headerContent = headerContent.replace(this.headerEndTagRegEx, "");
 
@@ -129,14 +129,14 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	 * @returns The transpiled content.
 	 */
 	private transpileImageTags(content: string): string {
-		const imgHtmlTags  = content.match(this.imageTagRegEx)?.filter((h) => h) ?? [];
+		const imgHtmlTags = content.match(this.imageTagRegEx)?.filter((h) => h) ?? [];
 
 		for (const imgHtml of imgHtmlTags) {
 			const imgSrcAttr = imgHtml.match(this.imgSrcAttrRegEx)?.filter((h) => h)[0] ?? "";
 
 			let srcUri = imgSrcAttr.replace("src=", "");
-			srcUri = srcUri.replaceAll("\"", "");
-			srcUri = srcUri.replaceAll("\'", "");
+			srcUri = srcUri.replaceAll('"', "");
+			srcUri = srcUri.replaceAll("'", "");
 
 			const imgMarkdown = `![image](${srcUri})`;
 

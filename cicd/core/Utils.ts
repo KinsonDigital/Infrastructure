@@ -185,7 +185,7 @@ export class Utils {
 			argInfos.push(`${Utils.toOrdinal(i + 1)}${prefix}${items[i]}}`);
 		}
 
-		argInfos.forEach(info => {
+		argInfos.forEach((info) => {
 			switch (logType) {
 				case GitHubLogType.normal:
 					console.log(info);

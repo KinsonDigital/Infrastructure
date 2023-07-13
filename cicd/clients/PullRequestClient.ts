@@ -417,9 +417,10 @@ export class PullRequestClient extends GitHubClient {
 		title: string,
 		headBranch: string,
 		baseBranch: string,
-		description: string = "",
-		maintainerCanModify: boolean = true,
-		isDraft: boolean = true): Promise<IPullRequestModel> {
+		description = "",
+		maintainerCanModify = true,
+		isDraft = true,
+	): Promise<IPullRequestModel> {
 		const funcName = "createPullRequest";
 		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
 		Guard.isNullOrEmptyOrUndefined(title, funcName, "title");
@@ -435,7 +436,7 @@ export class PullRequestClient extends GitHubClient {
 			base: baseBranch,
 			body: description,
 			maintainer_can_modify: maintainerCanModify,
-			draft: isDraft
+			draft: isDraft,
 		};
 
 		const response = await this.fetchPOST(url, JSON.stringify(body));

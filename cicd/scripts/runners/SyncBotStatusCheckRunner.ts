@@ -40,7 +40,8 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 				"Required and must be a valid GitHub repository name.",
 				"Required and must be a valid issue or pull request number.",
 				"Required and must be a valid case-insensitive workflow event type of 'issue' or 'pr'.",
-				"Required and must be a GitHub PAT (Personal Access Token)."];
+				"Required and must be a GitHub PAT (Personal Access Token).",
+			];
 
 			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.error);
 			Deno.exit(1);
@@ -326,8 +327,8 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		// This repo variable is optional
 		const prSyncBaseBranchesVarName = "PR_SYNC_BASE_BRANCHES";
 		const defaultBranches = ["main", "preview"];
-		const repoVars = (await this.repoClient.getVariables(repoName)).filter(v => v.name === prSyncBaseBranchesVarName);
-		
+		const repoVars = (await this.repoClient.getVariables(repoName)).filter((v) => v.name === prSyncBaseBranchesVarName);
+
 		if (repoVars.length === 0) {
 			let noticeMsg = "The PR_SYNC_BASE_BRANCHES variable does not exist.";
 			noticeMsg += `\nUsing the default branches: ${defaultBranches.join(", ")}.`;
@@ -346,13 +347,13 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			}
 
 			const prSyncBaseBranches = prSyncBaseBranchesVar.value.split(",")
-				.map(v => v.trim())
+				.map((v) => v.trim())
 				.filter((i) => !Utils.isNullOrEmptyOrUndefined(i));
 
 			return prSyncBaseBranches.length > 0 ? prSyncBaseBranches : defaultBranches;
 		}
 	}
-	
+
 	/**
 	 * Gets a list of organization projects associated with an issue with the given {@link issueNumber} from a repository
 	 * with a name that matches the given {@link repoName}.

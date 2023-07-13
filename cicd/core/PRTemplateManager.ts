@@ -213,8 +213,8 @@ export class PRTemplateManager {
 		// This repo variable is optional
 		const prSyncBaseBranchesVarName = "PR_SYNC_BASE_BRANCHES";
 		const defaultBranches = ["main", "preview"];
-		const repoVars = (await this.repoClient.getVariables(repoName)).filter(v => v.name === prSyncBaseBranchesVarName);
-		
+		const repoVars = (await this.repoClient.getVariables(repoName)).filter((v) => v.name === prSyncBaseBranchesVarName);
+
 		if (repoVars.length === 0) {
 			return defaultBranches;
 		} else {
@@ -225,7 +225,7 @@ export class PRTemplateManager {
 			}
 
 			const prSyncBaseBranches = prSyncBaseBranchesVar.value.split(",")
-				.map(v => v.trim())
+				.map((v) => v.trim())
 				.filter((i) => !Utils.isNullOrEmptyOrUndefined(i));
 
 			return prSyncBaseBranches.length > 0 ? prSyncBaseBranches : defaultBranches;
