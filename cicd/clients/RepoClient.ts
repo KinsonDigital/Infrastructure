@@ -62,7 +62,7 @@ export class RepoClient extends GitHubClient {
 	 * The {@link qtyPerPage} value must be a value between 1 and 100. If less than 1, the value will
 	 * be set to 1, if greater than 100, the value will be set to 100.
 	 */
-	public async getRepos(page: number, qtyPerPage: number): Promise<[IRepoModel[], Response]> {
+	public async getUserRepos(page: number, qtyPerPage: number): Promise<[IRepoModel[], Response]> {
 		page = page < 1 ? 1 : page;
 		qtyPerPage = Utils.clamp(qtyPerPage, 1, 100);
 
