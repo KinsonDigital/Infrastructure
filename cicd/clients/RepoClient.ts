@@ -30,20 +30,20 @@ export class RepoClient extends GitHubClient {
 	public async getRepoByName(repoName: string): Promise<IRepoModel> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getRepoByName", "repoName");
 
-		repoName = repoName.trim();
+		repoName = repoName.trim().toLowerCase();
 
 		const foundRepos = await this.getAllDataUntil<IRepoModel>(
 			async (page, qtyPerPage) => {
-				return await this.getRepos(page, qtyPerPage ?? 100);
+				return await this.getUserRepos(page, qtyPerPage ?? 100);
 			},
 			1, // Start page
 			100, // Qty per page
 			(pageOfData: IRepoModel[]) => {
-				return pageOfData.some((repo) => repo.name.trim() === repoName);
+				return pageOfData.some((repo) => repo.name.trim().toLowerCase() === repoName);
 			},
 		);
 
-		const foundRepo: IRepoModel | undefined = foundRepos.find((repo) => repo.name.trim() === repoName);
+		const foundRepo: IRepoModel | undefined = foundRepos.find((repo) => repo.name.trim().toLowerCase() === repoName);
 
 		if (foundRepo === undefined) {
 			Utils.printAsGitHubError(`The repository '${repoName}' was not found.`);
@@ -67,13 +67,14 @@ export class RepoClient extends GitHubClient {
 		qtyPerPage = Utils.clamp(qtyPerPage, 1, 100);
 
 		const queryParams = `?page=${page}&per_page=${qtyPerPage}`;
-		const url = `${this.baseUrl}/repos/${this.organization}/repos${queryParams}`;
+		const url = `${this.baseUrl}/users/${this.organization}/repos${queryParams}`;
 
 		const response: Response = await this.fetchGET(url);
 
 		// If there is an error
 		if (response.status === GitHubHttpStatusCodes.NotFound) {
-			const errorMsg = `Not found. Check that the repository owner '${this.organization}' is a valid repository owner.`;
+			let errorMsg = `Not found. Check that the repository owner '${this.organization}' is a valid repository owner.`;
+			errorMsg += `\nError: ${response.status}(${response.statusText})`;
 			Utils.printAsGitHubError(errorMsg);
 
 			Deno.exit(1);
