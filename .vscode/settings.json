@@ -19,6 +19,7 @@
 		"**/Thumbs.db": true,
 	},
     "deno.enable": true,
+	"deno.lint": true,
     "[typescript]": {
 		"editor.insertSpaces": false,
 		"editor.tabSize": 4,
