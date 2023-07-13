@@ -3,7 +3,7 @@ import { LocationModel } from "./LocationModel.ts";
 /**
  * Represents an error.
  */
-export interface ErrorModel {
+export type ErrorModel = { 
 	/**
 	 * The error message.
 	 */

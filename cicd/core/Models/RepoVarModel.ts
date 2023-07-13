@@ -1,7 +1,7 @@
 /**
- * Represents a single organization variable.
+ * Represents a single repository variable.
  */
-export interface IOrgVarModel {
+export type RepoVarModel = { 
 	/**
 	 * Gets or sets the name of the variable.
 	 */
@@ -21,9 +21,4 @@ export interface IOrgVarModel {
 	 * Gets or sets the updated date of the variable.
 	 */
 	updated_at: string;
-
-	/**
-	 * Gets or sets the visibility of the variable.
-	 */
-	visibility: string;
 }

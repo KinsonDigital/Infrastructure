@@ -1,6 +1,6 @@
 import { MilestoneClient } from "../clients/MilestoneClient.ts";
-import { IIssueModel } from "../core/Models/IIssueModel.ts";
-import { IPullRequestModel } from "../core/Models/IPullRequestModel.ts";
+import { IssueModel } from "../core/Models/IIssueModel.ts";
+import { PullRequestModel } from "../core/Models/IPullRequestModel.ts";
 import { RepoClient } from "../clients/RepoClient.ts";
 import { Utils } from "../core/Utils.ts";
 
@@ -39,8 +39,8 @@ if (repoDoesNotExist) {
 const milestoneClient: MilestoneClient = new MilestoneClient(token);
 const milestoneItems = await milestoneClient.getIssuesAndPullRequests(repoName, milestoneTitle);
 
-const issues: IIssueModel[] = Utils.filterIssues(milestoneItems);
-const prs: IPullRequestModel[] = Utils.filterPullRequests(milestoneItems);
+const issues: IssueModel[] = Utils.filterIssues(milestoneItems);
+const prs: PullRequestModel[] = Utils.filterPullRequests(milestoneItems);
 
 const problemsFound: string[] = [];
 

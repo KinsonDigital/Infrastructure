@@ -1,7 +1,7 @@
 /**
  * Represents a GitHub user.
  */
-export interface IUserModel {
+export type UserModel = { 
 	/**
 	 * Gets or sets the user's ID.
 	 */

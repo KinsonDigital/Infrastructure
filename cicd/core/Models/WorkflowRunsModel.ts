@@ -1,9 +1,9 @@
-import { IWorkflowRunModel } from "./IWorkflowRunModel.ts";
+import { WorkflowRunModel } from "./WorkflowRunModel.ts";
 
 /**
  * Represents a list of workflow runs.
  */
-export interface IWorkflowRunsModel {
+export type WorkflowRunsModel = { 
 	/**
 	 * Gets or sets the number of workflows runs.
 	 */
@@ -12,5 +12,5 @@ export interface IWorkflowRunsModel {
 	/**
 	 * Gets or sets the list of workflow runs.
 	 */
-	workflow_runs: IWorkflowRunModel[];
+	workflow_runs: WorkflowRunModel[];
 }

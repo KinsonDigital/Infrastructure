@@ -4,11 +4,11 @@ import { RepoClient } from "../../clients/RepoClient.ts";
 import { LabelClient } from "../../clients/LabelClient.ts";
 import { MilestoneClient } from "../../clients/MilestoneClient.ts";
 import { Utils } from "../../core/Utils.ts";
-import { IRepoVarModel } from "../../core/Models/IRepoVarModel.ts";
+import { RepoVarModel } from "../../core/Models/IRepoVarModel.ts";
 import { File } from "../../core/File.ts";
-import { IIssueModel } from "../../core/Models/IIssueModel.ts";
-import { IPullRequestModel } from "../../core/Models/IPullRequestModel.ts";
-import { ILabelModel } from "../../core/Models/ILabelModel.ts";
+import { IssueModel } from "../../core/Models/IIssueModel.ts";
+import { PullRequestModel } from "../../core/Models/IPullRequestModel.ts";
+import { LabelModel } from "../../core/Models/ILabelModel.ts";
 import { GitHubLogType } from "../../core/Enums.ts";
 
 /**
@@ -22,8 +22,8 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 	private readonly scriptName: string;
 	private readonly issueLinkRegex = /\[#[0-9]*\]\(https:\/\/github\.com\/KinsonDigital\/[a-zA-z]*\/issues\/[0-9]*\)/gm;
 	private readonly prLinkRegex = /\[#[0-9]*\]\(https:\/\/github\.com\/KinsonDigital\/[a-zA-z]*\/pull\/[0-9]*\)/gm;
-	private vars: IRepoVarModel[] = [];
-	private cachedRepoLabels: ILabelModel[] = [];
+	private vars: RepoVarModel[] = [];
+	private cachedRepoLabels: LabelModel[] = [];
 
 	/**
 	 * Creates a new instance of the {@link ValidateReleaseNotesRunner} class.
@@ -207,11 +207,11 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 	 * @param repoName The name of the repo.
 	 * @returns The list of variables.
 	 */
-	private async getVars(orgName: string, repoName: string): Promise<IRepoVarModel[]> {
-		const orgVars: IRepoVarModel[] = await this.orgClient.getVariables(orgName);
-		const repoVars: IRepoVarModel[] = await this.repoClient.getVariables(repoName);
+	private async getVars(orgName: string, repoName: string): Promise<RepoVarModel[]> {
+		const orgVars: RepoVarModel[] = await this.orgClient.getVariables(orgName);
+		const repoVars: RepoVarModel[] = await this.repoClient.getVariables(repoName);
 
-		const allVars: IRepoVarModel[] = [];
+		const allVars: RepoVarModel[] = [];
 
 		const repoVarsNotInOrg = repoVars.filter((repoVar) =>
 			orgVars.find((orgVar) => orgVar.name === repoVar.name) === undefined
@@ -385,13 +385,13 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 	 * @param milestoneTitle The title of the milestone.
 	 * @returns The issues in the milestone.
 	 */
-	private async getMilestoneIssues(repoName: string, milestoneTitle: string): Promise<[IIssueModel[], IIssueModel[]]> {
-		const ignoredIssues: IIssueModel[] = [];
+	private async getMilestoneIssues(repoName: string, milestoneTitle: string): Promise<[IssueModel[], IssueModel[]]> {
+		const ignoredIssues: IssueModel[] = [];
 		const ignoreLabels: string[] = await this.getIgnoreLabels(repoName);
 
 		// Filter out any issues that have a label included in the ignore label list
 		const issues = (await this.milestoneClient.getIssues(repoName, milestoneTitle))
-			.filter((issue: IIssueModel) => {
+			.filter((issue: IssueModel) => {
 				if (ignoreLabels.length <= 0) {
 					return true;
 				}
@@ -423,12 +423,12 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 		repoName: string,
 		milestoneTitle: string,
 		prIncludeLabel: string,
-	): Promise<[IPullRequestModel[], IPullRequestModel[]]> {
-		const ignoredPullRequests: IPullRequestModel[] = [];
+	): Promise<[PullRequestModel[], PullRequestModel[]]> {
+		const ignoredPullRequests: PullRequestModel[] = [];
 		const ignoreLabels: string[] = await this.getIgnoreLabels(repoName);
 
 		const pullRequests = (await this.milestoneClient.getPullRequests(repoName, milestoneTitle))
-			.filter((pr: IPullRequestModel) => {
+			.filter((pr: PullRequestModel) => {
 				const shouldNotIgnore = ignoreLabels.length <= 0 || ignoreLabels.every((ignoreLabel) => {
 					return pr.labels?.every((prLabel) => prLabel.name != ignoreLabel) ?? true;
 				});
@@ -472,9 +472,9 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 	 * @param repoName The name of the repository that contains the labels.
 	 * @returns The list of repository labels.
 	 */
-	private async getLabels(repoName: string): Promise<ILabelModel[]> {
+	private async getLabels(repoName: string): Promise<LabelModel[]> {
 		if (this.cachedRepoLabels.length <= 0) {
-			const repoLabels: ILabelModel[] = await this.labelClient.getAllLabels(repoName);
+			const repoLabels: LabelModel[] = await this.labelClient.getAllLabels(repoName);
 
 			this.cachedRepoLabels.push(...repoLabels);
 		}

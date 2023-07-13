@@ -1,7 +1,7 @@
 /**
  * Represents a GitHub milestone.
  */
-export interface IMilestoneModel {
+export type MilestoneModel = {
 	/**
 	 * Gets or sets the title of the milestone.
 	 */

@@ -1,9 +1,9 @@
-import { IRepoModel } from "./IRepoModel.ts";
+import { RepoModel } from "./RepoModel.ts";
 
 /**
  * Holds information about a pull requests head or base branches.
  */
-export interface IPullRequestHeadOrBaseModel {
+export type PullRequestHeadOrBaseModel = {
 	/**
 	 * Gets or sets the ref.
 	 */
@@ -17,5 +17,5 @@ export interface IPullRequestHeadOrBaseModel {
 	/**
 	 * Gets or sets the repository info.
 	 */
-	repo: IRepoModel;
+	repo: RepoModel;
 }

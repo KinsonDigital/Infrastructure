@@ -1,5 +1,5 @@
 import { createOrgProjectsQuery } from "../core/GraphQLQueries/GetOrgProjectsQueries.ts";
-import { IProjectModel } from "../core/Models/IProjectModel.ts";
+import { ProjectModel } from "../core/Models/IProjectModel.ts";
 import { GraphQLClient } from "../core/GraphQLClient.ts";
 import { Guard } from "../core/Guard.ts";
 import { Utils } from "../core/Utils.ts";
@@ -24,11 +24,11 @@ export class ProjectClient extends GraphQLClient {
 	 * Gets a list of the GitHub organization projects.
 	 * @returns The list of projects.
 	 */
-	public async getOrgProjects(): Promise<IProjectModel[]> {
+	public async getOrgProjects(): Promise<ProjectModel[]> {
 		const query = createOrgProjectsQuery(this.organization);
 		const responseData = await this.executeQuery(query);
 
-		return <IProjectModel[]> responseData.data.organization.projectsV2.nodes;
+		return <ProjectModel[]> responseData.data.organization.projectsV2.nodes;
 	}
 
 	/**
@@ -61,7 +61,7 @@ export class ProjectClient extends GraphQLClient {
 
 		const projects = await this.getOrgProjects();
 
-		const project: IProjectModel | undefined = projects.find((project) => project.title.trim() === projectName);
+		const project: ProjectModel | undefined = projects.find((project) => project.title.trim() === projectName);
 
 		if (project === undefined) {
 			Utils.printAsGitHubError(`The project '${projectName}' does not exist.`);
@@ -79,7 +79,7 @@ export class ProjectClient extends GraphQLClient {
 	 * @param issueNumber The issue number.
 	 * @returns The list of organizational projects that the issue is assigned to.
 	 */
-	public async getIssueProjects(repoName: string, issueNumber: number): Promise<IProjectModel[]> {
+	public async getIssueProjects(repoName: string, issueNumber: number): Promise<ProjectModel[]> {
 		const funcName = "getIssueProjects";
 		Guard.isNullOrEmptyOrUndefined(repoName, funcName);
 		Guard.isLessThanOne(issueNumber, funcName);
@@ -89,7 +89,7 @@ export class ProjectClient extends GraphQLClient {
 		const query = createGetIssueProjectsQuery(this.organization, repoName, issueNumber);
 		const responseData = await this.executeQuery(query);
 
-		return <IProjectModel[]> responseData.data.repository.issue.projectsV2.nodes;
+		return <ProjectModel[]> responseData.data.repository.issue.projectsV2.nodes;
 	}
 
 	/**
@@ -99,7 +99,7 @@ export class ProjectClient extends GraphQLClient {
 	 * @param prNumber The issue number.
 	 * @returns The list of organizational projects that the issue is assigned to.
 	 */
-	public async getPullRequestProjects(repoName: string, prNumber: number): Promise<IProjectModel[]> {
+	public async getPullRequestProjects(repoName: string, prNumber: number): Promise<ProjectModel[]> {
 		const funcName = "getPullRequestProjects";
 		Guard.isNullOrEmptyOrUndefined(repoName, funcName);
 		Guard.isLessThanOne(prNumber, funcName);
@@ -109,6 +109,6 @@ export class ProjectClient extends GraphQLClient {
 		const query = createGetPullRequestProjectsQuery(this.organization, repoName, prNumber);
 		const responseData = await this.executeQuery(query);
 
-		return <IProjectModel[]> responseData.data.repository.pullRequest.projectsV2.nodes;
+		return <ProjectModel[]> responseData.data.repository.pullRequest.projectsV2.nodes;
 	}
 }

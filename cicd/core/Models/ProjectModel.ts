@@ -1,7 +1,7 @@
 /**
  * Represents an GitHub organization repo.
  */
-export interface IProjectModel {
+export type ProjectModel = {
 	/**
 	 * Gets or sets the ID of the repo.
 	 */

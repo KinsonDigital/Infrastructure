@@ -2,11 +2,11 @@ import { decode } from "https://deno.land/std@0.192.0/encoding/base64.ts";
 import { GitHubHttpStatusCodes } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
 import { Guard } from "../core/Guard.ts";
-import { IFileContentModel } from "../core/Models/IFileContentModel.ts";
-import { IRepoModel } from "../core/Models/IRepoModel.ts";
+import { FileContentModel } from "../core/Models/FileContentModel.ts";
+import { RepoModel } from "../core/Models/RepoModel.ts";
 import { Utils } from "../core/Utils.ts";
-import { IRepoVarModel } from "../core/Models/IRepoVarModel.ts";
-import { IRepoVariablesModel } from "../core/Models/IRepoVariablesModel.ts";
+import { RepoVarModel } from "../core/Models/RepoVarModel.ts";
+import { RepoVariablesModel } from "../core/Models/RepoVariablesModel.ts";
 
 /**
  * Provides a client for interacting with GitHub repositories.
@@ -27,23 +27,23 @@ export class RepoClient extends GitHubClient {
 	 * @param repoName The name of the repository.
 	 * @returns A repository.
 	 */
-	public async getRepoByName(repoName: string): Promise<IRepoModel> {
+	public async getRepoByName(repoName: string): Promise<RepoModel> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getRepoByName", "repoName");
 
 		repoName = repoName.trim().toLowerCase();
 
-		const foundRepos = await this.getAllDataUntil<IRepoModel>(
+		const foundRepos = await this.getAllDataUntil<RepoModel>(
 			async (page, qtyPerPage) => {
 				return await this.getUserRepos(page, qtyPerPage ?? 100);
 			},
 			1, // Start page
 			100, // Qty per page
-			(pageOfData: IRepoModel[]) => {
+			(pageOfData: RepoModel[]) => {
 				return pageOfData.some((repo) => repo.name.trim().toLowerCase() === repoName);
 			},
 		);
 
-		const foundRepo: IRepoModel | undefined = foundRepos.find((repo) => repo.name.trim().toLowerCase() === repoName);
+		const foundRepo: RepoModel | undefined = foundRepos.find((repo) => repo.name.trim().toLowerCase() === repoName);
 
 		if (foundRepo === undefined) {
 			Utils.printAsGitHubError(`The repository '${repoName}' was not found.`);
@@ -62,7 +62,7 @@ export class RepoClient extends GitHubClient {
 	 * The {@link qtyPerPage} value must be a value between 1 and 100. If less than 1, the value will
 	 * be set to 1, if greater than 100, the value will be set to 100.
 	 */
-	public async getUserRepos(page: number, qtyPerPage: number): Promise<[IRepoModel[], Response]> {
+	public async getUserRepos(page: number, qtyPerPage: number): Promise<[RepoModel[], Response]> {
 		page = page < 1 ? 1 : page;
 		qtyPerPage = Utils.clamp(qtyPerPage, 1, 100);
 
@@ -80,7 +80,7 @@ export class RepoClient extends GitHubClient {
 			Deno.exit(1);
 		}
 
-		return [<IRepoModel[]> await this.getResponseData(response), response];
+		return [<RepoModel[]> await this.getResponseData(response), response];
 	}
 
 	/**
@@ -142,7 +142,7 @@ export class RepoClient extends GitHubClient {
 				Deno.exit(1);
 		}
 
-		const responseData = <IFileContentModel> await this.getResponseData(response);
+		const responseData = <FileContentModel> await this.getResponseData(response);
 
 		// Replace all plain text new line character strings with actual new line characters
 		const content = responseData.content.replace(/\\n/g, this.newLineBase64);
@@ -183,10 +183,10 @@ export class RepoClient extends GitHubClient {
 	 * @param repoName The name of the repository.
 	 * @returns A list of all repositories variables.
 	 */
-	public async getVariables(repoName: string): Promise<IRepoVarModel[]> {
+	public async getVariables(repoName: string): Promise<RepoVarModel[]> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getOrgVariables", "organization");
 
-		return await this.getAllData<IRepoVarModel>(async (page: number, qtyPerPage?: number) => {
+		return await this.getAllData<RepoVarModel>(async (page: number, qtyPerPage?: number) => {
 			const queryString = `?page=${page}&per_page=${qtyPerPage}`;
 			const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/actions/variables${queryString}`;
 
@@ -200,7 +200,7 @@ export class RepoClient extends GitHubClient {
 				Deno.exit(1);
 			}
 
-			const vars = await this.getResponseData<IRepoVariablesModel>(response);
+			const vars = await this.getResponseData<RepoVariablesModel>(response);
 
 			return [vars.variables, response];
 		});

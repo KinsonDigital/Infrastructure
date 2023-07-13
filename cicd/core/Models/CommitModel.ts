@@ -1,7 +1,7 @@
 /**
  * Represents a GIT commit.
  */
-export interface ICommitModel {
+export type CommitModel = {
 	/**
 	 * Gets or sets the sha of the commit.
 	 */

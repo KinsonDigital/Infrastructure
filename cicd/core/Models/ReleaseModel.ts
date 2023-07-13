@@ -1,7 +1,7 @@
 /**
  * Represents a GitHub release.
  */
-export interface IReleaseModel {
+export type ReleaseModel = { 
 	/**
 	 * Gets or sets the release name.
 	 */

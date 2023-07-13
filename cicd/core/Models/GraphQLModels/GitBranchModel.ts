@@ -1,7 +1,7 @@
 /**
  * Represents a git branch.
  */
-export interface IGitBranchModel {
+export type GitBranchModel = { 
 	/**
 	 * Gets or sets the global node ID of the branch.
 	 */

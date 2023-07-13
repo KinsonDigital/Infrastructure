@@ -1,4 +1,4 @@
-import { ITwitterAuthValues } from "../core/Models/ITwitterAuthValues.ts";
+import { TwitterAuthValues } from "../core/Models/ITwitterAuthValues.ts";
 import { TweetV2PostTweetResult, TwitterApi, TwitterApiReadWrite } from "npm:twitter-api-v2@1.15.0";
 import { Utils } from "../core/Utils.ts";
 import { WebAPIClient } from "../core/WebAPIClient.ts";
@@ -7,7 +7,7 @@ import { WebAPIClient } from "../core/WebAPIClient.ts";
  * Provides twitter functionality.
  */
 export class TwitterClient extends WebAPIClient {
-	private readonly authValues: ITwitterAuthValues;
+	private readonly authValues: TwitterAuthValues;
 	private readonly twitterClientBase: TwitterApi;
 	private readonly twitterClientReadWrite: TwitterApiReadWrite;
 
@@ -15,7 +15,7 @@ export class TwitterClient extends WebAPIClient {
 	 * Creates a new instance of the TwitterClient class.
 	 * @param secrets The Twitter secrets and tokens.
 	 */
-	constructor(authValues: ITwitterAuthValues) {
+	constructor(authValues: TwitterAuthValues) {
 		super();
 
 		this.authValues = authValues;

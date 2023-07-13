@@ -1,7 +1,7 @@
 /**
  * Represents the Twitter secrets.
  */
-export interface ITwitterAuthValues {
+export type TwitterAuthValues = { 
 	/**
 	 * Gets or sets the consumer key.
 	 */

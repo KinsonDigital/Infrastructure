@@ -1,9 +1,9 @@
-import { IPullRequestModel } from "./IPullRequestModel.ts";
+import { PullRequestModel } from "./PullRequestModel.ts";
 
 /**
  * Represents a single workflow run.
  */
-export interface IWorkflowRunModel {
+export type WorkflowRunModel = { 
 	/**
 	 * Gets or sets the id of the workflow run.
 	 */
@@ -47,5 +47,5 @@ export interface IWorkflowRunModel {
 	/**
 	 * Gets or sets the pull request of the workflow run.
 	 */
-	pull_requests: IPullRequestModel[];
+	pull_requests: PullRequestModel[];
 }

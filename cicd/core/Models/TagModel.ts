@@ -1,9 +1,9 @@
-import { ICommitModel } from "./ICommitModel.ts";
+import { CommitModel } from "./CommitModel.ts";
 
 /**
  * Represents a GIT tag.
  */
-export interface ITagModel {
+export type TagModel = { 
 	/**
 	 * Gets or sets the tag name.
 	 */
@@ -22,7 +22,7 @@ export interface ITagModel {
 	/**
 	 * Gets or sets the commit.
 	 */
-	commit: ICommitModel;
+	commit: CommitModel;
 
 	/**
 	 * Gets or sets the node id.

@@ -1,5 +1,5 @@
 import { MilestoneClient } from "../clients/MilestoneClient.ts";
-import { IMilestoneModel } from "../core/Models/IMilestoneModel.ts";
+import { MilestoneModel } from "../core/Models/IMilestoneModel.ts";
 import { RepoClient } from "../clients/RepoClient.ts";
 import { Utils } from "../core/Utils.ts";
 
@@ -36,6 +36,6 @@ if (repoDoesNotExist) {
 
 const milestoneClient: MilestoneClient = new MilestoneClient(token);
 
-const milestone: IMilestoneModel = await milestoneClient.getMilestoneByName(repoName, milestoneName);
+const milestone: MilestoneModel = await milestoneClient.getMilestoneByName(repoName, milestoneName);
 
 await milestoneClient.closeMilestone(repoName, milestone.title);

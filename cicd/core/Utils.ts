@@ -1,10 +1,10 @@
 import { GitHubHttpStatusCodes, GitHubLogType } from "./Enums.ts";
 import { Guard } from "./Guard.ts";
-import { IIssueModel } from "./Models/IIssueModel.ts";
-import { ILabelModel } from "./Models/ILabelModel.ts";
-import { IProjectModel } from "./Models/IProjectModel.ts";
-import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
-import { IUserModel } from "./Models/IUserModel.ts";
+import { IssueModel } from "./Models/IssueModel.ts";
+import { LabelModel } from "./Models/LabelModel.ts";
+import { ProjectModel } from "./Models/ProjectModel.ts";
+import { PullRequestModel } from "./Models/PullRequestModel.ts";
+import { UserModel } from "./Models/UserModel.ts";
 
 /**
  * Provides utility functions.
@@ -79,8 +79,8 @@ export class Utils {
 	 * @param issuesOrPrs The issues or pull requests to filter.
 	 * @returns The issues from the given list of issues or pull requests.
 	 */
-	public static filterIssues(issuesOrPrs: (IIssueModel | IPullRequestModel)[]): IIssueModel[] {
-		return <IIssueModel[]> issuesOrPrs.filter((item) => this.isIssue(item));
+	public static filterIssues(issuesOrPrs: (IssueModel | PullRequestModel)[]): IssueModel[] {
+		return <IssueModel[]> issuesOrPrs.filter((item) => this.isIssue(item));
 	}
 
 	/**
@@ -88,8 +88,8 @@ export class Utils {
 	 * @param issuesOrPrs The issues or pull requests to filter.
 	 * @returns The pull requests from the given list of issues or pull requests.
 	 */
-	public static filterPullRequests(issuesOrPrs: (IIssueModel | IPullRequestModel)[]): IPullRequestModel[] {
-		return <IPullRequestModel[]> issuesOrPrs.filter((item) => this.isPr(item));
+	public static filterPullRequests(issuesOrPrs: (IssueModel | PullRequestModel)[]): PullRequestModel[] {
+		return <PullRequestModel[]> issuesOrPrs.filter((item) => this.isPr(item));
 	}
 
 	/**
@@ -97,7 +97,7 @@ export class Utils {
 	 * @param issueOrPr The issue or pull request to check.
 	 * @returns True if the given issue or pull request is an issue, otherwise false.
 	 */
-	public static isIssue(issueOrPr: IIssueModel | IPullRequestModel): issueOrPr is IIssueModel {
+	public static isIssue(issueOrPr: IssueModel | PullRequestModel): issueOrPr is IssueModel {
 		return !("pull_request" in issueOrPr);
 	}
 
@@ -106,7 +106,7 @@ export class Utils {
 	 * @param issueOrPr The issue or pull request to check.
 	 * @returns True if the given issue or pull request is a pull request, otherwise false.
 	 */
-	public static isPr(issueOrPr: IPullRequestModel | IIssueModel): issueOrPr is IPullRequestModel {
+	public static isPr(issueOrPr: PullRequestModel | IssueModel): issueOrPr is PullRequestModel {
 		return "pull_request" in issueOrPr;
 	}
 
@@ -322,7 +322,7 @@ export class Utils {
 	 * @param pr The pull request to compare with the issue.
 	 * @returns True if the assignees of the given {@link issue} and {@link pr} match, otherwise false.
 	 */
-	public static assigneesMatch(issueAssignees: IUserModel[], prAssignees: IUserModel[]): boolean {
+	public static assigneesMatch(issueAssignees: UserModel[], prAssignees: UserModel[]): boolean {
 		if (issueAssignees.length === 0 && prAssignees.length === 0) {
 			return true;
 		}
@@ -346,7 +346,7 @@ export class Utils {
 	 * @param pr The pull request to compare with the issue.
 	 * @returns True if the labels of the issue and pull request match, otherwise false.
 	 */
-	public static labelsMatch(issueLabels: ILabelModel[], prLabels: ILabelModel[]): boolean {
+	public static labelsMatch(issueLabels: LabelModel[], prLabels: LabelModel[]): boolean {
 		if (issueLabels.length === 0 && prLabels.length === 0) {
 			return true;
 		}
@@ -371,7 +371,7 @@ export class Utils {
 	 * @param prProjects The pull request projects to compare with the issue projects.
 	 * @returns True if the labels of the issue and pull request match, otherwise false.
 	 */
-	public static orgProjectsMatch(issueProjects: IProjectModel[], prProjects: IProjectModel[]): boolean {
+	public static orgProjectsMatch(issueProjects: ProjectModel[], prProjects: ProjectModel[]): boolean {
 		if (issueProjects.length === 0 && prProjects.length === 0) {
 			return true;
 		}

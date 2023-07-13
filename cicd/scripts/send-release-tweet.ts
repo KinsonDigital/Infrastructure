@@ -1,10 +1,10 @@
 import { TwitterClient } from "../clients/TwitterClient.ts";
-import { ITwitterAuthValues } from "../core/Models/ITwitterAuthValues.ts";
+import { TwitterAuthValues } from "../core/Models/ITwitterAuthValues.ts";
 import { Utils } from "../core/Utils.ts";
 import { ReleaseTweetBuilder } from "../core/ReleaseTweetBuilder.ts";
 import { OrgClient } from "../clients/OrgClient.ts";
 import { RepoClient } from "../clients/RepoClient.ts";
-import { IRepoVarModel } from "../core/Models/IRepoVarModel.ts";
+import { RepoVarModel } from "../core/Models/IRepoVarModel.ts";
 
 const scriptName = Utils.getScriptName();
 
@@ -52,7 +52,7 @@ const repoClient: RepoClient = new RepoClient(token);
 const orgVars = await orgClient.getVariables(orgName);
 const repoVars = await repoClient.getVariables(repoName);
 
-const allVars: IRepoVarModel[] = [];
+const allVars: RepoVarModel[] = [];
 
 const repoVarsNotInOrg = repoVars.filter((repoVar) => orgVars.find((orgVar) => orgVar.name === repoVar.name) === undefined);
 
@@ -102,7 +102,7 @@ const discordInviteCode = discordInviteCodeVar.value.trim();
 const templateRepoName = relativeTemplateFileRepoNameVar.value.trim();
 const relativeTemplateFilePath = relativeTemplateFilePathVar.value.trim();
 
-const authValues: ITwitterAuthValues = {
+const authValues: TwitterAuthValues = {
 	consumer_api_key: consumerAPIKey,
 	consumer_api_secret: consumerAPISecret,
 	access_token_key: accessTokenKey,

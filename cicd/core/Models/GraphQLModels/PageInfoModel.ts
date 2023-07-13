@@ -1,7 +1,7 @@
 /**
  * Holds information about a page of data when doing pagination type requests.
  */
-export interface IPageInfoModel {
+export type PageInfoModel = { 
 	/**
 	 * The start cursor of a single page.
 	 */

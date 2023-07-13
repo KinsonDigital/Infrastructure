@@ -1,11 +1,11 @@
-import { ILabelModel } from "./ILabelModel.ts";
-import { IMilestoneModel } from "./IMilestoneModel.ts";
-import { IUserModel } from "./IUserModel.ts";
+import { LabelModel } from "./LabelModel.ts";
+import { MilestoneModel } from "./MilestoneModel.ts";
+import { UserModel } from "./UserModel.ts";
 
 /**
  * Represents a GitHub issue.
  */
-export interface IIssueModel {
+export type IssueModel = {
 	/**
 	 * Gets or sets the number of the issue.
 	 */
@@ -24,7 +24,7 @@ export interface IIssueModel {
 	/**
 	 * Gets or sets the labels of the issue.
 	 */
-	labels: ILabelModel[];
+	labels: LabelModel[];
 
 	/**
 	 * Gets or sets the state of the issue.
@@ -44,10 +44,10 @@ export interface IIssueModel {
 	/**
 	 * Gets or sets the milestone.
 	 */
-	milestone?: IMilestoneModel;
+	milestone?: MilestoneModel;
 
 	/**
 	 * Gets or sets the assignees.
 	 */
-	assignees: IUserModel[];
+	assignees: UserModel[];
 }

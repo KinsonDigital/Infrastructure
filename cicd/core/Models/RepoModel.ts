@@ -1,7 +1,7 @@
 /**
  * Represents a GitHub repository.
  */
-export interface IRepoModel {
+export type RepoModel = { 
 	/**
 	 * Gets or sets the ID of the repository.
 	 */

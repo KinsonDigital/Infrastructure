@@ -1,9 +1,9 @@
-import { IOrgVarModel } from "./IOrgVarModel.ts";
+import { OrgVarModel } from "./OrgVarModel.ts";
 
 /**
  * Represents multiple variables for an organization.
  */
-export interface IOrgVariablesModel {
+export type OrgVariablesModel = {
 	/**
 	 * Gets or sets the total number of variables for an organization.
 	 */
@@ -12,5 +12,5 @@ export interface IOrgVariablesModel {
 	/**
 	 * Gets or sets the list of variables for an organization.
 	 */
-	variables: IOrgVarModel[];
+	variables: OrgVarModel[];
 }

@@ -1,6 +1,6 @@
 import { Guard } from "../core/Guard.ts";
 import { LabelClient } from "./LabelClient.ts";
-import { IPullRequestModel } from "../core/Models/IPullRequestModel.ts";
+import { PullRequestModel } from "../core/Models/IPullRequestModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { GitHubHttpStatusCodes, IssueOrPRState, MergeState } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
@@ -28,10 +28,10 @@ export class PullRequestClient extends GitHubClient {
 	 * @returns The pull request.
 	 * @remarks Does not require authentication.
 	 */
-	public async getAllOpenPullRequests(repoName: string): Promise<IPullRequestModel[]> {
+	public async getAllOpenPullRequests(repoName: string): Promise<PullRequestModel[]> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getAllOpenPullRequests", "repoName");
 
-		return await this.getAllData<IPullRequestModel>(async (page, qtyPerPage) => {
+		return await this.getAllData<PullRequestModel>(async (page, qtyPerPage) => {
 			return await this.getPullRequests(repoName, page, qtyPerPage, IssueOrPRState.open);
 		});
 	}
@@ -42,10 +42,10 @@ export class PullRequestClient extends GitHubClient {
 	 * @returns The pull request.
 	 * @remarks Does not require authentication.
 	 */
-	public async getAllClosedPullRequests(repoName: string): Promise<IPullRequestModel[]> {
+	public async getAllClosedPullRequests(repoName: string): Promise<PullRequestModel[]> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getAllClosedPullRequests", "repoName");
 
-		return await this.getAllData<IPullRequestModel>(async (page, qtyPerPage) => {
+		return await this.getAllData<PullRequestModel>(async (page, qtyPerPage) => {
 			return await this.getPullRequests(repoName, page, qtyPerPage, IssueOrPRState.closed);
 		});
 	}
@@ -75,7 +75,7 @@ export class PullRequestClient extends GitHubClient {
 		mergeState: MergeState = MergeState.any,
 		labels?: string[] | null,
 		milestoneNumber?: number,
-	): Promise<[IPullRequestModel[], Response]> {
+	): Promise<[PullRequestModel[], Response]> {
 		const functionName = "getPullRequests";
 		Guard.isNullOrEmptyOrUndefined(repoName, functionName, "repoName");
 		Guard.isLessThanOne(page, functionName, "page");
@@ -121,7 +121,7 @@ export class PullRequestClient extends GitHubClient {
 		}
 
 		// Get all of the pull requests that are with any merge state
-		const allPullRequests = (<IPullRequestModel[]> await this.getResponseData(response))
+		const allPullRequests = (<PullRequestModel[]> await this.getResponseData(response))
 			.filter((pr) => Utils.isPr(pr));
 
 		const filteredResults = allPullRequests.filter((pr) => {
@@ -163,7 +163,7 @@ export class PullRequestClient extends GitHubClient {
 	 * @returns The pull request.
 	 * @remarks Does not require authentication.
 	 */
-	public async getPullRequest(repoName: string, prNumber: number): Promise<IPullRequestModel> {
+	public async getPullRequest(repoName: string, prNumber: number): Promise<PullRequestModel> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getPullRequest", "repoName");
 		Guard.isLessThanOne(prNumber, "getPullRequest", "prNumber");
 
@@ -192,7 +192,7 @@ export class PullRequestClient extends GitHubClient {
 			Deno.exit(1);
 		}
 
-		return <IPullRequestModel> await this.getResponseData(response);
+		return <PullRequestModel> await this.getResponseData(response);
 	}
 
 	/**
@@ -420,7 +420,7 @@ export class PullRequestClient extends GitHubClient {
 		description = "",
 		maintainerCanModify = true,
 		isDraft = true,
-	): Promise<IPullRequestModel> {
+	): Promise<PullRequestModel> {
 		const funcName = "createPullRequest";
 		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
 		Guard.isNullOrEmptyOrUndefined(title, funcName, "title");
@@ -447,7 +447,7 @@ export class PullRequestClient extends GitHubClient {
 			Deno.exit(1);
 		}
 
-		const newPullRequest = await response.json() as IPullRequestModel;
+		const newPullRequest = await response.json() as PullRequestModel;
 
 		return newPullRequest;
 	}
@@ -469,17 +469,17 @@ export class PullRequestClient extends GitHubClient {
 
 		repoName = repoName.toLowerCase();
 
-		const issues = await this.getAllDataUntil<IPullRequestModel>(
+		const issues = await this.getAllDataUntil<PullRequestModel>(
 			async (page: number, qtyPerPage?: number) => {
 				return await this.getPullRequests(repoName, page, qtyPerPage, state);
 			},
 			1, // Start page
 			100, // Qty per page
-			(pageOfData: IPullRequestModel[]) => {
-				return pageOfData.some((issue: IPullRequestModel) => issue.number === prNumber);
+			(pageOfData: PullRequestModel[]) => {
+				return pageOfData.some((issue: PullRequestModel) => issue.number === prNumber);
 			},
 		);
 
-		return issues.find((issue: IPullRequestModel) => issue.number === prNumber) != undefined;
+		return issues.find((issue: PullRequestModel) => issue.number === prNumber) != undefined;
 	}
 }

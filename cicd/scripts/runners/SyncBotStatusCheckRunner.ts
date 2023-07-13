@@ -5,9 +5,9 @@ import { ProjectClient } from "../../clients/ProjectClient.ts";
 import { PullRequestClient } from "../../clients/PullRequestClient.ts";
 import { EventType } from "../../core/Types.ts";
 import { RepoClient } from "../../clients/RepoClient.ts";
-import { IPullRequestModel } from "../../core/Models/IPullRequestModel.ts";
-import { IIssueModel } from "../../core/Models/IIssueModel.ts";
-import { IProjectModel } from "../../core/Models/IProjectModel.ts";
+import { PullRequestModel } from "../../core/Models/IPullRequestModel.ts";
+import { IssueModel } from "../../core/Models/IIssueModel.ts";
+import { ProjectModel } from "../../core/Models/IProjectModel.ts";
 import { IIssueOrPRRequestData } from "../../core/IIssueOrPRRequestData.ts";
 import { IPRTemplateSettings } from "../../core/IPRTemplateSettings.ts";
 import { PRTemplateManager } from "../../core/PRTemplateManager.ts";
@@ -22,10 +22,10 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	private readonly projClient: ProjectClient;
 	private readonly prClient: PullRequestClient;
 	private readonly repoClient: RepoClient;
-	private issue: IIssueModel | null = null;
-	private pr: IPullRequestModel | null = null;
-	private issueProjects: IProjectModel[] | null = null;
-	private prProjects: IProjectModel[] | null = null;
+	private issue: IssueModel | null = null;
+	private pr: PullRequestModel | null = null;
+	private issueProjects: ProjectModel[] | null = null;
+	private prProjects: ProjectModel[] | null = null;
 	private readonly organization: string = "KinsonDigital";
 
 	/**
@@ -246,8 +246,8 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		issueNumber: number,
 		prNumber: number,
 	): Promise<IPRTemplateSettings> {
-		const issueProjects: IProjectModel[] = await this.getIssueOrgProjects(repoName, issueNumber);
-		const prProjects: IProjectModel[] = await this.getPullRequestOrgProjects(repoName, prNumber);
+		const issueProjects: ProjectModel[] = await this.getIssueOrgProjects(repoName, issueNumber);
+		const prProjects: ProjectModel[] = await this.getPullRequestOrgProjects(repoName, prNumber);
 
 		const issueTitle = (await this.getIssue(repoName, issueNumber)).title;
 		const issueAssignees = (await this.getIssue(repoName, issueNumber)).assignees;
@@ -294,7 +294,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @param issueNumber
 	 * @returns
 	 */
-	private async getIssue(repoName: string, issueNumber: number): Promise<IIssueModel> {
+	private async getIssue(repoName: string, issueNumber: number): Promise<IssueModel> {
 		if (this.issue === null) {
 			this.issue = await this.issueClient.getIssue(repoName, issueNumber);
 		}
@@ -310,7 +310,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @returns The pull request.
 	 * @remarks Caches the pull request on the first call.
 	 */
-	private async getPullRequest(repoName: string, prNumber: number): Promise<IPullRequestModel> {
+	private async getPullRequest(repoName: string, prNumber: number): Promise<PullRequestModel> {
 		if (this.pr === null) {
 			this.pr = await this.prClient.getPullRequest(repoName, prNumber);
 		}
@@ -362,7 +362,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @returns The projects associated with the issue.
 	 * @remarks Caches the projects on the first call.
 	 */
-	private async getIssueOrgProjects(repoName: string, issueNumber: number): Promise<IProjectModel[]> {
+	private async getIssueOrgProjects(repoName: string, issueNumber: number): Promise<ProjectModel[]> {
 		if (this.issueProjects === null) {
 			this.issueProjects = await this.projClient.getIssueProjects(repoName, issueNumber);
 		}
@@ -378,7 +378,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @returns The projects associated with the pull request.
 	 * @remarks Caches the projects on the first call.
 	 */
-	private async getPullRequestOrgProjects(repoName: string, prNumber: number): Promise<IProjectModel[]> {
+	private async getPullRequestOrgProjects(repoName: string, prNumber: number): Promise<ProjectModel[]> {
 		if (this.prProjects === null) {
 			this.prProjects = await this.projClient.getPullRequestProjects(repoName, prNumber);
 		}

@@ -7,9 +7,9 @@ import { UsersClient } from "../clients/UsersClient.ts";
 import { IssueState } from "../core/Enums.ts";
 import { IIssueOrPRRequestData } from "../core/IIssueOrPRRequestData.ts";
 import { IPRTemplateSettings } from "../core/IPRTemplateSettings.ts";
-import { IIssueModel } from "../core/Models/IIssueModel.ts";
-import { IProjectModel } from "../core/Models/IProjectModel.ts";
-import { IPullRequestModel } from "../core/Models/IPullRequestModel.ts";
+import { IssueModel } from "../core/Models/IssueModel.ts";
+import { ProjectModel } from "../core/Models/ProjectModel.ts";
+import { PullRequestModel } from "../core/Models/PullRequestModel.ts";
 import { PRTemplateManager } from "../core/PRTemplateManager.ts";
 import { Utils } from "../core/Utils.ts";
 
@@ -170,7 +170,7 @@ if (userIsNotOrgMember) {
 const prClient: PullRequestClient = new PullRequestClient(githubToken);
 
 const prTemplateManager = new PRTemplateManager(githubToken);
-let pr: IPullRequestModel = await prClient.getPullRequest(repoName, prNumber);
+let pr: PullRequestModel = await prClient.getPullRequest(repoName, prNumber);
 
 const prDoesNotExist = !(await prClient.pullRequestExists(repoName, prNumber));
 if (prDoesNotExist) {
@@ -203,7 +203,7 @@ if (issueDoesNotExist) {
 	Deno.exit(1);
 }
 
-const issue: IIssueModel = await issueClient.getIssue(repoName, issueNumber);
+const issue: IssueModel = await issueClient.getIssue(repoName, issueNumber);
 
 const issueLabels = issue.labels?.map((label) => label.name) ?? [];
 
@@ -233,7 +233,7 @@ if (defaultReviewerVarExists) {
 }
 
 const projectClient: ProjectClient = new ProjectClient(githubToken);
-const issueProjects: IProjectModel[] = await projectClient.getIssueProjects(repoName, issueNumber);
+const issueProjects: ProjectModel[] = await projectClient.getIssueProjects(repoName, issueNumber);
 
 // Add all of the issue org projects to the PR
 for (let i = 0; i < issueProjects.length; i++) {
@@ -267,7 +267,7 @@ Utils.printAsGitHubNotice(`PR link metadata ${subText} the description of issue 
 const allowedPRBaseBranches = await prTemplateManager.getAllowedPRBaseBranches(repoName);
 const prBaseBranchValid = allowedPRBaseBranches.some((branch) => branch === pr.base.ref);
 
-const prProjects: IProjectModel[] = await projectClient.getPullRequestProjects(repoName, prNumber);
+const prProjects: ProjectModel[] = await projectClient.getPullRequestProjects(repoName, prNumber);
 
 const syncSettings: IPRTemplateSettings = {
 	issueNumber: issueNumber,

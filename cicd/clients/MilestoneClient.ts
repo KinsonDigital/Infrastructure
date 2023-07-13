@@ -1,7 +1,7 @@
 import { Guard } from "../core/Guard.ts";
-import { IIssueModel } from "../core/Models/IIssueModel.ts";
-import { IMilestoneModel } from "../core/Models/IMilestoneModel.ts";
-import { IPullRequestModel } from "../core/Models/IPullRequestModel.ts";
+import { IssueModel } from "../core/Models/IIssueModel.ts";
+import { MilestoneModel } from "../core/Models/IMilestoneModel.ts";
+import { PullRequestModel } from "../core/Models/IPullRequestModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { GitHubHttpStatusCodes, IssueOrPRState, MergeState } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
@@ -68,14 +68,14 @@ export class MilestoneClient extends GitHubClient {
 	 * @returns The issues in the milestone.
 	 * @remarks Does not require authentication.
 	 */
-	public async getIssues(repoName: string, milestoneName: string, labels?: string[]): Promise<IIssueModel[]> {
+	public async getIssues(repoName: string, milestoneName: string, labels?: string[]): Promise<IssueModel[]> {
 		const funcName = "getIssues";
 		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
 		Guard.isNullOrEmptyOrUndefined(milestoneName, funcName, "milestoneName");
 
-		const milestone: IMilestoneModel = await this.getMilestoneByName(repoName, milestoneName);
+		const milestone: MilestoneModel = await this.getMilestoneByName(repoName, milestoneName);
 
-		return await this.getAllData<IIssueModel>(async (page, qtyPerPage) => {
+		return await this.getAllData<IssueModel>(async (page, qtyPerPage) => {
 			return await this.issueClient.getIssues(
 				repoName,
 				page,
@@ -100,14 +100,14 @@ export class MilestoneClient extends GitHubClient {
 		repoName: string,
 		milestoneName: string,
 		labels?: string[],
-	): Promise<IPullRequestModel[]> {
+	): Promise<PullRequestModel[]> {
 		const funcName = "getPullRequests";
 		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
 		Guard.isNullOrEmptyOrUndefined(milestoneName, funcName, "milestoneName");
 
-		const milestone: IMilestoneModel = await this.getMilestoneByName(repoName, milestoneName);
+		const milestone: MilestoneModel = await this.getMilestoneByName(repoName, milestoneName);
 
-		return await this.getAllData<IPullRequestModel>(async (page, qtyPerPage) => {
+		return await this.getAllData<PullRequestModel>(async (page, qtyPerPage) => {
 			return await this.prClient.getPullRequests(
 				repoName,
 				page,
@@ -127,7 +127,7 @@ export class MilestoneClient extends GitHubClient {
 	 * @returns The milestone.
 	 * @remarks Does not require authentication.
 	 */
-	public async getMilestoneByName(repoName: string, milestoneName: string): Promise<IMilestoneModel> {
+	public async getMilestoneByName(repoName: string, milestoneName: string): Promise<MilestoneModel> {
 		const funcName = "getMilestoneByName";
 		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
 		Guard.isNullOrEmptyOrUndefined(milestoneName, funcName, "milestoneName");
@@ -140,12 +140,12 @@ export class MilestoneClient extends GitHubClient {
 			},
 			1, // Start page
 			100, // Qty per page
-			(data: IMilestoneModel[]) => {
+			(data: MilestoneModel[]) => {
 				return data.some((m) => m.title.trim() === milestoneName);
 			},
 		);
 
-		const milestone: IMilestoneModel | undefined = milestones.find((m) => m.title.trim() === milestoneName);
+		const milestone: MilestoneModel | undefined = milestones.find((m) => m.title.trim() === milestoneName);
 
 		if (milestone === undefined) {
 			const errorMsg = `The milestone '${milestoneName}' could not be found.`;
@@ -164,7 +164,7 @@ export class MilestoneClient extends GitHubClient {
 	 * @param qtyPerPage The quantity of results to get per page.
 	 * @remarks Does not require authentication.
 	 */
-	public async getMilestones(repoName: string, page: number, qtyPerPage: number): Promise<[IMilestoneModel[], Response]> {
+	public async getMilestones(repoName: string, page: number, qtyPerPage: number): Promise<[MilestoneModel[], Response]> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getMilestones", "repoName");
 
 		page = page < 1 ? 1 : page;
@@ -184,7 +184,7 @@ export class MilestoneClient extends GitHubClient {
 			Deno.exit(1);
 		}
 
-		return [<IMilestoneModel[]> await this.getResponseData(response), response];
+		return [<MilestoneModel[]> await this.getResponseData(response), response];
 	}
 
 	/**
@@ -206,7 +206,7 @@ export class MilestoneClient extends GitHubClient {
 			},
 			1, // Start page
 			100, // Qty per page
-			(data: IMilestoneModel[]) => {
+			(data: MilestoneModel[]) => {
 				return data.some((m) => m.title.trim() === milestoneName);
 			},
 		);
@@ -227,7 +227,7 @@ export class MilestoneClient extends GitHubClient {
 		repoName = repoName.trim();
 		milestoneName = milestoneName.trim();
 
-		const milestone: IMilestoneModel = await this.getMilestoneByName(repoName, milestoneName);
+		const milestone: MilestoneModel = await this.getMilestoneByName(repoName, milestoneName);
 
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/milestones/${milestone.number}`;
 		const response: Response = await this.fetchPATCH(url, JSON.stringify({ state: "closed" }));

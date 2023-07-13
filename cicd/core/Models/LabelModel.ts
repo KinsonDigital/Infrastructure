@@ -1,7 +1,7 @@
 /**
  * Represents a GitHub label.
  */
-export interface ILabelModel {
+export type LabelModel = {
 	/**
 	 * The name of the label.
 	 */

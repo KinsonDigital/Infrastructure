@@ -1,7 +1,7 @@
 /**
  * Represents the JSON data returned when getting the contents of a GitHub repository file.
  */
-export interface IFileContentModel {
+export type FileContentModel = {
 	/**
 	 * Gets or sets the name of the file.
 	 */

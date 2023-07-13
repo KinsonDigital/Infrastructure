@@ -1,8 +1,8 @@
 import { GraphQLClient } from "../core/GraphQLClient.ts";
 import { createGetBranchesQuery } from "../core/GraphQLQueries/GetBranchesQuery.ts";
 import { Guard } from "../core/Guard.ts";
-import { IPageInfoModel } from "../core/Models/GraphQLModels/IPageInfoModel.ts";
-import { IGitBranchModel } from "../core/Models/GraphQLModels/IGitBranchModel.ts";
+import { PageInfoModel } from "../core/Models/GraphQLModels/PageInfoModel.ts";
+import { GitBranchModel } from "../core/Models/GraphQLModels/GitBranchModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { RepoClient } from "./RepoClient.ts";
 import { getCreateBranchMutation } from "../core/GraphQLMutations/CreateBranchMutation.ts";
@@ -38,10 +38,10 @@ export class GitClient extends GraphQLClient {
 	 * @param name The name of the branch.
 	 * @returns The branch.
 	 */
-	public async getBranch(name: string): Promise<IGitBranchModel> {
+	public async getBranch(name: string): Promise<GitBranchModel> {
 		Guard.isNullOrEmptyOrUndefined(name, "getBranch", "name");
 
-		const branches: IGitBranchModel[] = await this.getBranches((branch) => branch.name === name);
+		const branches: GitBranchModel[] = await this.getBranches((branch) => branch.name === name);
 
 		if (branches.length <= 0) {
 			Utils.printAsGitHubError(`The branch '${name}' does not exist.`);
@@ -57,9 +57,9 @@ export class GitClient extends GraphQLClient {
 	 * @returns The list of branches for the repository.
 	 * @remarks If the {@link untilPredicate} is not provided, all branches will be returned.
 	 */
-	public async getBranches(untilPredicate?: (branch: IGitBranchModel) => boolean): Promise<IGitBranchModel[]> {
-		const result: IGitBranchModel[] = [];
-		let pageInfo: IPageInfoModel = { hasNextPage: true, hasPreviousPage: false };
+	public async getBranches(untilPredicate?: (branch: GitBranchModel) => boolean): Promise<GitBranchModel[]> {
+		const result: GitBranchModel[] = [];
+		let pageInfo: PageInfoModel = { hasNextPage: true, hasPreviousPage: false };
 
 		// As long as there is another page worth of information
 		while (pageInfo.hasNextPage) {
@@ -71,9 +71,9 @@ export class GitClient extends GraphQLClient {
 
 			const responseData = await this.executeQuery(query);
 
-			pageInfo = <IPageInfoModel> responseData.data.repository.refs.pageInfo;
+			pageInfo = <PageInfoModel> responseData.data.repository.refs.pageInfo;
 
-			const branches = <IGitBranchModel[]> responseData.data.repository.refs.nodes.map((node: any) => {
+			const branches = <GitBranchModel[]> responseData.data.repository.refs.nodes.map((node: any) => {
 				return {
 					id: node.id,
 					name: node.name,
@@ -107,7 +107,7 @@ export class GitClient extends GraphQLClient {
 	public async branchExists(name: string): Promise<boolean> {
 		Guard.isNullOrEmptyOrUndefined(name, "branchExists", "name");
 
-		const branches: IGitBranchModel[] = await this.getBranches((branch) => branch.name === name);
+		const branches: GitBranchModel[] = await this.getBranches((branch) => branch.name === name);
 
 		return branches.some((branch) => branch.name === name);
 	}
@@ -117,7 +117,7 @@ export class GitClient extends GraphQLClient {
 	 * @param newBranchName The name of the branch.
 	 * @remarks Requires authentication.
 	 */
-	public async createBranch(newBranchName: string, branchFromName: string): Promise<IGitBranchModel> {
+	public async createBranch(newBranchName: string, branchFromName: string): Promise<GitBranchModel> {
 		const funcName = "createBranch";
 		Guard.isNullOrEmptyOrUndefined(newBranchName, funcName, "newBranchName");
 		Guard.isNullOrEmptyOrUndefined(branchFromName, funcName, "branchFromName");
