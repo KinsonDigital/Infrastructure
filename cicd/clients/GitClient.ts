@@ -6,6 +6,8 @@ import { GitBranchModel } from "../core/Models/GraphQLModels/GitBranchModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { RepoClient } from "./RepoClient.ts";
 import { getCreateBranchMutation } from "../core/GraphQLMutations/CreateBranchMutation.ts";
+import { RawRefsGetBranchModel } from "../core/Models/GraphQLModels/RawModels/RawRefsGetBranchModel.ts";
+import { RawGitBranchModel } from "../core/Models/GraphQLModels/RawModels/RawGitBranchModel.ts";
 
 /**
  * Provides a client for to perform git operations for a GitHub repository.
@@ -73,7 +75,9 @@ export class GitClient extends GraphQLClient {
 
 			pageInfo = <PageInfoModel> responseData.data.repository.refs.pageInfo;
 
-			const branches = <GitBranchModel[]> responseData.data.repository.refs.nodes.map((node: any) => {
+			const rawBranchData = <RawRefsGetBranchModel> responseData.data.repository.refs;
+			
+			const branches = <GitBranchModel[]> rawBranchData.nodes.map((node: RawGitBranchModel) => {
 				return {
 					id: node.id,
 					name: node.name,
