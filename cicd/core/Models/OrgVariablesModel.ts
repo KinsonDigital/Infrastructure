@@ -13,4 +13,4 @@ export type OrgVariablesModel = {
 	 * Gets or sets the list of variables for an organization.
 	 */
 	variables: OrgVarModel[];
-}
+};

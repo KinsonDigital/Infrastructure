@@ -50,4 +50,4 @@ export type IssueModel = {
 	 * Gets or sets the assignees.
 	 */
 	assignees: UserModel[];
-}
+};

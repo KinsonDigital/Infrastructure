@@ -18,4 +18,4 @@ export type PullRequestHeadOrBaseModel = {
 	 * Gets or sets the repository info.
 	 */
 	repo: RepoModel;
-}
+};

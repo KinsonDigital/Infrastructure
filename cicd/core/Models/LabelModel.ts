@@ -36,4 +36,4 @@ export type LabelModel = {
 	 * Gets or sets the default value of the label.
 	 */
 	default: false;
-}
+};

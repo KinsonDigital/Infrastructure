@@ -1,7 +1,7 @@
 /**
  * Represents a GitHub release.
  */
-export type ReleaseModel = { 
+export type ReleaseModel = {
 	/**
 	 * Gets or sets the release name.
 	 */
@@ -26,4 +26,4 @@ export type ReleaseModel = {
 	 * Gets or sets the URL to the GitHub webpage.
 	 */
 	html_url: string;
-}
+};

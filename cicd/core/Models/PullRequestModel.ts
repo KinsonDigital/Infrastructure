@@ -7,7 +7,7 @@ import { UserModel } from "./UserModel.ts";
 /**
  * Represents a GitHub pull request.
  */
-export type PullRequestModel  = { 
+export type PullRequestModel = {
 	/**
 	 * Gets or sets the ID of the pull request.
 	 */
@@ -87,4 +87,4 @@ export type PullRequestModel  = {
 	 * Gets or sets the base branch of the pull request.
 	 */
 	base: PullRequestHeadOrBaseModel;
-}
+};

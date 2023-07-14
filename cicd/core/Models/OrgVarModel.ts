@@ -26,4 +26,4 @@ export type OrgVarModel = {
 	 * Gets or sets the visibility of the variable.
 	 */
 	visibility: string;
-}
+};

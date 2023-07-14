@@ -18,4 +18,4 @@ export type RawGitBranchModel = {
 	 * Gets or sets the target of the branch.
 	 */
 	target: RawGetBranchTargetModel;
-}
+};

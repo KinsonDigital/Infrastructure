@@ -1,7 +1,7 @@
 /**
  * Represents a single repository variable.
  */
-export type RepoVarModel = { 
+export type RepoVarModel = {
 	/**
 	 * Gets or sets the name of the variable.
 	 */
@@ -21,4 +21,4 @@ export type RepoVarModel = {
 	 * Gets or sets the updated date of the variable.
 	 */
 	updated_at: string;
-}
+};

@@ -14,7 +14,8 @@ export const addCommitMutation = (
 	repoName: string,
 	branchName: string,
 	branchHeadOid: string,
-	commitMessage: string): string => {
+	commitMessage: string,
+): string => {
 	const repoNameWithOwner = `${repoOwner}/${repoName}`;
 
 	return `mutation {
@@ -29,4 +30,4 @@ export const addCommitMutation = (
 			commit { messageHeadline, messageBody }
 		}
 	}`;
-}
+};

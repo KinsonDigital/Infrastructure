@@ -77,7 +77,7 @@ export class GitClient extends GraphQLClient {
 			pageInfo = <PageInfoModel> responseData.data.repository.refs.pageInfo;
 
 			const rawBranchData = <RawRefsGetBranchModel> responseData.data.repository.refs;
-			
+
 			const branches = <GitBranchModel[]> rawBranchData.nodes.map((node: RawGitBranchModel) => {
 				return {
 					id: node.id,

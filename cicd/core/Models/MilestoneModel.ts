@@ -26,4 +26,4 @@ export type MilestoneModel = {
 	 * Gets or sets the number of closed issues for the milestone.
 	 */
 	closed_issues: number;
-}
+};

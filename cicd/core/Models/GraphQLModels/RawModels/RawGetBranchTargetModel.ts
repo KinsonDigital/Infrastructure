@@ -6,4 +6,4 @@ export type RawGetBranchTargetModel = {
 	 * Gets or sets the oid of the target.
 	 */
 	oid: string;
-}
+};

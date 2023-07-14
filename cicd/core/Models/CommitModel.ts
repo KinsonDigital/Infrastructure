@@ -11,4 +11,4 @@ export type CommitModel = {
 	 * Gets or sets the url.
 	 */
 	url: string;
-}
+};

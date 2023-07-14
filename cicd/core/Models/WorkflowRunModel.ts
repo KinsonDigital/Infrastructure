@@ -3,7 +3,7 @@ import { PullRequestModel } from "./PullRequestModel.ts";
 /**
  * Represents a single workflow run.
  */
-export type WorkflowRunModel = { 
+export type WorkflowRunModel = {
 	/**
 	 * Gets or sets the id of the workflow run.
 	 */
@@ -48,4 +48,4 @@ export type WorkflowRunModel = {
 	 * Gets or sets the pull request of the workflow run.
 	 */
 	pull_requests: PullRequestModel[];
-}
+};

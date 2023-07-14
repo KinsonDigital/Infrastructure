@@ -36,4 +36,4 @@ export type FileContentModel = {
 	 * Gets or sets the content of the file.
 	 */
 	content: string;
-}
+};

@@ -21,4 +21,4 @@ export type ProjectModel = {
 	 * Gets or sets the URL to the repo.
 	 */
 	url: string;
-}
+};
