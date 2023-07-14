@@ -9,7 +9,7 @@ export class Guard {
 	 * @param value The value to check.
 	 * @returns True if the value is null, undefined, or empty, otherwise false.
 	 */
-	public static isNullOrEmptyOrUndefined(value: string | undefined | null, funcName = "", paramName = ""): void {
+	public static isNullOrEmptyOrUndefined<T>(value: undefined | null | string | T[], funcName = "", paramName = ""): void {
 		if (Utils.isNullOrEmptyOrUndefined(value)) {
 			Utils.printAsGitHubError("The value is null, undefined, or empty.");
 
