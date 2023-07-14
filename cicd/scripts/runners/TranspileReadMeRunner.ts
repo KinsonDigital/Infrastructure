@@ -159,7 +159,7 @@ export class TranspileReadMeRunner extends ScriptRunner {
 
 		for (let i = 0; i < lines.length; i++) {
 			if (this.markdownStartingWithWhiteSpaceRegEx.test(lines[i])) {
-				lines[i] = Utils.removeStartingWhiteSpace(lines[i]);
+				lines[i] = Utils.trimAllStartingWhiteSpace(lines[i]);
 			}
 		}
 

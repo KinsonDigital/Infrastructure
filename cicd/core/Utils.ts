@@ -457,15 +457,37 @@ export class Utils {
 	 * @param value The value to remove the starting white space from.
 	 * @returns The given {@link value} with the starting white space removed.
 	 */
-	public static removeStartingWhiteSpace(value: string): string {
+	public static trimAllStartingWhiteSpace(value: string): string {
 		if (Utils.isNullOrEmptyOrUndefined(value)) {
 			return value;
 		}
 
-		while (value.startsWith(" ") || value.startsWith("\t")) {
-			value = value.slice(1);
-		}
+		Utils.trimAllStartingValue(value, "");
+		Utils.trimAllStartingValue(value, "\t");
 
 		return value;
+	}
+
+	/**
+	 * Trims the given {@link valueToRemove} from the start of the given {@link valueToTrim}
+	 * until the {@link valueToRemove} does not exit anymore.
+	 * @param valueToTrim The value to trim the starting value from.
+	 * @param valueToRemove The starting value to trim.
+	 * @returns The given {@link valueToTrim} with the starting value trimmed.
+	 */
+	public static trimAllStartingValue(valueToTrim: string, valueToRemove: string): string {
+		if (Utils.isNullOrEmptyOrUndefined(valueToTrim)) {
+			return valueToTrim;
+		}
+
+		if (Utils.isNullOrEmptyOrUndefined(valueToRemove)) {
+			return valueToTrim;
+		}
+
+		while (valueToTrim.startsWith(valueToRemove)) {
+			valueToTrim = valueToTrim.slice(1);
+		}
+
+		return valueToTrim;
 	}
 }
