@@ -8,6 +8,7 @@ import { RepoClient } from "./RepoClient.ts";
 import { getCreateBranchMutation } from "../core/GraphQLMutations/CreateBranchMutation.ts";
 import { RawRefsGetBranchModel } from "../core/Models/GraphQLModels/RawModels/RawRefsGetBranchModel.ts";
 import { RawGitBranchModel } from "../core/Models/GraphQLModels/RawModels/RawGitBranchModel.ts";
+import { addCommitMutation } from "../core/GraphQLMutations/AddCommitMutation.ts";
 
 /**
  * Provides a client for to perform git operations for a GitHub repository.
@@ -152,5 +153,22 @@ export class GitClient extends GraphQLClient {
 			name: newBranch.name,
 			oid: newBranch.target.oid,
 		};
+	}
+
+	/**
+	 * Adds a commit with the given {@link commitMessage} to a branch with the given {@link branchName}.
+	 * @param branchName The name of the branch.
+	 * @param commitMessage The commit message.
+	 */
+	public async addCommit(branchName: string, commitMessage: string): Promise<void> {
+		const funcName = "addCommit";
+		Guard.isNullOrEmptyOrUndefined(branchName, funcName, "branchName");
+		Guard.isNullOrEmptyOrUndefined(commitMessage, funcName, "commitMessage");
+
+		const branch = await this.getBranch(branchName);
+
+		const mutation = addCommitMutation(this.repoOwner, this.repoName, branchName, branch.oid, commitMessage);
+
+		await this.executeQuery(mutation);
 	}
 }
