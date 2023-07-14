@@ -490,4 +490,13 @@ export class Utils {
 
 		return valueToTrim;
 	}
+
+	/**
+	 * Encodes the given {@link value} to base64.
+	 * @param value The value to encode.
+	 * @returns The encoded value.
+	 */
+	public static encodeToBase64(value: string): string {
+		return btoa(value);
+	}
 }
