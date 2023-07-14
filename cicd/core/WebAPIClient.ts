@@ -25,7 +25,7 @@ export abstract class WebAPIClient {
 	 * @param url The URL of the request.
 	 * @returns The response from the request.
 	 */
-	protected async fetchGET(url: string): Promise<Response> {
+	protected async requestGET(url: string): Promise<Response> {
 		Guard.isNullOrEmptyOrUndefined(url, "fetchGET", "url");
 
 		return await fetch(url, {
@@ -40,7 +40,7 @@ export abstract class WebAPIClient {
 	 * @param body The body of the request.
 	 * @returns The response from the request.
 	 */
-	protected async fetchPOST(url: string, body: string): Promise<Response> {
+	protected async requestPOST(url: string, body: string): Promise<Response> {
 		const funcName = "fetchPOST";
 		Guard.isNullOrEmptyOrUndefined(url, funcName, "url");
 		Guard.isNullOrEmptyOrUndefined(body, funcName, "body");
@@ -58,7 +58,7 @@ export abstract class WebAPIClient {
 	 * @param body The body of the request.
 	 * @returns The response from the request.
 	 */
-	protected async fetchPATCH(url: string, body: string): Promise<Response> {
+	protected async requestPATCH(url: string, body: string): Promise<Response> {
 		const funcName = "fetchPATCH";
 		Guard.isNullOrEmptyOrUndefined(url, funcName, "url");
 		Guard.isNullOrEmptyOrUndefined(body, funcName, "body");
@@ -75,7 +75,7 @@ export abstract class WebAPIClient {
 	 * @param url The URL of the request.
 	 * @returns The response from the request.
 	 */
-	protected async fetchDELETE(url: string): Promise<Response> {
+	protected async requestDELETE(url: string): Promise<Response> {
 		Guard.isNullOrEmptyOrUndefined(url, "fetchDELETE", "url");
 
 		return await fetch(url, {
@@ -90,7 +90,7 @@ export abstract class WebAPIClient {
 	 * @param body The body of the request.
 	 * @returns The response from the request.
 	 */
-	protected async fetchPUT(url: string, body: string): Promise<Response> {
+	protected async requestPUT(url: string, body: string): Promise<Response> {
 		const funcName = "fetchPUT";
 		Guard.isNullOrEmptyOrUndefined(url, funcName, "url");
 		Guard.isNullOrEmptyOrUndefined(body, funcName, "body");

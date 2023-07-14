@@ -28,7 +28,7 @@ export class UsersClient extends GitHubClient {
 		// REST API Docs: https://docs.github.com/en/rest/users/users?apiVersion=2022-11-28#get-a-user
 		const url = `${this.baseUrl}/users/${userName}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status === GitHubHttpStatusCodes.NotFound) {
@@ -50,7 +50,7 @@ export class UsersClient extends GitHubClient {
 		// REST API Docs: https://docs.github.com/en/rest/users/users?apiVersion=2022-11-28#get-a-user
 		const url = `${this.baseUrl}/users/${userName}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status === GitHubHttpStatusCodes.NotFound) {

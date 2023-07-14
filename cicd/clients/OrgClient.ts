@@ -41,7 +41,7 @@ export class OrgClient extends GitHubClient {
 		const queryString = `?role=${role}&page=${page}&per_page=${qtyPerPage}`;
 		const url = `${this.baseUrl}/orgs/${organization}/members${queryString}`;
 
-		const response = await this.fetchGET(url);
+		const response = await this.requestGET(url);
 
 		if (response.status != GitHubHttpStatusCodes.OK) {
 			let errorMsg = `An error occurred when getting the private members for the organization '${this.organization}'.`;
@@ -76,7 +76,7 @@ export class OrgClient extends GitHubClient {
 		const queryString = `?role=${role}&page=${page}&per_page=${qtyPerPage}`;
 		const url = `${this.baseUrl}/orgs/${organization}/public_members${queryString}`;
 
-		const response = await this.fetchGET(url);
+		const response = await this.requestGET(url);
 
 		if (response.status != GitHubHttpStatusCodes.OK) {
 			let errorMsg = `An error occurred when getting the private members for the organization '${this.organization}'.`;
@@ -235,7 +235,7 @@ export class OrgClient extends GitHubClient {
 			const queryString = `?page=${page}&per_page=${qtyPerPage}`;
 			const url = `${this.baseUrl}/orgs/${organization}/actions/variables${queryString}`;
 
-			const response = await this.fetchGET(url);
+			const response = await this.requestGET(url);
 
 			if (response.status != GitHubHttpStatusCodes.OK) {
 				let errorMsg = `An error occurred when getting the variables for the organization '${this.organization}'.`;

@@ -69,7 +69,7 @@ export class RepoClient extends GitHubClient {
 		const queryParams = `?page=${page}&per_page=${qtyPerPage}`;
 		const url = `${this.baseUrl}/users/${this.organization}/repos${queryParams}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status === GitHubHttpStatusCodes.NotFound) {
@@ -95,7 +95,7 @@ export class RepoClient extends GitHubClient {
 
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status === GitHubHttpStatusCodes.NotFound) {
@@ -132,7 +132,7 @@ export class RepoClient extends GitHubClient {
 
 		const url = `https://api.github.com/repos/${this.organization}/${repoName}/contents${relativeFilePath}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		switch (response.status) {
 			case GitHubHttpStatusCodes.NotFound:
@@ -169,7 +169,7 @@ export class RepoClient extends GitHubClient {
 
 		const url = `https://api.github.com/repos/${this.organization}/${repoName}/contents${relativeFilePath}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		if (response.status === GitHubHttpStatusCodes.NotFound) {
 			return false;
@@ -190,7 +190,7 @@ export class RepoClient extends GitHubClient {
 			const queryString = `?page=${page}&per_page=${qtyPerPage}`;
 			const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/actions/variables${queryString}`;
 
-			const response = await this.fetchGET(url);
+			const response = await this.requestGET(url);
 
 			if (response.status != GitHubHttpStatusCodes.OK) {
 				let errorMsg = `An error occurred when getting the variables for the organization '${this.organization}'.`;
@@ -233,7 +233,7 @@ export class RepoClient extends GitHubClient {
 		};
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/contents/${relativeFilePath}`;
 
-		const response = await this.fetchPUT(url, JSON.stringify(body));
+		const response = await this.requestPUT(url, JSON.stringify(body));
 
 		if (response.status != GitHubHttpStatusCodes.OK && response.status != GitHubHttpStatusCodes.Created) {
 			let errorMsg = `An error occurred when creating the file '${relativeFilePath}' in the repository '${repoName}'`;

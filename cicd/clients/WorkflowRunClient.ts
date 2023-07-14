@@ -58,7 +58,7 @@ export class WorkflowRunClient extends GitHubClient {
 		const queryParams = `?page=${page}&per_page=${qtyPerPage}${branchParam}${eventParam}${statusParam}`;
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/actions/runs${queryParams}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status != GitHubHttpStatusCodes.OK) {
@@ -383,7 +383,7 @@ export class WorkflowRunClient extends GitHubClient {
 
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/actions/runs/${workflowRun.id}`;
 
-		const response: Response = await this.fetchDELETE(url);
+		const response: Response = await this.requestDELETE(url);
 
 		// If there is an error
 		switch (response.status) {

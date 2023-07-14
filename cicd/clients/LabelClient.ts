@@ -33,7 +33,7 @@ export class LabelClient extends GitHubClient {
 
 		const queryParams = `?page=${page}&per_page${qtyPerPage}`;
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/labels${queryParams}`;
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		if (response.status === GitHubHttpStatusCodes.NotFound) {
 			Utils.printAsGitHubError(`${response.status} - ${response.statusText}`);
@@ -78,7 +78,7 @@ export class LabelClient extends GitHubClient {
 		Guard.isNullOrEmptyOrUndefined(label, funcName, "label");
 
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/labels/${label}`;
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		if (response.status === GitHubHttpStatusCodes.NotFound) {
 			return false;

@@ -97,7 +97,7 @@ export class PullRequestClient extends GitHubClient {
 			`?page=${page}&per_page=${qtyPerPage}&state=${state}${labelListQueryParam}${milestoneNumberQueryParam}`;
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues${queryParams}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status != GitHubHttpStatusCodes.OK) {
@@ -170,7 +170,7 @@ export class PullRequestClient extends GitHubClient {
 		// REST API Docs: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#get-a-pull-request
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/pulls/${prNumber}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status != GitHubHttpStatusCodes.OK) {
@@ -233,7 +233,7 @@ export class PullRequestClient extends GitHubClient {
 
 		// REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${prNumber}`;
-		const response: Response = await this.fetchPATCH(url, JSON.stringify({ labels: prLabels }));
+		const response: Response = await this.requestPATCH(url, JSON.stringify({ labels: prLabels }));
 
 		// If there is an error
 		if (response.status != GitHubHttpStatusCodes.OK) {
@@ -271,7 +271,7 @@ export class PullRequestClient extends GitHubClient {
 		// REST API Docs: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#list-pull-requests
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/pulls/${prNumber}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status != GitHubHttpStatusCodes.OK) {
@@ -330,7 +330,7 @@ export class PullRequestClient extends GitHubClient {
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${prNumber}`;
 
 		const prBody: string = JSON.stringify(prRequestData);
-		const response = await this.fetchPATCH(url, prBody);
+		const response = await this.requestPATCH(url, prBody);
 
 		if (response.status != GitHubHttpStatusCodes.OK) {
 			if (response.status === GitHubHttpStatusCodes.NotFound) {
@@ -374,7 +374,7 @@ export class PullRequestClient extends GitHubClient {
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/pulls/${prNumber}/requested_reviewers`;
 		const body = JSON.stringify({ reviewers: [reviewer] });
 
-		const response = await this.fetchPOST(url, body);
+		const response = await this.requestPOST(url, body);
 
 		if (response.status != GitHubHttpStatusCodes.Created) {
 			let errorMsg = `An error occurred trying to request the reviewer '${reviewer}' for pull request '${prNumber}'.`;
@@ -439,7 +439,7 @@ export class PullRequestClient extends GitHubClient {
 			draft: isDraft,
 		};
 
-		const response = await this.fetchPOST(url, JSON.stringify(body));
+		const response = await this.requestPOST(url, JSON.stringify(body));
 
 		if (response.status != GitHubHttpStatusCodes.Created) {
 			const errorMsg = `Error: ${response.status}(${response.statusText})`;

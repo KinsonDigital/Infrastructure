@@ -38,7 +38,7 @@ export class TagClient extends GitHubClient {
 		const queryParams = `?page=${page}&per_page=${qtyPerPage}`;
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/tags${queryParams}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status === GitHubHttpStatusCodes.NotFound) {

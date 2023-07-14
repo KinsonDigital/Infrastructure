@@ -96,7 +96,7 @@ export class IssueClient extends GitHubClient {
 			`?page=${page}&per_page=${qtyPerPage}&state=${state}${labelListQueryParam}${milestoneNumberQueryParam}`;
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues${queryParams}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status != GitHubHttpStatusCodes.OK) {
@@ -137,7 +137,7 @@ export class IssueClient extends GitHubClient {
 		// REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#get-an-issue
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${issueNumber}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status != GitHubHttpStatusCodes.OK) {
@@ -210,7 +210,7 @@ export class IssueClient extends GitHubClient {
 		// REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${issueNumber}`;
 
-		const response: Response = await this.fetchPATCH(url, JSON.stringify({ labels: prLabels }));
+		const response: Response = await this.requestPATCH(url, JSON.stringify({ labels: prLabels }));
 
 		// If there is an error
 		if (response.status != GitHubHttpStatusCodes.OK) {
@@ -249,7 +249,7 @@ export class IssueClient extends GitHubClient {
 
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${issueNumber}/labels`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status != GitHubHttpStatusCodes.OK) {
@@ -333,7 +333,7 @@ export class IssueClient extends GitHubClient {
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${issueNumber}`;
 
 		const issueBody: string = JSON.stringify(issueData);
-		const response = await this.fetchPATCH(url, issueBody);
+		const response = await this.requestPATCH(url, issueBody);
 
 		if (response.status != GitHubHttpStatusCodes.OK) {
 			if (response.status === GitHubHttpStatusCodes.NotFound) {
