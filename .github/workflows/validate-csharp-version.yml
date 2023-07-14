@@ -27,8 +27,8 @@ on:
         value: ${{ jobs.validate_version.outputs.version }}
     secrets:
       cicd-pat:
-        description: The CICD personal access token.
         required: true
+        description: The CICD personal access token.
         
 
 

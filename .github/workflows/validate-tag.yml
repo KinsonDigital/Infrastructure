@@ -27,8 +27,8 @@ on:
         type: string
     secrets:
       cicd-pat:
-        description: The CICD personal access token.
         required: true
+        description: The CICD personal access token.
       
         
 jobs:

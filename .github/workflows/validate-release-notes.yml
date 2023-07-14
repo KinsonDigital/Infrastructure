@@ -31,8 +31,8 @@ on:
         type: string
     secrets:
       cicd-pat:
-        description: The CICD personal access token.
         required: true
+        description: The CICD personal access token.
       
 
 jobs:
@@ -73,7 +73,7 @@ jobs:
           if (($version -match $prodVersionRegex) -or ($version -match $prevVersionRegex)) {
             Write-Host "::notice::The version is valid.";
           } else {
-            Write-Host "::error::The version is not valid.\nThe version format is: 'v#.#.#' -r 'v#.#.#-preview.#'";
+            Write-Host "::error::The version is not valid.\nThe version format is: 'v#.#.#' or 'v#.#.#-preview.#'";
             exit 1;
           }
 

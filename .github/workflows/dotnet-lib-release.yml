@@ -70,23 +70,23 @@ on:
         type: boolean
     secrets:
       cicd-pat:
+        required: true
         description: The CICD personal access token.
-        required: true
       nuget-org-api-key:
-        description: The NuGet.org API key.
         required: true
+        description: The NuGet.org API key.
       twitter-consumer-api-key:
+        required: false
         description: The Twitter consumer API key.
-        required: false
       twitter-consumer-api-secret:
+        required: false
         description: The Twitter consumer API secret.
-        required: false
       twitter-access-token:
+        required: false
         description: The Twitter access token.
-        required: false
       twitter-access-token-secret:
-        description: The Twitter access token secret.
         required: false
+        description: The Twitter access token secret.
   
 
 jobs:
