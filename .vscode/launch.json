@@ -379,6 +379,33 @@
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
+        },
+		{
+            "name": "Generate Release Notes (DEBUG)",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/generate-release-notes.ts",
+            "cwd": "${workspaceFolder}/cicd",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": [
+				"KinsonDigital",
+				"Velaptor",
+				"preview",
+				"v1.0.0-preview.22",
+				"${workspaceFolder}",
+				"${env:CICD_REST_API}",
+			],
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
         }
     ]
 }
