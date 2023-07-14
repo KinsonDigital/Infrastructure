@@ -49,12 +49,12 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 
 		super(args);
 
-		const githubToken = args[args.length - 1];
-		this.prTemplateManager = new PRTemplateManager(githubToken);
-		this.repoClient = new RepoClient(githubToken);
-		this.issueClient = new IssueClient(githubToken);
-		this.projClient = new ProjectClient(githubToken);
-		this.prClient = new PullRequestClient(githubToken);
+		const token = (args.at(-1) ?? "").trim();
+		this.prTemplateManager = new PRTemplateManager(token);
+		this.repoClient = new RepoClient(token);
+		this.issueClient = new IssueClient(token);
+		this.projClient = new ProjectClient(token);
+		this.prClient = new PullRequestClient(token);
 	}
 
 	/**

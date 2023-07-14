@@ -49,7 +49,7 @@ export class ValidateReleaseNotesRunner extends ScriptRunner {
 
 		this.scriptName = scriptName;
 
-		const token = args[4].trim();
+		const token = (args.at(-1) ?? "").trim();
 		this.orgClient = new OrgClient(token);
 		this.repoClient = new RepoClient(token);
 		this.labelClient = new LabelClient(token);
