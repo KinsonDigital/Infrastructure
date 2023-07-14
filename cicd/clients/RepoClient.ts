@@ -205,4 +205,43 @@ export class RepoClient extends GitHubClient {
 			return [vars.variables, response];
 		});
 	}
+
+	/**
+	 * Creates a file in a repository with a name that matches the given {@link repoName}, on a branch
+	 * that matches the given {@link branchName}, at a relative path that matches the given {@link relativeFilePath},
+	 * where the content is the given {@link fileContent}, and the commit message is the given {@link commitMessage}.
+	 * @param repoName The name of the repository.
+	 * @param branchName The name of the branch.
+	 * @param relativeFilePath The relative path of where to add the file.
+	 * @param fileContent The content of the file.
+	 * @param commitMessage The commit message.
+	 */
+	public async createFile(
+		repoName: string,
+		branchName: string,
+		relativeFilePath: string,
+		fileContent: string,
+		commitMessage: string,
+	): Promise<void> {
+		relativeFilePath = relativeFilePath.replaceAll("\\", "/");
+		Utils.trimAllStartingValue("/", relativeFilePath);
+
+		const body = {
+			message: commitMessage,
+			content: Utils.encodeToBase64(fileContent),
+			branch: branchName,
+		};
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/contents/${relativeFilePath}`;
+
+		const response = await this.fetchPUT(url, JSON.stringify(body));
+
+		if (response.status != GitHubHttpStatusCodes.OK && response.status != GitHubHttpStatusCodes.Created) {
+			let errorMsg = `An error occurred when creating the file '${relativeFilePath}' in the repository '${repoName}'`;
+			errorMsg += ` for branch '${branchName}'.`
+			errorMsg += `\nError: ${response.status}(${response.statusText})`;
+
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
+	}
 }
