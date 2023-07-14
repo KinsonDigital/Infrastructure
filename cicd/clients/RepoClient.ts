@@ -12,7 +12,7 @@ import { RepoVariablesModel } from "../core/Models/RepoVariablesModel.ts";
  * Provides a client for interacting with GitHub repositories.
  */
 export class RepoClient extends GitHubClient {
-	private readonly newLineBase64 = btoa("\n");
+	private readonly newLineBase64 = Utils.encodeToBase64("\n");
 
 	/**
 	 * Initializes a new instance of the {@link RepoClient} class.

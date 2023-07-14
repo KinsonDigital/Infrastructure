@@ -41,7 +41,9 @@ export abstract class WebAPIClient {
 	 * @returns The response from the request.
 	 */
 	protected async fetchPOST(url: string, body: string): Promise<Response> {
-		Guard.isNullOrEmptyOrUndefined(url, "fetchPOST", "url");
+		const funcName = "fetchPOST";
+		Guard.isNullOrEmptyOrUndefined(url, funcName, "url");
+		Guard.isNullOrEmptyOrUndefined(body, funcName, "body");
 
 		return await fetch(url, {
 			method: "POST",
@@ -57,8 +59,9 @@ export abstract class WebAPIClient {
 	 * @returns The response from the request.
 	 */
 	protected async fetchPATCH(url: string, body: string): Promise<Response> {
-		Guard.isNullOrEmptyOrUndefined(url, "fetchGET", "url");
-		Guard.isNullOrEmptyOrUndefined(body, "fetchGET", "body");
+		const funcName = "fetchPATCH";
+		Guard.isNullOrEmptyOrUndefined(url, funcName, "url");
+		Guard.isNullOrEmptyOrUndefined(body, funcName, "body");
 
 		return await fetch(url, {
 			method: "PATCH",
@@ -70,7 +73,6 @@ export abstract class WebAPIClient {
 	/**
 	 * Deletes a resource by performing an HTTP request using the DELETE method.
 	 * @param url The URL of the request.
-	 * @param body The body of the request.
 	 * @returns The response from the request.
 	 */
 	protected async fetchDELETE(url: string): Promise<Response> {
