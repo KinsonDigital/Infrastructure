@@ -1,6 +1,6 @@
 import { MilestoneClient } from "../clients/MilestoneClient.ts";
-import { IssueModel } from "../core/Models/IIssueModel.ts";
-import { PullRequestModel } from "../core/Models/IPullRequestModel.ts";
+import { IssueModel } from "../core/Models/IssueModel.ts";
+import { PullRequestModel } from "../core/Models/PullRequestModel.ts";
 import { RepoClient } from "../clients/RepoClient.ts";
 import { Utils } from "../core/Utils.ts";
 

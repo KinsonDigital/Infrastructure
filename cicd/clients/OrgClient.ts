@@ -1,9 +1,9 @@
 import { GitHubHttpStatusCodes, OrgMemberRole } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
 import { Guard } from "../core/Guard.ts";
-import { OrgVarModel } from "../core/Models/IOrgVarModel.ts";
-import { OrgVariablesModel } from "../core/Models/IOrgVariablesModel.ts";
-import { UserModel } from "../core/Models/IUserModel.ts";
+import { OrgVarModel } from "../core/Models/OrgVarModel.ts";
+import { OrgVariablesModel } from "../core/Models/OrgVariablesModel.ts";
+import { UserModel } from "../core/Models/UserModel.ts";
 import { Utils } from "../core/Utils.ts";
 
 /**

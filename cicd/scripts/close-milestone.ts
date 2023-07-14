@@ -1,5 +1,5 @@
 import { MilestoneClient } from "../clients/MilestoneClient.ts";
-import { MilestoneModel } from "../core/Models/IMilestoneModel.ts";
+import { MilestoneModel } from "../core/Models/MilestoneModel.ts";
 import { RepoClient } from "../clients/RepoClient.ts";
 import { Utils } from "../core/Utils.ts";
 

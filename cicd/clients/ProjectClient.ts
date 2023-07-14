@@ -1,5 +1,5 @@
 import { createOrgProjectsQuery } from "../core/GraphQLQueries/GetOrgProjectsQueries.ts";
-import { ProjectModel } from "../core/Models/IProjectModel.ts";
+import { ProjectModel } from "../core/Models/ProjectModel.ts";
 import { GraphQLClient } from "../core/GraphQLClient.ts";
 import { Guard } from "../core/Guard.ts";
 import { Utils } from "../core/Utils.ts";

@@ -2,8 +2,8 @@ import { Guard } from "../core/Guard.ts";
 import { Utils } from "../core/Utils.ts";
 import { GitHubHttpStatusCodes, WorkflowEvent, WorkflowRunStatus } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
-import { WorkflowRunModel } from "../core/Models/IWorkflowRunModel.ts";
-import { WorkflowRunsModel } from "../core/Models/IWorkflowRunsModel.ts";
+import { WorkflowRunModel } from "../core/Models/WorkflowRunModel.ts";
+import { WorkflowRunsModel } from "../core/Models/WorkflowRunsModel.ts";
 import { AnyBranch } from "../core/Types.ts";
 
 /**

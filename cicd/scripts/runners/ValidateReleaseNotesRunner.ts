@@ -4,11 +4,11 @@ import { RepoClient } from "../../clients/RepoClient.ts";
 import { LabelClient } from "../../clients/LabelClient.ts";
 import { MilestoneClient } from "../../clients/MilestoneClient.ts";
 import { Utils } from "../../core/Utils.ts";
-import { RepoVarModel } from "../../core/Models/IRepoVarModel.ts";
+import { RepoVarModel } from "../../core/Models/RepoVarModel.ts";
 import { File } from "../../core/File.ts";
-import { IssueModel } from "../../core/Models/IIssueModel.ts";
-import { PullRequestModel } from "../../core/Models/IPullRequestModel.ts";
-import { LabelModel } from "../../core/Models/ILabelModel.ts";
+import { IssueModel } from "../../core/Models/IssueModel.ts";
+import { PullRequestModel } from "../../core/Models/PullRequestModel.ts";
+import { LabelModel } from "../../core/Models/LabelModel.ts";
 import { GitHubLogType } from "../../core/Enums.ts";
 
 /**

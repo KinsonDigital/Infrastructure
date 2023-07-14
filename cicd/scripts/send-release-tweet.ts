@@ -1,10 +1,10 @@
 import { TwitterClient } from "../clients/TwitterClient.ts";
-import { TwitterAuthValues } from "../core/Models/ITwitterAuthValues.ts";
+import { TwitterAuthValues } from "../core/Models/TwitterAuthValues.ts";
+import { RepoVarModel } from "../core/Models/RepoVarModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { ReleaseTweetBuilder } from "../core/ReleaseTweetBuilder.ts";
 import { OrgClient } from "../clients/OrgClient.ts";
 import { RepoClient } from "../clients/RepoClient.ts";
-import { RepoVarModel } from "../core/Models/IRepoVarModel.ts";
 
 const scriptName = Utils.getScriptName();
 

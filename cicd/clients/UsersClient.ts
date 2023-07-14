@@ -2,7 +2,7 @@ import { Guard } from "../core/Guard.ts";
 import { Utils } from "../core/Utils.ts";
 import { GitHubHttpStatusCodes } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
-import { UserModel } from "../core/Models/IUserModel.ts";
+import { UserModel } from "../core/Models/UserModel.ts";
 
 /**
  * Provides a client for interacting with users.

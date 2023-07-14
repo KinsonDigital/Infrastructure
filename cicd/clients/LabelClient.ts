@@ -1,4 +1,4 @@
-import { LabelModel } from "../core/Models/ILabelModel.ts";
+import { LabelModel } from "../core/Models/LabelModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { GitHubHttpStatusCodes } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
