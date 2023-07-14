@@ -49,7 +49,7 @@ export class Utils {
 	 * @returns True if the value is null, undefined, or empty, otherwise false.
 	 */
 	public static isNullOrEmptyOrUndefined<T>(
-		value: undefined | null | string | number | T[] | (() => T),
+		value: undefined | null | string | number | boolean | T[] | (() => T),
 	): value is undefined | null | "" | number | T[] | (() => T) {
 		if (value === undefined || value === null) {
 			return true;
