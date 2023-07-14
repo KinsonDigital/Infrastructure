@@ -85,6 +85,24 @@ export abstract class WebAPIClient {
 	}
 
 	/**
+	 * Modifies a resource by performing an HTTP request using the PUT method.
+	 * @param url The URL of the request.
+	 * @param body The body of the request.
+	 * @returns The response from the request.
+	 */
+	protected async fetchPUT(url: string, body: string): Promise<Response> {
+		const funcName = "fetchPUT";
+		Guard.isNullOrEmptyOrUndefined(url, funcName, "url");
+		Guard.isNullOrEmptyOrUndefined(body, funcName, "body");
+
+		return await fetch(url, {
+			method: "PUT",
+			headers: this.headers,
+			body: body,
+		});
+	}
+
+	/**
 	 * Sets an HTTP header with a name that matches the given {@link name}
 	 * to the given {@link value}.
 	 * @param name The name of the header to set.
