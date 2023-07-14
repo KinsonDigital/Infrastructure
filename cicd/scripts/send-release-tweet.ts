@@ -1,5 +1,5 @@
 import { TwitterClient } from "../clients/TwitterClient.ts";
-import { TwitterAuthValues } from "../core/Models/TwitterAuthValues.ts";
+import { TwitterAuthValues } from "../core/TwitterAuthValues.ts";
 import { RepoVarModel } from "../core/Models/RepoVarModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { ReleaseTweetBuilder } from "../core/ReleaseTweetBuilder.ts";

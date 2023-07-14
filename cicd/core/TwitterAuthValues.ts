@@ -1,7 +1,7 @@
 /**
  * Represents the Twitter secrets.
  */
-export type TwitterAuthValues = {
+export interface TwitterAuthValues {
 	/**
 	 * Gets or sets the consumer key.
 	 */
@@ -21,4 +21,4 @@ export type TwitterAuthValues = {
 	 * Gets or sets the access token secret.
 	 */
 	access_token_secret: string;
-};
+}
