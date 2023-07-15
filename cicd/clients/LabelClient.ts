@@ -1,4 +1,4 @@
-import { ILabelModel } from "../core/Models/ILabelModel.ts";
+import { LabelModel } from "../core/Models/LabelModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { GitHubHttpStatusCodes } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
@@ -25,7 +25,7 @@ export class LabelClient extends GitHubClient {
 	 * @returns A list of labels in the repo.
 	 * @remarks Does not require authentication.
 	 */
-	public async getLabels(repoName: string, page: number, qtyPerPage: number): Promise<[ILabelModel[], Response]> {
+	public async getLabels(repoName: string, page: number, qtyPerPage: number): Promise<[LabelModel[], Response]> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getLabels", "repoName");
 
 		page = page < 1 ? 1 : page;
@@ -33,7 +33,7 @@ export class LabelClient extends GitHubClient {
 
 		const queryParams = `?page=${page}&per_page${qtyPerPage}`;
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/labels${queryParams}`;
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		if (response.status === GitHubHttpStatusCodes.NotFound) {
 			Utils.printAsGitHubError(`${response.status} - ${response.statusText}`);
@@ -48,10 +48,10 @@ export class LabelClient extends GitHubClient {
 	 * @param repoName The name of the repository that contains the labels.
 	 * @returns The list of repository labels.
 	 */
-	public async getAllLabels(repoName: string): Promise<ILabelModel[]> {
+	public async getAllLabels(repoName: string): Promise<LabelModel[]> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getAllLabels", "repoName");
 
-		const result: ILabelModel[] = [];
+		const result: LabelModel[] = [];
 
 		await this.getAllData(async (page, qtyPerPage) => {
 			const [labels, response] = await this.getLabels(repoName, page, qtyPerPage ?? 100);
@@ -78,7 +78,7 @@ export class LabelClient extends GitHubClient {
 		Guard.isNullOrEmptyOrUndefined(label, funcName, "label");
 
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/labels/${label}`;
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		if (response.status === GitHubHttpStatusCodes.NotFound) {
 			return false;

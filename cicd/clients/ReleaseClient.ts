@@ -1,7 +1,7 @@
 import { GitHubHttpStatusCodes } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
 import { Guard } from "../core/Guard.ts";
-import { IReleaseModel } from "../core/Models/IReleaseModel.ts";
+import { ReleaseModel } from "../core/Models/ReleaseModel.ts";
 import { Utils } from "../core/Utils.ts";
 
 /**
@@ -28,7 +28,7 @@ export class ReleaseClient extends GitHubClient {
 	 * The {@link qtyPerPage} value must be a value between 1 and 100. If less than 1, the value will
 	 * be set to 1, if greater than 100, the value will be set to 100.
 	 */
-	public async getReleases(repoName: string, page: number, qtyPerPage: number): Promise<[IReleaseModel[], Response]> {
+	public async getReleases(repoName: string, page: number, qtyPerPage: number): Promise<[ReleaseModel[], Response]> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getReleases", "repoName");
 
 		repoName = repoName.trim();
@@ -38,7 +38,7 @@ export class ReleaseClient extends GitHubClient {
 		const queryParams = `?page=${page}&per_page=${qtyPerPage}`;
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/releases${queryParams}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status === GitHubHttpStatusCodes.NotFound) {
@@ -50,7 +50,7 @@ export class ReleaseClient extends GitHubClient {
 			Deno.exit(1);
 		}
 
-		return [<IReleaseModel[]> await this.getResponseData(response), response];
+		return [<ReleaseModel[]> await this.getResponseData(response), response];
 	}
 
 	/**
@@ -60,7 +60,7 @@ export class ReleaseClient extends GitHubClient {
 	 * @param tagName The tag of the release to get.
 	 * @returns The release for the given repository and tag.
 	 */
-	public async getReleaseByTag(repoName: string, tagName: string): Promise<IReleaseModel> {
+	public async getReleaseByTag(repoName: string, tagName: string): Promise<ReleaseModel> {
 		const funcName = "getReleaseByTag";
 		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
 		Guard.isNullOrEmptyOrUndefined(tagName, funcName, "tagName");
@@ -68,19 +68,19 @@ export class ReleaseClient extends GitHubClient {
 		repoName = repoName.trim();
 		tagName = tagName.trim();
 
-		const releases = await this.getAllDataUntil<IReleaseModel>(
+		const releases = await this.getAllDataUntil<ReleaseModel>(
 			async (page: number, qtyPerPage?: number) => {
 				return await this.getReleases(repoName, page, qtyPerPage ?? 100);
 			},
 			1, // Start page
 			100, // Qty per page
-			(pageOfData: IReleaseModel[]) => {
+			(pageOfData: ReleaseModel[]) => {
 				// If a release with the tag has been found, stop getting data.
-				return pageOfData.some((item: IReleaseModel) => item.tag_name === tagName);
+				return pageOfData.some((item: ReleaseModel) => item.tag_name === tagName);
 			},
 		);
 
-		const foundRelease: IReleaseModel | undefined = releases.find((item: IReleaseModel) => item.tag_name === tagName);
+		const foundRelease: ReleaseModel | undefined = releases.find((item: ReleaseModel) => item.tag_name === tagName);
 
 		if (foundRelease === undefined) {
 			const errorMsg = `A release with the tag '${tagName}' for the repository '${repoName}' could not be found.`;
@@ -98,7 +98,7 @@ export class ReleaseClient extends GitHubClient {
 	 * @param releaseName The name of the release to get.
 	 * @returns The release for the given repository and name.
 	 */
-	public async getReleaseByName(repoName: string, releaseName: string): Promise<IReleaseModel> {
+	public async getReleaseByName(repoName: string, releaseName: string): Promise<ReleaseModel> {
 		const funcName = "getReleaseByName";
 		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
 		Guard.isNullOrEmptyOrUndefined(releaseName, funcName, "releaseName");
@@ -106,19 +106,19 @@ export class ReleaseClient extends GitHubClient {
 		repoName = repoName.trim();
 		releaseName = releaseName.trim();
 
-		const releases = await this.getAllDataUntil<IReleaseModel>(
+		const releases = await this.getAllDataUntil<ReleaseModel>(
 			async (page: number, qtyPerPage?: number) => {
 				return await this.getReleases(repoName, page, qtyPerPage ?? 100);
 			},
 			1, // Start page
 			100, // Qty per page
-			(pageOfData: IReleaseModel[]) => {
+			(pageOfData: ReleaseModel[]) => {
 				// If a release with the name has been found, stop getting data.
-				return pageOfData.some((item: IReleaseModel) => item.name === releaseName);
+				return pageOfData.some((item: ReleaseModel) => item.name === releaseName);
 			},
 		);
 
-		const foundRelease: IReleaseModel | undefined = releases.find((item: IReleaseModel) => item.name === releaseName);
+		const foundRelease: ReleaseModel | undefined = releases.find((item: ReleaseModel) => item.name === releaseName);
 
 		if (foundRelease === undefined) {
 			const errorMsg = `A release with the name '${releaseName}' for the repository '${repoName}' could not be found.`;
@@ -144,18 +144,18 @@ export class ReleaseClient extends GitHubClient {
 		repoName = repoName.trim();
 		tagName = tagName.trim();
 
-		const releases = await this.getAllDataUntil<IReleaseModel>(
+		const releases = await this.getAllDataUntil<ReleaseModel>(
 			async (page: number, qtyPerPage?: number) => {
 				return await this.getReleases(repoName, page, qtyPerPage ?? 100);
 			},
 			1, // Start page
 			100, // Qty per page
-			(pageOfData: IReleaseModel[]) => {
+			(pageOfData: ReleaseModel[]) => {
 				// If a release with the name has been found, stop getting data.
-				return pageOfData.some((item: IReleaseModel) => item.tag_name === tagName);
+				return pageOfData.some((item: ReleaseModel) => item.tag_name === tagName);
 			},
 		);
 
-		return releases.find((item: IReleaseModel) => item.tag_name === tagName) != undefined;
+		return releases.find((item: ReleaseModel) => item.tag_name === tagName) != undefined;
 	}
 }

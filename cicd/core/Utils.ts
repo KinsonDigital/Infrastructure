@@ -1,10 +1,10 @@
 import { GitHubHttpStatusCodes, GitHubLogType } from "./Enums.ts";
 import { Guard } from "./Guard.ts";
-import { IIssueModel } from "./Models/IIssueModel.ts";
-import { ILabelModel } from "./Models/ILabelModel.ts";
-import { IProjectModel } from "./Models/IProjectModel.ts";
-import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
-import { IUserModel } from "./Models/IUserModel.ts";
+import { IssueModel } from "./Models/IssueModel.ts";
+import { LabelModel } from "./Models/LabelModel.ts";
+import { ProjectModel } from "./Models/ProjectModel.ts";
+import { PullRequestModel } from "./Models/PullRequestModel.ts";
+import { UserModel } from "./Models/UserModel.ts";
 
 /**
  * Provides utility functions.
@@ -49,7 +49,7 @@ export class Utils {
 	 * @returns True if the value is null, undefined, or empty, otherwise false.
 	 */
 	public static isNullOrEmptyOrUndefined<T>(
-		value: undefined | null | string | number | T[] | (() => T),
+		value: undefined | null | string | number | boolean | T[] | (() => T),
 	): value is undefined | null | "" | number | T[] | (() => T) {
 		if (value === undefined || value === null) {
 			return true;
@@ -79,8 +79,8 @@ export class Utils {
 	 * @param issuesOrPrs The issues or pull requests to filter.
 	 * @returns The issues from the given list of issues or pull requests.
 	 */
-	public static filterIssues(issuesOrPrs: (IIssueModel | IPullRequestModel)[]): IIssueModel[] {
-		return <IIssueModel[]> issuesOrPrs.filter((item) => this.isIssue(item));
+	public static filterIssues(issuesOrPrs: (IssueModel | PullRequestModel)[]): IssueModel[] {
+		return <IssueModel[]> issuesOrPrs.filter((item) => this.isIssue(item));
 	}
 
 	/**
@@ -88,8 +88,8 @@ export class Utils {
 	 * @param issuesOrPrs The issues or pull requests to filter.
 	 * @returns The pull requests from the given list of issues or pull requests.
 	 */
-	public static filterPullRequests(issuesOrPrs: (IIssueModel | IPullRequestModel)[]): IPullRequestModel[] {
-		return <IPullRequestModel[]> issuesOrPrs.filter((item) => this.isPr(item));
+	public static filterPullRequests(issuesOrPrs: (IssueModel | PullRequestModel)[]): PullRequestModel[] {
+		return <PullRequestModel[]> issuesOrPrs.filter((item) => this.isPr(item));
 	}
 
 	/**
@@ -97,7 +97,7 @@ export class Utils {
 	 * @param issueOrPr The issue or pull request to check.
 	 * @returns True if the given issue or pull request is an issue, otherwise false.
 	 */
-	public static isIssue(issueOrPr: IIssueModel | IPullRequestModel): issueOrPr is IIssueModel {
+	public static isIssue(issueOrPr: IssueModel | PullRequestModel): issueOrPr is IssueModel {
 		return !("pull_request" in issueOrPr);
 	}
 
@@ -106,7 +106,7 @@ export class Utils {
 	 * @param issueOrPr The issue or pull request to check.
 	 * @returns True if the given issue or pull request is a pull request, otherwise false.
 	 */
-	public static isPr(issueOrPr: IPullRequestModel | IIssueModel): issueOrPr is IPullRequestModel {
+	public static isPr(issueOrPr: PullRequestModel | IssueModel): issueOrPr is PullRequestModel {
 		return "pull_request" in issueOrPr;
 	}
 
@@ -185,7 +185,7 @@ export class Utils {
 			argInfos.push(`${Utils.toOrdinal(i + 1)}${prefix}${items[i]}}`);
 		}
 
-		argInfos.forEach(info => {
+		argInfos.forEach((info) => {
 			switch (logType) {
 				case GitHubLogType.normal:
 					console.log(info);
@@ -322,7 +322,7 @@ export class Utils {
 	 * @param pr The pull request to compare with the issue.
 	 * @returns True if the assignees of the given {@link issue} and {@link pr} match, otherwise false.
 	 */
-	public static assigneesMatch(issueAssignees: IUserModel[], prAssignees: IUserModel[]): boolean {
+	public static assigneesMatch(issueAssignees: UserModel[], prAssignees: UserModel[]): boolean {
 		if (issueAssignees.length === 0 && prAssignees.length === 0) {
 			return true;
 		}
@@ -346,7 +346,7 @@ export class Utils {
 	 * @param pr The pull request to compare with the issue.
 	 * @returns True if the labels of the issue and pull request match, otherwise false.
 	 */
-	public static labelsMatch(issueLabels: ILabelModel[], prLabels: ILabelModel[]): boolean {
+	public static labelsMatch(issueLabels: LabelModel[], prLabels: LabelModel[]): boolean {
 		if (issueLabels.length === 0 && prLabels.length === 0) {
 			return true;
 		}
@@ -371,7 +371,7 @@ export class Utils {
 	 * @param prProjects The pull request projects to compare with the issue projects.
 	 * @returns True if the labels of the issue and pull request match, otherwise false.
 	 */
-	public static orgProjectsMatch(issueProjects: IProjectModel[], prProjects: IProjectModel[]): boolean {
+	public static orgProjectsMatch(issueProjects: ProjectModel[], prProjects: ProjectModel[]): boolean {
 		if (issueProjects.length === 0 && prProjects.length === 0) {
 			return true;
 		}
@@ -457,15 +457,108 @@ export class Utils {
 	 * @param value The value to remove the starting white space from.
 	 * @returns The given {@link value} with the starting white space removed.
 	 */
-	public static removeStartingWhiteSpace(value: string): string {
+	public static trimAllStartingWhiteSpace(value: string): string {
 		if (Utils.isNullOrEmptyOrUndefined(value)) {
 			return value;
 		}
 
-		while (value.startsWith(" ") || value.startsWith("\t")) {
-			value = value.slice(1);
-		}
+		Utils.trimAllStartingValue(value, "");
+		Utils.trimAllStartingValue(value, "\t");
 
 		return value;
+	}
+
+	/**
+	 * Trims the given {@link valueToRemove} from the start of the given {@link valueToTrim}
+	 * until the {@link valueToRemove} does not exit anymore.
+	 * @param valueToTrim The value to trim the starting value from.
+	 * @param valueToRemove The starting value to trim.
+	 * @returns The given {@link valueToTrim} with the starting value trimmed.
+	 */
+	public static trimAllStartingValue(valueToTrim: string, valueToRemove: string): string {
+		if (Utils.isNullOrEmptyOrUndefined(valueToTrim)) {
+			return valueToTrim;
+		}
+
+		if (Utils.isNullOrEmptyOrUndefined(valueToRemove)) {
+			return valueToTrim;
+		}
+
+		while (valueToTrim.startsWith(valueToRemove)) {
+			valueToTrim = valueToTrim.slice(1);
+		}
+
+		return valueToTrim;
+	}
+
+	/**
+	 * Trims the given {@link valueToRemove} from the end of the given {@link valueToTrim}
+	 * until the {@link valueToRemove} does not exit anymore.
+	 * @param valueToTrim The value to trim the ending value from.
+	 * @param valueToRemove The ending value to trim.
+	 * @returns The given {@link valueToTrim} with the ending value trimmed.
+	 */
+	public static trimAllEndingValue(valueToTrim: string, valueToRemove: string): string {
+		if (Utils.isNullOrEmptyOrUndefined(valueToTrim)) {
+			return valueToTrim;
+		}
+
+		if (Utils.isNullOrEmptyOrUndefined(valueToRemove)) {
+			return valueToTrim;
+		}
+
+		while (valueToTrim.startsWith(valueToRemove)) {
+			valueToTrim = valueToTrim.slice(0, valueToTrim.length - 1);
+		}
+
+		return valueToTrim;
+	}
+
+	/**
+	 * Normalizes the given {@link path} by replacing all back slashes with forward slashes,
+	 * and trimming any starting and ending slashes.
+	 * @param path The path to normalize.
+	 * @returns The normalized path.
+	 */
+	public static normalizePath(path: string): string {
+		path = path.replaceAll("\\", "/");
+		path = path.replaceAll("//", "/");
+		path = Utils.trimAllStartingValue(path, "/");
+		path = Utils.trimAllEndingValue(path, "/");
+
+		return path;
+	}
+
+	/**
+	 * Splits the given {@link value} by the given {@link separator}.
+	 * @param value The value to split.
+	 * @param separator The separator to split the value by.
+	 * @returns The values split by the given separator.
+	 * @remarks Only the first character will be used by the given {@link separator}.
+	 */
+	public static splitBy(value: string, separator: string): string[] {
+		if (Utils.isNullOrEmptyOrUndefined(value)) {
+			return [];
+		}
+
+		if (Utils.isNullOrEmptyOrUndefined(separator)) {
+			return [value];
+		}
+
+		// Only use the first character for a separator
+		separator = separator.length === 1 ? separator : separator[0];
+
+		return value.indexOf(separator) === -1 ? [value] : value.split(separator)
+			.map((v) => v.trim())
+			.filter((i) => !Utils.isNullOrEmptyOrUndefined(i));
+	}
+
+	/**
+	 * Splits the given {@link value} by comma.
+	 * @param value The value to split by comma.
+	 * @returns The values split by comma.
+	 */
+	public static splitByComma(value: string): string[] {
+		return this.splitBy(value, ",");
 	}
 }

@@ -21,29 +21,34 @@ export class ReleaseTweetBuilder {
 	}
 
 	/**
-	 * Creates a release tweet using a template.
-	 * @param repoOwner The owner of the repository.
-	 * @param tweetTemplateRepoName The name of the repository where the release tweet template is located.
+	 * Builds a release tweet based on a template that lives in a repository with a name that matches the given
+	 * {@link repoName}, owned by the given {@link repoOwner}, on the given {@link branchName}.
+	 * @param repoOwner The owner of the repository that contains the tweet template.
+	 * @param repoName The name of the repository where the tweet template is located.
+	 * @param branchName The name of the branch where the tweet template lives.
+	 * @param relativeFilePath The file path to the tweet template relative to the root of the repository.
 	 * @param projectName The name of the project being released.
-	 * @param relativeFilePath The relative file path to the release tweet template.
 	 * @param version The version of the project being released.
 	 * @param discordInviteCode The discord invite code.
 	 * @returns The release tweet.
 	 */
 	public async buildTweet(
 		repoOwner: string,
-		tweetTemplateRepoName: string,
-		projectName: string,
+		repoName: string,
+		branchName: string,
 		relativeFilePath: string,
+		projectName: string,
 		version: string,
 		discordInviteCode: string,
 	): Promise<string> {
-		Guard.isNullOrEmptyOrUndefined(repoOwner, "buildTweet", "repoOwner");
-		Guard.isNullOrEmptyOrUndefined(tweetTemplateRepoName, "buildTweet", "repoName");
-		Guard.isNullOrEmptyOrUndefined(projectName, "buildTweet", "projectName");
-		Guard.isNullOrEmptyOrUndefined(relativeFilePath, "buildTweet", "relativeFilePath");
-		Guard.isNullOrEmptyOrUndefined(version, "buildTweet", "version");
-		Guard.isNullOrEmptyOrUndefined(discordInviteCode, "buildTweet", "discordInviteCode");
+		const funcName = "buildTweet";
+		Guard.isNullOrEmptyOrUndefined(repoOwner, funcName, "repoOwner");
+		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNullOrEmptyOrUndefined(branchName, funcName, "branchName");
+		Guard.isNullOrEmptyOrUndefined(relativeFilePath, funcName, "relativeFilePath");
+		Guard.isNullOrEmptyOrUndefined(projectName, funcName, "projectName");
+		Guard.isNullOrEmptyOrUndefined(version, funcName, "version");
+		Guard.isNullOrEmptyOrUndefined(discordInviteCode, funcName, "discordInviteCode");
 
 		version = version.startsWith("v") ? version : `v${version}`;
 
@@ -55,7 +60,7 @@ export class ReleaseTweetBuilder {
 			Deno.exit(1);
 		}
 
-		const templateFileData: string = await this.repoClient.getFileContent(tweetTemplateRepoName, relativeFilePath);
+		const templateFileData: string = await this.repoClient.getFileContent(repoName, branchName, relativeFilePath);
 
 		let tweet: string = templateFileData.replaceAll(`{${this.PROJ_NAME_VAR}}`, projectName);
 		tweet = tweet.replaceAll(`{${this.VERSION_VAR}}`, version);

@@ -3,7 +3,7 @@ import { ErrorModel } from "./ErrorModel.ts";
 /**
  * Represents a request response.
  */
-export interface RequestResponseModel {
+export type RequestResponseModel = {
 	/**
 	 * The data returned from the request.
 	 */
@@ -14,4 +14,4 @@ export interface RequestResponseModel {
 	 * The errors returned from the request.
 	 */
 	errors?: ErrorModel[];
-}
+};

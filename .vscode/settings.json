@@ -5,6 +5,7 @@
 		"endgroup",
 		"flatcontainer",
 		"Kinson",
+		"mediumseagreen",
 		"Nums",
 		"pwsh",
 		"Transpiles",
@@ -19,6 +20,7 @@
 		"**/Thumbs.db": true,
 	},
     "deno.enable": true,
+	"deno.lint": true,
     "[typescript]": {
 		"editor.insertSpaces": false,
 		"editor.tabSize": 4,

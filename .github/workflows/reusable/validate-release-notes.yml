@@ -1,0 +1,132 @@
+name: Validate Release Notes
+
+
+defaults:
+  run:
+    shell: pwsh
+
+
+on:
+  workflow_call:
+    inputs:
+      org-name:
+        required: true
+        description: The name of GitHub organization.
+        type: string
+      project-name:
+        required: true
+        description: "The name of the C# project to validate."
+        type: string
+      release-type:
+        required: true
+        description: The type of release to validate.  Either 'Preview' or 'Production'.
+        type: string
+      version:
+        required: true
+        description: The version of the release notes to validate.
+        type: string
+      cicd-scripts-version:
+        required: true
+        description: The version of the CICD scripts to use.
+        type: string
+    secrets:
+      cicd-pat:
+        required: true
+        description: The CICD personal access token.
+      
+
+jobs:
+  validate_workflow_inputs:
+    name: Validate Workflow Inputs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate Inputs
+        run: |
+          # Verify that the organization name workflow input is not empty
+          if ("${{ inputs.org-name }}" -eq "") {
+            Write-Host "::error::The 'org-name' workflow input cannot be empty.";
+            exit 1;
+          }
+
+
+          # Verify that the project name workflow input is not empty
+          if ("${{ inputs.project-name }}" -eq "") {
+            Write-Host "::error::The 'project-name' workflow input cannot be empty.";
+            exit 1;
+          }
+
+          
+          $releaseType = "${{ inputs.release-type }}";
+
+          # Verify that the release type is only 'Preview' or 'Production'
+          if ($releaseType -ne "Preview" -and $releaseType -ne "Production") {
+            Write-Host "::error::The release type '$releaseType' is invalid.  Valid values are 'Preview' or 'Production'.";
+            exit 1;
+          }
+
+
+          $version = "${{ inputs.cicd-scripts-version }}";
+          $prodVersionRegex = "v[0-9]+\.[0-9]+\.[0-9]+";
+          $prevVersionRegex = "v[0-9]+\.[0-9]+\.[0-9]+-preview\.[0-9]+";
+          
+          # Verify that the version has valid syntax
+          if (($version -match $prodVersionRegex) -or ($version -match $prevVersionRegex)) {
+            Write-Host "::notice::The version is valid.";
+          } else {
+            Write-Host "::error::The version is not valid.\nThe version format is: 'v#.#.#' or 'v#.#.#-preview.#'";
+            exit 1;
+          }
+
+
+          $cicdScriptVersion = "${{ inputs.cicd-scripts-version }}";
+          $cicdScriptVersionRegex = "v[0-9]+\.[0-9]+\.[0-9]+";
+          
+          # Verify that the cicd script version has valid syntax
+          if ($cicdScriptVersion -match $cicdScriptVersionRegex) {
+            Write-Host "::notice::The cicd script version is valid.";
+          } else {
+            Write-Host "::error::The cicd script version is not valid.\nThe version format is: 'v#.#.#'";
+            exit 1;
+          }
+
+
+  build_script_url:
+    name: Build Script URL
+    uses: KinsonDigital/Infrastructure/.github/workflows/reusable/create-script-url.yml@v9.0.0
+    with:
+      project-name: ${{ inputs.project-name }}
+      cicd-scripts-version: ${{ inputs.cicd-scripts-version }}
+
+
+  validate_release_notes:
+    name: Validate Release Notes
+    runs-on: ubuntu-latest
+    needs: build_script_url
+    steps:
+      - name: Set Up Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Validate Release Notes
+        run: |
+          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/validate-release-notes.ts";
+        
+          <# Deno Args:
+            1. GitHub Orgnization Name
+            2. GitHub Repo Name
+            3. Release Type - Either 'Preview' or 'Production'
+            4. Version
+            5. GitHub PAT Token
+          #>
+          deno run `
+            --allow-read --allow-net `
+            "$scriptUrl" `
+            "${{ inputs.org-name }}" `
+            "${{ inputs.project-name }}" `
+            "${{ inputs.release-type }}" `
+            "${{ inputs.version }}" `
+            "${{ secrets.cicd-pat }}";

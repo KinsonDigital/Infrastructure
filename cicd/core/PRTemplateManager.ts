@@ -1,6 +1,7 @@
 import { RepoClient } from "../clients/RepoClient.ts";
 import { Guard } from "./Guard.ts";
 import { IPRTemplateSettings } from "./IPRTemplateSettings.ts";
+import { GitHubVariableService } from "./Services/GitHubVariableService.ts";
 import { Utils } from "./Utils.ts";
 
 /**
@@ -24,13 +25,20 @@ export class PRTemplateManager {
 	private readonly lineInSyncRegex = /✅ .+<!--.+-->/gm;
 	private readonly lineOutOfSyncRegex = /❌ .+<!--.+-->/gm;
 	private readonly repoClient: RepoClient;
+	private readonly githubRepoService: GitHubVariableService | undefined;
 
 	/**
 	 * Initializes a new instance of the {@link PRTemplateManager} class.
+	 * @param orgName The name of the organization.
+	 * @param repoName The name of the repository.
 	 * @param token The GitHub token to use for authentication.
 	 */
-	constructor(token?: string) {
+	constructor(orgName: string, repoName: string, token?: string) {
 		this.repoClient = new RepoClient(token);
+
+		if (!Utils.isNullOrEmptyOrUndefined(token)) {
+			this.githubRepoService = new GitHubVariableService(orgName, repoName, token);
+		}
 	}
 
 	/**
@@ -49,7 +57,7 @@ export class PRTemplateManager {
 		let templatedData = await this.repoClient.getFileContent(repoName, relativeTemplatePath);
 		templatedData = templatedData.replace(this.issueNumTemplateVarRegex, issueNumber.toString());
 
-		const allowedPRBaseBranches = await this.getAllowedPRBaseBranches(repoName);
+		const allowedPRBaseBranches = await this.getAllowedPRBaseBranches();
 
 		let baseBranchesText = "";
 
@@ -88,7 +96,7 @@ export class PRTemplateManager {
 
 		template = template.replace(/(?:\r\n|\r|\n)/g, "\n");
 
-		const fileDataLines: string[] = template.split("\n");
+		const fileDataLines: string[] = Utils.splitBy(template, "\n");
 
 		for (let i = 0; i < fileDataLines.length; i++) {
 			const line = fileDataLines[i];
@@ -162,7 +170,7 @@ export class PRTemplateManager {
 			return true;
 		}
 
-		const fileDataLines: string[] = template.split("\n");
+		const fileDataLines: string[] = Utils.splitBy(template, "\n");
 
 		for (let i = 0; i < fileDataLines.length; i++) {
 			const line = fileDataLines[i];
@@ -209,27 +217,25 @@ export class PRTemplateManager {
 	 * @param repoName The name of the repository.
 	 * @returns The list of allowed base branches.
 	 */
-	public async getAllowedPRBaseBranches(repoName: string): Promise<string[]> {
+	public async getAllowedPRBaseBranches(): Promise<string[]> {
+		const defaultBranches = ["main", "preview"];
+
+		if (this.githubRepoService === undefined) {
+			return defaultBranches;
+		}
+
 		// This repo variable is optional
 		const prSyncBaseBranchesVarName = "PR_SYNC_BASE_BRANCHES";
-		const defaultBranches = ["main", "preview"];
-		const repoVars = (await this.repoClient.getVariables(repoName)).filter(v => v.name === prSyncBaseBranchesVarName);
-		
-		if (repoVars.length === 0) {
+
+		const prSyncBaseBranchListStr = await this.githubRepoService.getValue(prSyncBaseBranchesVarName, false);
+
+		if (Utils.isNullOrEmptyOrUndefined(prSyncBaseBranchListStr)) {
 			return defaultBranches;
-		} else {
-			const prSyncBaseBranchesVar = repoVars[0];
-
-			if (Utils.isNullOrEmptyOrUndefined(prSyncBaseBranchesVar.value)) {
-				return defaultBranches;
-			}
-
-			const prSyncBaseBranches = prSyncBaseBranchesVar.value.split(",")
-				.map(v => v.trim())
-				.filter((i) => !Utils.isNullOrEmptyOrUndefined(i));
-
-			return prSyncBaseBranches.length > 0 ? prSyncBaseBranches : defaultBranches;
 		}
+
+		const prSyncBaseBranches = Utils.splitByComma(prSyncBaseBranchListStr);
+
+		return prSyncBaseBranches.length > 0 ? prSyncBaseBranches : defaultBranches;
 	}
 
 	/**

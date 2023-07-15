@@ -2,7 +2,7 @@ import { Guard } from "../core/Guard.ts";
 import { Utils } from "../core/Utils.ts";
 import { GitHubHttpStatusCodes } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
-import { IUserModel } from "../core/Models/IUserModel.ts";
+import { UserModel } from "../core/Models/UserModel.ts";
 
 /**
  * Provides a client for interacting with users.
@@ -22,13 +22,13 @@ export class UsersClient extends GitHubClient {
 	 * @param userName The name of the user.
 	 * @returns The user.
 	 */
-	public async getUser(userName: string): Promise<IUserModel> {
+	public async getUser(userName: string): Promise<UserModel> {
 		Guard.isNullOrEmptyOrUndefined(userName, "getIssue", "repoName");
 
 		// REST API Docs: https://docs.github.com/en/rest/users/users?apiVersion=2022-11-28#get-a-user
 		const url = `${this.baseUrl}/users/${userName}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status === GitHubHttpStatusCodes.NotFound) {
@@ -36,7 +36,7 @@ export class UsersClient extends GitHubClient {
 			Deno.exit(1);
 		}
 
-		return <IUserModel> await this.getResponseData(response);
+		return <UserModel> await this.getResponseData(response);
 	}
 
 	/**
@@ -50,7 +50,7 @@ export class UsersClient extends GitHubClient {
 		// REST API Docs: https://docs.github.com/en/rest/users/users?apiVersion=2022-11-28#get-a-user
 		const url = `${this.baseUrl}/users/${userName}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status === GitHubHttpStatusCodes.NotFound) {

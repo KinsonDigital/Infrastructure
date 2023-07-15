@@ -1,0 +1,111 @@
+name: ✨Prepare Release
+
+
+defaults:
+  run:
+    shell: pwsh
+
+
+on:
+  workflow_call:
+    inputs:
+      project-name:
+        required: true
+        description: The name of the project to validate.
+        type: string
+      release-type:
+        required: true
+        description: The type of release to prepare.  Either 'Preview' or 'Production'.
+        type: string
+      release-version:
+        required: true
+        description: The version of the release to prepare.
+        type: string
+    secrets:
+      cicd-pat:
+        required: true
+        description: The CICD personal access token.
+
+
+jobs:
+  validate_inputs:
+    name: Validate Inputs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validating Inputs
+        run: |
+          $projectName = "${{ inputs.project-name }}";
+          $releaseType = "${{ inputs.release-type }}".ToLower();
+          $releaseVersion = "${{ inputs.release-version }}";
+
+          if ($projectName -eq "") {
+            Write-Host "::error::The project name input cannot be empty.";
+            exit 1;
+          }
+
+
+          if ($releaseType -eq "") {
+            Write-Host "::error::The release type input cannot be empty.";
+            exit 1;
+          }
+
+
+          if ($releaseType -ne 'preview' -and $releaseType -ne 'roduction') {
+            Write-Host "::error::The release type input must be either 'Preview' or 'Production'.";
+            exit 1;
+          }
+
+
+          if ($releaseVersion -eq "") {
+            Write-Host "::error::The release version input cannot be empty.";
+            exit 1;
+          }
+
+
+          $prodVersionRegex = "v[0-9]+\.[0-9]+\.[0-9]+";
+          $prevVersionRegex = "v[0-9]+\.[0-9]+\.[0-9]+-preview\.[0-9]+";
+          
+          # Verify that the version has valid syntax
+          if (($version -match $prodVersionRegex) -or ($version -match $prevVersionRegex)) {
+            Write-Host "::notice::The version is valid.";
+          } else {
+            $versionSyntax = $releaseType == "production" ? "v#.#.#" : "v#.#.#-preview.#";
+            Write-Host "::error::The version is not valid.\nThe version format is: '$versionSyntax";
+            exit 1;
+          }
+
+
+  build_script_url:
+    name: Build Script URL
+    needs: validate_inputs
+    uses: KinsonDigital/Infrastructure/.github/workflows/reusable/create-script-url.yml@v9.0.0
+    with:
+      project-name: "${{ inputs.project-name }}"
+      cicd-scripts-version: "${{ vars.CICD_SCRIPTS_VERSION }}"
+
+
+  prepare_release:
+    name: Prepare ${{ inputs.release-type }} Release
+    needs: build_script_url
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Release Notes
+        run: |
+          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/generate-release-notes.ts";
+
+          <# Deno Args:
+            1. Organization Name
+            2. Project Name
+            3. Release Type - 'production' or 'preview'
+            4. Release Version
+            5. CICD PAT
+          #>
+          deno run `
+            --allow-read --allow-write --allow-net `
+            "$scriptUrl" `
+            "${{ vars.ORGANIZATION_NAME }}" `
+            "${{ inputs.project-name }}" `
+            "${{ inputs.release-type }}" `
+            "${{ inputs.release-version }}" `
+            "${{ github.workspace }}" `
+            "${{ secrets.cicd-pat }}";

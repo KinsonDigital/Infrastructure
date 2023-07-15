@@ -34,7 +34,7 @@ export class NuGetClient extends WebAPIClient {
 		packageName = packageName.trim().toLowerCase();
 		const url = this.buildUrl(packageName);
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 		const statusCode: NuGetHttpStatusCodes = response.status as NuGetHttpStatusCodes;
 
 		if (this.statusCodeValid(statusCode)) {
@@ -59,7 +59,7 @@ export class NuGetClient extends WebAPIClient {
 		packageName = packageName.trim().toLowerCase();
 		const url = this.buildUrl(packageName);
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 		const statusCode: NuGetHttpStatusCodes = response.status as NuGetHttpStatusCodes;
 
 		if (this.statusCodeValid(statusCode)) {
@@ -87,7 +87,7 @@ export class NuGetClient extends WebAPIClient {
 
 		const url = this.buildUrl(packageName);
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 		const statusCode: NuGetHttpStatusCodes = response.status as NuGetHttpStatusCodes;
 
 		if (this.statusCodeValid(statusCode)) {

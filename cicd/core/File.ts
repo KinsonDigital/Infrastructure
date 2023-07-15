@@ -1,4 +1,4 @@
-import { existsSync } from "https://deno.land/std@0.191.0/fs/exists.ts";
+import { existsSync } from "https://deno.land/std@0.194.0/fs/exists.ts";
 
 /**
  * Provides file functionality.

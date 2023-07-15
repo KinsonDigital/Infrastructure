@@ -29,15 +29,6 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	 * @param scriptName The name of the script executing the runner.
 	 */
 	constructor(args: string[], scriptName: string) {
-		if (args.length != 1) {
-			const argDescriptions = [
-				`The ${scriptName} cicd script must have 1 argument.`,
-				`Required and must be a valid directory path to the 'README.md' file.`];
-
-			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.error);
-			Deno.exit(1);
-		}
-
 		super(args);
 		this.scriptName = scriptName;
 	}
@@ -45,6 +36,7 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	/**
 	 * Runs the transpile readme script.
 	 */
+	// deno-lint-ignore require-await
 	public async run(): Promise<void> {
 		let dirPath = this.args[0].replaceAll("\\", "/");
 		dirPath = dirPath.endsWith("/") ? dirPath.slice(0, dirPath.length - 1) : dirPath;
@@ -87,10 +79,30 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	 * @inheritdoc
 	 */
 	protected validateArgs(args: string[]): void {
+		if (args.length != 1) {
+			const argDescriptions = [
+				`The cicd script must have 1 argument.`,
+				`Required and must be a valid directory path to the 'README.md' file.`,
+			];
+
+			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.error);
+			Deno.exit(1);
+		}
+
 		if (Directory.DoesNotExist(args[0])) {
 			Utils.printAsGitHubError(`The given path '${args[0]}' is not a valid directory path.`);
 			Deno.exit(1);
 		}
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	protected mutateArgs(args: string[]): string[] {
+		let dirPath = Utils.normalizePath(args[0]);
+		dirPath = Utils.trimAllEndingValue(dirPath, "/");
+
+		return [dirPath];
 	}
 
 	/**
@@ -99,10 +111,9 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	 * @returns The transpiled content.
 	 */
 	private transpileHeaderTags(content: string): string {
-		const headers  = content.match(this.headerTagRegEx)?.filter((h) => h) ?? [];
+		const headers = content.match(this.headerTagRegEx)?.filter((h) => h) ?? [];
 
 		for (const headerHtml of headers) {
-
 			let headerContent = headerHtml.replace(this.headerStartTagRegEx, "");
 			headerContent = headerContent.replace(this.headerEndTagRegEx, "");
 
@@ -128,14 +139,14 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	 * @returns The transpiled content.
 	 */
 	private transpileImageTags(content: string): string {
-		const imgHtmlTags  = content.match(this.imageTagRegEx)?.filter((h) => h) ?? [];
+		const imgHtmlTags = content.match(this.imageTagRegEx)?.filter((h) => h) ?? [];
 
 		for (const imgHtml of imgHtmlTags) {
 			const imgSrcAttr = imgHtml.match(this.imgSrcAttrRegEx)?.filter((h) => h)[0] ?? "";
 
 			let srcUri = imgSrcAttr.replace("src=", "");
-			srcUri = srcUri.replaceAll("\"", "");
-			srcUri = srcUri.replaceAll("\'", "");
+			srcUri = srcUri.replaceAll('"', "");
+			srcUri = srcUri.replaceAll("'", "");
 
 			const imgMarkdown = `![image](${srcUri})`;
 
@@ -154,11 +165,11 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	private bumpMarkdownLinksToLeft(content: string): string {
 		content = Utils.normalizeLineEndings(content);
 
-		const lines = content.split("\n");
+		const lines = Utils.splitBy(content, "\n");
 
 		for (let i = 0; i < lines.length; i++) {
 			if (this.markdownStartingWithWhiteSpaceRegEx.test(lines[i])) {
-				lines[i] = Utils.removeStartingWhiteSpace(lines[i]);
+				lines[i] = Utils.trimAllStartingWhiteSpace(lines[i]);
 			}
 		}
 
@@ -176,7 +187,7 @@ export class TranspileReadMeRunner extends ScriptRunner {
 		const headerStartTag = headerStartTags[0].toLowerCase();
 
 		// Split the start tag right after the '<h1' section
-		const sections = headerStartTag.split(" ");
+		const sections = Utils.splitBy(headerStartTag, " ");
 		const startSection = sections[0];
 
 		const headerLevelStr = startSection.replace("<h", "");

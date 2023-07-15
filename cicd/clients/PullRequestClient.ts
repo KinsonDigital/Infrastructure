@@ -1,6 +1,6 @@
 import { Guard } from "../core/Guard.ts";
 import { LabelClient } from "./LabelClient.ts";
-import { IPullRequestModel } from "../core/Models/IPullRequestModel.ts";
+import { PullRequestModel } from "../core/Models/PullRequestModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { GitHubHttpStatusCodes, IssueOrPRState, MergeState } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
@@ -28,10 +28,10 @@ export class PullRequestClient extends GitHubClient {
 	 * @returns The pull request.
 	 * @remarks Does not require authentication.
 	 */
-	public async getAllOpenPullRequests(repoName: string): Promise<IPullRequestModel[]> {
+	public async getAllOpenPullRequests(repoName: string): Promise<PullRequestModel[]> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getAllOpenPullRequests", "repoName");
 
-		return await this.getAllData<IPullRequestModel>(async (page, qtyPerPage) => {
+		return await this.getAllData<PullRequestModel>(async (page, qtyPerPage) => {
 			return await this.getPullRequests(repoName, page, qtyPerPage, IssueOrPRState.open);
 		});
 	}
@@ -42,10 +42,10 @@ export class PullRequestClient extends GitHubClient {
 	 * @returns The pull request.
 	 * @remarks Does not require authentication.
 	 */
-	public async getAllClosedPullRequests(repoName: string): Promise<IPullRequestModel[]> {
+	public async getAllClosedPullRequests(repoName: string): Promise<PullRequestModel[]> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getAllClosedPullRequests", "repoName");
 
-		return await this.getAllData<IPullRequestModel>(async (page, qtyPerPage) => {
+		return await this.getAllData<PullRequestModel>(async (page, qtyPerPage) => {
 			return await this.getPullRequests(repoName, page, qtyPerPage, IssueOrPRState.closed);
 		});
 	}
@@ -75,7 +75,7 @@ export class PullRequestClient extends GitHubClient {
 		mergeState: MergeState = MergeState.any,
 		labels?: string[] | null,
 		milestoneNumber?: number,
-	): Promise<[IPullRequestModel[], Response]> {
+	): Promise<[PullRequestModel[], Response]> {
 		const functionName = "getPullRequests";
 		Guard.isNullOrEmptyOrUndefined(repoName, functionName, "repoName");
 		Guard.isLessThanOne(page, functionName, "page");
@@ -97,7 +97,7 @@ export class PullRequestClient extends GitHubClient {
 			`?page=${page}&per_page=${qtyPerPage}&state=${state}${labelListQueryParam}${milestoneNumberQueryParam}`;
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues${queryParams}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status != GitHubHttpStatusCodes.OK) {
@@ -121,7 +121,7 @@ export class PullRequestClient extends GitHubClient {
 		}
 
 		// Get all of the pull requests that are with any merge state
-		const allPullRequests = (<IPullRequestModel[]> await this.getResponseData(response))
+		const allPullRequests = (<PullRequestModel[]> await this.getResponseData(response))
 			.filter((pr) => Utils.isPr(pr));
 
 		const filteredResults = allPullRequests.filter((pr) => {
@@ -163,14 +163,14 @@ export class PullRequestClient extends GitHubClient {
 	 * @returns The pull request.
 	 * @remarks Does not require authentication.
 	 */
-	public async getPullRequest(repoName: string, prNumber: number): Promise<IPullRequestModel> {
+	public async getPullRequest(repoName: string, prNumber: number): Promise<PullRequestModel> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getPullRequest", "repoName");
 		Guard.isLessThanOne(prNumber, "getPullRequest", "prNumber");
 
 		// REST API Docs: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#get-a-pull-request
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/pulls/${prNumber}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status != GitHubHttpStatusCodes.OK) {
@@ -192,7 +192,7 @@ export class PullRequestClient extends GitHubClient {
 			Deno.exit(1);
 		}
 
-		return <IPullRequestModel> await this.getResponseData(response);
+		return <PullRequestModel> await this.getResponseData(response);
 	}
 
 	/**
@@ -233,7 +233,7 @@ export class PullRequestClient extends GitHubClient {
 
 		// REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${prNumber}`;
-		const response: Response = await this.fetchPATCH(url, JSON.stringify({ labels: prLabels }));
+		const response: Response = await this.requestPATCH(url, JSON.stringify({ labels: prLabels }));
 
 		// If there is an error
 		if (response.status != GitHubHttpStatusCodes.OK) {
@@ -271,7 +271,7 @@ export class PullRequestClient extends GitHubClient {
 		// REST API Docs: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#list-pull-requests
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/pulls/${prNumber}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status != GitHubHttpStatusCodes.OK) {
@@ -330,7 +330,7 @@ export class PullRequestClient extends GitHubClient {
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${prNumber}`;
 
 		const prBody: string = JSON.stringify(prRequestData);
-		const response = await this.fetchPATCH(url, prBody);
+		const response = await this.requestPATCH(url, prBody);
 
 		if (response.status != GitHubHttpStatusCodes.OK) {
 			if (response.status === GitHubHttpStatusCodes.NotFound) {
@@ -374,7 +374,7 @@ export class PullRequestClient extends GitHubClient {
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/pulls/${prNumber}/requested_reviewers`;
 		const body = JSON.stringify({ reviewers: [reviewer] });
 
-		const response = await this.fetchPOST(url, body);
+		const response = await this.requestPOST(url, body);
 
 		if (response.status != GitHubHttpStatusCodes.Created) {
 			let errorMsg = `An error occurred trying to request the reviewer '${reviewer}' for pull request '${prNumber}'.`;
@@ -401,6 +401,58 @@ export class PullRequestClient extends GitHubClient {
 	}
 
 	/**
+	 * Creates a new pull request in a repository with a name that matches the given {@link repoName},
+	 * using the given {@link title}, {@link headBranch}, {@link baseBranch}, and {@link description}.
+	 * @param repoName The name of the repository..
+	 * @param title The title of the pull request.
+	 * @param headBranch The name of the branch that contains the changes for the pull request.
+	 * @param baseBranch The name of the branch that the changes will be pulled into.
+	 * @param description The description of the pull request.
+	 * @param maintainerCanModify The value indicating whether or not maintainers can modify the pull request.
+	 * @param isDraft The value indicating whether or not the pull request is a draft pull request.
+	 * @returns The newly created pull request.
+	 */
+	public async createPullRequest(
+		repoName: string,
+		title: string,
+		headBranch: string,
+		baseBranch: string,
+		description = "",
+		maintainerCanModify = true,
+		isDraft = true,
+	): Promise<PullRequestModel> {
+		const funcName = "createPullRequest";
+		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNullOrEmptyOrUndefined(title, funcName, "title");
+		Guard.isNullOrEmptyOrUndefined(headBranch, funcName, "headBranch");
+		Guard.isNullOrEmptyOrUndefined(baseBranch, funcName, "baseBranch");
+
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/pulls`;
+		const body = {
+			owner: `${this.organization}`,
+			repo: `${repoName}`,
+			title: title,
+			head: headBranch,
+			base: baseBranch,
+			body: description,
+			maintainer_can_modify: maintainerCanModify,
+			draft: isDraft,
+		};
+
+		const response = await this.requestPOST(url, JSON.stringify(body));
+
+		if (response.status != GitHubHttpStatusCodes.Created) {
+			const errorMsg = `Error: ${response.status}(${response.statusText})`;
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
+
+		const newPullRequest = await response.json() as PullRequestModel;
+
+		return newPullRequest;
+	}
+
+	/**
 	 * Checks if a pull request with the given {@link prNumber } exists with the given {@link state} in a
 	 * repository that matches the given {@link repoName}.
 	 * @param repoName The name of the repository.
@@ -417,17 +469,17 @@ export class PullRequestClient extends GitHubClient {
 
 		repoName = repoName.toLowerCase();
 
-		const issues = await this.getAllDataUntil<IPullRequestModel>(
+		const issues = await this.getAllDataUntil<PullRequestModel>(
 			async (page: number, qtyPerPage?: number) => {
 				return await this.getPullRequests(repoName, page, qtyPerPage, state);
 			},
 			1, // Start page
 			100, // Qty per page
-			(pageOfData: IPullRequestModel[]) => {
-				return pageOfData.some((issue: IPullRequestModel) => issue.number === prNumber);
+			(pageOfData: PullRequestModel[]) => {
+				return pageOfData.some((issue: PullRequestModel) => issue.number === prNumber);
 			},
 		);
 
-		return issues.find((issue: IPullRequestModel) => issue.number === prNumber) != undefined;
+		return issues.find((issue: PullRequestModel) => issue.number === prNumber) != undefined;
 	}
 }

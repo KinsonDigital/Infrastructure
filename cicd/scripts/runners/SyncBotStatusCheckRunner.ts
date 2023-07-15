@@ -5,13 +5,14 @@ import { ProjectClient } from "../../clients/ProjectClient.ts";
 import { PullRequestClient } from "../../clients/PullRequestClient.ts";
 import { EventType } from "../../core/Types.ts";
 import { RepoClient } from "../../clients/RepoClient.ts";
-import { IPullRequestModel } from "../../core/Models/IPullRequestModel.ts";
-import { IIssueModel } from "../../core/Models/IIssueModel.ts";
-import { IProjectModel } from "../../core/Models/IProjectModel.ts";
+import { PullRequestModel } from "../../core/Models/PullRequestModel.ts";
+import { IssueModel } from "../../core/Models/IssueModel.ts";
+import { ProjectModel } from "../../core/Models/ProjectModel.ts";
 import { IIssueOrPRRequestData } from "../../core/IIssueOrPRRequestData.ts";
 import { IPRTemplateSettings } from "../../core/IPRTemplateSettings.ts";
 import { PRTemplateManager } from "../../core/PRTemplateManager.ts";
 import { GitHubLogType, IssueState } from "../../core/Enums.ts";
+import { GitHubVariableService } from "../../core/Services/GitHubVariableService.ts";
 
 /**
  * Runs as a sync bot and a pull request status check.
@@ -22,11 +23,11 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	private readonly projClient: ProjectClient;
 	private readonly prClient: PullRequestClient;
 	private readonly repoClient: RepoClient;
-	private issue: IIssueModel | null = null;
-	private pr: IPullRequestModel | null = null;
-	private issueProjects: IProjectModel[] | null = null;
-	private prProjects: IProjectModel[] | null = null;
-	private readonly organization: string = "KinsonDigital";
+	private readonly githubVarService: GitHubVariableService;
+	private issue: IssueModel | null = null;
+	private pr: PullRequestModel | null = null;
+	private issueProjects: ProjectModel[] | null = null;
+	private prProjects: ProjectModel[] | null = null;
 
 	/**
 	 * Initializes a new instance of the {@link SyncBotStatusCheckRunner} class.
@@ -34,26 +35,16 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @param scriptName The name of the script executing the runner.
 	 */
 	constructor(args: string[], scriptName: string) {
-		if (args.length != 4) {
-			const argDescriptions = [
-				`The ${scriptName} cicd script must have 4 arguments.`,
-				"Required and must be a valid GitHub repository name.",
-				"Required and must be a valid issue or pull request number.",
-				"Required and must be a valid case-insensitive workflow event type of 'issue' or 'pr'.",
-				"Required and must be a GitHub PAT (Personal Access Token)."];
-
-			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.error);
-			Deno.exit(1);
-		}
-
 		super(args);
 
-		const githubToken = args[args.length - 1];
-		this.prTemplateManager = new PRTemplateManager(githubToken);
-		this.repoClient = new RepoClient(githubToken);
-		this.issueClient = new IssueClient(githubToken);
-		this.projClient = new ProjectClient(githubToken);
-		this.prClient = new PullRequestClient(githubToken);
+		const [orgName, repoName, , , token] = args;
+
+		this.prTemplateManager = new PRTemplateManager(orgName, repoName, token);
+		this.repoClient = new RepoClient(token);
+		this.issueClient = new IssueClient(token);
+		this.projClient = new ProjectClient(token);
+		this.prClient = new PullRequestClient(token);
+		this.githubVarService = new GitHubVariableService(orgName, repoName, token);
 	}
 
 	/**
@@ -62,9 +53,10 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	public async run(): Promise<void> {
 		await super.run();
 
-		const [repoName, issueOrPrNumber, eventType, githubToken] = this.args;
+		const [orgName, repoName, issueOrPrNumber, eventType, githubToken] = this.args;
 
 		Utils.printInGroup("Script Arguments", [
+			`Organization Name (Required): ${orgName}`,
 			`Repo Name (Required): ${repoName}`,
 			`${eventType === "issue" ? "Issue" : "Pull Request"} Number (Required): ${issueOrPrNumber}`,
 			`Event Type (Required): ${eventType}`,
@@ -94,7 +86,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 				if (prLinkMetaData === null) {
 					let noticeMsg = `The issue '${issueNumber}' does not contain any pull request metadata.`;
 					noticeMsg += "\n\nThe expected metadata should come in the form of '<!--closed-by-pr:[0-9]+-->'";
-					noticeMsg += `Issue: ${Utils.buildIssueUrl(this.organization, repoName, issueNumber)}`;
+					noticeMsg += `Issue: ${Utils.buildIssueUrl(orgName, repoName, issueNumber)}`;
 
 					Utils.printAsGitHubNotice(noticeMsg);
 					Deno.exit(0);
@@ -132,7 +124,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			let syncDisabledMsg = `Syncing for pull request '${prNumber}' is disabled.`;
 			syncDisabledMsg += "\nMake sure that the pull request description contains a valid PR sync template";
 			syncDisabledMsg += "\n and make sure that syncing is enabled by checking the 'Sync with the issue' checkbox.";
-			syncDisabledMsg += `\nPR: ${Utils.buildPullRequestUrl(this.organization, repoName, prNumber)}`;
+			syncDisabledMsg += `\nPR: ${Utils.buildPullRequestUrl(orgName, repoName, prNumber)}`;
 
 			Utils.printAsGitHubNotice(syncDisabledMsg);
 			Deno.exit(0);
@@ -144,8 +136,8 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			problemsFound.push(...await this.runAsStatusCheck(repoName, issueNumber, prNumber));
 		}
 
-		const prUrl = `\nIssue: ${Utils.buildIssueUrl(this.organization, repoName, issueNumber)}`;
-		const issueUrl = `\nPull Request: ${Utils.buildPullRequestUrl(this.organization, repoName, prNumber)}`;
+		const prUrl = `\nIssue: ${Utils.buildIssueUrl(orgName, repoName, issueNumber)}`;
+		const issueUrl = `\nPull Request: ${Utils.buildPullRequestUrl(orgName, repoName, prNumber)}`;
 
 		let successMsg = `✅No problems found. Issue '${issueNumber}' synced with pull request '${prNumber}'.`;
 		successMsg += prUrl;
@@ -167,6 +159,20 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @inheritdoc
 	 */
 	protected validateArgs(args: string[]): void {
+		if (args.length != 5) {
+			const argDescriptions = [
+				`The cicd script must have 5 arguments.`,
+				"Required and must be a valid GitHub organization name.",
+				"Required and must be a valid GitHub repository name.",
+				"Required and must be a valid issue or pull request number.",
+				"Required and must be a valid case-insensitive workflow event type of 'issue' or 'pr'.",
+				"Required and must be a GitHub PAT (Personal Access Token).",
+			];
+
+			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.error);
+			Deno.exit(1);
+		}
+
 		args = args.map((arg) => arg.trim());
 
 		const issueOrPRNumberStr = args[1];
@@ -184,6 +190,21 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	protected mutateArgs(args: string[]): string[] {
+		let [orgName, repoName, issueOrPrNumber, eventType, githubToken] = args;
+
+		orgName = orgName.trim();
+		repoName = repoName.trim();
+		issueOrPrNumber = issueOrPrNumber.trim();
+		eventType = eventType.trim().toLowerCase();
+		githubToken = githubToken.trim();
+
+		return [orgName, repoName, issueOrPrNumber, eventType, githubToken];
 	}
 
 	/**
@@ -245,8 +266,8 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		issueNumber: number,
 		prNumber: number,
 	): Promise<IPRTemplateSettings> {
-		const issueProjects: IProjectModel[] = await this.getIssueOrgProjects(repoName, issueNumber);
-		const prProjects: IProjectModel[] = await this.getPullRequestOrgProjects(repoName, prNumber);
+		const issueProjects: ProjectModel[] = await this.getIssueOrgProjects(repoName, issueNumber);
+		const prProjects: ProjectModel[] = await this.getPullRequestOrgProjects(repoName, prNumber);
 
 		const issueTitle = (await this.getIssue(repoName, issueNumber)).title;
 		const issueAssignees = (await this.getIssue(repoName, issueNumber)).assignees;
@@ -261,7 +282,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		const prHeadBranch = pr.head.ref;
 		const prBaseBranch = pr.base.ref;
 
-		const allowedPRBaseBranches = await this.getAllowedPRBaseBranches(repoName);
+		const allowedPRBaseBranches = await this.getAllowedPRBaseBranches();
 
 		const headBranchIsValid = Utils.isFeatureBranch(prHeadBranch);
 		const baseBranchIsValid = allowedPRBaseBranches.some((branch) => branch === prBaseBranch);
@@ -293,7 +314,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @param issueNumber
 	 * @returns
 	 */
-	private async getIssue(repoName: string, issueNumber: number): Promise<IIssueModel> {
+	private async getIssue(repoName: string, issueNumber: number): Promise<IssueModel> {
 		if (this.issue === null) {
 			this.issue = await this.issueClient.getIssue(repoName, issueNumber);
 		}
@@ -309,7 +330,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @returns The pull request.
 	 * @remarks Caches the pull request on the first call.
 	 */
-	private async getPullRequest(repoName: string, prNumber: number): Promise<IPullRequestModel> {
+	private async getPullRequest(repoName: string, prNumber: number): Promise<PullRequestModel> {
 		if (this.pr === null) {
 			this.pr = await this.prClient.getPullRequest(repoName, prNumber);
 		}
@@ -322,37 +343,26 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @param repoName The name of the repository.
 	 * @returns The list of allowed base branches.
 	 */
-	private async getAllowedPRBaseBranches(repoName: string): Promise<string[]> {
+	private async getAllowedPRBaseBranches(): Promise<string[]> {
 		// This repo variable is optional
 		const prSyncBaseBranchesVarName = "PR_SYNC_BASE_BRANCHES";
 		const defaultBranches = ["main", "preview"];
-		const repoVars = (await this.repoClient.getVariables(repoName)).filter(v => v.name === prSyncBaseBranchesVarName);
-		
-		if (repoVars.length === 0) {
-			let noticeMsg = "The PR_SYNC_BASE_BRANCHES variable does not exist.";
-			noticeMsg += `\nUsing the default branches: ${defaultBranches.join(", ")}.`;
 
-			Utils.printAsGitHubNotice(noticeMsg);
+		const prSyncBranchesStr = await this.githubVarService.getValue(prSyncBaseBranchesVarName, false);
+
+		if (Utils.isNullOrEmptyOrUndefined(prSyncBranchesStr)) {
+			let warningMsg = "The optional variable 'PR_SYNC_BASE_BRANCHES' does not exist or contains no value.";
+			warningMsg += `\nUsing the default branches: ${defaultBranches.join(", ")}.`;
+			Utils.printAsGitHubWarning(warningMsg);
+
 			return defaultBranches;
-		} else {
-			const prSyncBaseBranchesVar = repoVars[0];
-
-			if (Utils.isNullOrEmptyOrUndefined(prSyncBaseBranchesVar.value)) {
-				let warningMsg = "The PR_SYNC_BASE_BRANCHES variable contains no value.";
-				warningMsg += `\nUsing the default branches: ${defaultBranches.join(", ")}.`;
-				Utils.printAsGitHubWarning(warningMsg);
-
-				return defaultBranches;
-			}
-
-			const prSyncBaseBranches = prSyncBaseBranchesVar.value.split(",")
-				.map(v => v.trim())
-				.filter((i) => !Utils.isNullOrEmptyOrUndefined(i));
-
-			return prSyncBaseBranches.length > 0 ? prSyncBaseBranches : defaultBranches;
 		}
+
+		const prSyncBaseBranches = Utils.splitByComma(prSyncBranchesStr);
+
+		return prSyncBaseBranches.length > 0 ? prSyncBaseBranches : defaultBranches;
 	}
-	
+
 	/**
 	 * Gets a list of organization projects associated with an issue with the given {@link issueNumber} from a repository
 	 * with a name that matches the given {@link repoName}.
@@ -361,7 +371,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @returns The projects associated with the issue.
 	 * @remarks Caches the projects on the first call.
 	 */
-	private async getIssueOrgProjects(repoName: string, issueNumber: number): Promise<IProjectModel[]> {
+	private async getIssueOrgProjects(repoName: string, issueNumber: number): Promise<ProjectModel[]> {
 		if (this.issueProjects === null) {
 			this.issueProjects = await this.projClient.getIssueProjects(repoName, issueNumber);
 		}
@@ -377,7 +387,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @returns The projects associated with the pull request.
 	 * @remarks Caches the projects on the first call.
 	 */
-	private async getPullRequestOrgProjects(repoName: string, prNumber: number): Promise<IProjectModel[]> {
+	private async getPullRequestOrgProjects(repoName: string, prNumber: number): Promise<ProjectModel[]> {
 		if (this.prProjects === null) {
 			this.prProjects = await this.projClient.getPullRequestProjects(repoName, prNumber);
 		}

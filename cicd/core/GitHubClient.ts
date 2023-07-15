@@ -78,7 +78,7 @@ export abstract class GitHubClient extends WebAPIClient {
 
 			// Add the rest of the pages of data
 			for (let i = 0; i < responses.length; i++) {
-				const [pageData, _] = responses[i];
+				const [pageData] = responses[i];
 
 				allData.push(...pageData);
 			}

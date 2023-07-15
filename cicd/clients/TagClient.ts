@@ -1,5 +1,5 @@
 import { Guard } from "../core/Guard.ts";
-import { ITagModel } from "../core/Models/ITagModel.ts";
+import { TagModel } from "../core/Models/TagModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { GitHubHttpStatusCodes } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
@@ -28,7 +28,7 @@ export class TagClient extends GitHubClient {
 	 * The {@link qtyPerPage} value must be a value between 1 and 100. If less than 1, the value will
 	 * be set to 1, if greater than 100, the value will be set to 100.
 	 */
-	public async getTags(repoName: string, page: number, qtyPerPage: number): Promise<[ITagModel[], Response]> {
+	public async getTags(repoName: string, page: number, qtyPerPage: number): Promise<[TagModel[], Response]> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getTags", "repoName");
 
 		repoName = repoName.trim();
@@ -38,7 +38,7 @@ export class TagClient extends GitHubClient {
 		const queryParams = `?page=${page}&per_page=${qtyPerPage}`;
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/tags${queryParams}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status === GitHubHttpStatusCodes.NotFound) {
@@ -46,7 +46,7 @@ export class TagClient extends GitHubClient {
 			Deno.exit(1);
 		}
 
-		return [<ITagModel[]> await this.getResponseData(response), response];
+		return [<TagModel[]> await this.getResponseData(response), response];
 	}
 
 	/**
@@ -55,7 +55,7 @@ export class TagClient extends GitHubClient {
 	 * @param tagName The name of the tag.
 	 * @returns Returns the tag with the given name.
 	 */
-	public async getTagByName(repoName: string, tagName: string): Promise<ITagModel> {
+	public async getTagByName(repoName: string, tagName: string): Promise<TagModel> {
 		const funcName = "getTagByName";
 		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
 		Guard.isNullOrEmptyOrUndefined(tagName, funcName, "tagName");
@@ -63,18 +63,18 @@ export class TagClient extends GitHubClient {
 		repoName = repoName.trim();
 		repoName = repoName.trim();
 
-		const foundTags = await this.getAllDataUntil<ITagModel>(
+		const foundTags = await this.getAllDataUntil<TagModel>(
 			async (page: number, qtyPerPage?: number) => {
 				return await this.getTags(repoName, page, qtyPerPage ?? 100);
 			},
 			1, // Start page
 			100, // Qty per page
-			(pageOfData: ITagModel[]) => {
-				return pageOfData.some((tag: ITagModel) => tag.name.trim() === tagName);
+			(pageOfData: TagModel[]) => {
+				return pageOfData.some((tag: TagModel) => tag.name.trim() === tagName);
 			},
 		);
 
-		const foundTag = foundTags.find((tag: ITagModel) => tag.name.trim() === tagName);
+		const foundTag = foundTags.find((tag: TagModel) => tag.name.trim() === tagName);
 
 		if (foundTag === undefined) {
 			Utils.printAsGitHubError(`The tag '${tagName}' could not be found.`);
@@ -98,14 +98,14 @@ export class TagClient extends GitHubClient {
 		repoName = repoName.trim();
 		tagName = tagName.trim();
 
-		const foundTags = await this.getAllDataUntil<ITagModel>(
+		const foundTags = await this.getAllDataUntil<TagModel>(
 			async (page: number, qtyPerPage?: number) => {
 				return await this.getTags(repoName, page, qtyPerPage ?? 100);
 			},
 			1, // Start page
 			100, // Qty per page
-			(pageOfData: ITagModel[]) => {
-				return pageOfData.some((tag: ITagModel) => tag.name.trim() === tagName);
+			(pageOfData: TagModel[]) => {
+				return pageOfData.some((tag: TagModel) => tag.name.trim() === tagName);
 			},
 		);
 

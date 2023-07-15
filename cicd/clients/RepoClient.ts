@@ -1,18 +1,18 @@
-import { decode } from "https://deno.land/std@0.192.0/encoding/base64.ts";
+import { decode, encode } from "https://deno.land/std@0.194.0/encoding/base64.ts";
 import { GitHubHttpStatusCodes } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
 import { Guard } from "../core/Guard.ts";
-import { IFileContentModel } from "../core/Models/IFileContentModel.ts";
-import { IRepoModel } from "../core/Models/IRepoModel.ts";
+import { FileContentModel } from "../core/Models/FileContentModel.ts";
+import { RepoModel } from "../core/Models/RepoModel.ts";
 import { Utils } from "../core/Utils.ts";
-import { IRepoVarModel } from "../core/Models/IRepoVarModel.ts";
-import { IRepoVariablesModel } from "../core/Models/IRepoVariablesModel.ts";
+import { GitHubVarModel } from "../core/Models/GitHubVarModel.ts";
+import { GitHubVariablesModel } from "../core/Models/GitHubVariablesModel.ts";
 
 /**
  * Provides a client for interacting with GitHub repositories.
  */
 export class RepoClient extends GitHubClient {
-	private readonly newLineBase64 = btoa("\n");
+	private readonly newLineBase64 = encode("\n");
 
 	/**
 	 * Initializes a new instance of the {@link RepoClient} class.
@@ -27,23 +27,23 @@ export class RepoClient extends GitHubClient {
 	 * @param repoName The name of the repository.
 	 * @returns A repository.
 	 */
-	public async getRepoByName(repoName: string): Promise<IRepoModel> {
+	public async getRepoByName(repoName: string): Promise<RepoModel> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getRepoByName", "repoName");
 
-		repoName = repoName.trim();
+		repoName = repoName.trim().toLowerCase();
 
-		const foundRepos = await this.getAllDataUntil<IRepoModel>(
+		const foundRepos = await this.getAllDataUntil<RepoModel>(
 			async (page, qtyPerPage) => {
-				return await this.getRepos(page, qtyPerPage ?? 100);
+				return await this.getUserRepos(page, qtyPerPage ?? 100);
 			},
 			1, // Start page
 			100, // Qty per page
-			(pageOfData: IRepoModel[]) => {
-				return pageOfData.some((repo) => repo.name.trim() === repoName);
+			(pageOfData: RepoModel[]) => {
+				return pageOfData.some((repo) => repo.name.trim().toLowerCase() === repoName);
 			},
 		);
 
-		const foundRepo: IRepoModel | undefined = foundRepos.find((repo) => repo.name.trim() === repoName);
+		const foundRepo: RepoModel | undefined = foundRepos.find((repo) => repo.name.trim().toLowerCase() === repoName);
 
 		if (foundRepo === undefined) {
 			Utils.printAsGitHubError(`The repository '${repoName}' was not found.`);
@@ -62,24 +62,25 @@ export class RepoClient extends GitHubClient {
 	 * The {@link qtyPerPage} value must be a value between 1 and 100. If less than 1, the value will
 	 * be set to 1, if greater than 100, the value will be set to 100.
 	 */
-	public async getRepos(page: number, qtyPerPage: number): Promise<[IRepoModel[], Response]> {
+	public async getUserRepos(page: number, qtyPerPage: number): Promise<[RepoModel[], Response]> {
 		page = page < 1 ? 1 : page;
 		qtyPerPage = Utils.clamp(qtyPerPage, 1, 100);
 
 		const queryParams = `?page=${page}&per_page=${qtyPerPage}`;
-		const url = `${this.baseUrl}/repos/${this.organization}/repos${queryParams}`;
+		const url = `${this.baseUrl}/users/${this.organization}/repos${queryParams}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status === GitHubHttpStatusCodes.NotFound) {
-			const errorMsg = `Not found. Check that the repository owner '${this.organization}' is a valid repository owner.`;
+			let errorMsg = `Not found. Check that the repository owner '${this.organization}' is a valid repository owner.`;
+			errorMsg += `\nError: ${response.status}(${response.statusText})`;
 			Utils.printAsGitHubError(errorMsg);
 
 			Deno.exit(1);
 		}
 
-		return [<IRepoModel[]> await this.getResponseData(response), response];
+		return [<RepoModel[]> await this.getResponseData(response), response];
 	}
 
 	/**
@@ -94,7 +95,7 @@ export class RepoClient extends GitHubClient {
 
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status === GitHubHttpStatusCodes.NotFound) {
@@ -121,7 +122,7 @@ export class RepoClient extends GitHubClient {
 	 * @returns The content of the file.
 	 * @remarks The {@link relativeFilePath} is relative to the root of the repository.
 	 */
-	public async getFileContent(repoName: string, relativeFilePath: string): Promise<string> {
+	public async getFileContent(repoName: string, branchName: string, relativeFilePath: string): Promise<string> {
 		const funcName = "getFileContent";
 		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
 		Guard.isNullOrEmptyOrUndefined(relativeFilePath, funcName, "relativeFilePath");
@@ -129,9 +130,10 @@ export class RepoClient extends GitHubClient {
 		relativeFilePath = relativeFilePath.trim();
 		relativeFilePath = relativeFilePath.startsWith("/") ? relativeFilePath : `/${relativeFilePath}`;
 
-		const url = `https://api.github.com/repos/${this.organization}/${repoName}/contents${relativeFilePath}`;
+		const queryParams = `?ref=${branchName}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/contents${relativeFilePath}${queryParams}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		switch (response.status) {
 			case GitHubHttpStatusCodes.NotFound:
@@ -141,7 +143,7 @@ export class RepoClient extends GitHubClient {
 				Deno.exit(1);
 		}
 
-		const responseData = <IFileContentModel> await this.getResponseData(response);
+		const responseData = <FileContentModel> await this.getResponseData(response);
 
 		// Replace all plain text new line character strings with actual new line characters
 		const content = responseData.content.replace(/\\n/g, this.newLineBase64);
@@ -166,9 +168,9 @@ export class RepoClient extends GitHubClient {
 		relativeFilePath = relativeFilePath.trim();
 		relativeFilePath = relativeFilePath.startsWith("/") ? relativeFilePath : `/${relativeFilePath}`;
 
-		const url = `https://api.github.com/repos/${this.organization}/${repoName}/contents${relativeFilePath}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/contents${relativeFilePath}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		if (response.status === GitHubHttpStatusCodes.NotFound) {
 			return false;
@@ -182,14 +184,14 @@ export class RepoClient extends GitHubClient {
 	 * @param repoName The name of the repository.
 	 * @returns A list of all repositories variables.
 	 */
-	public async getVariables(repoName: string): Promise<IRepoVarModel[]> {
+	public async getVariables(repoName: string): Promise<GitHubVarModel[]> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getOrgVariables", "organization");
 
-		return await this.getAllData<IRepoVarModel>(async (page: number, qtyPerPage?: number) => {
+		return await this.getAllData<GitHubVarModel>(async (page: number, qtyPerPage?: number) => {
 			const queryString = `?page=${page}&per_page=${qtyPerPage}`;
 			const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/actions/variables${queryString}`;
 
-			const response = await this.fetchGET(url);
+			const response = await this.requestGET(url);
 
 			if (response.status != GitHubHttpStatusCodes.OK) {
 				let errorMsg = `An error occurred when getting the variables for the organization '${this.organization}'.`;
@@ -199,9 +201,48 @@ export class RepoClient extends GitHubClient {
 				Deno.exit(1);
 			}
 
-			const vars = await this.getResponseData<IRepoVariablesModel>(response);
+			const vars = await this.getResponseData<GitHubVariablesModel>(response);
 
 			return [vars.variables, response];
 		});
+	}
+
+	/**
+	 * Creates a file in a repository with a name that matches the given {@link repoName}, on a branch
+	 * that matches the given {@link branchName}, at a relative path that matches the given {@link relativeFilePath},
+	 * where the content is the given {@link fileContent}, and the commit message is the given {@link commitMessage}.
+	 * @param repoName The name of the repository.
+	 * @param branchName The name of the branch.
+	 * @param relativeFilePath The relative path of where to add the file.
+	 * @param fileContent The content of the file.
+	 * @param commitMessage The commit message.
+	 */
+	public async createFile(
+		repoName: string,
+		branchName: string,
+		relativeFilePath: string,
+		fileContent: string,
+		commitMessage: string,
+	): Promise<void> {
+		relativeFilePath = Utils.normalizePath(relativeFilePath);
+		Utils.trimAllStartingValue("/", relativeFilePath);
+
+		const body = {
+			message: commitMessage,
+			content: encode(fileContent),
+			branch: branchName,
+		};
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/contents/${relativeFilePath}`;
+
+		const response = await this.requestPUT(url, JSON.stringify(body));
+
+		if (response.status != GitHubHttpStatusCodes.OK && response.status != GitHubHttpStatusCodes.Created) {
+			let errorMsg = `An error occurred when creating the file '${relativeFilePath}' in the repository '${repoName}'`;
+			errorMsg += ` for branch '${branchName}'.`;
+			errorMsg += `\nError: ${response.status}(${response.statusText})`;
+
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
 	}
 }

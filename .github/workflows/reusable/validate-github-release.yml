@@ -1,0 +1,64 @@
+name: Validate GitHub Release
+
+
+defaults:
+  run:
+    shell: pwsh
+
+
+on:
+  workflow_call:
+    inputs:
+      project-name:
+        required: true
+        description: "The name of the C# project to validate."
+        type: string
+      version:
+        required: true
+        description: The version of the release to validate.
+        type: string
+      cicd-scripts-version:
+        required: true
+        description: The version of the CICD scripts to use.
+        type: string
+    secrets:
+      cicd-pat:
+        required: true
+        description: The CICD personal access token.
+      
+
+jobs:
+  build_script_url:
+    name: Build Script URL
+    uses: KinsonDigital/Infrastructure/.github/workflows/reusable/create-script-url.yml@v9.0.0
+    with:
+      project-name: ${{ inputs.project-name }}
+      cicd-scripts-version: ${{ inputs.cicd-scripts-version }}
+
+
+  validate_github_release:
+    name: Validate GitHub Release
+    runs-on: ubuntu-latest
+    needs: build_script_url
+    steps:
+      - name: Set Up Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: GitHub Release Does Not Exist 
+        run: |
+          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/github-release-does-not-exist.ts";
+
+          <# Deno Args:
+            1. RepoName
+            2. TagName - This is the version
+            3. GitHubToken
+          #>
+          deno run `
+            --allow-net `
+            "$scriptUrl" `
+            "${{ inputs.project-name }}" `
+            "${{ inputs.version }}" `
+            "${{ secrets.cicd-pat }}";
+

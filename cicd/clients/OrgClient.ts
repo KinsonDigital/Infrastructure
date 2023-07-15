@@ -1,9 +1,9 @@
 import { GitHubHttpStatusCodes, OrgMemberRole } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
 import { Guard } from "../core/Guard.ts";
-import { IOrgVarModel } from "../core/Models/IOrgVarModel.ts";
-import { IOrgVariablesModel } from "../core/Models/IOrgVariablesModel.ts";
-import { IUserModel } from "../core/Models/IUserModel.ts";
+import { GitHubVarModel } from "../core/Models/GitHubVarModel.ts";
+import { GitHubVariablesModel } from "../core/Models/GitHubVariablesModel.ts";
+import { UserModel } from "../core/Models/UserModel.ts";
 import { Utils } from "../core/Utils.ts";
 
 /**
@@ -34,14 +34,14 @@ export class OrgClient extends GitHubClient {
 		page = 1,
 		qtyPerPage = 100,
 		role: OrgMemberRole = OrgMemberRole.all,
-	): Promise<[IUserModel[], Response]> {
+	): Promise<[UserModel[], Response]> {
 		page = page < 1 ? 1 : page;
 		qtyPerPage = Utils.clamp(qtyPerPage, 1, 100);
 
 		const queryString = `?role=${role}&page=${page}&per_page=${qtyPerPage}`;
 		const url = `${this.baseUrl}/orgs/${organization}/members${queryString}`;
 
-		const response = await this.fetchGET(url);
+		const response = await this.requestGET(url);
 
 		if (response.status != GitHubHttpStatusCodes.OK) {
 			let errorMsg = `An error occurred when getting the private members for the organization '${this.organization}'.`;
@@ -51,7 +51,7 @@ export class OrgClient extends GitHubClient {
 			Deno.exit(1);
 		}
 
-		return [await this.getResponseData<IUserModel[]>(response), response];
+		return [await this.getResponseData<UserModel[]>(response), response];
 	}
 
 	/**
@@ -69,14 +69,14 @@ export class OrgClient extends GitHubClient {
 		page = 1,
 		qtyPerPage = 100,
 		role: OrgMemberRole = OrgMemberRole.all,
-	): Promise<[IUserModel[], Response]> {
+	): Promise<[UserModel[], Response]> {
 		page = page < 1 ? 1 : page;
 		qtyPerPage = Utils.clamp(qtyPerPage, 1, 100);
 
 		const queryString = `?role=${role}&page=${page}&per_page=${qtyPerPage}`;
 		const url = `${this.baseUrl}/orgs/${organization}/public_members${queryString}`;
 
-		const response = await this.fetchGET(url);
+		const response = await this.requestGET(url);
 
 		if (response.status != GitHubHttpStatusCodes.OK) {
 			let errorMsg = `An error occurred when getting the private members for the organization '${this.organization}'.`;
@@ -86,7 +86,7 @@ export class OrgClient extends GitHubClient {
 			Deno.exit(1);
 		}
 
-		return [await this.getResponseData<IUserModel[]>(response), response];
+		return [await this.getResponseData<UserModel[]>(response), response];
 	}
 
 	/**
@@ -95,8 +95,8 @@ export class OrgClient extends GitHubClient {
 	 * @returns The list of private members for an organization.
 	 * @remarks Requires authentication.
 	 */
-	public async getPrivateAdminMembers(organization: string): Promise<IUserModel[]> {
-		return await this.getAllData<IUserModel>(async (page: number, qtyPerPage?: number) => {
+	public async getPrivateAdminMembers(organization: string): Promise<UserModel[]> {
+		return await this.getAllData<UserModel>(async (page: number, qtyPerPage?: number) => {
 			return await this.getPrivateMembers(organization, page, qtyPerPage, OrgMemberRole.admin);
 		});
 	}
@@ -107,8 +107,8 @@ export class OrgClient extends GitHubClient {
 	 * @returns The list of private members for an organization.
 	 * @remarks Requires authentication.
 	 */
-	public async getPrivateNonAdminMembers(organization: string): Promise<IUserModel[]> {
-		return await this.getAllData<IUserModel>(async (page: number, qtyPerPage?: number) => {
+	public async getPrivateNonAdminMembers(organization: string): Promise<UserModel[]> {
+		return await this.getAllData<UserModel>(async (page: number, qtyPerPage?: number) => {
 			return await this.getPrivateMembers(organization, page, qtyPerPage, OrgMemberRole.member);
 		});
 	}
@@ -119,8 +119,8 @@ export class OrgClient extends GitHubClient {
 	 * @returns The list of private members for an organization.
 	 * @remarks Requires authentication.
 	 */
-	public async getAllPrivateMembers(organization: string): Promise<IUserModel[]> {
-		return await this.getAllData<IUserModel>(async (page: number, qtyPerPage?: number) => {
+	public async getAllPrivateMembers(organization: string): Promise<UserModel[]> {
+		return await this.getAllData<UserModel>(async (page: number, qtyPerPage?: number) => {
 			return await this.getPrivateMembers(organization, page, qtyPerPage, OrgMemberRole.all);
 		});
 	}
@@ -131,8 +131,8 @@ export class OrgClient extends GitHubClient {
 	 * @returns The list of public members for an organization.
 	 * @remarks Does not require authentication.
 	 */
-	public async getPublicAdminMembers(organization: string): Promise<IUserModel[]> {
-		return await this.getAllData<IUserModel>(async (page: number, qtyPerPage?: number) => {
+	public async getPublicAdminMembers(organization: string): Promise<UserModel[]> {
+		return await this.getAllData<UserModel>(async (page: number, qtyPerPage?: number) => {
 			return await this.getPublicMembers(organization, page, qtyPerPage, OrgMemberRole.admin);
 		});
 	}
@@ -143,8 +143,8 @@ export class OrgClient extends GitHubClient {
 	 * @returns The list of public members for an organization.
 	 * @remarks Does not require authentication.
 	 */
-	public async getPublicNonAdminMembers(organization: string): Promise<IUserModel[]> {
-		return await this.getAllData<IUserModel>(async (page: number, qtyPerPage?: number) => {
+	public async getPublicNonAdminMembers(organization: string): Promise<UserModel[]> {
+		return await this.getAllData<UserModel>(async (page: number, qtyPerPage?: number) => {
 			return await this.getPublicMembers(organization, page, qtyPerPage, OrgMemberRole.member);
 		});
 	}
@@ -155,8 +155,8 @@ export class OrgClient extends GitHubClient {
 	 * @returns The list of public members for an organization.
 	 * @remarks Does not require authentication.
 	 */
-	public async getAllPublicMembers(organization: string): Promise<IUserModel[]> {
-		return await this.getAllData<IUserModel>(async (page: number, qtyPerPage?: number) => {
+	public async getAllPublicMembers(organization: string): Promise<UserModel[]> {
+		return await this.getAllData<UserModel>(async (page: number, qtyPerPage?: number) => {
 			return await this.getPublicMembers(organization, page, qtyPerPage, OrgMemberRole.all);
 		});
 	}
@@ -167,8 +167,8 @@ export class OrgClient extends GitHubClient {
 	 * @returns The list of members for an organization.
 	 * @remarks Requires authentication.
 	 */
-	public async getAllOrgMembers(organization: string): Promise<IUserModel[]> {
-		const result: IUserModel[] = [];
+	public async getAllOrgMembers(organization: string): Promise<UserModel[]> {
+		const result: UserModel[] = [];
 
 		const allOrgPrivateMembers = await this.getAllPrivateMembers(organization);
 		const allOrgPublicMembers = await this.getAllPublicMembers(organization);
@@ -185,8 +185,8 @@ export class OrgClient extends GitHubClient {
 	 * @param organization The name of the organization.
 	 * @returns The list of admin members for an organization.
 	 */
-	public async getAllAdminMembers(organization: string): Promise<IUserModel[]> {
-		const result: IUserModel[] = [];
+	public async getAllAdminMembers(organization: string): Promise<UserModel[]> {
+		const result: UserModel[] = [];
 
 		const allPrivateOrgMembers = await this.getPrivateAdminMembers(organization);
 		const allPublicOrgMembers = await this.getPublicAdminMembers(organization);
@@ -228,14 +228,14 @@ export class OrgClient extends GitHubClient {
 	 * @param organization The name of the organization.
 	 * @returns A list of all the organization's variables.
 	 */
-	public async getVariables(organization: string): Promise<IOrgVarModel[]> {
+	public async getVariables(organization: string): Promise<GitHubVarModel[]> {
 		Guard.isNullOrEmptyOrUndefined(organization, "getOrgVariables", "organization");
 
-		return await this.getAllData<IOrgVarModel>(async (page: number, qtyPerPage?: number) => {
+		return await this.getAllData<GitHubVarModel>(async (page: number, qtyPerPage?: number) => {
 			const queryString = `?page=${page}&per_page=${qtyPerPage}`;
 			const url = `${this.baseUrl}/orgs/${organization}/actions/variables${queryString}`;
 
-			const response = await this.fetchGET(url);
+			const response = await this.requestGET(url);
 
 			if (response.status != GitHubHttpStatusCodes.OK) {
 				let errorMsg = `An error occurred when getting the variables for the organization '${this.organization}'.`;
@@ -245,7 +245,7 @@ export class OrgClient extends GitHubClient {
 				Deno.exit(1);
 			}
 
-			const vars = await this.getResponseData<IOrgVariablesModel>(response);
+			const vars = await this.getResponseData<GitHubVariablesModel>(response);
 
 			return [vars.variables, response];
 		});

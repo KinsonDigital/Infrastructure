@@ -1,5 +1,5 @@
-import { IIssueModel } from "./Models/IIssueModel.ts";
-import { IPullRequestModel } from "./Models/IPullRequestModel.ts";
+import { IssueModel } from "./Models/IssueModel.ts";
+import { PullRequestModel } from "./Models/PullRequestModel.ts";
 
 /**
  * Represents a GitHub issue or pull request.
@@ -9,7 +9,7 @@ export type ItemType = "issue" | "pull-request";
 /**
  * Represents a GitHub issue or pull request.
  */
-export type IssueOrPR = IIssueModel | IPullRequestModel;
+export type IssueOrPR = IssueModel | PullRequestModel;
 
 /**
  * Represents any branch.

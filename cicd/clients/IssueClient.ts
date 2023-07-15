@@ -1,7 +1,7 @@
 import { Guard } from "../core/Guard.ts";
 import { LabelClient } from "./LabelClient.ts";
-import { IIssueModel } from "../core/Models/IIssueModel.ts";
-import { ILabelModel } from "../core/Models/ILabelModel.ts";
+import { IssueModel } from "../core/Models/IssueModel.ts";
+import { LabelModel } from "../core/Models/LabelModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { GitHubHttpStatusCodes, IssueOrPRState } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
@@ -29,10 +29,10 @@ export class IssueClient extends GitHubClient {
 	 * @returns The issue.
 	 * @remarks Does not require authentication.
 	 */
-	public async getAllOpenIssues(repoName: string): Promise<IIssueModel[]> {
+	public async getAllOpenIssues(repoName: string): Promise<IssueModel[]> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getAllOpenIssues", "repoName");
 
-		return await this.getAllData<IIssueModel>(async (page: number, qtyPerPage?: number) => {
+		return await this.getAllData<IssueModel>(async (page: number, qtyPerPage?: number) => {
 			return await this.getIssues(repoName, page, qtyPerPage);
 		});
 	}
@@ -43,10 +43,10 @@ export class IssueClient extends GitHubClient {
 	 * @returns The issue.
 	 * @remarks Does not require authentication.
 	 */
-	public async getAllClosedIssues(repoName: string): Promise<IIssueModel[]> {
+	public async getAllClosedIssues(repoName: string): Promise<IssueModel[]> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getAllClosedIssues", "repoName");
 
-		return await this.getAllData<IIssueModel>(async (page: number, qtyPerPage?: number) => {
+		return await this.getAllData<IssueModel>(async (page: number, qtyPerPage?: number) => {
 			return await this.getIssues(repoName, page, qtyPerPage, IssueOrPRState.closed);
 		});
 	}
@@ -76,7 +76,7 @@ export class IssueClient extends GitHubClient {
 		state: IssueOrPRState = IssueOrPRState.open,
 		labels?: string[] | null,
 		milestoneNumber?: number | null,
-	): Promise<[IIssueModel[], Response]> {
+	): Promise<[IssueModel[], Response]> {
 		const functionName = "getIssues";
 		Guard.isNullOrEmptyOrUndefined(repoName, functionName, "repoName");
 
@@ -96,7 +96,7 @@ export class IssueClient extends GitHubClient {
 			`?page=${page}&per_page=${qtyPerPage}&state=${state}${labelListQueryParam}${milestoneNumberQueryParam}`;
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues${queryParams}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status != GitHubHttpStatusCodes.OK) {
@@ -119,7 +119,7 @@ export class IssueClient extends GitHubClient {
 			Deno.exit(1);
 		}
 
-		const issues = (<IIssueModel[]> await this.getResponseData(response)).filter((issue) => Utils.isIssue(issue));
+		const issues = (<IssueModel[]> await this.getResponseData(response)).filter((issue) => Utils.isIssue(issue));
 
 		return [issues, response];
 	}
@@ -130,14 +130,14 @@ export class IssueClient extends GitHubClient {
 	 * @param issueNumber The issue number.
 	 * @returns The issue.
 	 */
-	public async getIssue(repoName: string, issueNumber: number): Promise<IIssueModel> {
+	public async getIssue(repoName: string, issueNumber: number): Promise<IssueModel> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getIssue", "repoName");
 		Guard.isLessThanOne(issueNumber, "getIssue", "issueNumber");
 
 		// REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#get-an-issue
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${issueNumber}`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status != GitHubHttpStatusCodes.OK) {
@@ -159,7 +159,7 @@ export class IssueClient extends GitHubClient {
 			Deno.exit(1);
 		}
 
-		const issue = <IIssueModel> await this.getResponseData(response);
+		const issue = <IssueModel> await this.getResponseData(response);
 
 		if (Utils.isIssue(issue)) {
 			return issue;
@@ -210,7 +210,7 @@ export class IssueClient extends GitHubClient {
 		// REST API Docs: https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${issueNumber}`;
 
-		const response: Response = await this.fetchPATCH(url, JSON.stringify({ labels: prLabels }));
+		const response: Response = await this.requestPATCH(url, JSON.stringify({ labels: prLabels }));
 
 		// If there is an error
 		if (response.status != GitHubHttpStatusCodes.OK) {
@@ -249,7 +249,7 @@ export class IssueClient extends GitHubClient {
 
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${issueNumber}/labels`;
 
-		const response: Response = await this.fetchGET(url);
+		const response: Response = await this.requestGET(url);
 
 		// If there is an error
 		if (response.status != GitHubHttpStatusCodes.OK) {
@@ -270,9 +270,9 @@ export class IssueClient extends GitHubClient {
 			Deno.exit(1);
 		}
 
-		const responseData = <ILabelModel[]> await this.getResponseData(response);
+		const responseData = <LabelModel[]> await this.getResponseData(response);
 
-		return responseData.map((label: ILabelModel) => label.name);
+		return responseData.map((label: LabelModel) => label.name);
 	}
 
 	/**
@@ -333,7 +333,7 @@ export class IssueClient extends GitHubClient {
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/issues/${issueNumber}`;
 
 		const issueBody: string = JSON.stringify(issueData);
-		const response = await this.fetchPATCH(url, issueBody);
+		const response = await this.requestPATCH(url, issueBody);
 
 		if (response.status != GitHubHttpStatusCodes.OK) {
 			if (response.status === GitHubHttpStatusCodes.NotFound) {
@@ -376,17 +376,17 @@ export class IssueClient extends GitHubClient {
 
 		repoName = repoName.toLowerCase();
 
-		const issues = await this.getAllDataUntil<IIssueModel>(
+		const issues = await this.getAllDataUntil<IssueModel>(
 			async (page: number, qtyPerPage?: number) => {
 				return await this.getIssues(repoName, page, qtyPerPage, state);
 			},
 			1, // Start page
 			100, // Qty per page
-			(pageOfData: IIssueModel[]) => {
-				return pageOfData.some((issue: IIssueModel) => issue.number === issueNumber);
+			(pageOfData: IssueModel[]) => {
+				return pageOfData.some((issue: IssueModel) => issue.number === issueNumber);
 			},
 		);
 
-		return issues.find((issue: IIssueModel) => issue.number === issueNumber) != undefined;
+		return issues.find((issue: IssueModel) => issue.number === issueNumber) != undefined;
 	}
 }

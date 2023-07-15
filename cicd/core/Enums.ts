@@ -393,3 +393,18 @@ export enum GitHubLogType {
 	 */
 	error,
 }
+
+/**
+ * Represents different types of releases.
+ */
+export enum ReleaseType {
+	/**
+	 * A preview release.
+	 */
+	preview = "preview",
+
+	/**
+	 * A production release.
+	 */
+	production = "production",
+}
