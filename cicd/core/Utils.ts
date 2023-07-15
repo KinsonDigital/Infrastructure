@@ -528,4 +528,37 @@ export class Utils {
 
 		return path;
 	}
+
+	/**
+	 * Splits the given {@link value} by the given {@link separator}.
+	 * @param value The value to split.
+	 * @param separator The separator to split the value by.
+	 * @returns The values split by the given separator.
+	 * @remarks Only the first character will be used by the given {@link separator}.
+	 */
+	public static splitBy(value: string, separator: string): string[] {
+		if (Utils.isNullOrEmptyOrUndefined(value)) {
+			return [];
+		}
+
+		if (Utils.isNullOrEmptyOrUndefined(separator)) {
+			return [value];
+		}
+
+		// Only use the first character for a separator
+		separator = separator.length === 1 ? separator : separator[0];
+
+		return value.indexOf(separator) === -1 ? [value] : value.split(separator)
+			.map((v) => v.trim())
+			.filter((i) => !Utils.isNullOrEmptyOrUndefined(i));
+	}
+
+	/**
+	 * Splits the given {@link value} by comma.
+	 * @param value The value to split by comma.
+	 * @returns The values split by comma.
+	 */
+	public static splitByComma(value: string): string[] {
+		return this.splitBy(value, ",");
+	}
 }
