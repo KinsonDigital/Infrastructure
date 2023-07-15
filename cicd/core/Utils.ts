@@ -514,8 +514,18 @@ export class Utils {
 		return valueToTrim;
 	}
 
+	/**
+	 * Normalizes the given {@link path} by replacing all back slashes with forward slashes,
+	 * and trimming any starting and ending slashes.
+	 * @param path The path to normalize.
+	 * @returns The normalized path.
 	 */
-	public static encodeToBase64(value: string): string {
-		return btoa(value);
+	public static normalizePath(path: string): string {
+		path = path.replaceAll("\\", "/");
+		path = path.replaceAll("//", "/");
+		path = Utils.trimAllStartingValue(path, "/");
+		path = Utils.trimAllEndingValue(path, "/");
+
+		return path;
 	}
 }
