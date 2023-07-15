@@ -381,10 +381,10 @@
             }
         },
 		{
-            "name": "Generate Release Notes (DEBUG)",
+            "name": "Prepare Release (DEBUG)",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/generate-release-notes.ts",
+            "program": "${workspaceFolder}/cicd/scripts/prepare-release.ts",
             "cwd": "${workspaceFolder}/cicd",
             "runtimeArgs": [
                 "run",
@@ -393,10 +393,9 @@
             ],
             "args": [
 				"KinsonDigital",
-				"Velaptor",
+				"Infrastructure",
 				"preview",
-				"v1.0.0-preview.22",
-				"${workspaceFolder}",
+				"v1.0.0-preview.1",
 				"${env:CICD_REST_API}",
 			],
             "attachSimplePort": 9229,
