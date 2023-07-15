@@ -122,7 +122,7 @@ export class RepoClient extends GitHubClient {
 	 * @returns The content of the file.
 	 * @remarks The {@link relativeFilePath} is relative to the root of the repository.
 	 */
-	public async getFileContent(repoName: string, relativeFilePath: string): Promise<string> {
+	public async getFileContent(repoName: string, branchName: string, relativeFilePath: string): Promise<string> {
 		const funcName = "getFileContent";
 		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
 		Guard.isNullOrEmptyOrUndefined(relativeFilePath, funcName, "relativeFilePath");
@@ -130,7 +130,8 @@ export class RepoClient extends GitHubClient {
 		relativeFilePath = relativeFilePath.trim();
 		relativeFilePath = relativeFilePath.startsWith("/") ? relativeFilePath : `/${relativeFilePath}`;
 
-		const url = `https://api.github.com/repos/${this.organization}/${repoName}/contents${relativeFilePath}`;
+		const queryParams = `?ref=${branchName}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/contents${relativeFilePath}${queryParams}`;
 
 		const response: Response = await this.requestGET(url);
 
@@ -167,7 +168,7 @@ export class RepoClient extends GitHubClient {
 		relativeFilePath = relativeFilePath.trim();
 		relativeFilePath = relativeFilePath.startsWith("/") ? relativeFilePath : `/${relativeFilePath}`;
 
-		const url = `https://api.github.com/repos/${this.organization}/${repoName}/contents${relativeFilePath}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/contents${relativeFilePath}`;
 
 		const response: Response = await this.requestGET(url);
 
@@ -223,12 +224,12 @@ export class RepoClient extends GitHubClient {
 		fileContent: string,
 		commitMessage: string,
 	): Promise<void> {
-		relativeFilePath = relativeFilePath.replaceAll("\\", "/");
+		relativeFilePath = Utils.normalizePath(relativeFilePath)
 		Utils.trimAllStartingValue("/", relativeFilePath);
 
 		const body = {
 			message: commitMessage,
-			content: Utils.encodeToBase64(fileContent),
+			content: encode(fileContent),
 			branch: branchName,
 		};
 		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/contents/${relativeFilePath}`;
