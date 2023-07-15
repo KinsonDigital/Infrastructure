@@ -11,8 +11,8 @@ export abstract class ScriptRunner {
 	 * @param args The arguments to process.
 	 */
 	constructor(args: string[]) {
-		this.args = args;
-		this.validateArgs(this.args);
+		this.validateArgs(args);
+		this.args = this.mutateArgs(args);
 	}
 
 	/**
@@ -20,6 +20,12 @@ export abstract class ScriptRunner {
 	 * @param args The arguments to process.
 	 */
 	protected abstract validateArgs(args: string[]): void;
+
+	/**
+	 * Mutates the given {@link args}.
+	 * @param args The arguments to mutate.
+	 */
+	protected abstract mutateArgs(args: string[]): string[];
 
 	/**
 	 * Runs a script.

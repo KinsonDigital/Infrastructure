@@ -35,20 +35,6 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @param scriptName The name of the script executing the runner.
 	 */
 	constructor(args: string[], scriptName: string) {
-		if (args.length != 5) {
-			const argDescriptions = [
-				`The ${scriptName} cicd script must have 4 arguments.`,
-				"Required and must be a valid GitHub organization name.",
-				"Required and must be a valid GitHub repository name.",
-				"Required and must be a valid issue or pull request number.",
-				"Required and must be a valid case-insensitive workflow event type of 'issue' or 'pr'.",
-				"Required and must be a GitHub PAT (Personal Access Token).",
-			];
-
-			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.error);
-			Deno.exit(1);
-		}
-
 		super(args);
 
 		const [orgName, repoName, , , token] = args;
@@ -173,6 +159,20 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @inheritdoc
 	 */
 	protected validateArgs(args: string[]): void {
+		if (args.length != 5) {
+			const argDescriptions = [
+				`The cicd script must have 5 arguments.`,
+				"Required and must be a valid GitHub organization name.",
+				"Required and must be a valid GitHub repository name.",
+				"Required and must be a valid issue or pull request number.",
+				"Required and must be a valid case-insensitive workflow event type of 'issue' or 'pr'.",
+				"Required and must be a GitHub PAT (Personal Access Token).",
+			];
+
+			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.error);
+			Deno.exit(1);
+		}
+
 		args = args.map((arg) => arg.trim());
 
 		const issueOrPRNumberStr = args[1];
@@ -190,6 +190,21 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	protected mutateArgs(args: string[]): string[] {
+		let [orgName, repoName, issueOrPrNumber, eventType, githubToken] = args;
+
+		orgName = orgName.trim();
+		repoName = repoName.trim();
+		issueOrPrNumber = issueOrPrNumber.trim();
+		eventType = eventType.trim().toLowerCase();
+		githubToken = githubToken.trim();
+
+		return [orgName, repoName, issueOrPrNumber, eventType, githubToken];
 	}
 
 	/**

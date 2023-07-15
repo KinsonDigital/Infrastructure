@@ -29,16 +29,6 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	 * @param scriptName The name of the script executing the runner.
 	 */
 	constructor(args: string[], scriptName: string) {
-		if (args.length != 1) {
-			const argDescriptions = [
-				`The ${scriptName} cicd script must have 1 argument.`,
-				`Required and must be a valid directory path to the 'README.md' file.`,
-			];
-
-			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.error);
-			Deno.exit(1);
-		}
-
 		super(args);
 		this.scriptName = scriptName;
 	}
@@ -89,10 +79,30 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	 * @inheritdoc
 	 */
 	protected validateArgs(args: string[]): void {
+		if (args.length != 1) {
+			const argDescriptions = [
+				`The cicd script must have 1 argument.`,
+				`Required and must be a valid directory path to the 'README.md' file.`,
+			];
+
+			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.error);
+			Deno.exit(1);
+		}
+
 		if (Directory.DoesNotExist(args[0])) {
 			Utils.printAsGitHubError(`The given path '${args[0]}' is not a valid directory path.`);
 			Deno.exit(1);
 		}
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	protected mutateArgs(args: string[]): string[] {
+		let dirPath = Utils.normalizePath(args[0]);
+		dirPath = Utils.trimAllEndingValue(dirPath, "/");
+
+		return [dirPath];
 	}
 
 	/**
