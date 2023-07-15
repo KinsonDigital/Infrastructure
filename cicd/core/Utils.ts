@@ -492,9 +492,28 @@ export class Utils {
 	}
 
 	/**
-	 * Encodes the given {@link value} to base64.
-	 * @param value The value to encode.
-	 * @returns The encoded value.
+	 * Trims the given {@link valueToRemove} from the end of the given {@link valueToTrim}
+	 * until the {@link valueToRemove} does not exit anymore.
+	 * @param valueToTrim The value to trim the ending value from.
+	 * @param valueToRemove The ending value to trim.
+	 * @returns The given {@link valueToTrim} with the ending value trimmed.
+	 */
+	public static trimAllEndingValue(valueToTrim: string, valueToRemove: string): string {
+		if (Utils.isNullOrEmptyOrUndefined(valueToTrim)) {
+			return valueToTrim;
+		}
+
+		if (Utils.isNullOrEmptyOrUndefined(valueToRemove)) {
+			return valueToTrim;
+		}
+
+		while (valueToTrim.startsWith(valueToRemove)) {
+			valueToTrim = valueToTrim.slice(0, valueToTrim.length - 1);
+		}
+
+		return valueToTrim;
+	}
+
 	 */
 	public static encodeToBase64(value: string): string {
 		return btoa(value);
