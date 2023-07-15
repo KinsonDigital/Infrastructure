@@ -46,6 +46,18 @@ Utils.printInGroup("Script Arguments", [
 
 const githubVarService = new GitHubVariableService(orgName, repoName, token);
 
+const twitterBroadcastEnabledVarName = "TWITTER_BROADCAST_ENABLED";
+let twitterBroadcastEnabled = await githubVarService.getValue(twitterBroadcastEnabledVarName, false);
+twitterBroadcastEnabled = twitterBroadcastEnabled.toLowerCase();
+
+if (Utils.isNullOrEmptyOrUndefined(twitterBroadcastEnabled) || twitterBroadcastEnabled === "false") {
+	let noticeMsg = `No tweet broadcast will be performed.`;
+	noticeMsg += `\nTo enable tweet broadcasting, set the '${twitterBroadcastEnabledVarName}' variable to 'true'.`;
+	noticeMsg += "\nIf the variable is missing, empty, or set to 'false', no tweet broadcast will be performed.";
+	Utils.printAsGitHubNotice(noticeMsg);
+	Deno.exit(0);
+}
+
 // Get the discord invite code
 const discordInviteCodeVarName = "DISCORD_INVITE_CODE";
 const discordInviteCode = (await githubVarService.getValue(discordInviteCodeVarName)
@@ -71,6 +83,14 @@ const templateRepoName = (await githubVarService.getValue(relativeTemplateFileRe
 		Deno.exit(1);
 	}));
 
+const relativeTemplateFileBranchNameVarName = "RELEASE_TWEET_TEMPLATE_BRANCH_NAME";
+const templateBranchName = (await githubVarService.getValue(relativeTemplateFileBranchNameVarName)
+	.catch((_) => {
+		let errorMsg = `The '${scriptName}' cicd script requires an organization`;
+		errorMsg += `\n or repository variable named '${relativeTemplateFileBranchNameVarName}' with a valid repository name.`;
+		Utils.printAsGitHubError(errorMsg);
+		Deno.exit(1);
+	}));
 
 // Get the relative template file path
 const relativeTemplateFilePathVarName = "RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH";
@@ -94,8 +114,9 @@ const tweetBuilder: ReleaseTweetBuilder = new ReleaseTweetBuilder();
 const tweet = await tweetBuilder.buildTweet(
 	orgName,
 	templateRepoName,
-	repoName,
+	templateBranchName,
 	relativeTemplateFilePath,
+	repoName,
 	version,
 	discordInviteCode,
 );
