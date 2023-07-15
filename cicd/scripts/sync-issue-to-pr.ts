@@ -193,7 +193,7 @@ if (Utils.isNotFeatureBranch(headBranch)) {
 	Deno.exit(1);
 }
 
-const issueNumberStr = Utils.splitBy(headBranch.replace("feature/", ""), ("-"))[0];
+const issueNumberStr = Utils.splitBy(headBranch.replace("feature/", ""), "-")[0];
 const issueNumber = parseInt(issueNumberStr);
 
 const issueDoesNotExist = !(await issueClient.openIssueExists(repoName, issueNumber));

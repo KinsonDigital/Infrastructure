@@ -55,7 +55,7 @@ export class GitHubVariableService {
 		if (this.cachedVars.length === 0) {
 			const orgVars = await this.orgClient.getVariables(this.orgName);
 			const repoVars = await this.repoClient.getVariables(this.repoName);
-			
+
 			const orgVarsToKeep = orgVars.filter((orgVar) => {
 				return !repoVars.some((repoVar) => repoVar.name === orgVar.name);
 			});

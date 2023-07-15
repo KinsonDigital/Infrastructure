@@ -223,7 +223,7 @@ export class PRTemplateManager {
 		if (this.githubRepoService === undefined) {
 			return defaultBranches;
 		}
-		
+
 		// This repo variable is optional
 		const prSyncBaseBranchesVarName = "PR_SYNC_BASE_BRANCHES";
 

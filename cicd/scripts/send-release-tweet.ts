@@ -60,7 +60,7 @@ if (Utils.isNullOrEmptyOrUndefined(twitterBroadcastEnabled) || twitterBroadcastE
 
 // Get the discord invite code
 const discordInviteCodeVarName = "DISCORD_INVITE_CODE";
-const discordInviteCode = (await githubVarService.getValue(discordInviteCodeVarName)
+const discordInviteCode = await githubVarService.getValue(discordInviteCodeVarName)
 	.catch((_) => {
 		let errorMsg = `The '${scriptName}' cicd script requires an organization`;
 		errorMsg += `\n or repository variable named '${discordInviteCodeVarName}' with a discord invite code.`;
@@ -68,39 +68,39 @@ const discordInviteCode = (await githubVarService.getValue(discordInviteCodeVarN
 		errorMsg += "\n                                         |--------|";
 		errorMsg += "\n                                              |";
 		errorMsg += "\nInvite code is on the end of an invite URL----|";
-		
+
 		Utils.printAsGitHubError(errorMsg);
 		Deno.exit(1);
-	}));
+	});
 
 // Get the relative template file repo name
 const relativeTemplateFileRepoNameVarName = "RELEASE_TWEET_TEMPLATE_REPO_NAME";
-const templateRepoName = (await githubVarService.getValue(relativeTemplateFileRepoNameVarName)
+const templateRepoName = await githubVarService.getValue(relativeTemplateFileRepoNameVarName)
 	.catch((_) => {
 		let errorMsg = `The '${scriptName}' cicd script requires an organization`;
 		errorMsg += `\n or repository variable named '${relativeTemplateFileRepoNameVarName}' with a valid repository name.`;
 		Utils.printAsGitHubError(errorMsg);
 		Deno.exit(1);
-	}));
+	});
 
 const relativeTemplateFileBranchNameVarName = "RELEASE_TWEET_TEMPLATE_BRANCH_NAME";
-const templateBranchName = (await githubVarService.getValue(relativeTemplateFileBranchNameVarName)
+const templateBranchName = await githubVarService.getValue(relativeTemplateFileBranchNameVarName)
 	.catch((_) => {
 		let errorMsg = `The '${scriptName}' cicd script requires an organization`;
 		errorMsg += `\n or repository variable named '${relativeTemplateFileBranchNameVarName}' with a valid repository name.`;
 		Utils.printAsGitHubError(errorMsg);
 		Deno.exit(1);
-	}));
+	});
 
 // Get the relative template file path
 const relativeTemplateFilePathVarName = "RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH";
-const relativeTemplateFilePath = (await githubVarService.getValue(relativeTemplateFilePathVarName)
+const relativeTemplateFilePath = await githubVarService.getValue(relativeTemplateFilePathVarName)
 	.catch((_) => {
 		let errorMsg = `The '${scriptName}' cicd script requires an organization`;
 		errorMsg += `\n or repository variable named '${relativeTemplateFilePathVarName}' with a valid relative file path.`;
 		Utils.printAsGitHubError(errorMsg);
 		Deno.exit(1);
-	}));
+	});
 
 const authValues: TwitterAuthValues = {
 	consumer_api_key: consumerAPIKey,

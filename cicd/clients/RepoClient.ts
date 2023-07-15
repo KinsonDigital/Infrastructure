@@ -224,7 +224,7 @@ export class RepoClient extends GitHubClient {
 		fileContent: string,
 		commitMessage: string,
 	): Promise<void> {
-		relativeFilePath = Utils.normalizePath(relativeFilePath)
+		relativeFilePath = Utils.normalizePath(relativeFilePath);
 		Utils.trimAllStartingValue("/", relativeFilePath);
 
 		const body = {
@@ -238,7 +238,7 @@ export class RepoClient extends GitHubClient {
 
 		if (response.status != GitHubHttpStatusCodes.OK && response.status != GitHubHttpStatusCodes.Created) {
 			let errorMsg = `An error occurred when creating the file '${relativeFilePath}' in the repository '${repoName}'`;
-			errorMsg += ` for branch '${branchName}'.`
+			errorMsg += ` for branch '${branchName}'.`;
 			errorMsg += `\nError: ${response.status}(${response.statusText})`;
 
 			Utils.printAsGitHubError(errorMsg);
