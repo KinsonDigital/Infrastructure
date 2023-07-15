@@ -169,7 +169,7 @@ if (userIsNotOrgMember) {
 
 const prClient: PullRequestClient = new PullRequestClient(githubToken);
 
-const prTemplateManager = new PRTemplateManager(githubToken);
+const prTemplateManager = new PRTemplateManager(organizationName, repoName, githubToken);
 let pr: PullRequestModel = await prClient.getPullRequest(repoName, prNumber);
 
 const prDoesNotExist = !(await prClient.pullRequestExists(repoName, prNumber));
