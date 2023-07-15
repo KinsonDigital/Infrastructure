@@ -40,7 +40,7 @@ export class GitHubVariableService {
 			if (throwErrorWhenNotFound && variable === undefined) {
 				reject(`The variable '${name}' was not found.`);
 			} else {
-				resolve(variable === undefined ? "" : variable.value);
+				resolve(variable === undefined ? "" : variable.value.trim());
 			}
 		});
 	}
