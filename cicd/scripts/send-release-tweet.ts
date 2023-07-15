@@ -1,10 +1,8 @@
 import { TwitterClient } from "../clients/TwitterClient.ts";
 import { TwitterAuthValues } from "../core/TwitterAuthValues.ts";
-import { GitHubVarModel } from "../core/Models/GitHubVarModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { ReleaseTweetBuilder } from "../core/ReleaseTweetBuilder.ts";
-import { OrgClient } from "../clients/OrgClient.ts";
-import { RepoClient } from "../clients/RepoClient.ts";
+import { GitHubVariableService } from "../core/Services/GitHubVariableService.ts";
 
 const scriptName = Utils.getScriptName();
 
@@ -46,61 +44,43 @@ Utils.printInGroup("Script Arguments", [
 	`GitHub Token (Required): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,
 ]);
 
-const orgClient: OrgClient = new OrgClient(token);
-const repoClient: RepoClient = new RepoClient(token);
+const githubVarService = new GitHubVariableService(orgName, repoName, token);
 
-const orgVars = await orgClient.getVariables(orgName);
-const repoVars = await repoClient.getVariables(repoName);
-
-const allVars: GitHubVarModel[] = [];
-
-const repoVarsNotInOrg = repoVars.filter((repoVar) => orgVars.find((orgVar) => orgVar.name === repoVar.name) === undefined);
-
-allVars.push(...orgVars);
-allVars.push(...repoVarsNotInOrg);
-
+// Get the discord invite code
 const discordInviteCodeVarName = "DISCORD_INVITE_CODE";
+const discordInviteCode = (await githubVarService.getValue(discordInviteCodeVarName)
+	.catch((_) => {
+		let errorMsg = `The '${scriptName}' cicd script requires an organization`;
+		errorMsg += `\n or repository variable named '${discordInviteCodeVarName}' with a discord invite code.`;
+		errorMsg += "\n                      https://discord.gg/abcde12345";
+		errorMsg += "\n                                         |--------|";
+		errorMsg += "\n                                              |";
+		errorMsg += "\nInvite code is on the end of an invite URL----|";
+		
+		Utils.printAsGitHubError(errorMsg);
+		Deno.exit(1);
+	}));
 
-// Check for the discord invite code
-const discordInviteCodeVar = allVars.find((variable) => variable.name === discordInviteCodeVarName);
-
-if (discordInviteCodeVar == undefined) {
-	let errorMsg = `The '${scriptName}' cicd script requires an organization`;
-	errorMsg += `\n or repository variable named '${discordInviteCodeVarName}' with a discord invite code.`;
-	errorMsg += "\n                      https://discord.gg/abcde12345";
-	errorMsg += "\n                                         |--------|";
-	errorMsg += "\n                                              |";
-	errorMsg += "\nInvite code is on the end of an invite URL----|";
-
-	Utils.printAsGitHubError(errorMsg);
-	Deno.exit(1);
-}
-
-// Check for the relative template file repo name
+// Get the relative template file repo name
 const relativeTemplateFileRepoNameVarName = "RELEASE_TWEET_TEMPLATE_REPO_NAME";
-const relativeTemplateFileRepoNameVar = allVars.find((variable) => variable.name === relativeTemplateFileRepoNameVarName);
+const templateRepoName = (await githubVarService.getValue(relativeTemplateFileRepoNameVarName)
+	.catch((_) => {
+		let errorMsg = `The '${scriptName}' cicd script requires an organization`;
+		errorMsg += `\n or repository variable named '${relativeTemplateFileRepoNameVarName}' with a valid repository name.`;
+		Utils.printAsGitHubError(errorMsg);
+		Deno.exit(1);
+	}));
 
-if (relativeTemplateFileRepoNameVar == undefined) {
-	let errorMsg = `The '${scriptName}' cicd script requires an organization`;
-	errorMsg += `\n or repository variable named '${relativeTemplateFileRepoNameVarName}' with a valid repository name.`;
-	Utils.printAsGitHubError(errorMsg);
-	Deno.exit(1);
-}
 
-// Check for the relative template file path
+// Get the relative template file path
 const relativeTemplateFilePathVarName = "RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH";
-const relativeTemplateFilePathVar = allVars.find((variable) => variable.name === relativeTemplateFilePathVarName);
-
-if (relativeTemplateFilePathVar == undefined) {
-	let errorMsg = `The '${scriptName}' cicd script requires an organization`;
-	errorMsg += `\n or repository variable named '${relativeTemplateFilePathVarName}' with a valid relative file path.`;
-	Utils.printAsGitHubError(errorMsg);
-	Deno.exit(1);
-}
-
-const discordInviteCode = discordInviteCodeVar.value.trim();
-const templateRepoName = relativeTemplateFileRepoNameVar.value.trim();
-const relativeTemplateFilePath = relativeTemplateFilePathVar.value.trim();
+const relativeTemplateFilePath = (await githubVarService.getValue(relativeTemplateFilePathVarName)
+	.catch((_) => {
+		let errorMsg = `The '${scriptName}' cicd script requires an organization`;
+		errorMsg += `\n or repository variable named '${relativeTemplateFilePathVarName}' with a valid relative file path.`;
+		Utils.printAsGitHubError(errorMsg);
+		Deno.exit(1);
+	}));
 
 const authValues: TwitterAuthValues = {
 	consumer_api_key: consumerAPIKey,
