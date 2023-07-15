@@ -1,4 +1,4 @@
-import { decode } from "https://deno.land/std@0.192.0/encoding/base64.ts";
+import { decode, encode } from "https://deno.land/std@0.194.0/encoding/base64.ts";
 import { GitHubHttpStatusCodes } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
 import { Guard } from "../core/Guard.ts";
@@ -12,7 +12,7 @@ import { GitHubVariablesModel } from "../core/Models/GitHubVariablesModel.ts";
  * Provides a client for interacting with GitHub repositories.
  */
 export class RepoClient extends GitHubClient {
-	private readonly newLineBase64 = Utils.encodeToBase64("\n");
+	private readonly newLineBase64 = encode("\n");
 
 	/**
 	 * Initializes a new instance of the {@link RepoClient} class.
