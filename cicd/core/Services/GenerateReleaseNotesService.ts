@@ -63,11 +63,11 @@ export class GenerateReleaseNotesService {
 
 		let releaseNotes = title;
 		releaseNotes += "\n\n" + quickReminder;
-		releaseNotes += "\n\n" + newFeaturesSection;
-		releaseNotes += "\n\n" + bugFixesSection;
-		releaseNotes += "\n\n" + breakingChangesSection;
-		releaseNotes += "\n\n" + dependencyChangesSection;
-		releaseNotes += "\n\n" + otherChangesSection;
+		releaseNotes += Utils.isNullOrEmptyOrUndefined(newFeaturesSection) ? "" : "\n\n" + newFeaturesSection;
+		releaseNotes += Utils.isNullOrEmptyOrUndefined(bugFixesSection) ? "" : "\n\n" + bugFixesSection;
+		releaseNotes += Utils.isNullOrEmptyOrUndefined(breakingChangesSection) ? "" : "\n\n" + breakingChangesSection;
+		releaseNotes += Utils.isNullOrEmptyOrUndefined(dependencyChangesSection) ? "" : "\n\n" + dependencyChangesSection;
+		releaseNotes += Utils.isNullOrEmptyOrUndefined(otherChangesSection) ? "" : "\n\n" + otherChangesSection;
 
 		return releaseNotes;
 	}
@@ -93,7 +93,7 @@ export class GenerateReleaseNotesService {
 				const markdown = this.markdownService.createMarkdownLink(`#${i.number}`, i.html_url ?? "");
 
 				// Strip the title of any common title emojis
-				const strippedTitle = this.titleEmojis.reduce((acc, cur) => acc.replace(cur, ""), i.title);
+				const strippedTitle = this.titleEmojis.reduce((acc, cur) => acc?.replace(cur, ""), i.title);
 				return `${markdown} - ${strippedTitle}`;
 			});
 
@@ -125,7 +125,7 @@ export class GenerateReleaseNotesService {
 				const markdown = this.markdownService.createMarkdownLink(`#${i.number}`, i.html_url ?? "");
 
 				// Strip the title of any common title emojis
-				const strippedTitle = this.titleEmojis.reduce((acc, cur) => acc.replace(cur, ""), i.title);
+				const strippedTitle = this.titleEmojis.reduce((acc, cur) => acc?.replace(cur, ""), i.title);
 
 				return `${markdown} - ${strippedTitle}`;
 			});
