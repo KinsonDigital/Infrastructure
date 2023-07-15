@@ -159,7 +159,7 @@ jobs:
   validate_version:
     name: Validate Version
     needs: validate_branch
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v8.2.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/reusable/validate-csharp-version.yml@v9.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       release-type: "${{ inputs.release-type }}"
@@ -171,7 +171,7 @@ jobs:
   validate_tag:
     name: Validate Tag
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-tag.yml@v8.2.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/reusable/validate-tag.yml@v9.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       release-type: "${{ inputs.release-type }}"
@@ -208,7 +208,7 @@ jobs:
   validate_github_release:
     name: GitHub Release Does Not Exist
     needs: [validate_version]
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-github-release.yml@v8.2.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/reusable/validate-github-release.yml@v9.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       version: "${{ needs.validate_version.outputs.version }}"
@@ -220,7 +220,7 @@ jobs:
   build_project:
     name: Build Main Project (${{ inputs.project-name }})
     needs: [validate_tag, validate_release_notes_exist, validate_github_release]
-    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v8.2.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/reusable/build-csharp-project.yml@v9.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       runs-on: "${{ inputs.runs-on }}"
@@ -231,7 +231,7 @@ jobs:
   run_tests:
     name: Run Tests
     needs: [validate_tag, validate_release_notes_exist, validate_github_release]
-    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v8.2.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/reusable/run-csharp-tests.yml@v9.0.0
     with:
       project-name: "${{ inputs.project-name }}Tests"
       runs-on: "${{ inputs.runs-on }}"
