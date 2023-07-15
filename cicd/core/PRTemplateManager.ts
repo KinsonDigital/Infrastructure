@@ -96,7 +96,7 @@ export class PRTemplateManager {
 
 		template = template.replace(/(?:\r\n|\r|\n)/g, "\n");
 
-		const fileDataLines: string[] = template.split("\n");
+		const fileDataLines: string[] = Utils.splitBy(template, "\n");
 
 		for (let i = 0; i < fileDataLines.length; i++) {
 			const line = fileDataLines[i];
@@ -170,7 +170,7 @@ export class PRTemplateManager {
 			return true;
 		}
 
-		const fileDataLines: string[] = template.split("\n");
+		const fileDataLines: string[] = Utils.splitBy(template, "\n");
 
 		for (let i = 0; i < fileDataLines.length; i++) {
 			const line = fileDataLines[i];
@@ -233,9 +233,7 @@ export class PRTemplateManager {
 			return defaultBranches;
 		}
 
-		const prSyncBaseBranches = prSyncBaseBranchListStr.split(",")
-			.map((v) => v.trim())
-			.filter((i) => !Utils.isNullOrEmptyOrUndefined(i));
+		const prSyncBaseBranches = Utils.splitByComma(prSyncBaseBranchListStr);
 
 		return prSyncBaseBranches.length > 0 ? prSyncBaseBranches : defaultBranches;
 	}

@@ -21,7 +21,7 @@ export class LinkHeaderParser {
 
 		const linkHeader = isString ? responseOrHeaderString : <string> responseOrHeaderString.headers.get("Link");
 
-		const headerSections: string[] = linkHeader.split(",").map((i) => i.trim());
+		const headerSections: string[] = Utils.splitByComma(linkHeader).map((i) => i.trim());
 		const linkHeaderInfo: ILinkHeader = {
 			prevPage: 0,
 			nextPage: 0,
@@ -30,7 +30,7 @@ export class LinkHeaderParser {
 		};
 
 		for (const headerSection of headerSections) {
-			const pageInfoSections: string[] = headerSection.split(";").map((i) => i.trim());
+			const pageInfoSections: string[] = Utils.splitBy(headerSection, ";").map((i) => i.trim());
 			const pageUrl: string = pageInfoSections[0].trim();
 			const metadata: string = pageInfoSections[1].trim();
 
@@ -70,7 +70,7 @@ export class LinkHeaderParser {
 
 		const matches = pageUrl.match(this.pageNumRegex);
 
-		return matches === null ? 0 : parseInt(matches[0].split("=")[1]);
+		return matches === null ? 0 : parseInt(Utils.splitBy(matches[0], "=")[1]);
 	}
 
 	private isResponse(responseOrHeaderString: Response | string): responseOrHeaderString is Response {

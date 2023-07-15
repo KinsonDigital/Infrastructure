@@ -155,7 +155,7 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	private bumpMarkdownLinksToLeft(content: string): string {
 		content = Utils.normalizeLineEndings(content);
 
-		const lines = content.split("\n");
+		const lines = Utils.splitBy(content, "\n");
 
 		for (let i = 0; i < lines.length; i++) {
 			if (this.markdownStartingWithWhiteSpaceRegEx.test(lines[i])) {
@@ -177,7 +177,7 @@ export class TranspileReadMeRunner extends ScriptRunner {
 		const headerStartTag = headerStartTags[0].toLowerCase();
 
 		// Split the start tag right after the '<h1' section
-		const sections = headerStartTag.split(" ");
+		const sections = Utils.splitBy(headerStartTag, " ");
 		const startSection = sections[0];
 
 		const headerLevelStr = startSection.replace("<h", "");

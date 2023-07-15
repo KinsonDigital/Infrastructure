@@ -343,9 +343,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			return defaultBranches;
 		}
 
-		const prSyncBaseBranches = prSyncBranchesStr.split(",")
-			.map((v) => v.trim())
-			.filter((i) => !Utils.isNullOrEmptyOrUndefined(i));
+		const prSyncBaseBranches = Utils.splitByComma(prSyncBranchesStr);
 
 		return prSyncBaseBranches.length > 0 ? prSyncBaseBranches : defaultBranches;
 	}
