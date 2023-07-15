@@ -1,7 +1,7 @@
 /**
- * Represents a single organization variable.
+ * Represents a single GitHub organization or repository variable.
  */
-export type OrgVarModel = {
+export type GitHubVarModel = {
 	/**
 	 * Gets or sets the name of the variable.
 	 */
@@ -21,9 +21,4 @@ export type OrgVarModel = {
 	 * Gets or sets the updated date of the variable.
 	 */
 	updated_at: string;
-
-	/**
-	 * Gets or sets the visibility of the variable.
-	 */
-	visibility: string;
 };

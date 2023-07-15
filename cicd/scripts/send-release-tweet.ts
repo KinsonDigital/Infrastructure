@@ -1,6 +1,6 @@
 import { TwitterClient } from "../clients/TwitterClient.ts";
 import { TwitterAuthValues } from "../core/TwitterAuthValues.ts";
-import { RepoVarModel } from "../core/Models/RepoVarModel.ts";
+import { GitHubVarModel } from "../core/Models/GitHubVarModel.ts";
 import { Utils } from "../core/Utils.ts";
 import { ReleaseTweetBuilder } from "../core/ReleaseTweetBuilder.ts";
 import { OrgClient } from "../clients/OrgClient.ts";
@@ -52,7 +52,7 @@ const repoClient: RepoClient = new RepoClient(token);
 const orgVars = await orgClient.getVariables(orgName);
 const repoVars = await repoClient.getVariables(repoName);
 
-const allVars: RepoVarModel[] = [];
+const allVars: GitHubVarModel[] = [];
 
 const repoVarsNotInOrg = repoVars.filter((repoVar) => orgVars.find((orgVar) => orgVar.name === repoVar.name) === undefined);
 

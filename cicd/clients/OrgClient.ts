@@ -1,8 +1,8 @@
 import { GitHubHttpStatusCodes, OrgMemberRole } from "../core/Enums.ts";
 import { GitHubClient } from "../core/GitHubClient.ts";
 import { Guard } from "../core/Guard.ts";
-import { OrgVarModel } from "../core/Models/OrgVarModel.ts";
-import { OrgVariablesModel } from "../core/Models/OrgVariablesModel.ts";
+import { GitHubVarModel } from "../core/Models/GitHubVarModel.ts";
+import { GitHubVariablesModel } from "../core/Models/GitHubVariablesModel.ts";
 import { UserModel } from "../core/Models/UserModel.ts";
 import { Utils } from "../core/Utils.ts";
 
@@ -228,10 +228,10 @@ export class OrgClient extends GitHubClient {
 	 * @param organization The name of the organization.
 	 * @returns A list of all the organization's variables.
 	 */
-	public async getVariables(organization: string): Promise<OrgVarModel[]> {
+	public async getVariables(organization: string): Promise<GitHubVarModel[]> {
 		Guard.isNullOrEmptyOrUndefined(organization, "getOrgVariables", "organization");
 
-		return await this.getAllData<OrgVarModel>(async (page: number, qtyPerPage?: number) => {
+		return await this.getAllData<GitHubVarModel>(async (page: number, qtyPerPage?: number) => {
 			const queryString = `?page=${page}&per_page=${qtyPerPage}`;
 			const url = `${this.baseUrl}/orgs/${organization}/actions/variables${queryString}`;
 
@@ -245,7 +245,7 @@ export class OrgClient extends GitHubClient {
 				Deno.exit(1);
 			}
 
-			const vars = await this.getResponseData<OrgVariablesModel>(response);
+			const vars = await this.getResponseData<GitHubVariablesModel>(response);
 
 			return [vars.variables, response];
 		});

@@ -5,8 +5,8 @@ import { Guard } from "../core/Guard.ts";
 import { FileContentModel } from "../core/Models/FileContentModel.ts";
 import { RepoModel } from "../core/Models/RepoModel.ts";
 import { Utils } from "../core/Utils.ts";
-import { RepoVarModel } from "../core/Models/RepoVarModel.ts";
-import { RepoVariablesModel } from "../core/Models/RepoVariablesModel.ts";
+import { GitHubVarModel } from "../core/Models/GitHubVarModel.ts";
+import { GitHubVariablesModel } from "../core/Models/GitHubVariablesModel.ts";
 
 /**
  * Provides a client for interacting with GitHub repositories.
@@ -183,10 +183,10 @@ export class RepoClient extends GitHubClient {
 	 * @param repoName The name of the repository.
 	 * @returns A list of all repositories variables.
 	 */
-	public async getVariables(repoName: string): Promise<RepoVarModel[]> {
+	public async getVariables(repoName: string): Promise<GitHubVarModel[]> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "getOrgVariables", "organization");
 
-		return await this.getAllData<RepoVarModel>(async (page: number, qtyPerPage?: number) => {
+		return await this.getAllData<GitHubVarModel>(async (page: number, qtyPerPage?: number) => {
 			const queryString = `?page=${page}&per_page=${qtyPerPage}`;
 			const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/actions/variables${queryString}`;
 
@@ -200,7 +200,7 @@ export class RepoClient extends GitHubClient {
 				Deno.exit(1);
 			}
 
-			const vars = await this.getResponseData<RepoVariablesModel>(response);
+			const vars = await this.getResponseData<GitHubVariablesModel>(response);
 
 			return [vars.variables, response];
 		});
