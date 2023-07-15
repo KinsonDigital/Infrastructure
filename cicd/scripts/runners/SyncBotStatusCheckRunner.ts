@@ -12,6 +12,7 @@ import { IIssueOrPRRequestData } from "../../core/IIssueOrPRRequestData.ts";
 import { IPRTemplateSettings } from "../../core/IPRTemplateSettings.ts";
 import { PRTemplateManager } from "../../core/PRTemplateManager.ts";
 import { GitHubLogType, IssueState } from "../../core/Enums.ts";
+import { GitHubVariableService } from "../../core/Services/GitHubVariableService.ts";
 
 /**
  * Runs as a sync bot and a pull request status check.
@@ -22,11 +23,11 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	private readonly projClient: ProjectClient;
 	private readonly prClient: PullRequestClient;
 	private readonly repoClient: RepoClient;
+	private readonly githubVarService: GitHubVariableService;
 	private issue: IssueModel | null = null;
 	private pr: PullRequestModel | null = null;
 	private issueProjects: ProjectModel[] | null = null;
 	private prProjects: ProjectModel[] | null = null;
-	private readonly organization: string = "KinsonDigital";
 
 	/**
 	 * Initializes a new instance of the {@link SyncBotStatusCheckRunner} class.
@@ -34,9 +35,10 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @param scriptName The name of the script executing the runner.
 	 */
 	constructor(args: string[], scriptName: string) {
-		if (args.length != 4) {
+		if (args.length != 5) {
 			const argDescriptions = [
 				`The ${scriptName} cicd script must have 4 arguments.`,
+				"Required and must be a valid GitHub organization name.",
 				"Required and must be a valid GitHub repository name.",
 				"Required and must be a valid issue or pull request number.",
 				"Required and must be a valid case-insensitive workflow event type of 'issue' or 'pr'.",
@@ -49,12 +51,14 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 
 		super(args);
 
-		const token = (args.at(-1) ?? "").trim();
-		this.prTemplateManager = new PRTemplateManager(token);
+		const [orgName, repoName, , , token] = args;
+
+		this.prTemplateManager = new PRTemplateManager(orgName, repoName, token);
 		this.repoClient = new RepoClient(token);
 		this.issueClient = new IssueClient(token);
 		this.projClient = new ProjectClient(token);
 		this.prClient = new PullRequestClient(token);
+		this.githubVarService = new GitHubVariableService(orgName, repoName, token);
 	}
 
 	/**
@@ -63,9 +67,10 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	public async run(): Promise<void> {
 		await super.run();
 
-		const [repoName, issueOrPrNumber, eventType, githubToken] = this.args;
+		const [orgName, repoName, issueOrPrNumber, eventType, githubToken] = this.args;
 
 		Utils.printInGroup("Script Arguments", [
+			`Organization Name (Required): ${orgName}`,
 			`Repo Name (Required): ${repoName}`,
 			`${eventType === "issue" ? "Issue" : "Pull Request"} Number (Required): ${issueOrPrNumber}`,
 			`Event Type (Required): ${eventType}`,
@@ -95,7 +100,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 				if (prLinkMetaData === null) {
 					let noticeMsg = `The issue '${issueNumber}' does not contain any pull request metadata.`;
 					noticeMsg += "\n\nThe expected metadata should come in the form of '<!--closed-by-pr:[0-9]+-->'";
-					noticeMsg += `Issue: ${Utils.buildIssueUrl(this.organization, repoName, issueNumber)}`;
+					noticeMsg += `Issue: ${Utils.buildIssueUrl(orgName, repoName, issueNumber)}`;
 
 					Utils.printAsGitHubNotice(noticeMsg);
 					Deno.exit(0);
@@ -133,7 +138,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			let syncDisabledMsg = `Syncing for pull request '${prNumber}' is disabled.`;
 			syncDisabledMsg += "\nMake sure that the pull request description contains a valid PR sync template";
 			syncDisabledMsg += "\n and make sure that syncing is enabled by checking the 'Sync with the issue' checkbox.";
-			syncDisabledMsg += `\nPR: ${Utils.buildPullRequestUrl(this.organization, repoName, prNumber)}`;
+			syncDisabledMsg += `\nPR: ${Utils.buildPullRequestUrl(orgName, repoName, prNumber)}`;
 
 			Utils.printAsGitHubNotice(syncDisabledMsg);
 			Deno.exit(0);
@@ -145,8 +150,8 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			problemsFound.push(...await this.runAsStatusCheck(repoName, issueNumber, prNumber));
 		}
 
-		const prUrl = `\nIssue: ${Utils.buildIssueUrl(this.organization, repoName, issueNumber)}`;
-		const issueUrl = `\nPull Request: ${Utils.buildPullRequestUrl(this.organization, repoName, prNumber)}`;
+		const prUrl = `\nIssue: ${Utils.buildIssueUrl(orgName, repoName, issueNumber)}`;
+		const issueUrl = `\nPull Request: ${Utils.buildPullRequestUrl(orgName, repoName, prNumber)}`;
 
 		let successMsg = `✅No problems found. Issue '${issueNumber}' synced with pull request '${prNumber}'.`;
 		successMsg += prUrl;
@@ -262,7 +267,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		const prHeadBranch = pr.head.ref;
 		const prBaseBranch = pr.base.ref;
 
-		const allowedPRBaseBranches = await this.getAllowedPRBaseBranches(repoName);
+		const allowedPRBaseBranches = await this.getAllowedPRBaseBranches();
 
 		const headBranchIsValid = Utils.isFeatureBranch(prHeadBranch);
 		const baseBranchIsValid = allowedPRBaseBranches.some((branch) => branch === prBaseBranch);
@@ -323,35 +328,26 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @param repoName The name of the repository.
 	 * @returns The list of allowed base branches.
 	 */
-	private async getAllowedPRBaseBranches(repoName: string): Promise<string[]> {
+	private async getAllowedPRBaseBranches(): Promise<string[]> {
 		// This repo variable is optional
 		const prSyncBaseBranchesVarName = "PR_SYNC_BASE_BRANCHES";
 		const defaultBranches = ["main", "preview"];
-		const repoVars = (await this.repoClient.getVariables(repoName)).filter((v) => v.name === prSyncBaseBranchesVarName);
 
-		if (repoVars.length === 0) {
-			let noticeMsg = "The PR_SYNC_BASE_BRANCHES variable does not exist.";
-			noticeMsg += `\nUsing the default branches: ${defaultBranches.join(", ")}.`;
+		const prSyncBranchesStr = await this.githubVarService.getValue(prSyncBaseBranchesVarName, false);
 
-			Utils.printAsGitHubNotice(noticeMsg);
+		if (Utils.isNullOrEmptyOrUndefined(prSyncBranchesStr)) {
+			let warningMsg = "The optional variable 'PR_SYNC_BASE_BRANCHES' does not exist or contains no value.";
+			warningMsg += `\nUsing the default branches: ${defaultBranches.join(", ")}.`;
+			Utils.printAsGitHubWarning(warningMsg);
+
 			return defaultBranches;
-		} else {
-			const prSyncBaseBranchesVar = repoVars[0];
-
-			if (Utils.isNullOrEmptyOrUndefined(prSyncBaseBranchesVar.value)) {
-				let warningMsg = "The PR_SYNC_BASE_BRANCHES variable contains no value.";
-				warningMsg += `\nUsing the default branches: ${defaultBranches.join(", ")}.`;
-				Utils.printAsGitHubWarning(warningMsg);
-
-				return defaultBranches;
-			}
-
-			const prSyncBaseBranches = prSyncBaseBranchesVar.value.split(",")
-				.map((v) => v.trim())
-				.filter((i) => !Utils.isNullOrEmptyOrUndefined(i));
-
-			return prSyncBaseBranches.length > 0 ? prSyncBaseBranches : defaultBranches;
 		}
+
+		const prSyncBaseBranches = prSyncBranchesStr.split(",")
+			.map((v) => v.trim())
+			.filter((i) => !Utils.isNullOrEmptyOrUndefined(i));
+
+		return prSyncBaseBranches.length > 0 ? prSyncBaseBranches : defaultBranches;
 	}
 
 	/**
