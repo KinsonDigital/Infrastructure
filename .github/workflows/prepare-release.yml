@@ -78,7 +78,7 @@ jobs:
   build_script_url:
     name: Build Script URL
     needs: validate_inputs
-    uses: KinsonDigital/Infrastructure/.github/workflows/reusable/create-script-url.yml@v9.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v9.0.1
     with:
       project-name: "${{ inputs.project-name }}"
       cicd-scripts-version: "${{ vars.CICD_SCRIPTS_VERSION }}"

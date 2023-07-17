@@ -1,4 +1,4 @@
-name: Validate Tag
+name: Validate CSharp Version
 
 
 defaults:
@@ -17,20 +17,21 @@ on:
         required: true
         description: The type of release to validate.  Either 'Preview' or 'Production'.
         type: string
-      tag-name:
-        required: true
-        description: The name of the tag to validate.
-        type: string
       cicd-scripts-version:
         required: true
         description: The version of the CICD scripts to use.
         type: string
+    outputs:
+      version:
+        description: The version pulled from the csproj file.
+        value: ${{ jobs.validate_version.outputs.version }}
     secrets:
       cicd-pat:
         required: true
         description: The CICD personal access token.
-      
         
+
+
 jobs:
   validate_workflow_inputs:
     name: Validate Workflow Inputs
@@ -54,18 +55,6 @@ jobs:
           }
 
 
-          $tagName = "${{ inputs.tag-name }}";
-          $tagNameRegex = "v[0-9]+\.[0-9]+\.[0-9]+";
-          
-          # Verify that the cicd script version has valid syntax
-          if ($tagName -match $tagNameRegex) {
-            Write-Host "::notice::The tag name is valid.";
-          } else {
-            Write-Host "::error::The tag name is not valid.\nThe version format is: 'v#.#.#'";
-            exit 1;
-          }
-
-
           $cicdScriptVersion = "${{ inputs.cicd-scripts-version }}";
           $cicdScriptVersionRegex = "v[0-9]+\.[0-9]+\.[0-9]+";
           
@@ -80,37 +69,56 @@ jobs:
 
   build_script_url:
     name: Build Script URL
-    uses: KinsonDigital/Infrastructure/.github/workflows/reusable/create-script-url.yml@v9.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v9.0.1
     with:
       project-name: ${{ inputs.project-name }}
       cicd-scripts-version: ${{ inputs.cicd-scripts-version }}
 
 
-  validate_tag:
-    name: Validate Tag
+  validate_version:
+    name: Get And Validate Version
     runs-on: ubuntu-latest
     needs: build_script_url
+    outputs:
+      version: ${{ steps.validate-version.outputs.version }}
     steps:
+      - name: Get Version From Project File
+        id: get-version
+        uses: KinsonDigital/VersionMiner@v1.0.0-preview.5
+        with:
+          repo-owner: ${{ vars.ORGANIZATION_NAME }}
+          repo-name: ${{ inputs.project-name }}
+          repo-token: ${{ secrets.cicd-pat }}
+          branch-name: '${{ github.ref_name }}'
+          file-format: 'xml' # Not case sensitive
+          file-path: '${{ inputs.project-name }}/${{ inputs.project-name }}.csproj'
+          version-keys: Version
+        
       - name: Set Up Deno
         uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-
-      - name: Validate Tag
-        run: |
-          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/validate-tag.ts";
         
+      - name: Validate Version
+        id: validate-version
+        run: |
+          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/validate-version.ts";
+
+          # Get the release version and make sure it starts with the letter 'v'
+          $releaseVersion = "${{ steps.get-version.outputs.version }}";
+
+          Write-Host "::notice::Release Version Before Mutation: $releaseVersion";
+          $releaseVersion = $releaseVersion.StartsWith("v") ? $releaseVersion : "v" + $releaseVersion;
+          Write-Host "::notice::Release Version After Mutation: $releaseVersion";
+
+          # Set the output of this step
+          "version=$releaseVersion" >> $env:GITHUB_OUTPUT;
+
           <# Deno Args:
-            1. Repo Name
-            2. Tag Type
-            3. Release Type - Either 'Preview' or 'Production'
-            3. Tag Name - This is the version
-            4. PAT
+            1. Version
+            2. Version Type
           #>
           deno run `
-            --allow-net `
             "$scriptUrl" `
-            "${{ inputs.project-name }}" `
-            "${{ inputs.release-type }}" `
-            "${{ inputs.tag-name }}" `
-            "${{ secrets.cicd-pat }}";
+            "$releaseVersion" `
+            "${{ inputs.release-type }}";
