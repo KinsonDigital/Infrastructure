@@ -211,9 +211,9 @@ export class RepoClient extends GitHubClient {
 	}
 
 	/**
-	 * Creates a file in a repository with a name that matches the given {@link repoName}, on a branch
-	 * that matches the given {@link branchName}, at a relative path that matches the given {@link relativeFilePath},
-	 * where the content is the given {@link fileContent}, and the commit message is the given {@link commitMessage}.
+	 * Creates a new file in a repository with a name that matches the given {@link repoName}, on a branch
+	 * that matches the given {@link branchName}, at the {@link relativeFilePath}, with the given {@link fileContent},
+	 * with a commit message is the given {@link commitMessage}.
 	 * @param repoName The name of the repository.
 	 * @param branchName The name of the branch.
 	 * @param relativeFilePath The relative path of where to add the file.
@@ -227,6 +227,13 @@ export class RepoClient extends GitHubClient {
 		fileContent: string,
 		commitMessage: string,
 	): Promise<void> {
+		const funcName = "createFile";
+		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNullOrEmptyOrUndefined(branchName, funcName, "branchName");
+		Guard.isNullOrEmptyOrUndefined(relativeFilePath, funcName, "relativeFilePath");
+		Guard.isNullOrEmptyOrUndefined(fileContent, funcName, "fileContent");
+		Guard.isNullOrEmptyOrUndefined(commitMessage, funcName, "commitMessage");
+
 		relativeFilePath = Utils.normalizePath(relativeFilePath);
 		Utils.trimAllStartingValue("/", relativeFilePath);
 
