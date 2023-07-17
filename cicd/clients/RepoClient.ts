@@ -156,19 +156,22 @@ export class RepoClient extends GitHubClient {
 	 * Gets a value indicating whether or not a file exists with the given {@link relativeFilePath}
 	 * in a repository with a name that matches the given {@link repoName}.
 	 * @param repoName The name of the repository to check.
+	 * @param branchName The name of the branch to check.
 	 * @param relativeFilePath The relative path of the file.
 	 * @returns True if the file exists; otherwise, false.
 	 * @remarks The {@link relativeFilePath} is relative to the root of the repository.
 	 */
-	public async fileExists(repoName: string, relativeFilePath: string): Promise<boolean> {
+	public async fileExists(repoName: string, branchName: string, relativeFilePath: string): Promise<boolean> {
 		const funcName = "fileExists";
 		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNullOrEmptyOrUndefined(branchName, funcName, "branchName");
 		Guard.isNullOrEmptyOrUndefined(relativeFilePath, funcName, "relativeFilePath");
 
 		relativeFilePath = relativeFilePath.trim();
 		relativeFilePath = relativeFilePath.startsWith("/") ? relativeFilePath : `/${relativeFilePath}`;
 
-		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/contents${relativeFilePath}`;
+		const queryParams = `?ref=${branchName}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/contents${relativeFilePath}${queryParams}`;
 
 		const response: Response = await this.requestGET(url);
 

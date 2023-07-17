@@ -53,7 +53,7 @@ export class ReleaseTweetBuilder {
 		version = version.startsWith("v") ? version : `v${version}`;
 
 		const nugetVersion = version.startsWith("v") ? version.replace("v", "") : version;
-		const templateDoesNotExist = !(await this.repoClient.fileExists(repoOwner, relativeFilePath));
+		const templateDoesNotExist = !(await this.repoClient.fileExists(repoOwner, branchName, relativeFilePath));
 
 		if (!templateDoesNotExist) {
 			Utils.printAsGitHubError(`The release tweet template file '${relativeFilePath}' could not be found.`);

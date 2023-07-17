@@ -103,10 +103,19 @@ relativeTemplateFilePath = relativeTemplateFilePath.startsWith("/")
 	? relativeTemplateFilePath.substring(1)
 	: relativeTemplateFilePath;
 
-const templateFileDoesNotExist = !(await repoClient.fileExists(prSyncTemplateRepoName, relativeTemplateFilePath));
+const prClient: PullRequestClient = new PullRequestClient(githubToken);
+let pr: PullRequestModel = await prClient.getPullRequest(repoName, prNumber);
+
+const templateFileDoesNotExist = !(await repoClient.fileExists(prSyncTemplateRepoName, pr.head.ref, relativeTemplateFilePath));
 if (templateFileDoesNotExist) {
-	Utils.printAsGitHubError(`The template file '${relativeTemplateFilePath}' does not exist in the repository '${repoName}.`);
+	let errorMsg = `The template file '${relativeTemplateFilePath}' does not exist in the `;
+	errorMsg += `\nrepository '${repoName}, in branch '${pr.head.ref}'.`;
+	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
+} else {
+	let noticeMsg = `The template file '${relativeTemplateFilePath}' was pull from the `;
+	noticeMsg += `\nrepository '${repoName}, in branch '${pr.head.ref}'.`;
+	Utils.printAsGitHubNotice(noticeMsg);
 }
 
 const repoDoesNotExist = !(await repoClient.exists(repoName));
@@ -167,10 +176,7 @@ if (userIsNotOrgMember) {
 	Deno.exit(0);
 }
 
-const prClient: PullRequestClient = new PullRequestClient(githubToken);
-
 const prTemplateManager = new PRTemplateManager(organizationName, repoName, githubToken);
-let pr: PullRequestModel = await prClient.getPullRequest(repoName, prNumber);
 
 const prDoesNotExist = !(await prClient.pullRequestExists(repoName, prNumber));
 if (prDoesNotExist) {
