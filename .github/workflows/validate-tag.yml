@@ -1,4 +1,4 @@
-name: Validate Release Notes
+name: Validate Tag
 
 
 defaults:
@@ -9,10 +9,6 @@ defaults:
 on:
   workflow_call:
     inputs:
-      org-name:
-        required: true
-        description: The name of GitHub organization.
-        type: string
       project-name:
         required: true
         description: "The name of the C# project to validate."
@@ -21,9 +17,9 @@ on:
         required: true
         description: The type of release to validate.  Either 'Preview' or 'Production'.
         type: string
-      version:
+      tag-name:
         required: true
-        description: The version of the release notes to validate.
+        description: The name of the tag to validate.
         type: string
       cicd-scripts-version:
         required: true
@@ -34,7 +30,7 @@ on:
         required: true
         description: The CICD personal access token.
       
-
+        
 jobs:
   validate_workflow_inputs:
     name: Validate Workflow Inputs
@@ -42,20 +38,13 @@ jobs:
     steps:
       - name: Validate Inputs
         run: |
-          # Verify that the organization name workflow input is not empty
-          if ("${{ inputs.org-name }}" -eq "") {
-            Write-Host "::error::The 'org-name' workflow input cannot be empty.";
-            exit 1;
-          }
-
-
           # Verify that the project name workflow input is not empty
           if ("${{ inputs.project-name }}" -eq "") {
             Write-Host "::error::The 'project-name' workflow input cannot be empty.";
             exit 1;
           }
 
-          
+
           $releaseType = "${{ inputs.release-type }}";
 
           # Verify that the release type is only 'Preview' or 'Production'
@@ -65,15 +54,14 @@ jobs:
           }
 
 
-          $version = "${{ inputs.cicd-scripts-version }}";
-          $prodVersionRegex = "v[0-9]+\.[0-9]+\.[0-9]+";
-          $prevVersionRegex = "v[0-9]+\.[0-9]+\.[0-9]+-preview\.[0-9]+";
+          $tagName = "${{ inputs.tag-name }}";
+          $tagNameRegex = "v[0-9]+\.[0-9]+\.[0-9]+";
           
-          # Verify that the version has valid syntax
-          if (($version -match $prodVersionRegex) -or ($version -match $prevVersionRegex)) {
-            Write-Host "::notice::The version is valid.";
+          # Verify that the cicd script version has valid syntax
+          if ($tagName -match $tagNameRegex) {
+            Write-Host "::notice::The tag name is valid.";
           } else {
-            Write-Host "::error::The version is not valid.\nThe version format is: 'v#.#.#' or 'v#.#.#-preview.#'";
+            Write-Host "::error::The tag name is not valid.\nThe version format is: 'v#.#.#'";
             exit 1;
           }
 
@@ -92,14 +80,14 @@ jobs:
 
   build_script_url:
     name: Build Script URL
-    uses: KinsonDigital/Infrastructure/.github/workflows/reusable/create-script-url.yml@v9.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v9.0.1
     with:
       project-name: ${{ inputs.project-name }}
       cicd-scripts-version: ${{ inputs.cicd-scripts-version }}
 
 
-  validate_release_notes:
-    name: Validate Release Notes
+  validate_tag:
+    name: Validate Tag
     runs-on: ubuntu-latest
     needs: build_script_url
     steps:
@@ -108,25 +96,21 @@ jobs:
         with:
           deno-version: v1.x
 
-      - name: Checkout Repo
-        uses: actions/checkout@v3
-
-      - name: Validate Release Notes
+      - name: Validate Tag
         run: |
-          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/validate-release-notes.ts";
+          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/validate-tag.ts";
         
           <# Deno Args:
-            1. GitHub Orgnization Name
-            2. GitHub Repo Name
+            1. Repo Name
+            2. Tag Type
             3. Release Type - Either 'Preview' or 'Production'
-            4. Version
-            5. GitHub PAT Token
+            3. Tag Name - This is the version
+            4. PAT
           #>
           deno run `
-            --allow-read --allow-net `
+            --allow-net `
             "$scriptUrl" `
-            "${{ inputs.org-name }}" `
             "${{ inputs.project-name }}" `
             "${{ inputs.release-type }}" `
-            "${{ inputs.version }}" `
+            "${{ inputs.tag-name }}" `
             "${{ secrets.cicd-pat }}";
