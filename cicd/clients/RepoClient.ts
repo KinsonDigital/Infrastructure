@@ -13,6 +13,7 @@ import { GitHubVariablesModel } from "../core/Models/GitHubVariablesModel.ts";
  */
 export class RepoClient extends GitHubClient {
 	private readonly newLineBase64 = encode("\n");
+	private readonly carriageReturnBase64 = encode("\r");
 
 	/**
 	 * Initializes a new instance of the {@link RepoClient} class.
@@ -130,9 +131,21 @@ export class RepoClient extends GitHubClient {
 		relativeFilePath = relativeFilePath.trim();
 		relativeFilePath = relativeFilePath.startsWith("/") ? relativeFilePath : `/${relativeFilePath}`;
 
-		const [fileContent] = await this.getFileContentWithResult(repoName, branchName, relativeFilePath);
+		const fileContentModel = await this.getFileContentResult(repoName, branchName, relativeFilePath);
 
-		return fileContent;
+		if (fileContentModel === undefined || fileContentModel === null) {
+			Utils.printAsGitHubError("Error: 404(Not Found)");
+			Deno.exit(1);
+		}
+
+		// Return the file content after it has been decoded from base64
+		const decodedFileContent = new TextDecoder().decode(decode(fileContentModel.content));
+
+		// Replace all plain text new line character strings with actual new line characters
+		let content = decodedFileContent.replace(/\\n/g, this.newLineBase64);
+		content = decodedFileContent.replace(/\\r/g, this.carriageReturnBase64);
+
+		return content;
 	}
 
 	/**
@@ -267,14 +280,34 @@ export class RepoClient extends GitHubClient {
 		relativeFilePath = Utils.normalizePath(relativeFilePath);
 		Utils.trimAllStartingValue("/", relativeFilePath);
 
-		if (!(await this.fileExists(repoName, branchName, relativeFilePath))) {
+		const fileContentModel = await this.getFileContentResult(repoName, branchName, relativeFilePath);
+
+		if (fileContentModel === undefined || fileContentModel === null) {
 			let errorMsg = `The file '${relativeFilePath}' does not exist in the repository`;
 			errorMsg += `\n '${repoName}', in branch '${branchName}'.`;
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
-		await this.createFile(repoName, branchName, relativeFilePath, fileContent, commitMessage);
+		const body = {
+			message: commitMessage,
+			content: encode(fileContent),
+			branch: branchName,
+			sha: fileContentModel.sha,
+		};
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/contents/${relativeFilePath}`;
+
+		const response = await this.requestPUT(url, JSON.stringify(body));
+
+		if (response.status != GitHubHttpStatusCodes.OK && response.status != GitHubHttpStatusCodes.Created) {
+			let errorMsg = `An error occurred when creating the file '${relativeFilePath}' in the repository '${repoName}'`;
+			errorMsg += ` for branch '${branchName}'.`;
+			errorMsg += `\nError: ${response.status}(${response.statusText})`;
+
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
+	}
 
 	/**
 	 * Gets the content of a file and a value indicating whether or not the file exists, at the
@@ -284,7 +317,7 @@ export class RepoClient extends GitHubClient {
 	 * @returns The content of the file and a boolean flag indicating whether or not the file exists.
 	 * @remarks The {@link relativeFilePath} is relative to the root of the repository.
 	 */
-	private async getFileContentWithResult(repoName: string, branchName: string, relativeFilePath: string): Promise<[string, boolean]> {
+	private async getFileContentResult(repoName: string, branchName: string, relativeFilePath: string): Promise<FileContentModel | null> {
 		const funcName = "getFileContentWithResult";
 		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
 		Guard.isNullOrEmptyOrUndefined(branchName, funcName, "branchName");
@@ -300,7 +333,7 @@ export class RepoClient extends GitHubClient {
 
 		switch (response.status) {
 			case GitHubHttpStatusCodes.NotFound:
-				return [`Error: ${response.status} (${response.statusText})`, false];
+				return null;
 			case GitHubHttpStatusCodes.TemporaryRedirect:
 			case GitHubHttpStatusCodes.Forbidden:
 				Utils.printAsGitHubError(`Error: ${response.status} (${response.statusText})`);
@@ -309,12 +342,6 @@ export class RepoClient extends GitHubClient {
 
 		const responseData = <FileContentModel> await this.getResponseData(response);
 
-		// Replace all plain text new line character strings with actual new line characters
-		const content = responseData.content.replace(/\\n/g, this.newLineBase64);
-
-		// Return the file content after it has been decoded from base64
-		const decodedFileContent = new TextDecoder().decode(decode(content));
-
-		return [decodedFileContent, true];
+		return responseData;
 	}
 }
