@@ -9,6 +9,8 @@ export abstract class ScriptRunner {
 	protected readonly repoClient: RepoClient;
 	protected readonly orgClient: OrgClient;
 	protected readonly args: string[];
+	protected readonly fineGrainedTokenPrefix = "github_pat_";
+	protected readonly classicTokenPrefix = "ghp_"
 
 	/**
 	 * Initializes a new instance of the {@link ScriptRunner} class.
@@ -18,8 +20,20 @@ export abstract class ScriptRunner {
 		this.validateArgs(args);
 		this.args = this.mutateArgs(args);
 
-		this.repoClient = new RepoClient();
-		this.orgClient = new OrgClient();
+		// If the args do not contain a github token of any kind, throw and error
+		const lastArg = this.args[this.args.length - 1];
+		const hasFineGrainedToken = lastArg.startsWith(this.fineGrainedTokenPrefix);
+		const hasClassicToken = lastArg.startsWith(this.classicTokenPrefix);
+
+		if (hasFineGrainedToken == false && hasClassicToken == false) {
+			const errorMsg = "The arguments must contain a GitHub PAT(Personal Access Token) and must be the last argument.";
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
+
+		const token = args[args.length - 1];
+		this.repoClient = new RepoClient(token);
+		this.orgClient = new OrgClient(token);
 	}
 
 	/**
