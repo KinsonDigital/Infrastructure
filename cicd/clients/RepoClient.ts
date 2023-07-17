@@ -209,7 +209,7 @@ export class RepoClient extends GitHubClient {
 	/**
 	 * Creates a new file in a repository with a name that matches the given {@link repoName}, on a branch
 	 * that matches the given {@link branchName}, at the {@link relativeFilePath}, with the given {@link fileContent},
-	 * with a commit message is the given {@link commitMessage}.
+	 * with the given {@link commitMessage}.
 	 * @param repoName The name of the repository.
 	 * @param branchName The name of the branch.
 	 * @param relativeFilePath The relative path of where to add the file.
