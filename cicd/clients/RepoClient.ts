@@ -130,26 +130,9 @@ export class RepoClient extends GitHubClient {
 		relativeFilePath = relativeFilePath.trim();
 		relativeFilePath = relativeFilePath.startsWith("/") ? relativeFilePath : `/${relativeFilePath}`;
 
-		const queryParams = `?ref=${branchName}`;
-		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/contents${relativeFilePath}${queryParams}`;
+		const [fileContent] = await this.getFileContentWithResult(repoName, branchName, relativeFilePath);
 
-		const response: Response = await this.requestGET(url);
-
-		switch (response.status) {
-			case GitHubHttpStatusCodes.NotFound:
-			case GitHubHttpStatusCodes.TemporaryRedirect:
-			case GitHubHttpStatusCodes.Forbidden:
-				Utils.printAsGitHubError(`Error: ${response.status} (${response.statusText})`);
-				Deno.exit(1);
-		}
-
-		const responseData = <FileContentModel> await this.getResponseData(response);
-
-		// Replace all plain text new line character strings with actual new line characters
-		const content = responseData.content.replace(/\\n/g, this.newLineBase64);
-
-		// Return the file content after it has been decoded from base64
-		return new TextDecoder().decode(decode(content));
+		return fileContent;
 	}
 
 	/**
@@ -292,5 +275,46 @@ export class RepoClient extends GitHubClient {
 		}
 
 		await this.createFile(repoName, branchName, relativeFilePath, fileContent, commitMessage);
+
+	/**
+	 * Gets the content of a file and a value indicating whether or not the file exists, at the
+	 * given {@link relativeFilePath} in a repository with a name that matches the given {@link repoName}.
+	 * @param repoName The name of the repository to check.
+	 * @param relativeFilePath The relative path of the file.
+	 * @returns The content of the file and a boolean flag indicating whether or not the file exists.
+	 * @remarks The {@link relativeFilePath} is relative to the root of the repository.
+	 */
+	private async getFileContentWithResult(repoName: string, branchName: string, relativeFilePath: string): Promise<[string, boolean]> {
+		const funcName = "getFileContentWithResult";
+		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNullOrEmptyOrUndefined(branchName, funcName, "branchName");
+		Guard.isNullOrEmptyOrUndefined(relativeFilePath, funcName, "relativeFilePath");
+
+		relativeFilePath = relativeFilePath.trim();
+		relativeFilePath = relativeFilePath.startsWith("/") ? relativeFilePath : `/${relativeFilePath}`;
+
+		const queryParams = `?ref=${branchName}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/contents${relativeFilePath}${queryParams}`;
+
+		const response: Response = await this.requestGET(url);
+
+		switch (response.status) {
+			case GitHubHttpStatusCodes.NotFound:
+				return [`Error: ${response.status} (${response.statusText})`, false];
+			case GitHubHttpStatusCodes.TemporaryRedirect:
+			case GitHubHttpStatusCodes.Forbidden:
+				Utils.printAsGitHubError(`Error: ${response.status} (${response.statusText})`);
+				Deno.exit(1);
+		}
+
+		const responseData = <FileContentModel> await this.getResponseData(response);
+
+		// Replace all plain text new line character strings with actual new line characters
+		const content = responseData.content.replace(/\\n/g, this.newLineBase64);
+
+		// Return the file content after it has been decoded from base64
+		const decodedFileContent = new TextDecoder().decode(decode(content));
+
+		return [decodedFileContent, true];
 	}
 }
