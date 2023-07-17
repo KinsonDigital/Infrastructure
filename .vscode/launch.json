@@ -16,7 +16,7 @@
                 "--allow-all"
             ],
 			"args": [
-				"${env:CICD_REST_API}",
+				"${env:CICD_TOKEN}",
 				"${workspaceFolder}",
 			],
             "attachSimplePort": 9229,
@@ -104,7 +104,7 @@
             "args": [
 				"Infrastructure",
 				"v1.2.3-preview.4",
-				"${env:CICD_REST_API}",
+				"${env:CICD_TOKEN}",
 			],
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
@@ -152,7 +152,7 @@
 				"Infrastructure",
 				"preview",
 				"v1.0.0-preview.1",
-				"${env:CICD_REST_API}",
+				"${env:CICD_TOKEN}",
 			],
             "attachSimplePort": 9229,
             "windows": {
@@ -178,7 +178,7 @@
 				"24",
 				"pr",
 				"KD-Team",
-				"${env:CICD_REST_API}",
+				"${env:CICD_TOKEN}",
 			],
             "attachSimplePort": 9229,
             "windows": {
@@ -202,7 +202,7 @@
             "args": [
 				"Infrastructure",
 				"v1.2.3-preview.4",
-				"${env:CICD_REST_API}",
+				"${env:CICD_TOKEN}",
 			],
             "attachSimplePort": 9229,
             "windows": {
@@ -295,7 +295,7 @@
             "args": [
 				"Infrastructure",
 				"v1.0.0-preview.10",
-				"${env:CICD_REST_API}",
+				"${env:CICD_TOKEN}",
 			],
             "attachSimplePort": 9229,
             "windows": {
@@ -322,7 +322,7 @@
 				"CalvinWilkinson",
 				"94",
 				"[initial-sync]",
-				"${env:CICD_REST_API}",
+				"${env:CICD_TOKEN}",
 			],
             "attachSimplePort": 9229,
             "windows": {
@@ -347,7 +347,7 @@
 				"Infrastructure",
 				"47",
 				"issue",
-				"${env:CICD_REST_API}",
+				"${env:CICD_TOKEN}",
 			],
             "attachSimplePort": 9229,
             "windows": {
@@ -369,7 +369,7 @@
                 "--allow-all"
             ],
             "args": [
-				"${env:CICD_REST_API}",
+				"${env:CICD_TOKEN}",
 				"${workspaceFolder}",
 			],
             "attachSimplePort": 9229,
@@ -396,7 +396,7 @@
 				"Infrastructure",
 				"preview",
 				"v1.0.0-preview.1",
-				"${env:CICD_REST_API}",
+				"${env:CICD_TOKEN}",
 			],
             "attachSimplePort": 9229,
             "windows": {
