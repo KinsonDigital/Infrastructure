@@ -70,8 +70,8 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 		const relativeTemplateFileRepoNameVarName = "RELEASE_TWEET_TEMPLATE_REPO_NAME";
 		const templateRepoName = await this.githubVarService.getValue(relativeTemplateFileRepoNameVarName)
 			.catch((_) => {
-				let errorMsg = `The cicd script requires an organization`;
-				errorMsg += `\n or repository variable named '${relativeTemplateFileRepoNameVarName}' with a valid repository name.`;
+				let errorMsg = `The cicd script requires an organization or repository variable named`;
+				errorMsg +=`\n '${relativeTemplateFileRepoNameVarName}' with a valid repository name.`;
 				Utils.printAsGitHubError(errorMsg);
 				Deno.exit(1);
 			});
@@ -79,8 +79,8 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 		const relativeTemplateFileBranchNameVarName = "RELEASE_TWEET_TEMPLATE_BRANCH_NAME";
 		const templateBranchName = await this.githubVarService.getValue(relativeTemplateFileBranchNameVarName)
 			.catch((_) => {
-				let errorMsg = `The cicd script requires an organization`;
-				errorMsg += `\n or repository variable named '${relativeTemplateFileBranchNameVarName}' with a valid repository name.`;
+				let errorMsg = `The cicd script requires an organization or repository variable named `;
+				errorMsg += `\n '${relativeTemplateFileBranchNameVarName}' with a valid repository name.`;
 				Utils.printAsGitHubError(errorMsg);
 				Deno.exit(1);
 			});
@@ -89,8 +89,8 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 		const relativeTemplateFilePathVarName = "RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH";
 		const relativeTemplateFilePath = await this.githubVarService.getValue(relativeTemplateFilePathVarName)
 			.catch((_) => {
-				let errorMsg = `The cicd script requires an organization`;
-				errorMsg += `\n or repository variable named '${relativeTemplateFilePathVarName}' with a valid relative file path.`;
+				let errorMsg = `The cicd script requires an organization or repository variable named`;
+				errorMsg += `\n '${relativeTemplateFilePathVarName}' with a valid relative file path.`;
 				Utils.printAsGitHubError(errorMsg);
 				Deno.exit(1);
 			});
@@ -132,7 +132,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 			errorMsg += "\nThe 6th arg is required and must be a valid twitter access token key.";
 			errorMsg += "\nThe 7th arg is required and must be a valid twitter access token secret.";
 			errorMsg += "\nThe 8th arg is required and must be a GitHub PAT (Personal Access Token).";
-		
+
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
@@ -178,7 +178,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 			consumerAPISecret,
 			accessTokenKey,
 			accessTokenSecret,
-			token
+			token,
 		] = args;
 
 		orgName = orgName.trim();
@@ -201,7 +201,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 			consumerAPISecret,
 			accessTokenKey,
 			accessTokenSecret,
-			token
+			token,
 		];
 	}
 }

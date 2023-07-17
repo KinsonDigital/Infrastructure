@@ -33,7 +33,7 @@ export class Directory {
 
 		for (const dirEntry of Deno.readDirSync(dirPath)) {
 			const entry = dirPath + "/" + dirEntry.name;
-			
+
 			if (recursive && dirEntry.isDirectory) {
 				files = [...files, ...(Directory.getFiles(entry, recursive))];
 			} else if (dirEntry.isFile) {

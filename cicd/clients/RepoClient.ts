@@ -317,7 +317,11 @@ export class RepoClient extends GitHubClient {
 	 * @returns The content of the file and a boolean flag indicating whether or not the file exists.
 	 * @remarks The {@link relativeFilePath} is relative to the root of the repository.
 	 */
-	private async getFileContentResult(repoName: string, branchName: string, relativeFilePath: string): Promise<FileContentModel | null> {
+	private async getFileContentResult(
+		repoName: string,
+		branchName: string,
+		relativeFilePath: string,
+	): Promise<FileContentModel | null> {
 		const funcName = "getFileContentWithResult";
 		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
 		Guard.isNullOrEmptyOrUndefined(branchName, funcName, "branchName");

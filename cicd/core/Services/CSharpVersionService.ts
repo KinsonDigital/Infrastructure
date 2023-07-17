@@ -28,7 +28,7 @@ export class CSharpVersionService {
 
 	/**
 	 * Updates the version tags to the given {@link version} in a csharp project file, on a branch with the
-	 * given {@link branchName}, at the given {@link relativeProjFilePath}. 
+	 * given {@link branchName}, at the given {@link relativeProjFilePath}.
 	 * @param branchName The name of the branch where the file exists.
 	 * @param relativeProjFilePath The relative path to the project file.
 	 * @param version The version to update the project file to.
@@ -78,7 +78,7 @@ export class CSharpVersionService {
 		// Get the version value from the version tag
 		const versionTagValue = versionTag.replace("<Version>", "").replace("</Version>", "");
 
-		// If the tag value matches the new version 
+		// If the tag value matches the new version
 		if (versionTagValue === version) {
 			let errorMsg = `The version '${version}' is already set for the version tag in the file '${relativeProjFilePath}'.`;
 			errorMsg += "\nPlease use a different version.";
@@ -93,8 +93,8 @@ export class CSharpVersionService {
 
 		// If the file tag version matches the new version
 		if (fileVersionTagValue === version) {
-			let errorMsg = `The version '${version}' is already set for the file version tag in the file '${relativeProjFilePath}'.`;
-			errorMsg += "\nPlease use a different version.";
+			let errorMsg = `The version '${version}' is already set for the file version tag in the file`;
+			errorMsg += "\n '${relativeProjFilePath}'. Please use a different version.";
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
@@ -113,6 +113,7 @@ export class CSharpVersionService {
 			branchName,
 			relativeProjFilePath,
 			projFileData,
-			`release: updated version to v${version}`);
+			`release: updated version to v${version}`,
+		);
 	}
 }

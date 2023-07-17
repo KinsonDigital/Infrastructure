@@ -182,7 +182,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 		const updateProjFileService = new CSharpVersionService(repoName, this.token);
 
 		// Update the version tags in the csproj file
-		await updateProjFileService.updateVersion(branchName, relativeProjFilePath, version)
+		await updateProjFileService.updateVersion(branchName, relativeProjFilePath, version);
 	}
 
 	private async generateReleaseNotes(

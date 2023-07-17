@@ -6,7 +6,7 @@ import { Utils } from "../../core/Utils.ts";
 export abstract class ScriptRunner {
 	protected readonly args: string[];
 	protected readonly fineGrainedTokenPrefix = "github_pat_";
-	protected readonly classicTokenPrefix = "ghp_"
+	protected readonly classicTokenPrefix = "ghp_";
 	protected readonly token;
 
 	/**
