@@ -91,7 +91,7 @@ jobs:
     steps:
       - name: Generate Release Notes
         run: |
-          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/generate-release-notes.ts";
+          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/prepare-release.ts";
 
           <# Deno Args:
             1. Organization Name
