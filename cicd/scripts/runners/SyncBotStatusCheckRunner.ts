@@ -52,14 +52,14 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	public async run(): Promise<void> {
 		await super.run();
 
-		const [orgName, repoName, issueOrPrNumber, eventType, githubToken] = this.args;
+		const [orgName, repoName, issueOrPrNumber, eventType] = this.args;
 
 		Utils.printInGroup("Script Arguments", [
 			`Organization Name (Required): ${orgName}`,
 			`Repo Name (Required): ${repoName}`,
 			`${eventType === "issue" ? "Issue" : "Pull Request"} Number (Required): ${issueOrPrNumber}`,
 			`Event Type (Required): ${eventType}`,
-			`GitHub Token (Required): ${Utils.isNullOrEmptyOrUndefined(githubToken) ? "Not Provided" : "****"}`,
+			`GitHub Token (Required): "****"}`,
 		]);
 
 		const problemsFound: string[] = [];
@@ -155,7 +155,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	protected async validateArgs(args: string[]): Promise<void> {
 		if (args.length != 5) {
 			const argDescriptions = [
-				`The cicd script must have 5 arguments.`,
+				`The cicd script must have 5 arguments but has ${args.length} argument(s).`,
 				"Required and must be a valid GitHub organization name.",
 				"Required and must be a valid GitHub repository name.",
 				"Required and must be a valid issue or pull request number.",

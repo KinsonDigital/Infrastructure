@@ -81,7 +81,7 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	protected async validateArgs(args: string[]): Promise<void> {
 		if (args.length != 1) {
 			const argDescriptions = [
-				`The cicd script must have 1 argument.`,
+				`The cicd script must have 1 argument but has ${args.length} argument(s).`,
 				`Required and must be a valid directory path to the 'README.md' file.`,
 			];
 

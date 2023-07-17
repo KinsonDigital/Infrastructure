@@ -122,8 +122,8 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 	 * @inheritdoc
 	 */
 	protected async validateArgs(args: string[]): Promise<void> {
-		if (Deno.args.length != 7) {
-			let errorMsg = `The cicd script must have 4 arguments.`;
+		if (Deno.args.length != 8) {
+			let errorMsg = `The cicd script must have 7 arguments but has ${args.length} argument(s).`;
 			errorMsg += "\nThe 1st arg is required and must be a repository owner.";
 			errorMsg += "\nThe 2nd arg is required and must be a project name";
 			errorMsg += "\nThe 3rd arg is required and must be a valid version. ";

@@ -103,7 +103,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	protected async validateArgs(args: string[]): Promise<void> {
 		if (args.length != 5) {
 			const argDescriptions = [
-				`The cicd script must have 4 arguments.`,
+				`The cicd script must have 5 arguments but has ${args.length} argument(s).`,
 				"Required and must be a valid GitHub organization name.",
 				"Required and must be a valid GitHub repository name.",
 				"Required and must be the type of release.\n\tValid values are 'production' and 'preview' and are case-insensitive.",
