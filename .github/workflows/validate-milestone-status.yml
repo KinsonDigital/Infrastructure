@@ -1,4 +1,4 @@
-name: Validate GitHub Release
+name: Validate Release Notes
 
 
 defaults:
@@ -15,7 +15,7 @@ on:
         type: string
       version:
         required: true
-        description: The version of the release to validate.
+        description: The version of the milestone to validate.
         type: string
       cicd-scripts-version:
         required: true
@@ -30,14 +30,13 @@ on:
 jobs:
   build_script_url:
     name: Build Script URL
-    uses: KinsonDigital/Infrastructure/.github/workflows/reusable/create-script-url.yml@v9.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v9.0.1
     with:
       project-name: ${{ inputs.project-name }}
       cicd-scripts-version: ${{ inputs.cicd-scripts-version }}
 
-
-  validate_github_release:
-    name: Validate GitHub Release
+  validate_milestone_status:
+    name: Validate Milestone Status
     runs-on: ubuntu-latest
     needs: build_script_url
     steps:
@@ -46,13 +45,13 @@ jobs:
         with:
           deno-version: v1.x
 
-      - name: GitHub Release Does Not Exist 
+      - name: Milestone Exists
         run: |
-          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/github-release-does-not-exist.ts";
+          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/milestone-exists.ts";
 
           <# Deno Args:
             1. RepoName
-            2. TagName - This is the version
+            2. MilestoneTitle - This is the version
             3. GitHubToken
           #>
           deno run `
@@ -62,3 +61,18 @@ jobs:
             "${{ inputs.version }}" `
             "${{ secrets.cicd-pat }}";
 
+      - name: Validate Milestone
+        run: |
+          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/milestone-items-all-closed.ts";
+        
+          <# Deno Args:
+            1. RepoName
+            2. MilestoneTitle - This is the version
+            3. GitHubToken
+          #>
+          deno run `
+            --allow-read --allow-net `
+            "$scriptUrl" `
+            "${{ inputs.project-name }}" `
+            "${{ inputs.version }}" `
+            "${{ secrets.cicd-pat }}";
