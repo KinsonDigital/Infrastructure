@@ -88,7 +88,7 @@ export class RepoClient extends GitHubClient {
 	 * @param repoName The name of the repo to check.
 	 * @returns True if the repo exists; otherwise, false.
 	 */
-	public async repoExists(repoName: string): Promise<boolean> {
+	public async exists(repoName: string): Promise<boolean> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "repoExists", "repoName");
 
 		repoName = repoName.trim();

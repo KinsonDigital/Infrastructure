@@ -109,7 +109,7 @@ if (templateFileDoesNotExist) {
 	Deno.exit(1);
 }
 
-const repoDoesNotExist = !(await repoClient.repoExists(repoName));
+const repoDoesNotExist = !(await repoClient.exists(repoName));
 if (repoDoesNotExist) {
 	Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
 	Deno.exit(1);
