@@ -396,6 +396,7 @@
 				"Infrastructure",
 				"preview",
 				"v1.0.0-preview.1",
+				"${workspaceFolder}",
 				"${env:CICD_TOKEN}",
 			],
             "attachSimplePort": 9229,

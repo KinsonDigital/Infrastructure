@@ -28,7 +28,7 @@ export class Directory {
 	 * @param dirPath The path of the directory start searching.
 	 * @param recursive True to search recursively, otherwise false.
 	 */
-	public static getFiles(dirPath: string, recursive: boolean = false): string[] {
+	public static getFiles(dirPath: string, recursive = false): string[] {
 		let files: string[] = [];
 
 		for (const dirEntry of Deno.readDirSync(dirPath)) {
