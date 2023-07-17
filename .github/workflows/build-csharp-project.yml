@@ -36,7 +36,7 @@ on:
 jobs:
   resolve_proj_file_path:
     name: Resolving ${{ inputs.project-name }} Project File Path
-    uses: KinsonDigital/Infrastructure/.github/workflows/resolve-csharp-proj-file.yml@v9.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/resolve-csharp-proj-file.yml@v9.0.1
     with:
       project-name: ${{ inputs.project-name }}
       base-path: ${{ inputs.base-path }}
