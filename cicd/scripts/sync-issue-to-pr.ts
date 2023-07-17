@@ -264,7 +264,7 @@ await issueClient.updateIssue(repoName, issueNumber, issueData);
 const subText = prMetaDataExists ? "updated in" : "added to";
 Utils.printAsGitHubNotice(`PR link metadata ${subText} the description of issue '${issueNumber}'.`);
 
-const allowedPRBaseBranches = await prTemplateManager.getAllowedPRBaseBranches(repoName);
+const allowedPRBaseBranches = await prTemplateManager.getAllowedPRBaseBranches();
 const prBaseBranchValid = allowedPRBaseBranches.some((branch) => branch === pr.base.ref);
 
 const prProjects: ProjectModel[] = await projectClient.getPullRequestProjects(repoName, prNumber);
