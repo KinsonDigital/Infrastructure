@@ -7,17 +7,15 @@ export abstract class ScriptRunner {
 	protected readonly args: string[];
 	protected readonly fineGrainedTokenPrefix = "github_pat_";
 	protected readonly classicTokenPrefix = "ghp_"
+	protected readonly token;
 
 	/**
 	 * Initializes a new instance of the {@link ScriptRunner} class.
 	 * @param args The arguments to process.
 	 */
 	constructor(args: string[]) {
-		this.validateArgs(args);
-		this.args = this.mutateArgs(args);
-
 		// If the args do not contain a github token of any kind, throw and error
-		const lastArg = this.args[this.args.length - 1];
+		const lastArg = args[args.length - 1];
 		const hasFineGrainedToken = lastArg.startsWith(this.fineGrainedTokenPrefix);
 		const hasClassicToken = lastArg.startsWith(this.classicTokenPrefix);
 
@@ -27,9 +25,10 @@ export abstract class ScriptRunner {
 			Deno.exit(1);
 		}
 
-		const token = args[args.length - 1];
+		this.token = args[args.length - 1];
 
 		this.validateArgs(args);
+		this.args = this.mutateArgs(args);
 	}
 
 	/**
