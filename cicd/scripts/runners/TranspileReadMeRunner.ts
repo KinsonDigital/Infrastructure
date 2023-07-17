@@ -77,7 +77,8 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	/**
 	 * @inheritdoc
 	 */
-	protected validateArgs(args: string[]): void {
+	// deno-lint-ignore require-await
+	protected async validateArgs(args: string[]): Promise<void> {
 		if (args.length != 1) {
 			const argDescriptions = [
 				`The cicd script must have 1 argument.`,

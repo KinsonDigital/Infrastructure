@@ -10,11 +10,14 @@ import { GenerateReleaseNotesService } from "../../core/Services/GenerateRelease
 import { Utils } from "../../core/Utils.ts";
 import { ScriptRunner } from "./ScriptRunner.ts";
 import { GitHubVariableService } from "../../core/Services/GitHubVariableService.ts";
+import { OrgClient } from "../../clients/OrgClient.ts";
+import { RepoClient } from "../../clients/RepoClient.ts";
 
 /**
  * Automates the process of generating release notes for a GitHub release.
  */
 export class PrepareReleaseRunner extends ScriptRunner {
+	private readonly repoClient: RepoClient;
 	private readonly gitClient: GitClient;
 	private readonly milestoneClient: MilestoneClient;
 	private readonly labelClient: LabelClient;
@@ -45,6 +48,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 		const [orgName, repoName, , , token] = this.args;
 
+		this.repoClient = new RepoClient(this.token);
 		this.gitClient = new GitClient(orgName, repoName, token);
 		this.labelClient = new LabelClient(token);
 		this.milestoneClient = new MilestoneClient(token);
@@ -68,9 +72,6 @@ export class PrepareReleaseRunner extends ScriptRunner {
 		]);
 
 		const releaseType: ReleaseType = <ReleaseType> releaseTypeArg;
-
-		await this.failIfOrgDoesNotExist(orgName);
-		await this.failIfRepoDoesNotExist(repoName);
 
 		await this.setupBranching(releaseType);
 
@@ -97,7 +98,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	/**
 	 * @inheritdoc
 	 */
-	protected validateArgs(args: string[]): void {
+	protected async validateArgs(args: string[]): Promise<void> {
 		if (args.length != 5) {
 			const argDescriptions = [
 				`The cicd script must have 4 arguments.`,
@@ -112,7 +113,27 @@ export class PrepareReleaseRunner extends ScriptRunner {
 			Deno.exit(1);
 		}
 
-		this.validateVersionAndReleaseType(args[2].trim().toLowerCase(), args[3].trim().toLowerCase());
+		let [orgName, repoName, releaseType, version] = args;
+
+		this.validateVersionAndReleaseType(releaseType, version);
+
+		orgName = orgName.trim();
+		const orgClient = new OrgClient(this.token);
+
+		// If the org does not exist
+		if (!(await orgClient.exists(orgName))) {
+			Utils.printAsGitHubError(`The organization '${orgName}' does not exist.`);
+			Deno.exit(1);
+		}
+
+		repoName = repoName.trim();
+		const repoClient = new RepoClient(this.token);
+
+		// If the repo does not exist
+		if (!(await repoClient.exists(repoName))) {
+			Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
+			Deno.exit(1);
+		}
 	}
 
 	/**
