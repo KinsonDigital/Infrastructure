@@ -20,6 +20,20 @@ export class OrgClient extends GitHubClient {
 	}
 
 	/**
+	 * Gets a value indicating whether or not an organization exists with a name that matches the given {@link orgName}.
+	 * @param orgName The name of the organization.
+	 * @returns True if the organization exists; otherwise, false.
+	 */
+	public async exists(orgName: string): Promise<boolean> {
+		Guard.isNullOrEmptyOrUndefined(orgName);
+
+		const url = `${this.baseUrl}/orgs/${orgName}`;
+		const response = await this.requestGET(url);
+
+		return response.status == GitHubHttpStatusCodes.OK;
+	}
+
+	/**
 	 * Gets the given {@link page} of private members for an organization with the {@link qtyPerPage},
 	 * where the members have the given member {@link role}.
 	 * @param organization The name of the organization.
