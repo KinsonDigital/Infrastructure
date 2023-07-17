@@ -34,7 +34,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @param args The script arguments.
 	 * @param scriptName The name of the script executing the runner.
 	 */
-	constructor(args: string[], scriptName: string) {
+	constructor(args: string[]) {
 		super(args);
 
 		const [orgName, repoName, , , token] = args;
