@@ -1,9 +1,13 @@
+import { OrgClient } from "../../clients/OrgClient.ts";
+import { RepoClient } from "../../clients/RepoClient.ts";
 import { Utils } from "../../core/Utils.ts";
 
 /**
  * Provides a base class for processing script arguments and running scripts.
  */
 export abstract class ScriptRunner {
+	protected readonly repoClient: RepoClient;
+	protected readonly orgClient: OrgClient;
 	protected readonly args: string[];
 
 	/**
@@ -13,6 +17,9 @@ export abstract class ScriptRunner {
 	constructor(args: string[]) {
 		this.validateArgs(args);
 		this.args = this.mutateArgs(args);
+
+		this.repoClient = new RepoClient();
+		this.orgClient = new OrgClient();
 	}
 
 	/**
@@ -63,6 +70,38 @@ export abstract class ScriptRunner {
 				Utils.printAsGitHubError(errorMsg);
 				Deno.exit(1);
 			}
+		}
+	}
+
+	/**
+	 * Fails the runner if an organization exists with a name that matches the given {@link orgName}
+	 * does not exist.
+	 * @param orgName The name of the organization.
+	 * @remarks Throws an error and exists the script if the organization does not exist.
+	 */
+	protected async failIfOrgDoesNotExist(orgName: string): Promise<void> {
+		const orgExists = await this.orgClient.exists(orgName);
+
+		if (orgExists == false) {
+			const errorMsg = `The organization '${orgName}' does not exist.`;
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
+	}
+
+	/**
+	 * Fails the runner if a repository exists with a name that matches the given {@link repoName}
+	 * does not exist.
+	 * @param repoName The name of the repo to check.
+	 * @remarks Throws an error and exists the script if the repository does not exist.
+	 */
+	protected async failIfRepoDoesNotExist(repoName: string): Promise<void> {
+		const repoExists = await this.repoClient.repoExists(repoName);
+
+		if (repoExists == false) {
+			const errorMsg = `The repository '${repoName}' does not exist.`;
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
 		}
 	}
 }

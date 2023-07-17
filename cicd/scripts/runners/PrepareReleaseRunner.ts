@@ -2,7 +2,6 @@ import { GitClient } from "../../clients/GitClient.ts";
 import { LabelClient } from "../../clients/LabelClient.ts";
 import { MilestoneClient } from "../../clients/MilestoneClient.ts";
 import { PullRequestClient } from "../../clients/PullRequestClient.ts";
-import { RepoClient } from "../../clients/RepoClient.ts";
 import { GitHubLogType, ReleaseType } from "../../core/Enums.ts";
 import { IssueModel } from "../../core/Models/IssueModel.ts";
 import { LabelModel } from "../../core/Models/LabelModel.ts";
@@ -16,7 +15,6 @@ import { GitHubVariableService } from "../../core/Services/GitHubVariableService
  * Automates the process of generating release notes for a GitHub release.
  */
 export class PrepareReleaseRunner extends ScriptRunner {
-	private readonly repoClient: RepoClient;
 	private readonly gitClient: GitClient;
 	private readonly milestoneClient: MilestoneClient;
 	private readonly labelClient: LabelClient;
@@ -47,7 +45,6 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 		const [orgName, repoName, , , token] = this.args;
 
-		this.repoClient = new RepoClient(token);
 		this.gitClient = new GitClient(orgName, repoName, token);
 		this.labelClient = new LabelClient(token);
 		this.milestoneClient = new MilestoneClient(token);
@@ -72,12 +69,8 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 		const releaseType: ReleaseType = <ReleaseType> releaseTypeArg;
 
-		const repoDoesNotExist = !(await this.repoClient.repoExists(repoName));
-
-		if (repoDoesNotExist) {
-			Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
-			Deno.exit(1);
-		}
+		await this.failIfOrgDoesNotExist(orgName);
+		await this.failIfRepoDoesNotExist(repoName);
 
 		await this.setupBranching(releaseType);
 

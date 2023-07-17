@@ -4,7 +4,6 @@ import { IssueClient } from "../../clients/IssueClient.ts";
 import { ProjectClient } from "../../clients/ProjectClient.ts";
 import { PullRequestClient } from "../../clients/PullRequestClient.ts";
 import { EventType } from "../../core/Types.ts";
-import { RepoClient } from "../../clients/RepoClient.ts";
 import { PullRequestModel } from "../../core/Models/PullRequestModel.ts";
 import { IssueModel } from "../../core/Models/IssueModel.ts";
 import { ProjectModel } from "../../core/Models/ProjectModel.ts";
@@ -22,7 +21,6 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	private readonly issueClient: IssueClient;
 	private readonly projClient: ProjectClient;
 	private readonly prClient: PullRequestClient;
-	private readonly repoClient: RepoClient;
 	private readonly githubVarService: GitHubVariableService;
 	private issue: IssueModel | null = null;
 	private pr: PullRequestModel | null = null;
@@ -40,7 +38,6 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		const [orgName, repoName, , , token] = args;
 
 		this.prTemplateManager = new PRTemplateManager(orgName, repoName, token);
-		this.repoClient = new RepoClient(token);
 		this.issueClient = new IssueClient(token);
 		this.projClient = new ProjectClient(token);
 		this.prClient = new PullRequestClient(token);
@@ -63,10 +60,8 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			`GitHub Token (Required): ${Utils.isNullOrEmptyOrUndefined(githubToken) ? "Not Provided" : "****"}`,
 		]);
 
-		if (!(await this.repoClient.repoExists(repoName))) {
-			Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
-			Deno.exit(1);
-		}
+		await this.failIfOrgDoesNotExist(orgName);
+		await this.failIfRepoDoesNotExist(repoName);
 
 		const problemsFound: string[] = [];
 		let issueNumber = 0;
