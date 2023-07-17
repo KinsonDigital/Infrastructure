@@ -255,4 +255,42 @@ export class RepoClient extends GitHubClient {
 			Deno.exit(1);
 		}
 	}
+
+	/**
+	 * Updates the content of a file in a repository with a name that matches the given {@link repoName}, on a branch
+	 * that matches the given {@link branchName}, at the {@link relativeFilePath}, with the given {@link fileContent},
+	 * with a commit message is the given {@link commitMessage}.
+	 * @param repoName The name of the repository.
+	 * @param branchName The name of the branch.
+	 * @param relativeFilePath The relative path of where to add the file.
+	 * @param fileContent The content of the file.
+	 * @param commitMessage The commit message.
+	 * @remarks If the file does not exist, an error will be thrown.
+	 */
+	public async updateFile(
+		repoName: string,
+		branchName: string,
+		relativeFilePath: string,
+		fileContent: string,
+		commitMessage: string,
+	): Promise<void> {
+		const funcName = "updateFile";
+		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNullOrEmptyOrUndefined(branchName, funcName, "branchName");
+		Guard.isNullOrEmptyOrUndefined(relativeFilePath, funcName, "relativeFilePath");
+		Guard.isNullOrEmptyOrUndefined(fileContent, funcName, "fileContent");
+		Guard.isNullOrEmptyOrUndefined(commitMessage, funcName, "commitMessage");
+
+		relativeFilePath = Utils.normalizePath(relativeFilePath);
+		Utils.trimAllStartingValue("/", relativeFilePath);
+
+		if (!(await this.fileExists(repoName, branchName, relativeFilePath))) {
+			let errorMsg = `The file '${relativeFilePath}' does not exist in the repository`;
+			errorMsg += `\n '${repoName}', in branch '${branchName}'.`;
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
+
+		await this.createFile(repoName, branchName, relativeFilePath, fileContent, commitMessage);
+	}
 }
