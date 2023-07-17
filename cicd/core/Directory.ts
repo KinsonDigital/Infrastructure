@@ -21,4 +21,26 @@ export class Directory {
 	public static DoesNotExist(dirPath: string): boolean {
 		return !this.Exists(dirPath);
 	}
+
+	/**
+	 * Gets a list of files in the given {@link dirPath}.  This will search recursively
+	 * if {@link recursive} is true.
+	 * @param dirPath The path of the directory start searching.
+	 * @param recursive True to search recursively, otherwise false.
+	 */
+	public static getFiles(dirPath: string, recursive = false): string[] {
+		let files: string[] = [];
+
+		for (const dirEntry of Deno.readDirSync(dirPath)) {
+			const entry = dirPath + "/" + dirEntry.name;
+
+			if (recursive && dirEntry.isDirectory) {
+				files = [...files, ...(Directory.getFiles(entry, recursive))];
+			} else if (dirEntry.isFile) {
+				files.push(entry);
+			}
+		}
+
+		return files;
+	}
 }

@@ -36,4 +36,9 @@ export type FileContentModel = {
 	 * Gets or sets the content of the file.
 	 */
 	content: string;
+
+	/**
+	 * Gets or sets the blob sha of the file.
+	 */
+	sha: string;
 };

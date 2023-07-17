@@ -63,7 +63,7 @@ if (tagIsInvalid) {
 }
 
 const repoClient: RepoClient = new RepoClient(token);
-const repoDoesNotExist = !(await repoClient.repoExists(repoName));
+const repoDoesNotExist = !(await repoClient.exists(repoName));
 
 if (repoDoesNotExist) {
 	Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);

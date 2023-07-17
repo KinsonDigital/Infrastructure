@@ -38,8 +38,7 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	 */
 	// deno-lint-ignore require-await
 	public async run(): Promise<void> {
-		let dirPath = this.args[0].replaceAll("\\", "/");
-		dirPath = dirPath.endsWith("/") ? dirPath.slice(0, dirPath.length - 1) : dirPath;
+		const dirPath = this.args[0];
 
 		const readmeFilePath = `${dirPath}/${this.readmeFileName}`;
 
@@ -78,10 +77,11 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	/**
 	 * @inheritdoc
 	 */
-	protected validateArgs(args: string[]): void {
+	// deno-lint-ignore require-await
+	protected async validateArgs(args: string[]): Promise<void> {
 		if (args.length != 1) {
 			const argDescriptions = [
-				`The cicd script must have 1 argument.`,
+				`The cicd script must have 1 argument but has ${args.length} argument(s).`,
 				`Required and must be a valid directory path to the 'README.md' file.`,
 			];
 

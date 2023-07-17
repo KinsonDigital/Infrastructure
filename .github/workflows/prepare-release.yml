@@ -78,7 +78,7 @@ jobs:
   build_script_url:
     name: Build Script URL
     needs: validate_inputs
-    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v9.0.1
+    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v9.1.0
     with:
       project-name: "${{ inputs.project-name }}"
       cicd-scripts-version: "${{ vars.CICD_SCRIPTS_VERSION }}"
@@ -91,7 +91,7 @@ jobs:
     steps:
       - name: Generate Release Notes
         run: |
-          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/generate-release-notes.ts";
+          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/prepare-release.ts";
 
           <# Deno Args:
             1. Organization Name

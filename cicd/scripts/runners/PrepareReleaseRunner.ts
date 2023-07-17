@@ -2,7 +2,6 @@ import { GitClient } from "../../clients/GitClient.ts";
 import { LabelClient } from "../../clients/LabelClient.ts";
 import { MilestoneClient } from "../../clients/MilestoneClient.ts";
 import { PullRequestClient } from "../../clients/PullRequestClient.ts";
-import { RepoClient } from "../../clients/RepoClient.ts";
 import { GitHubLogType, ReleaseType } from "../../core/Enums.ts";
 import { IssueModel } from "../../core/Models/IssueModel.ts";
 import { LabelModel } from "../../core/Models/LabelModel.ts";
@@ -11,6 +10,9 @@ import { GenerateReleaseNotesService } from "../../core/Services/GenerateRelease
 import { Utils } from "../../core/Utils.ts";
 import { ScriptRunner } from "./ScriptRunner.ts";
 import { GitHubVariableService } from "../../core/Services/GitHubVariableService.ts";
+import { OrgClient } from "../../clients/OrgClient.ts";
+import { RepoClient } from "../../clients/RepoClient.ts";
+import { CSharpVersionService } from "../../core/Services/CSharpVersionService.ts";
 
 /**
  * Automates the process of generating release notes for a GitHub release.
@@ -47,7 +49,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 		const [orgName, repoName, , , token] = this.args;
 
-		this.repoClient = new RepoClient(token);
+		this.repoClient = new RepoClient(this.token);
 		this.gitClient = new GitClient(orgName, repoName, token);
 		this.labelClient = new LabelClient(token);
 		this.milestoneClient = new MilestoneClient(token);
@@ -72,13 +74,6 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 		const releaseType: ReleaseType = <ReleaseType> releaseTypeArg;
 
-		const repoDoesNotExist = !(await this.repoClient.repoExists(repoName));
-
-		if (repoDoesNotExist) {
-			Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
-			Deno.exit(1);
-		}
-
 		await this.setupBranching(releaseType);
 
 		const headBranch = await this.getHeadBranchName(releaseType);
@@ -98,16 +93,17 @@ export class PrepareReleaseRunner extends ScriptRunner {
 			prTemplate,
 		);
 
+		await this.updateProjectVersions(repoName, headBranch, version);
 		await this.generateReleaseNotes(orgName, repoName, version, releaseType);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	protected validateArgs(args: string[]): void {
+	protected async validateArgs(args: string[]): Promise<void> {
 		if (args.length != 5) {
 			const argDescriptions = [
-				`The cicd script must have 4 arguments.`,
+				`The cicd script must have 5 arguments but has ${args.length} argument(s).`,
 				"Required and must be a valid GitHub organization name.",
 				"Required and must be a valid GitHub repository name.",
 				"Required and must be the type of release.\n\tValid values are 'production' and 'preview' and are case-insensitive.",
@@ -119,7 +115,27 @@ export class PrepareReleaseRunner extends ScriptRunner {
 			Deno.exit(1);
 		}
 
-		this.validateVersionAndReleaseType(args[2].trim().toLowerCase(), args[3].trim().toLowerCase());
+		let [orgName, repoName, releaseType, version] = args;
+
+		this.validateVersionAndReleaseType(releaseType, version);
+
+		orgName = orgName.trim();
+		const orgClient = new OrgClient(this.token);
+
+		// If the org does not exist
+		if (!(await orgClient.exists(orgName))) {
+			Utils.printAsGitHubError(`The organization '${orgName}' does not exist.`);
+			Deno.exit(1);
+		}
+
+		repoName = repoName.trim();
+		const repoClient = new RepoClient(this.token);
+
+		// If the repo does not exist
+		if (!(await repoClient.exists(repoName))) {
+			Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
+			Deno.exit(1);
+		}
 	}
 
 	/**
@@ -128,6 +144,8 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	protected mutateArgs(args: string[]): string[] {
 		let [orgName, repoName, releaseType, version, token] = args;
 
+		orgName = orgName.trim();
+		repoName = repoName.trim();
 		releaseType = releaseType.trim().toLowerCase();
 		version = version.startsWith("v") ? version : `v${version}`;
 
@@ -149,6 +167,22 @@ export class PrepareReleaseRunner extends ScriptRunner {
 		if (!(await this.gitClient.branchExists(headBranch))) {
 			await this.gitClient.createBranch(headBranch, baseBranch);
 		}
+	}
+
+	/**
+	 * Updates the version tags with the given {@link version} in a csproj file in a repository with a name that
+	 * matches the given {@link repoName}, in the branch with the given {@link branchName}.
+	 * @param repoName The name of the repository.
+	 * @param branchName The name of the branch.
+	 * @param version The version to update the csproj file with.
+	 */
+	private async updateProjectVersions(repoName: string, branchName: string, version: string): Promise<void> {
+		const prepProjRelativeFilePathVarName = "PREP_PROJ_RELATIVE_FILE_PATH";
+		const relativeProjFilePath = await this.githubVarService.getValue(prepProjRelativeFilePathVarName);
+		const updateProjFileService = new CSharpVersionService(repoName, this.token);
+
+		// Update the version tags in the csproj file
+		await updateProjFileService.updateVersion(branchName, relativeProjFilePath, version);
 	}
 
 	private async generateReleaseNotes(
@@ -193,6 +227,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 		const releaseNotesFilePath = await this.buildReleaseNotesFilePath(version, releaseType);
 		const headBranch = await this.getHeadBranchName(releaseType);
 
+		// Create a new release notes file
 		await this.repoClient.createFile(
 			repoName,
 			headBranch,

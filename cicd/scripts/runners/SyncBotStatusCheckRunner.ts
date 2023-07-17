@@ -4,7 +4,6 @@ import { IssueClient } from "../../clients/IssueClient.ts";
 import { ProjectClient } from "../../clients/ProjectClient.ts";
 import { PullRequestClient } from "../../clients/PullRequestClient.ts";
 import { EventType } from "../../core/Types.ts";
-import { RepoClient } from "../../clients/RepoClient.ts";
 import { PullRequestModel } from "../../core/Models/PullRequestModel.ts";
 import { IssueModel } from "../../core/Models/IssueModel.ts";
 import { ProjectModel } from "../../core/Models/ProjectModel.ts";
@@ -13,6 +12,8 @@ import { IPRTemplateSettings } from "../../core/IPRTemplateSettings.ts";
 import { PRTemplateManager } from "../../core/PRTemplateManager.ts";
 import { GitHubLogType, IssueState } from "../../core/Enums.ts";
 import { GitHubVariableService } from "../../core/Services/GitHubVariableService.ts";
+import { OrgClient } from "../../clients/OrgClient.ts";
+import { RepoClient } from "../../clients/RepoClient.ts";
 
 /**
  * Runs as a sync bot and a pull request status check.
@@ -22,7 +23,6 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	private readonly issueClient: IssueClient;
 	private readonly projClient: ProjectClient;
 	private readonly prClient: PullRequestClient;
-	private readonly repoClient: RepoClient;
 	private readonly githubVarService: GitHubVariableService;
 	private issue: IssueModel | null = null;
 	private pr: PullRequestModel | null = null;
@@ -34,13 +34,12 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @param args The script arguments.
 	 * @param scriptName The name of the script executing the runner.
 	 */
-	constructor(args: string[], scriptName: string) {
+	constructor(args: string[]) {
 		super(args);
 
 		const [orgName, repoName, , , token] = args;
 
 		this.prTemplateManager = new PRTemplateManager(orgName, repoName, token);
-		this.repoClient = new RepoClient(token);
 		this.issueClient = new IssueClient(token);
 		this.projClient = new ProjectClient(token);
 		this.prClient = new PullRequestClient(token);
@@ -53,20 +52,15 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	public async run(): Promise<void> {
 		await super.run();
 
-		const [orgName, repoName, issueOrPrNumber, eventType, githubToken] = this.args;
+		const [orgName, repoName, issueOrPrNumber, eventType] = this.args;
 
 		Utils.printInGroup("Script Arguments", [
 			`Organization Name (Required): ${orgName}`,
 			`Repo Name (Required): ${repoName}`,
 			`${eventType === "issue" ? "Issue" : "Pull Request"} Number (Required): ${issueOrPrNumber}`,
 			`Event Type (Required): ${eventType}`,
-			`GitHub Token (Required): ${Utils.isNullOrEmptyOrUndefined(githubToken) ? "Not Provided" : "****"}`,
+			`GitHub Token (Required): "****"}`,
 		]);
-
-		if (!(await this.repoClient.repoExists(repoName))) {
-			Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
-			Deno.exit(1);
-		}
 
 		const problemsFound: string[] = [];
 		let issueNumber = 0;
@@ -158,10 +152,10 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	/**
 	 * @inheritdoc
 	 */
-	protected validateArgs(args: string[]): void {
+	protected async validateArgs(args: string[]): Promise<void> {
 		if (args.length != 5) {
 			const argDescriptions = [
-				`The cicd script must have 5 arguments.`,
+				`The cicd script must have 5 arguments but has ${args.length} argument(s).`,
 				"Required and must be a valid GitHub organization name.",
 				"Required and must be a valid GitHub repository name.",
 				"Required and must be a valid issue or pull request number.",
@@ -175,8 +169,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 
 		args = args.map((arg) => arg.trim());
 
-		const issueOrPRNumberStr = args[1];
-		const eventType = args[2];
+		let [orgName, repoName, issueOrPRNumberStr, eventType] = args;
 
 		if (!Utils.isNumeric(issueOrPRNumberStr)) {
 			Utils.printAsGitHubError(`The ${eventType} number '${issueOrPRNumberStr}' is not a valid number.`);
@@ -188,6 +181,24 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			errorMsg += `\nThe event type must be either 'issue' or 'pr' case-insensitive value.`;
 
 			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
+
+		orgName = orgName.trim();
+		const orgClient = new OrgClient(this.token);
+
+		// If the org does not exist
+		if (!(await orgClient.exists(orgName))) {
+			Utils.printAsGitHubError(`The organization '${orgName}' does not exist.`);
+			Deno.exit(1);
+		}
+
+		repoName = repoName.trim();
+		const repoClient = new RepoClient(this.token);
+
+		// If the repo does not exist
+		if (!(await repoClient.exists(repoName))) {
+			Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
 			Deno.exit(1);
 		}
 	}

@@ -13,6 +13,7 @@ import { GitHubVariablesModel } from "../core/Models/GitHubVariablesModel.ts";
  */
 export class RepoClient extends GitHubClient {
 	private readonly newLineBase64 = encode("\n");
+	private readonly carriageReturnBase64 = encode("\r");
 
 	/**
 	 * Initializes a new instance of the {@link RepoClient} class.
@@ -88,7 +89,7 @@ export class RepoClient extends GitHubClient {
 	 * @param repoName The name of the repo to check.
 	 * @returns True if the repo exists; otherwise, false.
 	 */
-	public async repoExists(repoName: string): Promise<boolean> {
+	public async exists(repoName: string): Promise<boolean> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "repoExists", "repoName");
 
 		repoName = repoName.trim();
@@ -130,45 +131,43 @@ export class RepoClient extends GitHubClient {
 		relativeFilePath = relativeFilePath.trim();
 		relativeFilePath = relativeFilePath.startsWith("/") ? relativeFilePath : `/${relativeFilePath}`;
 
-		const queryParams = `?ref=${branchName}`;
-		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/contents${relativeFilePath}${queryParams}`;
+		const fileContentModel = await this.getFileContentResult(repoName, branchName, relativeFilePath);
 
-		const response: Response = await this.requestGET(url);
-
-		switch (response.status) {
-			case GitHubHttpStatusCodes.NotFound:
-			case GitHubHttpStatusCodes.TemporaryRedirect:
-			case GitHubHttpStatusCodes.Forbidden:
-				Utils.printAsGitHubError(`Error: ${response.status} (${response.statusText})`);
-				Deno.exit(1);
+		if (fileContentModel === undefined || fileContentModel === null) {
+			Utils.printAsGitHubError("Error: 404(Not Found)");
+			Deno.exit(1);
 		}
 
-		const responseData = <FileContentModel> await this.getResponseData(response);
+		// Return the file content after it has been decoded from base64
+		const decodedFileContent = new TextDecoder().decode(decode(fileContentModel.content));
 
 		// Replace all plain text new line character strings with actual new line characters
-		const content = responseData.content.replace(/\\n/g, this.newLineBase64);
+		let content = decodedFileContent.replace(/\\n/g, this.newLineBase64);
+		content = decodedFileContent.replace(/\\r/g, this.carriageReturnBase64);
 
-		// Return the file content after it has been decoded from base64
-		return new TextDecoder().decode(decode(content));
+		return content;
 	}
 
 	/**
 	 * Gets a value indicating whether or not a file exists with the given {@link relativeFilePath}
 	 * in a repository with a name that matches the given {@link repoName}.
 	 * @param repoName The name of the repository to check.
+	 * @param branchName The name of the branch to check.
 	 * @param relativeFilePath The relative path of the file.
 	 * @returns True if the file exists; otherwise, false.
 	 * @remarks The {@link relativeFilePath} is relative to the root of the repository.
 	 */
-	public async fileExists(repoName: string, relativeFilePath: string): Promise<boolean> {
+	public async fileExists(repoName: string, branchName: string, relativeFilePath: string): Promise<boolean> {
 		const funcName = "fileExists";
 		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNullOrEmptyOrUndefined(branchName, funcName, "branchName");
 		Guard.isNullOrEmptyOrUndefined(relativeFilePath, funcName, "relativeFilePath");
 
 		relativeFilePath = relativeFilePath.trim();
 		relativeFilePath = relativeFilePath.startsWith("/") ? relativeFilePath : `/${relativeFilePath}`;
 
-		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/contents${relativeFilePath}`;
+		const queryParams = `?ref=${branchName}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/contents${relativeFilePath}${queryParams}`;
 
 		const response: Response = await this.requestGET(url);
 
@@ -208,9 +207,9 @@ export class RepoClient extends GitHubClient {
 	}
 
 	/**
-	 * Creates a file in a repository with a name that matches the given {@link repoName}, on a branch
-	 * that matches the given {@link branchName}, at a relative path that matches the given {@link relativeFilePath},
-	 * where the content is the given {@link fileContent}, and the commit message is the given {@link commitMessage}.
+	 * Creates a new file in a repository with a name that matches the given {@link repoName}, on a branch
+	 * that matches the given {@link branchName}, at the {@link relativeFilePath}, with the given {@link fileContent},
+	 * with the given {@link commitMessage}.
 	 * @param repoName The name of the repository.
 	 * @param branchName The name of the branch.
 	 * @param relativeFilePath The relative path of where to add the file.
@@ -224,6 +223,13 @@ export class RepoClient extends GitHubClient {
 		fileContent: string,
 		commitMessage: string,
 	): Promise<void> {
+		const funcName = "createFile";
+		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNullOrEmptyOrUndefined(branchName, funcName, "branchName");
+		Guard.isNullOrEmptyOrUndefined(relativeFilePath, funcName, "relativeFilePath");
+		Guard.isNullOrEmptyOrUndefined(fileContent, funcName, "fileContent");
+		Guard.isNullOrEmptyOrUndefined(commitMessage, funcName, "commitMessage");
+
 		relativeFilePath = Utils.normalizePath(relativeFilePath);
 		Utils.trimAllStartingValue("/", relativeFilePath);
 
@@ -244,5 +250,102 @@ export class RepoClient extends GitHubClient {
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
+	}
+
+	/**
+	 * Updates the content of a file in a repository with a name that matches the given {@link repoName}, on a branch
+	 * that matches the given {@link branchName}, at the {@link relativeFilePath}, with the given {@link fileContent},
+	 * with a commit message is the given {@link commitMessage}.
+	 * @param repoName The name of the repository.
+	 * @param branchName The name of the branch.
+	 * @param relativeFilePath The relative path of where to add the file.
+	 * @param fileContent The content of the file.
+	 * @param commitMessage The commit message.
+	 * @remarks If the file does not exist, an error will be thrown.
+	 */
+	public async updateFile(
+		repoName: string,
+		branchName: string,
+		relativeFilePath: string,
+		fileContent: string,
+		commitMessage: string,
+	): Promise<void> {
+		const funcName = "updateFile";
+		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNullOrEmptyOrUndefined(branchName, funcName, "branchName");
+		Guard.isNullOrEmptyOrUndefined(relativeFilePath, funcName, "relativeFilePath");
+		Guard.isNullOrEmptyOrUndefined(fileContent, funcName, "fileContent");
+		Guard.isNullOrEmptyOrUndefined(commitMessage, funcName, "commitMessage");
+
+		relativeFilePath = Utils.normalizePath(relativeFilePath);
+		Utils.trimAllStartingValue("/", relativeFilePath);
+
+		const fileContentModel = await this.getFileContentResult(repoName, branchName, relativeFilePath);
+
+		if (fileContentModel === undefined || fileContentModel === null) {
+			let errorMsg = `The file '${relativeFilePath}' does not exist in the repository`;
+			errorMsg += `\n '${repoName}', in branch '${branchName}'.`;
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
+
+		const body = {
+			message: commitMessage,
+			content: encode(fileContent),
+			branch: branchName,
+			sha: fileContentModel.sha,
+		};
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/contents/${relativeFilePath}`;
+
+		const response = await this.requestPUT(url, JSON.stringify(body));
+
+		if (response.status != GitHubHttpStatusCodes.OK && response.status != GitHubHttpStatusCodes.Created) {
+			let errorMsg = `An error occurred when creating the file '${relativeFilePath}' in the repository '${repoName}'`;
+			errorMsg += ` for branch '${branchName}'.`;
+			errorMsg += `\nError: ${response.status}(${response.statusText})`;
+
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
+	}
+
+	/**
+	 * Gets the content of a file and a value indicating whether or not the file exists, at the
+	 * given {@link relativeFilePath} in a repository with a name that matches the given {@link repoName}.
+	 * @param repoName The name of the repository to check.
+	 * @param relativeFilePath The relative path of the file.
+	 * @returns The content of the file and a boolean flag indicating whether or not the file exists.
+	 * @remarks The {@link relativeFilePath} is relative to the root of the repository.
+	 */
+	private async getFileContentResult(
+		repoName: string,
+		branchName: string,
+		relativeFilePath: string,
+	): Promise<FileContentModel | null> {
+		const funcName = "getFileContentWithResult";
+		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNullOrEmptyOrUndefined(branchName, funcName, "branchName");
+		Guard.isNullOrEmptyOrUndefined(relativeFilePath, funcName, "relativeFilePath");
+
+		relativeFilePath = relativeFilePath.trim();
+		relativeFilePath = relativeFilePath.startsWith("/") ? relativeFilePath : `/${relativeFilePath}`;
+
+		const queryParams = `?ref=${branchName}`;
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/contents${relativeFilePath}${queryParams}`;
+
+		const response: Response = await this.requestGET(url);
+
+		switch (response.status) {
+			case GitHubHttpStatusCodes.NotFound:
+				return null;
+			case GitHubHttpStatusCodes.TemporaryRedirect:
+			case GitHubHttpStatusCodes.Forbidden:
+				Utils.printAsGitHubError(`Error: ${response.status} (${response.statusText})`);
+				Deno.exit(1);
+		}
+
+		const responseData = <FileContentModel> await this.getResponseData(response);
+
+		return responseData;
 	}
 }
