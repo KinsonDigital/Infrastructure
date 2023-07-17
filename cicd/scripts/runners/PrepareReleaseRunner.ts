@@ -12,6 +12,7 @@ import { ScriptRunner } from "./ScriptRunner.ts";
 import { GitHubVariableService } from "../../core/Services/GitHubVariableService.ts";
 import { OrgClient } from "../../clients/OrgClient.ts";
 import { RepoClient } from "../../clients/RepoClient.ts";
+import { CSharpVersionService } from "../../core/Services/CSharpVersionService.ts";
 
 /**
  * Automates the process of generating release notes for a GitHub release.
@@ -92,6 +93,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 			prTemplate,
 		);
 
+		await this.updateProjectVersions(repoName, headBranch, version);
 		await this.generateReleaseNotes(orgName, repoName, version, releaseType);
 	}
 
@@ -142,6 +144,8 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	protected mutateArgs(args: string[]): string[] {
 		let [orgName, repoName, releaseType, version, token] = args;
 
+		orgName = orgName.trim();
+		repoName = repoName.trim();
 		releaseType = releaseType.trim().toLowerCase();
 		version = version.startsWith("v") ? version : `v${version}`;
 
@@ -163,6 +167,22 @@ export class PrepareReleaseRunner extends ScriptRunner {
 		if (!(await this.gitClient.branchExists(headBranch))) {
 			await this.gitClient.createBranch(headBranch, baseBranch);
 		}
+	}
+
+	/**
+	 * Updates the version tags with the given {@link version} in a csproj file in a repository with a name that
+	 * matches the given {@link repoName}, in the branch with the given {@link branchName}.
+	 * @param repoName The name of the repository.
+	 * @param branchName The name of the branch.
+	 * @param version The version to update the csproj file with.
+	 */
+	private async updateProjectVersions(repoName: string, branchName: string, version: string): Promise<void> {
+		const prepProjRelativeFilePathVarName = "PREP_PROJ_RELATIVE_FILE_PATH";
+		const relativeProjFilePath = await this.githubVarService.getValue(prepProjRelativeFilePathVarName);
+		const updateProjFileService = new CSharpVersionService(repoName, this.token);
+
+		// Update the version tags in the csproj file
+		await updateProjFileService.updateVersion(branchName, relativeProjFilePath, version)
 	}
 
 	private async generateReleaseNotes(
@@ -207,6 +227,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 		const releaseNotesFilePath = await this.buildReleaseNotesFilePath(version, releaseType);
 		const headBranch = await this.getHeadBranchName(releaseType);
 
+		// Create a new release notes file
 		await this.repoClient.createFile(
 			repoName,
 			headBranch,
