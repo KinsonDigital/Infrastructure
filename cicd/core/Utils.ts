@@ -121,6 +121,16 @@ export class Utils {
 	}
 
 	/**
+	 * Prints the given {@link messages} as GitHub notices.
+	 * @param messages The messages to print.
+	 */
+	public static printAsGitHubNotices(messages: string[]): void {
+		messages.forEach((message) => {
+			Utils.printAsGitHubNotice(message);
+		});
+	}
+
+	/**
 	 * Prints the given {@link message} as a GitHub error.
 	 * @param message The message to print.
 	 */
@@ -128,6 +138,16 @@ export class Utils {
 		Utils.printEmptyLine();
 		console.log(`::error::${message}`);
 		Utils.printEmptyLine();
+	}
+
+	/**
+	 * Prints the given {@link messages} as GitHub errors.
+	 * @param messages The error messages.
+	 */
+	public static printAsGitHubErrors(messages: string[]): void {
+		messages.forEach((message) => {
+			Utils.printAsGitHubError(message);
+		});
 	}
 
 	/**
