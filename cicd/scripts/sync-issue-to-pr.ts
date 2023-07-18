@@ -94,8 +94,19 @@ if (prSyncTemplateRepoNameVar == undefined) {
 	Deno.exit(1);
 }
 
+const prSyncTemplateBranchNameVar = repoVars.find((v) => v.name == PR_SYNC_TEMPLATE_BRANCH_NAME);
+
+// If the repo does not contain the required pr sync template branch name variable
+if (prSyncTemplateBranchNameVar == undefined) {
+	let errorMsg = `The repository '${repoName}' does not have the required `;
+	errorMsg += `variable named '${PR_SYNC_TEMPLATE_BRANCH_NAME}'.`;
+	Utils.printAsGitHubError(errorMsg);
+	Deno.exit(1);
+}
+
 const prSyncTemplateRepoName = prSyncTemplateRepoNameVar.value;
 let relativeTemplateFilePath = relativeTemplateFilePathVar.value;
+const prSyncTemplateBranchName = prSyncTemplateBranchNameVar.value.trim();
 
 // Make sure that there are no backslashes and that it does not start with a forward slash
 relativeTemplateFilePath = relativeTemplateFilePath.replaceAll("\\", "/");
@@ -107,7 +118,8 @@ relativeTemplateFilePath = relativeTemplateFilePath.startsWith("/")
 const prClient: PullRequestClient = new PullRequestClient(githubToken);
 let pr: PullRequestModel = await prClient.getPullRequest(repoName, prNumber);
 
-const templateFileDoesNotExist = !(await repoClient.fileExists(prSyncTemplateRepoName, pr.head.ref, relativeTemplateFilePath));
+const templateFileDoesNotExist = !(await repoClient.fileExists(prSyncTemplateRepoName, prSyncTemplateBranchName, relativeTemplateFilePath));
+
 if (templateFileDoesNotExist) {
 	let errorMsg = `The template file '${relativeTemplateFilePath}' does not exist in the `;
 	errorMsg += `\nrepository '${repoName}, in branch '${pr.head.ref}'.`;
