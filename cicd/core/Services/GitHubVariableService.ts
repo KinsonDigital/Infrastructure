@@ -61,7 +61,7 @@ export class GitHubVariableService {
 	}
 
 	/**
-	 * Gets a value indicating whether or not all of the given variable {!link names} exist.
+	 * Gets a value indicating whether or not all of the given variable {@link names} exist.
 	 * @param names The list of variable names.
 	 * @returns A tuple containing a value indicating whether or not all of the variables
 	 * exist and a list of the non-existing variables.
