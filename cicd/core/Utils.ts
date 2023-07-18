@@ -172,6 +172,21 @@ export class Utils {
 	}
 
 	/**
+	 * Adds sequential numbers to the given list of {@link items}.
+	 * @param items The items to number.
+	 * @returns The numbered items.
+	 */
+	public static numberItems(items: string[]): string[] {
+		const result: string[] = [];
+
+		for (let i = 0; i < items.length - 1; i++) {
+			result.push(`${Utils.toOrdinal(i + 1)} ${items[i]}}`);
+		}
+
+		return result;
+	}	
+
+	/**
 	 * Prints the given list of {@link items} as a numbered list with each item prefixed with the given {@link prefix},
 	 * and logged to the GitHub console based on the given {@link logType}.
 	 * @param prefix The prefix to use for each item.
