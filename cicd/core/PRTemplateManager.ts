@@ -193,6 +193,10 @@ export class PRTemplateManager {
 	 * @returns True if the template is a PR sync template, false otherwise.
 	 */
 	public isPRSyncTemplate(template: string): boolean {
+		if (Utils.isNullOrEmptyOrUndefined(template)) {
+			return false;
+		}
+
 		const baseBranchSyntaxExists = template.match(this.baseBranchRegex) != null;
 		const headBranchSyntaxExists = template.match(this.headBranchRegex) != null;
 		const validIssueNumSyntaxExists = template.match(this.validIssueNumRegex) != null;
