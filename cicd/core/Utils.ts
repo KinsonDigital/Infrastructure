@@ -453,6 +453,21 @@ export class Utils {
 	}
 
 	/**
+	 * Trims all of the given {@link values}.
+	 * @param values The values to trim.
+	 * @returns The given {@link values} with all values trimmed.
+	 */
+	public static trimAll(values: string[]): string[] {
+		const trimmedValues: string[] = [];
+
+		values.forEach(value => {
+			trimmedValues.push(value.trim());
+		});
+
+		return trimmedValues;
+	}
+
+	/**
 	 * Removes any white space from the start of the given {@link value}.
 	 * @param value The value to remove the starting white space from.
 	 * @returns The given {@link value} with the starting white space removed.
