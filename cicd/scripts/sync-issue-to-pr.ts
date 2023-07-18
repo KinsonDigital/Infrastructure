@@ -118,17 +118,17 @@ relativeTemplateFilePath = relativeTemplateFilePath.startsWith("/")
 const prClient: PullRequestClient = new PullRequestClient(githubToken);
 let pr: PullRequestModel = await prClient.getPullRequest(repoName, prNumber);
 
-const templateFileDoesNotExist = !(await repoClient.fileExists(prSyncTemplateRepoName, prSyncTemplateBranchName, relativeTemplateFilePath));
+const templateFileDoesExists = await repoClient.fileExists(prSyncTemplateRepoName, prSyncTemplateBranchName, relativeTemplateFilePath);
 
-if (templateFileDoesNotExist) {
+if (templateFileDoesExists) {
+	let noticeMsg = `The template file '${relativeTemplateFilePath}' was pulled from the `;
+	noticeMsg += `'${prSyncTemplateRepoName}' repository in the branch '${prSyncTemplateBranchName}'.`;
+	Utils.printAsGitHubNotice(noticeMsg);
+} else {
 	let errorMsg = `The template file '${relativeTemplateFilePath}' does not exist in the `;
 	errorMsg += `\nrepository '${repoName}, in branch '${pr.head.ref}'.`;
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
-} else {
-	let noticeMsg = `The template file '${relativeTemplateFilePath}' was pulled from the `;
-	noticeMsg += `'${prSyncTemplateRepoName}' repository in the branch '${prSyncTemplateBranchName}'.`;
-	Utils.printAsGitHubNotice(noticeMsg);
 }
 
 const repoDoesNotExist = !(await repoClient.exists(repoName));
