@@ -44,17 +44,21 @@ export class PRTemplateManager {
 	/**
 	 * Gets a pull request template with the a link to an issue that matches the given {@link issueNumber}.
 	 * @param repoName The name of the repository.
+	 * @param branchName The name of the branch.
 	 * @param relativeTemplatePath The relative file path to the template.
 	 * @param issueNumber The issue number to use for linking the pull request to the issue.
 	 * @returns The pull request template.
 	 * @remarks The {@link relativeTemplatePath} is a file path that is located relative to the root
 	 * of a repository that matches the given {@link repoName}.
 	 */
-	public async getPullRequestTemplate(repoName: string, relativeTemplatePath: string, issueNumber: number): Promise<string> {
-		Guard.isNullOrEmptyOrUndefined(repoName, "getPullRequestTemplate", "repoName");
-		Guard.isNullOrEmptyOrUndefined(relativeTemplatePath, "getPullRequestTemplate", "relativeTemplatePath");
+	public async getPullRequestTemplate(repoName: string, branchName: string, relativeTemplatePath: string, issueNumber: number): Promise<string> {
+		const funcName = "getPullRequestTemplate";
+		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNullOrEmptyOrUndefined(branchName, funcName, "branchName");
+		Guard.isNullOrEmptyOrUndefined(relativeTemplatePath, funcName, "relativeTemplatePath");
+		Guard.isLessThanOne(issueNumber, funcName, "issueNumber");
 
-		let templatedData = await this.repoClient.getFileContent(repoName, relativeTemplatePath);
+		let templatedData = await this.repoClient.getFileContent(repoName, branchName, relativeTemplatePath);
 		templatedData = templatedData.replace(this.issueNumTemplateVarRegex, issueNumber.toString());
 
 		const allowedPRBaseBranches = await this.getAllowedPRBaseBranches();

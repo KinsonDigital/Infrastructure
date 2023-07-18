@@ -228,7 +228,7 @@ const issueLabels = issue.labels?.map((label) => label.name) ?? [];
 
 // If the pr body is not a valid pr template, load a new one to replace it.
 const prDescription = isInitialSyncCommand || !prTemplateManager.isPRSyncTemplate(pr.body)
-	? await prTemplateManager.getPullRequestTemplate(prSyncTemplateRepoName, relativeTemplateFilePath, issueNumber)
+	? await prTemplateManager.getPullRequestTemplate(prSyncTemplateRepoName, prSyncTemplateBranchName, relativeTemplateFilePath, issueNumber)
 	: pr.body;
 
 // If the title does not match, sync the title
