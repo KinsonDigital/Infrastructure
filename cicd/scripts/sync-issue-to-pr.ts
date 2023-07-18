@@ -43,6 +43,7 @@ if (!(Utils.isNumeric(prNumberStr))) {
 const DEFAULT_PR_REVIEWER = "DEFAULT_PR_REVIEWER";
 const RELATIVE_PR_SYNC_TEMPLATE_FILE_PATH = "RELATIVE_PR_SYNC_TEMPLATE_FILE_PATH";
 const PR_SYNC_TEMPLATE_REPO_NAME = "PR_SYNC_TEMPLATE_REPO_NAME";
+const PR_SYNC_TEMPLATE_BRANCH_NAME = "PR_SYNC_TEMPLATE_BRANCH_NAME";
 const prNumber = Number.parseInt(prNumberStr);
 
 // Print out all of the arguments
@@ -113,7 +114,7 @@ if (templateFileDoesNotExist) {
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 } else {
-	let noticeMsg = `The template file '${relativeTemplateFilePath}' was pull from the `;
+	let noticeMsg = `The template file '${relativeTemplateFilePath}' was pulled from the `;
 	noticeMsg += `\nrepository '${repoName}, in branch '${pr.head.ref}'.`;
 	Utils.printAsGitHubNotice(noticeMsg);
 }
