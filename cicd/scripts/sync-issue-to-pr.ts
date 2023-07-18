@@ -127,7 +127,7 @@ if (templateFileDoesNotExist) {
 	Deno.exit(1);
 } else {
 	let noticeMsg = `The template file '${relativeTemplateFilePath}' was pulled from the `;
-	noticeMsg += `\nrepository '${repoName}, in branch '${pr.head.ref}'.`;
+	noticeMsg += `'${prSyncTemplateRepoName}' repository in the branch '${prSyncTemplateBranchName}'.`;
 	Utils.printAsGitHubNotice(noticeMsg);
 }
 
