@@ -67,14 +67,6 @@ export class Utils {
 	}
 
 	/**
-	 * Gets the name of the script that is running.
-	 * @returns The name of the script that is running.
-	 */
-	public static getScriptName(): string {
-		return Deno.mainModule.substring(Deno.mainModule.lastIndexOf("/") + 1);
-	}
-
-	/**
 	 * Filters the given list of issues or pull requests to only return issues.
 	 * @param issuesOrPrs The issues or pull requests to filter.
 	 * @returns The issues from the given list of issues or pull requests.
