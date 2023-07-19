@@ -196,7 +196,7 @@ export class Utils {
 		}
 
 		return result;
-	}	
+	}
 
 	/**
 	 * Prints the given list of {@link items} as a numbered list with each item prefixed with the given {@link prefix},
@@ -487,7 +487,7 @@ export class Utils {
 	public static trimAll(values: string[]): string[] {
 		const trimmedValues: string[] = [];
 
-		values.forEach(value => {
+		values.forEach((value) => {
 			trimmedValues.push(value.trim());
 		});
 
