@@ -25,10 +25,8 @@ export abstract class ScriptRunner {
 			Deno.exit(1);
 		}
 
+		this.args = args;
 		this.token = args[args.length - 1];
-
-		this.validateArgs(args);
-		this.args = this.mutateArgs(args);
 	}
 
 	/**
@@ -46,7 +44,9 @@ export abstract class ScriptRunner {
 	/**
 	 * Runs a script.
 	 */
-	protected async run(): Promise<void> {
+	public async run(): Promise<void> {
+		await this.validateArgs(this.args);
+		this.mutateArgs(this.args);
 	}
 
 	/**

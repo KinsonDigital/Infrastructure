@@ -1,7 +1,5 @@
-import { RepoClient } from "../clients/RepoClient.ts";
-import { Guard } from "./Guard.ts";
 import { IPRTemplateSettings } from "./IPRTemplateSettings.ts";
-import { GitHubVariableService } from "./Services/GitHubVariableService.ts";
+import { MarkdownService } from "./Services/MarkdownService.ts";
 import { Utils } from "./Utils.ts";
 
 /**
@@ -16,152 +14,34 @@ export class PRTemplateManager {
 	private readonly labelsRegex = /<!--labels-->/gm;
 	private readonly projectsRegex = /<!--projects-->/gm;
 	private readonly milestoneRegex = /<!--milestone-->/gm;
-	private readonly issueNumTemplateVarRegex = /\${{\s*issue-number\s*}}/gm;
-	private readonly branchesTemplateVarRegex = /\${{\s*branches\s*}}/gm;
 	private readonly syncFlagRegex = /<!--sync-flag-->/gm;
 	private readonly syncEmptyCheckRegex = /- \[ \] /gm;
 	private readonly syncFullCheckRegex = /- \[(x|X)\] /gm;
-	private readonly isInSyncLineRegex = /(✅|❌) .+<!--.+-->/gm;
-	private readonly lineInSyncRegex = /✅ .+<!--.+-->/gm;
-	private readonly lineOutOfSyncRegex = /❌ .+<!--.+-->/gm;
-	private readonly repoClient: RepoClient;
-	private readonly githubRepoService: GitHubVariableService | undefined;
+	private readonly markdownService: MarkdownService;
 
 	/**
 	 * Initializes a new instance of the {@link PRTemplateManager} class.
-	 * @param orgName The name of the organization.
-	 * @param repoName The name of the repository.
-	 * @param token The GitHub token to use for authentication.
 	 */
-	constructor(orgName: string, repoName: string, token?: string) {
-		this.repoClient = new RepoClient(token);
-
-		if (!Utils.isNullOrEmptyOrUndefined(token)) {
-			this.githubRepoService = new GitHubVariableService(orgName, repoName, token);
-		}
+	constructor() {
+		this.markdownService = new MarkdownService();
 	}
 
 	/**
-	 * Gets a pull request template with the a link to an issue that matches the given {@link issueNumber}.
-	 * @param repoName The name of the repository.
-	 * @param branchName The name of the branch.
-	 * @param relativeTemplatePath The relative file path to the template.
-	 * @param issueNumber The issue number to use for linking the pull request to the issue.
+	 * Creates a pull request sync template used to represent the state of the sync status.
+	 * @param allowedPRBaseBranches The branches allowed as the base branch for a PR.
+	 * @param issueNumber The issue number.
+	 * @param settings The settings used to create the template to represent the sync status.
 	 * @returns The pull request template.
-	 * @remarks The {@link relativeTemplatePath} is a file path that is located relative to the root
-	 * of a repository that matches the given {@link repoName}.
 	 */
-	public async getPullRequestTemplate(repoName: string, branchName: string, relativeTemplatePath: string, issueNumber: number): Promise<string> {
-		const funcName = "getPullRequestTemplate";
-		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
-		Guard.isNullOrEmptyOrUndefined(branchName, funcName, "branchName");
-		Guard.isNullOrEmptyOrUndefined(relativeTemplatePath, funcName, "relativeTemplatePath");
-		Guard.isLessThanOne(issueNumber, funcName, "issueNumber");
+	public createPrSyncTemplate(allowedPRBaseBranches: string[], issueNumber: number, settings: IPRTemplateSettings): string {
+		let result = this.buildDescriptionSection(allowedPRBaseBranches, issueNumber, settings);
 
-		let templatedData = await this.repoClient.getFileContent(repoName, branchName, relativeTemplatePath);
-		templatedData = templatedData.replace(this.issueNumTemplateVarRegex, issueNumber.toString());
+		result += "\n\n---\n\n";
+		result += this.createAdditionalInfo();
+		result += "\n\n---\n\n";
+		result += this.createSyncCheckBox();
 
-		const allowedPRBaseBranches = await this.getAllowedPRBaseBranches();
-
-		let baseBranchesText = "";
-
-		switch (allowedPRBaseBranches.length) {
-			case 1:
-				baseBranchesText = `the branch '${allowedPRBaseBranches[0]}'`;
-				break;
-			case 2:
-				baseBranchesText = `a '${allowedPRBaseBranches[0]}' or '${allowedPRBaseBranches[1]}' branch.`;
-				break;
-			default: {
-				// get all of the branches except the last one
-				const allBranchesButLast = allowedPRBaseBranches.slice(0, allowedPRBaseBranches.length - 1);
-				const lastBranch = allowedPRBaseBranches[allowedPRBaseBranches.length - 1];
-
-				baseBranchesText = `a '${allBranchesButLast.join("', '")}', or '${lastBranch}' branch.`;
-				break;
-			}
-		}
-
-		templatedData = templatedData.replace(this.branchesTemplateVarRegex, baseBranchesText);
-
-		return templatedData;
-	}
-
-	/**
-	 * Processes the given {@link template} with the given {@link settings}.
-	 * @param template The template to process.
-	 * @param settings The various settings to use for processing the template.
-	 * @returns The template after processing as well as a list of items synced.
-	 */
-	public processSyncTemplate(template: string, settings: IPRTemplateSettings): [string, string[]] {
-		Guard.isNullOrEmptyOrUndefined(template, "processSyncTemplate", "template");
-
-		const statusOfSyncItems: string[] = [];
-
-		template = template.replace(/(?:\r\n|\r|\n)/g, "\n");
-
-		const fileDataLines: string[] = Utils.splitBy(template, "\n");
-
-		for (let i = 0; i < fileDataLines.length; i++) {
-			const line = fileDataLines[i];
-
-			const isInSyncLine = line.match(this.isInSyncLineRegex) != null;
-
-			// If the line is a sync line with any sync status
-			if (isInSyncLine) {
-				if (line.match(this.headBranchRegex)) {
-					const statusEmoji = settings.headBranchValid ? "✅" : "❌";
-					const statusMsg = `${statusEmoji}The head branch is${settings.headBranchValid ? "" : " not"} valid.`;
-					fileDataLines[i] = this.setLineSyncStatus(line, settings.headBranchValid);
-
-					statusOfSyncItems.push(statusMsg);
-				} else if (line.match(this.baseBranchRegex)) {
-					const statusEmoji = settings.baseBranchValid ? "✅" : "❌";
-					const statusMsg = `${statusEmoji}The base branch is${settings.baseBranchValid ? "" : " not"} valid.`;
-					fileDataLines[i] = this.setLineSyncStatus(line, settings.baseBranchValid);
-
-					statusOfSyncItems.push(statusMsg);
-				} else if (line.match(this.validIssueNumRegex)) {
-					const statusEmoji = settings.issueNumValid ? "✅" : "❌";
-					const statusMsg = `${statusEmoji}The issue number is${settings.issueNumValid ? "" : " not"} valid.`;
-					fileDataLines[i] = this.setLineSyncStatus(line, settings.issueNumValid);
-
-					statusOfSyncItems.push(statusMsg);
-				} else if (line.match(this.titleRegex)) {
-					const statusEmoji = settings.titleInSync ? "✅" : "❌";
-					const statusMsg = `${statusEmoji}The title is${settings.titleInSync ? "" : " not"} in sync.`;
-					fileDataLines[i] = this.setLineSyncStatus(line, settings.titleInSync);
-
-					statusOfSyncItems.push(statusMsg);
-				} else if (line.match(this.assigneesRegex)) {
-					const statusEmoji = settings.assigneesInSync ? "✅" : "❌";
-					const statusMsg = `${statusEmoji}The assignees are${settings.assigneesInSync ? "" : " not"} in sync.`;
-					fileDataLines[i] = this.setLineSyncStatus(line, settings.assigneesInSync);
-
-					statusOfSyncItems.push(statusMsg);
-				} else if (line.match(this.labelsRegex)) {
-					const statusEmoji = settings.labelsInSync ? "✅" : "❌";
-					const statusMsg = `${statusEmoji}The labels are${settings.labelsInSync ? "" : " not"} in sync.`;
-					fileDataLines[i] = this.setLineSyncStatus(line, settings.labelsInSync);
-
-					statusOfSyncItems.push(statusMsg);
-				} else if (line.match(this.projectsRegex)) {
-					const statusEmoji = settings.projectsInSync ? "✅" : "❌";
-					const statusMsg = `${statusEmoji}The projects are${settings.projectsInSync ? "" : " not"} in sync.`;
-					fileDataLines[i] = this.setLineSyncStatus(line, settings.projectsInSync);
-
-					statusOfSyncItems.push(statusMsg);
-				} else if (line.match(this.milestoneRegex)) {
-					const statusEmoji = settings.milestoneInSync ? "✅" : "❌";
-					const statusMsg = `${statusEmoji}The milestone is${settings.milestoneInSync ? "" : " not"} in sync.`;
-					fileDataLines[i] = this.setLineSyncStatus(line, settings.milestoneInSync);
-
-					statusOfSyncItems.push(statusMsg);
-				}
-			}
-		}
-
-		return [fileDataLines.join("\n"), statusOfSyncItems];
+		return result;
 	}
 
 	/**
@@ -221,54 +101,112 @@ export class PRTemplateManager {
 	}
 
 	/**
-	 * Gets the list of allowed base branches for a repository with a name that matches the given {@link repoName}.
-	 * @param repoName The name of the repository.
-	 * @returns The list of allowed base branches.
+	 * Builds the description section of the pull request template.
+	 * @param allowedPRBaseBranches The allowed base branches for a pull request.
+	 * @param issueNumber The issue number.
+	 * @param settings The settings used to create the template to represent the sync status.
+	 * @returns The complete description section.
 	 */
-	public async getAllowedPRBaseBranches(): Promise<string[]> {
-		const defaultBranches = ["main", "preview"];
+	private buildDescriptionSection(allowedPRBaseBranches: string[], issueNumber: number, settings: IPRTemplateSettings): string {
+		let descriptionSection = this.markdownService.createHeader("Description:", 3, true);
 
-		if (this.githubRepoService === undefined) {
-			return defaultBranches;
-		}
+		descriptionSection +=
+			"\n\nTo allow this pull request to be merged, please make sure that the following items of this pull request are complete.";
+		descriptionSection += "\n";
+		descriptionSection += `\nThis pull request closes #${issueNumber}`;
+		descriptionSection += "\n\n";
+		descriptionSection += this.createStatusList(allowedPRBaseBranches, settings);
 
-		// This repo variable is optional
-		const prSyncBaseBranchesVarName = "PR_SYNC_BASE_BRANCHES";
-
-		const prSyncBaseBranchListStr = await this.githubRepoService.getValue(prSyncBaseBranchesVarName, false);
-
-		if (Utils.isNullOrEmptyOrUndefined(prSyncBaseBranchListStr)) {
-			return defaultBranches;
-		}
-
-		const prSyncBaseBranches = Utils.splitByComma(prSyncBaseBranchListStr);
-
-		return prSyncBaseBranches.length > 0 ? prSyncBaseBranches : defaultBranches;
+		return descriptionSection;
 	}
 
 	/**
-	 * Returns a value indicating whether or not the template lines is showing as passing.
-	 * @param line The template line to check.
-	 * @returns True if the line shows as passing, false otherwise.
+	 * Creates the status list for the pull request template.
+	 * @param allowedPRBaseBranches The allowed base branches for a pull request.
+	 * @param settings The settings used to create the template to represent the sync status.
+	 * @returns The complete status list.
 	 */
-	private showsAsPassing(line: string): boolean {
-		return line.match(this.lineInSyncRegex) != null && line.match(this.lineOutOfSyncRegex) === null;
+	private createStatusList(allowedPRBaseBranches: string[], settings: IPRTemplateSettings): string {
+		let baseBranchesText = "";
+
+		switch (allowedPRBaseBranches.length) {
+			case 1:
+				baseBranchesText = `the branch '${allowedPRBaseBranches[0]}'`;
+				break;
+			case 2:
+				baseBranchesText = `a '${allowedPRBaseBranches[0]}' or '${allowedPRBaseBranches[1]}' branch.`;
+				break;
+			default: {
+				// get all of the branches except the last one
+				const allBranchesButLast = allowedPRBaseBranches.slice(0, allowedPRBaseBranches.length - 1);
+				const lastBranch = allowedPRBaseBranches[allowedPRBaseBranches.length - 1];
+
+				baseBranchesText = `a '${allBranchesButLast.join("', '")}', or '${lastBranch}' branch.`;
+				break;
+			}
+		}
+
+		const statusLines: string[] = [];
+
+		let statusEmoji = settings.headBranchValid ? "✅" : "❌";
+		let headBranchStatus = `${statusEmoji}The pull request head branch must be a feature branch `;
+		headBranchStatus += `with the syntax 'feature/<issue-num>-sync-testing'.  `;
+		statusLines.push(headBranchStatus);
+
+		statusEmoji = settings.baseBranchValid ? "✅" : "❌";
+		statusLines.push(`${statusEmoji}The pull request base branch must be ${baseBranchesText}.  `);
+
+		statusEmoji = settings.issueNumValid ? "✅" : "❌";
+		statusLines.push(`${statusEmoji}The pull request head branch contains a valid issue number.  `);
+
+		statusEmoji = settings.titleInSync ? "✅" : "❌";
+		statusLines.push(`${statusEmoji}The pull request title matches the linked issue title exactly.  `);
+
+		statusEmoji = settings.assigneesInSync ? "✅" : "❌";
+		statusLines.push(`${statusEmoji}The pull request assignees match the assignees of the issue.  `);
+
+		statusEmoji = settings.labelsInSync ? "✅" : "❌";
+		statusLines.push(`${statusEmoji}The pull request labels match the labels of the issue.  `);
+
+		statusEmoji = settings.projectsInSync ? "✅" : "❌";
+		let projectsInSyncStatus = `${statusEmoji}The pull request organizational projects match the `;
+		projectsInSyncStatus += `organizational projects of the issue.  `;
+		statusLines.push(projectsInSyncStatus);
+
+		statusEmoji = settings.milestoneInSync ? "✅" : "❌";
+		statusLines.push(`${statusEmoji}The pull requests milestone matches the milestone of the issue.  `);
+
+		return statusLines.join("\n");
 	}
 
 	/**
-	 * Updates the given template line to show the correct sync status.
-	 * @param line The line of text from the template to update.
-	 * @param checkIsPassing True if the line should be displayed as passing.
-	 * @returns The updated line.
+	 * Creates the additional info section of the pull request template.
+	 * @returns The additional info section.
 	 */
-	private setLineSyncStatus(line: string, checkIsPassing: boolean | undefined): string {
-		const showsAsPassing = this.showsAsPassing(line);
-		const noStatusDefined = checkIsPassing === undefined;
+	private createAdditionalInfo(): string {
+		let result = this.markdownService.createHeader("Additional Info:", 3, true);
+		result += "\n1. Pull requests are automatically synced with the associated issue upon creation by ";
+		result += "one of the KinsonDigital workflow bots. ";
 
-		if (noStatusDefined) {
-			return showsAsPassing ? line.replace(/✅/g, "❔") : line.replace(/❌/g, "❔");
-		}
+		result += "\n2. The associated issue is the issue number that is embedded in the pull request head branch.";
 
-		return checkIsPassing ? line.replace(/❌/g, "✅") : line.replace(/✅/g, "❌");
+		result += "\n3. The list above will be automatically updated as the pull request's various settings match ";
+		result += "or do not match the associated issue.";
+
+		result += "\n4. To manually sync the pull request to the issue, create a comment with the `[run-sync]` command.";
+		result += "\n\t> **Note** You must be an admin member of the organization to use this command.";
+
+		return result;
+	}
+
+	/**
+	 * Creates the sync status checkbox.
+	 * @returns The sync status checkbox.
+	 */
+	private createSyncCheckBox(): string {
+		let text = "Sync with the issue.  Use this to enable or disable this pull request from ";
+		text += "syncing with its associated issue.";
+
+		return this.markdownService.createCheckBox(text, true);
 	}
 }

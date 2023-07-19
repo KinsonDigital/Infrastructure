@@ -69,13 +69,15 @@ export class GitHubVariableService {
 	public async allVarsExist(names: string[]): Promise<[boolean, string[]]> {
 		const nonExistingVars: string[] = [];
 
-		for await (const name of names) {
+		for (let i = 0; i < names.length; i++) {
+			const name = names[i];
+
 			if ((await this.getVar(name)) === undefined) {
 				nonExistingVars.push(name);
 			}
 		}
 
-		return [nonExistingVars.length > 0, nonExistingVars];
+		return [nonExistingVars.length <= 0, nonExistingVars];
 	}
 
 	/**
