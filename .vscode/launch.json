@@ -320,8 +320,7 @@
 				"KinsonDigital",
 				"Infrastructure",
 				"CalvinWilkinson",
-				"94",
-				"[initial-sync]",
+				"93",
 				"${env:CICD_TOKEN}",
 			],
             "attachSimplePort": 9229,
@@ -333,7 +332,7 @@
             }
         },
 		{
-            "name": "Sync Bot Status Check (DEBUG)",
+            "name": "Sync Status Check (DEBUG)",
             "request": "launch",
             "type": "node",
             "program": "${workspaceFolder}/cicd/scripts/sync-bot-status-check.ts",
@@ -344,8 +343,35 @@
                 "--allow-all"
             ],
             "args": [
+				"KinsonDigital",
 				"Infrastructure",
-				"47",
+				"94",
+				"pr",
+				"${env:CICD_TOKEN}",
+			],
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+		{
+            "name": "Sync Bot (DEBUG)",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/sync-bot-status-check.ts",
+            "cwd": "${workspaceFolder}/cicd",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": [
+				"KinsonDigital",
+				"Infrastructure",
+				"93",
 				"issue",
 				"${env:CICD_TOKEN}",
 			],
