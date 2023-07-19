@@ -35,8 +35,3 @@ export type BadCredentials = {
 	 */
 	message: string;
 };
-
-/**
- * The different kinds of GitHub workflow events.
- */
-export type EventType = "issue" | "pr";
