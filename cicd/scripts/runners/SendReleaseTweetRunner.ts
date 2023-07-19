@@ -26,6 +26,8 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 	}
 
 	public async run(): Promise<void> {
+		await super.run();
+
 		const [orgName, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret] = this.args;
 
 		// Print out all of the arguments
@@ -47,7 +49,8 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 
 		if (Utils.isNullOrEmptyOrUndefined(twitterBroadcastEnabled) || twitterBroadcastEnabled === "false") {
 			let noticeMsg = `No tweet broadcast will be performed.`;
-			noticeMsg += `\nTo enable tweet broadcasting, set the '${SendReleaseTweetRunner.TWITTER_BROADCAST_ENABLED}' variable to 'true'.`;
+			noticeMsg +=
+				`\nTo enable tweet broadcasting, set the '${SendReleaseTweetRunner.TWITTER_BROADCAST_ENABLED}' variable to 'true'.`;
 			noticeMsg += "\nIf the variable is missing, empty, or set to 'false', no tweet broadcast will be performed.";
 			Utils.printAsGitHubNotice(noticeMsg);
 			Deno.exit(0);
@@ -55,8 +58,14 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 
 		const discordInviteCode = await githubVarService.getValue(SendReleaseTweetRunner.DISCORD_INVITE_CODE, false);
 		const templateRepoName = await githubVarService.getValue(SendReleaseTweetRunner.RELEASE_TWEET_TEMPLATE_REPO_NAME, false);
-		const templateBranchName = await githubVarService.getValue(SendReleaseTweetRunner.RELEASE_TWEET_TEMPLATE_BRANCH_NAME, false);
-		const relativeTemplateFilePath = await githubVarService.getValue(SendReleaseTweetRunner.RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH, false);
+		const templateBranchName = await githubVarService.getValue(
+			SendReleaseTweetRunner.RELEASE_TWEET_TEMPLATE_BRANCH_NAME,
+			false,
+		);
+		const relativeTemplateFilePath = await githubVarService.getValue(
+			SendReleaseTweetRunner.RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH,
+			false,
+		);
 
 		const authValues: TwitterAuthValues = {
 			consumer_api_key: consumerAPIKey,
@@ -107,7 +116,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 		this.printOrgRepoVarsUsed();
 
 		let [orgName, repoName, version] = args;
-		
+
 		orgName = orgName.trim();
 		repoName = repoName.trim();
 
@@ -134,10 +143,11 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 		}
 
 		const githubVarService = new GitHubVariableService(orgName, repoName, this.token);
-		
+
 		const twitterBroadcastEnabled = (await githubVarService.getValue(
 			SendReleaseTweetRunner.TWITTER_BROADCAST_ENABLED,
-			false)).toLowerCase();
+			false,
+		)).toLowerCase();
 
 		// Print out all of the required variables but only if the twitter broadcast is enabled
 		if (!Utils.isNullOrEmptyOrUndefined(twitterBroadcastEnabled) && twitterBroadcastEnabled === "true") {
@@ -151,7 +161,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 
 				for (let i = 0; i < missingVars.length; i++) {
 					const missingVarName = missingVars[i];
-					
+
 					missingVarErrors.push(`The required org/repo variable '${missingVarName}' is missing.`);
 				}
 
@@ -167,26 +177,12 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 	protected mutateArgs(args: string[]): string[] {
 		args = Utils.trimAll(args);
 
-		let [orgName,
-			repoName,
-			version,
-			consumerAPIKey,
-			consumerAPISecret,
-			accessTokenKey,
-			accessTokenSecret,
-			token] = args;
+		let [orgName, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret, token] = args;
 
 		version = version.toLowerCase();
 		version = version.startsWith("v") ? version : `v${version}`;
 
-		return [orgName,
-			repoName,
-			version,
-			consumerAPIKey,
-			consumerAPISecret,
-			accessTokenKey,
-			accessTokenSecret,
-			token];
+		return [orgName, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret, token];
 	}
 
 	/**
@@ -201,9 +197,11 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 	 * @returns The list of required vars.
 	*/
 	private getRequiredVars(): string[] {
-		return [SendReleaseTweetRunner.DISCORD_INVITE_CODE,
+		return [
+			SendReleaseTweetRunner.DISCORD_INVITE_CODE,
 			SendReleaseTweetRunner.RELEASE_TWEET_TEMPLATE_REPO_NAME,
 			SendReleaseTweetRunner.RELEASE_TWEET_TEMPLATE_BRANCH_NAME,
-			SendReleaseTweetRunner.RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH];
+			SendReleaseTweetRunner.RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH,
+		];
 	}
 }
