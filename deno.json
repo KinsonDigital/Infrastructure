@@ -1,6 +1,7 @@
 {
     "lint": {
-        "include": ["cicd/.*\\.ts$"]
+        "include": ["cicd/.*\\.ts$"],
+        "exclude": ["**/playground.ts"]
     },
     "fmt": {
         "include": ["cicd/"],
