@@ -51,9 +51,9 @@ jobs:
           $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/github-release-does-not-exist.ts";
 
           <# Deno Args:
-            1. RepoName
-            2. TagName - This is the version
-            3. GitHubToken
+            1. Repo name
+            2. TagName - This is prev or prod version
+            3. PAT
           #>
           deno run `
             --allow-net `
@@ -61,4 +61,3 @@ jobs:
             "${{ inputs.project-name }}" `
             "${{ inputs.version }}" `
             "${{ secrets.cicd-pat }}";
-

@@ -360,9 +360,9 @@ jobs:
           $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/close-milestone.ts";
         
           <# Deno Args:
-            1. ProjectName
-            2. MilestoneName - This is the version
-            3. GitHubToken
+            1. Project name
+            2. Milestone name - This is the version
+            3. PAT
           #>
           deno run `
             --allow-read --allow-net `
@@ -377,14 +377,14 @@ jobs:
           $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/send-release-tweet.ts";
 
           <# Deno Args:
-            1. RepoOwner
-            2. ProjectName
+            1. Repo owner
+            2. Project name
             3. Version
-            4. TwitterConsumerApiKey
-            5. TwitterConsumerApiSecret
-            6. TwitterAccessToken
-            7. TwitterAccessTokenSecret
-            8. GitHubToken
+            4. Twitter consumer api key
+            5. Twitter consumer api secret
+            6. Twitter access token
+            7. Twitter access token secret
+            8. PAT
           #>
           deno run `
             --allow-read --allow-net --allow-env `

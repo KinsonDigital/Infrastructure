@@ -50,9 +50,9 @@ jobs:
           $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/milestone-exists.ts";
 
           <# Deno Args:
-            1. RepoName
-            2. MilestoneTitle - This is the version
-            3. GitHubToken
+            1. Project name
+            2. Milestone title - This is a prev or prod version
+            3. PAT
           #>
           deno run `
             --allow-net `
@@ -66,9 +66,9 @@ jobs:
           $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/milestone-items-all-closed.ts";
         
           <# Deno Args:
-            1. RepoName
-            2. MilestoneTitle - This is the version
-            3. GitHubToken
+            1. Repo name
+            2. MilestoneTitle - This is a prev or prod version
+            3. PAT
           #>
           deno run `
             --allow-read --allow-net `

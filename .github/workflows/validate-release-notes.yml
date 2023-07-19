@@ -116,11 +116,11 @@ jobs:
           $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/validate-release-notes.ts";
         
           <# Deno Args:
-            1. GitHub Orgnization Name
-            2. GitHub Repo Name
-            3. Release Type - Either 'Preview' or 'Production'
+            1. orgnization Name
+            2. Repo Name
+            3. Release type - Either 'Preview' or 'Production'
             4. Version
-            5. GitHub PAT Token
+            5. PAT
           #>
           deno run `
             --allow-read --allow-net `

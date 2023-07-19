@@ -48,7 +48,7 @@ jobs:
           $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/nuget-pkg-does-not-exist.ts";
 
           <# Deno Args:
-            1. PackageName
+            1. Package name
             2. Version
           #>
           deno run `

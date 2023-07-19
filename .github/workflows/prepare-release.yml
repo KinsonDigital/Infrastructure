@@ -94,11 +94,11 @@ jobs:
           $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/prepare-release.ts";
 
           <# Deno Args:
-            1. Organization Name
-            2. Project Name
-            3. Release Type - 'production' or 'preview'
-            4. Release Version
-            5. CICD PAT
+            1. Organization name
+            2. Project name
+            3. Release type - 'production' or 'preview'
+            4. Release version
+            5. PAT
           #>
           deno run `
             --allow-read --allow-write --allow-net `
@@ -107,5 +107,4 @@ jobs:
             "${{ inputs.project-name }}" `
             "${{ inputs.release-type }}" `
             "${{ inputs.release-version }}" `
-            "${{ github.workspace }}" `
             "${{ secrets.cicd-pat }}";

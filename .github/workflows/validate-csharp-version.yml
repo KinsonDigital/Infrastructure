@@ -112,11 +112,11 @@ jobs:
           Write-Host "::notice::Release Version After Mutation: $releaseVersion";
 
           # Set the output of this step
-          "version=$releaseVersion" >> $env:GITHUB_OUTPUT;
+          "version = $releaseVersion" >> $env:GITHUB_OUTPUT;
 
           <# Deno Args:
             1. Version
-            2. Version Type
+            2. Version type
           #>
           deno run `
             "$scriptUrl" `

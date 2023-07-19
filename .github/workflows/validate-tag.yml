@@ -101,10 +101,10 @@ jobs:
           $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/validate-tag.ts";
         
           <# Deno Args:
-            1. Repo Name
-            2. Tag Type
-            3. Release Type - Either 'Preview' or 'Production'
-            3. Tag Name - This is the version
+            1. Repo name
+            2. Tag type
+            3. Release type - Either 'Preview' or 'Production'
+            3. Tag name - This is the version
             4. PAT
           #>
           deno run `
