@@ -9,7 +9,6 @@ import { ScriptRunner } from "./ScriptRunner.ts";
  */
 export class TranspileReadMeRunner extends ScriptRunner {
 	private readonly readmeFileName = "README.md";
-	private readonly scriptName: string;
 	private readonly divStartTagRegEx = /<div.*>/gm;
 	private readonly divEndTagRegEx = /<\/div\s*>/gm;
 	private readonly breakTagRegEx = /<br\s*\/>/gm;
@@ -28,22 +27,22 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	 * @param args The script arguments.
 	 * @param scriptName The name of the script executing the runner.
 	 */
-	constructor(args: string[], scriptName: string) {
+	constructor(args: string[]) {
 		super(args);
-		this.scriptName = scriptName;
 	}
 
 	/**
 	 * Runs the transpile readme script.
 	 */
-	// deno-lint-ignore require-await
 	public async run(): Promise<void> {
+		await super.run();
+
 		const dirPath = this.args[0];
 
 		const readmeFilePath = `${dirPath}/${this.readmeFileName}`;
 
 		if (File.DoesNotExist(readmeFilePath)) {
-			let errorMsg = `Error with script '${this.scriptName}'`;
+			let errorMsg = "Error with script sync bot status check runner";
 			errorMsg += `\nThe given path '${readmeFilePath}' is not a valid file path.`;
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
