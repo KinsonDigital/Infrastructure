@@ -19,7 +19,7 @@ export abstract class ScriptRunner {
 		const hasFineGrainedToken = lastArg.startsWith(this.fineGrainedTokenPrefix);
 		const hasClassicToken = lastArg.startsWith(this.classicTokenPrefix);
 
-		if (hasFineGrainedToken == false && hasClassicToken == false) {
+		if (hasFineGrainedToken === false && hasClassicToken === false) {
 			const errorMsg = "The arguments must contain a GitHub PAT(Personal Access Token) and must be the last argument.";
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
@@ -65,7 +65,7 @@ export abstract class ScriptRunner {
 			Deno.exit(1);
 		}
 
-		if (releaseType == "production") {
+		if (releaseType === "production") {
 			if (Utils.isNotValidProdVersion(version)) {
 				let errorMsg = `The production version '${version}' is not valid.`;
 				errorMsg += "\nRequired Syntax: v#.#.#";

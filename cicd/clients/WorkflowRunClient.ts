@@ -295,7 +295,7 @@ export class WorkflowRunClient extends GitHubClient {
 
 		const workflowRun = workflowRuns.find((run) => run.display_title.trim() === title);
 
-		if (workflowRun == undefined) {
+		if (workflowRun === undefined) {
 			Utils.printAsGitHubError(`A workflow run with the title '${title}' was not found.`);
 			Deno.exit(1);
 		}
