@@ -17,10 +17,6 @@ on:
         required: true
         description: The version of the release to validate.
         type: string
-      cicd-scripts-version:
-        required: true
-        description: The version of the CICD scripts to use.
-        type: string
     secrets:
       cicd-pat:
         required: true
@@ -28,18 +24,38 @@ on:
       
 
 jobs:
-  build_script_url:
-    name: Build Script URL
-    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v9.1.0
-    with:
-      project-name: ${{ inputs.project-name }}
-      cicd-scripts-version: ${{ inputs.cicd-scripts-version }}
+  print_validate_workflow:
+    name: Print & Validate GitHub Release Workflow
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Environment Variables
+        run: Get-ChildItem -Path Env:* | Sort-Object Name
+
+      - name: Validate Workflow Inputs
+        run: |
+          # Verify that the project name workflow input is not empty
+          if ("${{ inputs.project-name }}".Trim().ToLower() -eq "") {
+            Write-Host "::error::The 'project-name' workflow input cannot be empty.";
+            exit 1;
+          }
+
+
+          $version = "${{ inputs.version }}".Trim().ToLower();
+          $version = $version.StartsWith("v") ? $version : "v$version";
+
+          # Verify that the version workflow input is valid
+          if ($version -match "v[0-9]+\.[0-9]+\.[0-9]+(|-preview\.[0-9]+)") {
+            Write-Host "::notice::The 'version' workflow input is valid.";
+          } else {
+            Write-Host "::error::The 'version' workflow input is invalid.  Expected version format: 'v#.#.#(-preview.#)'";
+            exit 1;
+          }
 
 
   validate_github_release:
     name: Validate GitHub Release
+    needs: print_validate_workflow
     runs-on: ubuntu-latest
-    needs: build_script_url
     steps:
       - name: Set Up Deno
         uses: denoland/setup-deno@v1
@@ -48,12 +64,18 @@ jobs:
 
       - name: GitHub Release Does Not Exist 
         run: |
-          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/github-release-does-not-exist.ts";
+          # Construct the URL to the organizations CICD scripts
+          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
+          $scriptUrl = $scriptUrl.Replace("\", "/").Replace("//", "/");
+          $scriptUrl = $scriptUrl.EndsWith("/") ? $scriptUrl.Substring(0, $scriptUrl.Length - 1) : $scriptUrl;
+          $scriptUrl = "$scriptUrl/github-release-does-not-exist.ts";
+
+          Write-Host "::notice::Validate GitHub Release Version Script URL: $scriptUrl";
 
           <# Deno Args:
-            1. RepoName
-            2. TagName - This is the version
-            3. GitHubToken
+            1. Repo name
+            2. TagName - This is prev or prod version
+            3. PAT
           #>
           deno run `
             --allow-net `
@@ -61,4 +83,3 @@ jobs:
             "${{ inputs.project-name }}" `
             "${{ inputs.version }}" `
             "${{ secrets.cicd-pat }}";
-

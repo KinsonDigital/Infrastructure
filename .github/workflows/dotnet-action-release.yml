@@ -39,10 +39,6 @@ on:
         description: The build configuration to use. This is either 'Debug' or 'Release'.
         default: Debug
         type: string
-      cicd-scripts-version:
-        required: true
-        description: The version of the CICD scripts to use.
-        type: string
       runs-on:
         required: false
         description: The type of machine to run the job on.
@@ -61,48 +57,50 @@ on:
 
 
 jobs:
-  validate_workflow_inputs:
-    name: Validate Workflow Inputs
+  print_validate_workflow:
+    name: Print & Validate DotNet Action Release Workflow
     runs-on: ubuntu-latest
     steps:
-      - name: Validate Inputs
+      - name: Print Environment Variables
+        run: Get-ChildItem -Path Env:* | Sort-Object Name
+
+      - name: Validate Workflow Inputs
         run: |
           # Verify that the project name workflow input is not empty
-          if ("${{ inputs.project-name }}" -eq "") {
+          if ("${{ inputs.project-name }}".Trim().ToLower() -eq "") {
             Write-Host "::error::The 'project-name' workflow input cannot be empty.";
             exit 1;
           }
 
 
-          $releaseType = "${{ inputs.release-type }}";
+          $releaseType = "${{ inputs.release-type }}".Trim().ToLower();
 
           # Verify that the release type is only 'Preview' or 'Production'
           if ($releaseType -ne "Preview" -and $releaseType -ne "Production") {
-            Write-Host "::error::The release type '$releaseType' is invalid.  Valid values are 'Preview' or 'Production'.";
+            Write-Host "::error::The 'release-type' workflow input is invalid.  Expecting value of 'Preview' or 'Production'.";
             exit 1;
           }
 
 
           # Verify that the run branch workflow input is not empty
-          if ("${{ inputs.run-branch }}" -eq "") {
+          if ("${{ inputs.run-branch }}".Trim().ToLower() -eq "") {
             Write-Host "::error::The 'run-branch' workflow input cannot be empty.";
             exit 1;
           }
 
 
-          $sdkVersion = "${{ inputs.net-sdk-version }}";
-          $sdkVersionRegex = "[0-9]+\.[0-9]+\.[0-9]+";
+          $sdkVersion = "${{ inputs.net-sdk-version }}".Trim().ToLower();
           
           # Verify that the dotnet sdk version has valid syntax
-          if ($sdkVersion -match $sdkVersionRegex) {
-            Write-Host "::notice::The dotnet SDK version is valid.";
+          if ($sdkVersion -match "[0-9]+\.[0-9]+\.[0-9]+") {
+            Write-Host "::notice::The 'net-sdk-version' workflow input is valid.";
           } else {
-            Write-Host "::error::The dotnet SDK version is not valid.\nThe version format is: '#.#.#'";
+            Write-Host "::error::The 'net-sdk-version' workflow input is invalid.  Expected version format: '#.#.#'";
             exit 1;
           }
 
 
-          $dirPath = "${{ inputs.relative-release-notes-dir-path }}";
+          $dirPath = "${{ inputs.relative-release-notes-dir-path }}".Trim().ToLower();;
           $backSlash = "\\";
           $forwardSlash = "/";
           
@@ -114,29 +112,17 @@ jobs:
 
 
           # Verify that the release notes file name prefix workflow input is not empty
-          if ("${{ inputs.release-notes-file-name-prefix }}" -eq "") {
+          if ("${{ inputs.release-notes-file-name-prefix }}".Trim().ToLower() -eq "") {
             Write-Host "::error::The 'release-notes-file-name-prefix' workflow input cannot be empty.";
             exit 1;
           }
 
 
-          $buildConfig = "${{ inputs.build-config }}";
+          $buildConfig = "${{ inputs.build-config }}".Trim().ToLower();
 
           # Verify that the build config is only 'Debug' or 'Release'
           if ($buildConfig -ne "Debug" -and $buildConfig -ne "Release") {
-            Write-Host "::error::The build configuration '$buildConfig' is invalid.  The build configuration can only be 'Debug' or 'Release'.";
-            exit 1;
-          }
-
-
-          $cicdScriptVersion = "${{ inputs.cicd-scripts-version }}";
-          $cicdScriptVersionRegex = "v[0-9]+\.[0-9]+\.[0-9]+";
-          
-          # Verify that the cicd script version has valid syntax
-          if ($cicdScriptVersion -match $cicdScriptVersionRegex) {
-            Write-Host "::notice::The cicd script version is valid.";
-          } else {
-            Write-Host "::error::The cicd script version is not valid.\nThe version format is: 'v#.#.#'";
+            Write-Host "::error::The build configuration '$buildConfig' is invalid.  Expsting a value of 'Debug' or 'Release'.";
             exit 1;
           }
 
@@ -144,7 +130,7 @@ jobs:
   validate_branch:
     name: Validate Branch (${{ inputs.run-branch }})
     runs-on: ubuntu-latest
-    needs: validate_workflow_inputs
+    needs: print_validate_workflow
     steps:
       - name: Validate Branch
         run: |
@@ -158,12 +144,11 @@ jobs:
         
   validate_version:
     name: Validate Version
-    needs: validate_branch
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v9.1.0
+    needs: print_validate_workflow
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v10.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       release-type: "${{ inputs.release-type }}"
-      cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
     secrets:
       cicd-pat: "${{ secrets.cicd-pat }}"
 
@@ -171,12 +156,11 @@ jobs:
   validate_tag:
     name: Validate Tag
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-tag.yml@v9.1.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-tag.yml@v10.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       release-type: "${{ inputs.release-type }}"
       tag-name: "${{ needs.validate_version.outputs.version }}"
-      cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
     secrets:
       cicd-pat: "${{ secrets.cicd-pat }}"
 
@@ -194,7 +178,7 @@ jobs:
           $relativeDirPath = $relativeDirPath.Replace("\", "/");
           $relativeDirPath = $relativeDirPath.TrimStart("/").TrimEnd("/");
 
-          $dirPath = "${{ github.workspace }}/$relativeDirPath";
+          $dirPath = "$env:GITHUB_WORKSPACE/$relativeDirPath";
           $version = "${{ needs.validate_version.outputs.version }}";
           $fileName = "${{ inputs.release-notes-file-name-prefix }}$version.md";
           $filePath = "$dirPath/$fileName";
@@ -207,20 +191,19 @@ jobs:
 
   validate_github_release:
     name: GitHub Release Does Not Exist
-    needs: [validate_version]
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-github-release.yml@v9.1.0
+    needs: validate_version
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-github-release.yml@v10.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       version: "${{ needs.validate_version.outputs.version }}"
-      cicd-scripts-version: "${{ inputs.cicd-scripts-version }}"
     secrets:
       cicd-pat: "${{ secrets.cicd-pat }}"
 
 
   build_project:
     name: Build Main Project (${{ inputs.project-name }})
-    needs: [validate_tag, validate_release_notes_exist, validate_github_release]
-    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v9.1.0
+    needs: print_validate_workflow
+    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v10.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       runs-on: "${{ inputs.runs-on }}"
@@ -230,8 +213,8 @@ jobs:
 
   run_tests:
     name: Run Tests
-    needs: [validate_tag, validate_release_notes_exist, validate_github_release]
-    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v9.1.0
+    needs: print_validate_workflow
+    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v10.0.0
     with:
       project-name: "${{ inputs.project-name }}Tests"
       runs-on: "${{ inputs.runs-on }}"
@@ -251,8 +234,8 @@ jobs:
       uses: softprops/action-gh-release@v1
       with: 
         name: "🚀${{ inputs.release-type }} Release - v${{ needs.validate_version.outputs.version }}" 
-        body_path: "${{ github.workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
-        files: "${{ github.workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
+        body_path: "$env:GITHUB_WORKSPACE/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
+        files: "$env:GITHUB_WORKSPACE/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
         tag_name: "${{ needs.validate_version.outputs.version }}"
         prerelease: ${{ inputs.release-type == 'Preview' }}
         draft: false

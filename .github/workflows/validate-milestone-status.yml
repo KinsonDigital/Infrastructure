@@ -17,10 +17,6 @@ on:
         required: true
         description: The version of the milestone to validate.
         type: string
-      cicd-scripts-version:
-        required: true
-        description: The version of the CICD scripts to use.
-        type: string
     secrets:
       cicd-pat:
         required: true
@@ -28,31 +24,63 @@ on:
       
 
 jobs:
-  build_script_url:
-    name: Build Script URL
-    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v9.1.0
-    with:
-      project-name: ${{ inputs.project-name }}
-      cicd-scripts-version: ${{ inputs.cicd-scripts-version }}
+  print_validate_workflow:
+    name: Print & Validate Milestone Status Workflow
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Environment Variables
+        run: Get-ChildItem -Path Env:* | Sort-Object Name
+
+      - name: Validate Workflow Inputs
+        run: |
+          # Verify that the project name workflow input is not empty
+          if ("${{ inputs.project-name }}".Trim().ToLower() -eq "") {
+            Write-Host "::error::The 'project-name' workflow input cannot be empty.";
+            exit 1;
+          }
+
+
+          $version = "${{ inputs.version }}".Trim().ToLower();
+          $version = $version.StartsWith("v") ? $version : "v$version";
+
+          # Verify that the version workflow input is valid
+          if ($version -match "v[0-9]+\.[0-9]+\.[0-9]+(|-preview\.[0-9]+)") {
+            Write-Host "::notice::The 'version' workflow input is valid.";
+          } else {
+            Write-Host "::error::The 'version' workflow input is invalid.  Expected version format: 'v#.#.#(-preview.#)'";
+            exit 1;
+          }
+
 
   validate_milestone_status:
     name: Validate Milestone Status
+    needs: print_validate_workflow
     runs-on: ubuntu-latest
-    needs: build_script_url
     steps:
       - name: Set Up Deno
         uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
 
+      - name: Create Script URL
+        id: script-url
+        run: |
+          # Construct the URL to the organizations CICD scripts
+          $url = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
+          $url = $url.Replace("\", "/").Replace("//", "/");
+          $url = $url.EndsWith("/") ? $url.Substring(0, $url.Length - 1) : $url;
+          
+          Write-Host "::notice::DotNet Lib Release Script URL: $url";
+          "url=$url" >> "$env:GITHUB_OUTPUT";
+
       - name: Milestone Exists
         run: |
-          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/milestone-exists.ts";
+          $scriptUrl = "${{ steps.script-url.outputs.url }}/milestone-exists.ts";
 
           <# Deno Args:
-            1. RepoName
-            2. MilestoneTitle - This is the version
-            3. GitHubToken
+            1. Project name
+            2. Milestone title - This is a prev or prod version
+            3. PAT
           #>
           deno run `
             --allow-net `
@@ -63,12 +91,12 @@ jobs:
 
       - name: Validate Milestone
         run: |
-          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/milestone-items-all-closed.ts";
+          $scriptUrl = "${{ steps.script-url.outputs.url }}/milestone-items-all-closed.ts";
         
           <# Deno Args:
-            1. RepoName
-            2. MilestoneTitle - This is the version
-            3. GitHubToken
+            1. Repo name
+            2. MilestoneTitle - This is a prev or prod version
+            3. PAT
           #>
           deno run `
             --allow-read --allow-net `

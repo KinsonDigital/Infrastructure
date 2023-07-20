@@ -30,7 +30,7 @@ export class OrgClient extends GitHubClient {
 		const url = `${this.baseUrl}/orgs/${orgName}`;
 		const response = await this.requestGET(url);
 
-		return response.status == GitHubHttpStatusCodes.OK;
+		return response.status === GitHubHttpStatusCodes.OK;
 	}
 
 	/**
@@ -221,7 +221,7 @@ export class OrgClient extends GitHubClient {
 	public async userIsOrgMember(organization: string, username: string): Promise<boolean> {
 		const allOrgMembers = await this.getAllOrgMembers(organization);
 
-		return allOrgMembers.some((member) => member.login == username);
+		return allOrgMembers.some((member) => member.login === username);
 	}
 
 	/**
@@ -234,7 +234,7 @@ export class OrgClient extends GitHubClient {
 	public async userIsOrgAdminMember(organization: string, username: string): Promise<boolean> {
 		const allOrgMembers = await this.getAllAdminMembers(organization);
 
-		return allOrgMembers.some((member) => member.login == username);
+		return allOrgMembers.some((member) => member.login === username);
 	}
 
 	/**

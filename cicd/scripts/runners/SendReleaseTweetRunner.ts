@@ -11,7 +11,11 @@ import { ScriptRunner } from "./ScriptRunner.ts";
  * Sends release tweets.
  */
 export class SendReleaseTweetRunner extends ScriptRunner {
-	private readonly githubVarService: GitHubVariableService;
+	private static readonly TWITTER_BROADCAST_ENABLED = "TWITTER_BROADCAST_ENABLED";
+	private static readonly DISCORD_INVITE_CODE = "DISCORD_INVITE_CODE";
+	private static readonly RELEASE_TWEET_TEMPLATE_REPO_NAME = "RELEASE_TWEET_TEMPLATE_REPO_NAME";
+	private static readonly RELEASE_TWEET_TEMPLATE_BRANCH_NAME = "RELEASE_TWEET_TEMPLATE_BRANCH_NAME";
+	private static readonly RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH = "RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH";
 
 	/**
 	 * Initializes a new instance of the {@link SendReleaseTweetRunner} class.
@@ -19,12 +23,11 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 	 */
 	constructor(args: string[]) {
 		super(args);
-
-		const [orgName, repoName] = this.args;
-		this.githubVarService = new GitHubVariableService(orgName, repoName, this.token);
 	}
 
 	public async run(): Promise<void> {
+		await super.run();
+
 		const [orgName, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret] = this.args;
 
 		// Print out all of the arguments
@@ -39,61 +42,30 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 			`GitHub Token (Required): "****"`,
 		]);
 
-		const twitterBroadcastEnabledVarName = "TWITTER_BROADCAST_ENABLED";
-		let twitterBroadcastEnabled = await this.githubVarService.getValue(twitterBroadcastEnabledVarName, false);
+		const githubVarService = new GitHubVariableService(orgName, repoName, this.token);
+
+		let twitterBroadcastEnabled = await githubVarService.getValue(SendReleaseTweetRunner.TWITTER_BROADCAST_ENABLED, false);
 		twitterBroadcastEnabled = twitterBroadcastEnabled.toLowerCase();
 
 		if (Utils.isNullOrEmptyOrUndefined(twitterBroadcastEnabled) || twitterBroadcastEnabled === "false") {
 			let noticeMsg = `No tweet broadcast will be performed.`;
-			noticeMsg += `\nTo enable tweet broadcasting, set the '${twitterBroadcastEnabledVarName}' variable to 'true'.`;
+			noticeMsg +=
+				`\nTo enable tweet broadcasting, set the '${SendReleaseTweetRunner.TWITTER_BROADCAST_ENABLED}' variable to 'true'.`;
 			noticeMsg += "\nIf the variable is missing, empty, or set to 'false', no tweet broadcast will be performed.";
 			Utils.printAsGitHubNotice(noticeMsg);
 			Deno.exit(0);
 		}
 
-		// Get the discord invite code
-		const discordInviteCodeVarName = "DISCORD_INVITE_CODE";
-		const discordInviteCode = await this.githubVarService.getValue(discordInviteCodeVarName)
-			.catch((_) => {
-				let errorMsg = `The cicd script requires an organization`;
-				errorMsg += `\n or repository variable named '${discordInviteCodeVarName}' with a discord invite code.`;
-				errorMsg += "\n                      https://discord.gg/abcde12345";
-				errorMsg += "\n                                         |--------|";
-				errorMsg += "\n                                              |";
-				errorMsg += "\nInvite code is on the end of an invite URL----|";
-
-				Utils.printAsGitHubError(errorMsg);
-				Deno.exit(1);
-			});
-
-		// Get the relative template file repo name
-		const relativeTemplateFileRepoNameVarName = "RELEASE_TWEET_TEMPLATE_REPO_NAME";
-		const templateRepoName = await this.githubVarService.getValue(relativeTemplateFileRepoNameVarName)
-			.catch((_) => {
-				let errorMsg = `The cicd script requires an organization or repository variable named`;
-				errorMsg +=`\n '${relativeTemplateFileRepoNameVarName}' with a valid repository name.`;
-				Utils.printAsGitHubError(errorMsg);
-				Deno.exit(1);
-			});
-
-		const relativeTemplateFileBranchNameVarName = "RELEASE_TWEET_TEMPLATE_BRANCH_NAME";
-		const templateBranchName = await this.githubVarService.getValue(relativeTemplateFileBranchNameVarName)
-			.catch((_) => {
-				let errorMsg = `The cicd script requires an organization or repository variable named `;
-				errorMsg += `\n '${relativeTemplateFileBranchNameVarName}' with a valid repository name.`;
-				Utils.printAsGitHubError(errorMsg);
-				Deno.exit(1);
-			});
-
-		// Get the relative template file path
-		const relativeTemplateFilePathVarName = "RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH";
-		const relativeTemplateFilePath = await this.githubVarService.getValue(relativeTemplateFilePathVarName)
-			.catch((_) => {
-				let errorMsg = `The cicd script requires an organization or repository variable named`;
-				errorMsg += `\n '${relativeTemplateFilePathVarName}' with a valid relative file path.`;
-				Utils.printAsGitHubError(errorMsg);
-				Deno.exit(1);
-			});
+		const discordInviteCode = await githubVarService.getValue(SendReleaseTweetRunner.DISCORD_INVITE_CODE, false);
+		const templateRepoName = await githubVarService.getValue(SendReleaseTweetRunner.RELEASE_TWEET_TEMPLATE_REPO_NAME, false);
+		const templateBranchName = await githubVarService.getValue(
+			SendReleaseTweetRunner.RELEASE_TWEET_TEMPLATE_BRANCH_NAME,
+			false,
+		);
+		const relativeTemplateFilePath = await githubVarService.getValue(
+			SendReleaseTweetRunner.RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH,
+			false,
+		);
 
 		const authValues: TwitterAuthValues = {
 			consumer_api_key: consumerAPIKey,
@@ -116,14 +88,18 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 
 		const twitterClient: TwitterClient = new TwitterClient(authValues);
 		await twitterClient.tweet(tweet);
+
+		const noticeMsg = `A release tweet was successfully broadcasted for the '${repoName}' project for version '${version}'.`;
+		Utils.printAsGitHubNotice(noticeMsg);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
 	protected async validateArgs(args: string[]): Promise<void> {
+		// TODO: Print org and/or repo required/optional vars
 		if (Deno.args.length != 8) {
-			let errorMsg = `The cicd script must have 7 arguments but has ${args.length} argument(s).`;
+			let errorMsg = `The cicd script must have 8 arguments but has ${args.length} argument(s).`;
 			errorMsg += "\nThe 1st arg is required and must be a repository owner.";
 			errorMsg += "\nThe 2nd arg is required and must be a project name";
 			errorMsg += "\nThe 3rd arg is required and must be a valid version. ";
@@ -137,20 +113,21 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 			Deno.exit(1);
 		}
 
+		this.printOrgRepoVarsUsed();
+
 		let [orgName, repoName, version] = args;
 
 		orgName = orgName.trim();
 		repoName = repoName.trim();
 
 		const orgClient = new OrgClient(this.token);
+		const repoClient = new RepoClient(this.token);
 
 		// If the org does not exist
 		if (!(await orgClient.exists(orgName))) {
 			Utils.printAsGitHubError(`The organization '${orgName}' does not exist.`);
 			Deno.exit(1);
 		}
-
-		const repoClient = new RepoClient(this.token);
 
 		// If the repo does not exist
 		if (!(await repoClient.exists(repoName))) {
@@ -164,44 +141,67 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
+
+		const githubVarService = new GitHubVariableService(orgName, repoName, this.token);
+
+		const twitterBroadcastEnabled = (await githubVarService.getValue(
+			SendReleaseTweetRunner.TWITTER_BROADCAST_ENABLED,
+			false,
+		)).toLowerCase();
+
+		// Print out all of the required variables but only if the twitter broadcast is enabled
+		if (!Utils.isNullOrEmptyOrUndefined(twitterBroadcastEnabled) && twitterBroadcastEnabled === "true") {
+			const orgRepoVariables = this.getRequiredVars();
+
+			// Check if all of the required org and/or repo variables exist
+			const [orgRepoVarExist, missingVars] = await githubVarService.allVarsExist(orgRepoVariables);
+
+			if (!orgRepoVarExist) {
+				const missingVarErrors: string[] = [];
+
+				for (let i = 0; i < missingVars.length; i++) {
+					const missingVarName = missingVars[i];
+
+					missingVarErrors.push(`The required org/repo variable '${missingVarName}' is missing.`);
+				}
+
+				Utils.printAsGitHubErrors(missingVarErrors);
+				Deno.exit(1);
+			}
+		}
 	}
 
 	/**
 	 * @inheritdoc
 	 */
 	protected mutateArgs(args: string[]): string[] {
-		let [
-			orgName,
-			repoName,
-			version,
-			consumerAPIKey,
-			consumerAPISecret,
-			accessTokenKey,
-			accessTokenSecret,
-			token,
-		] = args;
+		args = Utils.trimAll(args);
 
-		orgName = orgName.trim();
-		repoName = repoName.trim();
+		let [orgName, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret, token] = args;
 
-		version = version.trim().toLowerCase();
+		version = version.toLowerCase();
 		version = version.startsWith("v") ? version : `v${version}`;
 
-		consumerAPIKey = consumerAPIKey.trim();
-		consumerAPISecret = consumerAPISecret.trim();
-		accessTokenKey = accessTokenKey.trim();
-		accessTokenSecret = accessTokenSecret.trim();
-		token = token.trim();
+		return [orgName, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret, token];
+	}
 
+	/**
+	 * Prints the required org or repo variables for the runner.
+	 */
+	private printOrgRepoVarsUsed(): void {
+		const title = "Required Org Or Repo Variables (if release tweet is enabled)";
+		Utils.printInGroup(title, this.getRequiredVars());
+	}
+
+	/* Gets the list of required vars.
+	 * @returns The list of required vars.
+	*/
+	private getRequiredVars(): string[] {
 		return [
-			orgName,
-			repoName,
-			version,
-			consumerAPIKey,
-			consumerAPISecret,
-			accessTokenKey,
-			accessTokenSecret,
-			token,
+			SendReleaseTweetRunner.DISCORD_INVITE_CODE,
+			SendReleaseTweetRunner.RELEASE_TWEET_TEMPLATE_REPO_NAME,
+			SendReleaseTweetRunner.RELEASE_TWEET_TEMPLATE_BRANCH_NAME,
+			SendReleaseTweetRunner.RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH,
 		];
 	}
 }

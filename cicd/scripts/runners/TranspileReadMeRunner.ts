@@ -9,7 +9,6 @@ import { ScriptRunner } from "./ScriptRunner.ts";
  */
 export class TranspileReadMeRunner extends ScriptRunner {
 	private readonly readmeFileName = "README.md";
-	private readonly scriptName: string;
 	private readonly divStartTagRegEx = /<div.*>/gm;
 	private readonly divEndTagRegEx = /<\/div\s*>/gm;
 	private readonly breakTagRegEx = /<br\s*\/>/gm;
@@ -28,22 +27,22 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	 * @param args The script arguments.
 	 * @param scriptName The name of the script executing the runner.
 	 */
-	constructor(args: string[], scriptName: string) {
+	constructor(args: string[]) {
 		super(args);
-		this.scriptName = scriptName;
 	}
 
 	/**
 	 * Runs the transpile readme script.
 	 */
-	// deno-lint-ignore require-await
 	public async run(): Promise<void> {
-		const dirPath = this.args[0];
+		await super.run();
+
+		const [dirPath] = this.args;
 
 		const readmeFilePath = `${dirPath}/${this.readmeFileName}`;
 
 		if (File.DoesNotExist(readmeFilePath)) {
-			let errorMsg = `Error with script '${this.scriptName}'`;
+			let errorMsg = "Error with transpiling readme.";
 			errorMsg += `\nThe given path '${readmeFilePath}' is not a valid file path.`;
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
@@ -79,13 +78,16 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	 */
 	// deno-lint-ignore require-await
 	protected async validateArgs(args: string[]): Promise<void> {
-		if (args.length != 1) {
+		if (args.length != 2) {
+			const mainMsg = `The cicd script must have 2 arguments but has ${args.length} argument(s).`;
+
 			const argDescriptions = [
-				`The cicd script must have 1 argument but has ${args.length} argument(s).`,
-				`Required and must be a valid directory path to the 'README.md' file.`,
+				"Required and must be a valid directory path to the 'README.md' file.",
+				"Required and must be a valid GitHub PAT (Personal Access Token).",
 			];
 
-			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.error);
+			Utils.printAsGitHubError(mainMsg);
+			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.normal);
 			Deno.exit(1);
 		}
 

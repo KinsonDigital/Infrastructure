@@ -29,33 +29,42 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       project-file-path: ${{ steps.resolve-file-path.outputs.project-file-path }}
-
     steps:
-    - uses: actions/checkout@v3
+      - name: Print Environment Variables
+        run: Get-ChildItem -Path Env:* | Sort-Object Name
 
-    - name: Resolve Project File Path
-      id: resolve-file-path
-      run: |
-        $basePath = "${{ inputs.base-path }}";
-        $basePath = !$basePath -or $basePath -eq "" ? "${{ github.workspace }}" : $basePath;
+      - uses: actions/checkout@v3
 
-        $result = Get-ChildItem -Path "$basePath/**/${{ inputs.project-name }}.csproj" -Recurse | ForEach-Object{$_.FullName};
+      - name: Resolve Project File Path
+        id: resolve-file-path
+        run: |
+          $basePath = "${{ inputs.base-path }}".Trim();
+          $basePath = !$basePath -or $basePath -eq "" ? "$env:GITHUB_WORKSPACE" : $basePath;
 
-        $resultType = $result ? $result.GetType().Name : $null;
 
-        # If null, no project file was found
-        if (!$result) {
-          Write-Host "::error::Project file not found";
-          exit 1; # Fail Workflow
-        } elseif ($resultType -ne "String") {
-          Write-Host "::error::Found too many project files!!";
-
-          foreach ($item in $result) {
-              Write-Host "`t$item";
+          if ("${{ inputs.project-name }}" -eq "") {
+            Write-Host "::error::The 'project-name' workflow input must not be empty.";
+            exit 1;
           }
 
-          exit 1; # Fail Workflow
-        } else {
-          Write-Host "::notice::Project File Path Resolved To: $result";
-          "project-file-path=$result" >> $env:GITHUB_OUTPUT;
-        }
+
+          $result = Get-ChildItem -Path "$basePath/**/${{ inputs.project-name }}.csproj" -Recurse | ForEach-Object{$_.FullName};
+
+          $resultType = $result ? $result.GetType().Name : $null;
+
+          # If null, no project file was found
+          if (!$result) {
+            Write-Host "::error::Project file not found";
+            exit 1;
+          } elseif ($resultType -ne "String") {
+            Write-Host "::error::Found too many project files!!";
+
+            foreach ($item in $result) {
+                Write-Host "`t$item";
+            }
+
+            exit 1;
+          } else {
+            Write-Host "::notice::Project File Path Resolved To: $result";
+            "project-file-path=$result" >> $env:GITHUB_OUTPUT;
+          }

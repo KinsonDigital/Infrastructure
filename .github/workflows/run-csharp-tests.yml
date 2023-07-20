@@ -33,9 +33,46 @@ on:
 
 
 jobs:
+  print_validate_workflow:
+    name: Print & Validate Run DotNet Tests Workflow
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Environment Variables
+        run: Get-ChildItem -Path Env:* | Sort-Object Name
+
+      - name: Validate Workflow Inputs
+        run: |
+          # Verify that the project name workflow input is not empty
+          if ("${{ inputs.project-name }}".Trim().ToLower() -eq "") {
+            Write-Host "::error::The 'project-name' workflow input cannot be empty.";
+            exit 1;
+          }
+
+
+          $buildConfig = "${{ inputs.build-config }}".Trim().ToLower();
+
+          # Verify that the build config is only 'Debug' or 'Release'
+          if ($buildConfig -ne "Debug" -and $buildConfig -ne "Release") {
+            Write-Host "::error::The 'build-config' workflow input is invalid.  Expecting a value of 'Debug' or 'Release'.";
+            exit 1;
+          }
+
+
+          $sdkVersion = "${{ inputs.net-sdk-version }}".Trim().ToLower();
+          
+          # Verify that the dotnet sdk version has valid syntax
+          if ($sdkVersion -match "[0-9]+\.[0-9]+\.[0-9]+") {
+            Write-Host "::notice::The 'net-sdk-version' workflow input is valid.";
+          } else {
+            Write-Host "::error::The 'net-sdk'version' workflow input is invalid.  Expected version format: '#.#.#'";
+            exit 1;
+          }
+
+
   resolve_proj_file_path:
     name: Resolving ${{ inputs.project-name }} Project File Path
-    uses: KinsonDigital/Infrastructure/.github/workflows/resolve-csharp-proj-file.yml@v9.1.0
+    needs: print_validate_workflow
+    uses: KinsonDigital/Infrastructure/.github/workflows/resolve-csharp-proj-file.yml@v10.0.0
     with:
       project-name: ${{ inputs.project-name }}
       base-path: ${{ inputs.base-path }}
@@ -43,7 +80,7 @@ jobs:
 
   run_unit_tests:
     name: Run Unit Tests
-    needs: resolve_proj_file_path
+    needs: [print_validate_workflow, resolve_proj_file_path]
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v3

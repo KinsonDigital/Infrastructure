@@ -39,7 +39,7 @@ jobs:
           <# Deno Args:
             1. Organization name
             2. Project name
-            3. Pull request Number
+            3. Pull request number
             4. Event type - set to pull request event type
             5. PAT
           #>

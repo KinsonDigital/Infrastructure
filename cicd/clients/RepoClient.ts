@@ -138,14 +138,12 @@ export class RepoClient extends GitHubClient {
 			Deno.exit(1);
 		}
 
+		const decodedContent = decode(fileContentModel.content);
+
 		// Return the file content after it has been decoded from base64
-		const decodedFileContent = new TextDecoder().decode(decode(fileContentModel.content));
+		const decodedFileContent = new TextDecoder().decode(decodedContent);
 
-		// Replace all plain text new line character strings with actual new line characters
-		let content = decodedFileContent.replace(/\\n/g, this.newLineBase64);
-		content = decodedFileContent.replace(/\\r/g, this.carriageReturnBase64);
-
-		return content;
+		return decodedFileContent;
 	}
 
 	/**

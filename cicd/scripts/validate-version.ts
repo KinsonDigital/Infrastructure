@@ -1,10 +1,8 @@
 import { Utils } from "../core/Utils.ts";
 
-const scriptName = Utils.getScriptName();
-
 // Validate the arguments
 if (Deno.args.length != 2) {
-	let errorMsg = `The '${scriptName}' cicd script must have 2 arguments.`;
+	let errorMsg = `The cicd script must have 2 arguments but has ${Deno.args.length} argument(s).`;
 	errorMsg += "\nThe 1st arg is required and must be a production or preview version.";
 
 	errorMsg += "\nThe 2nd arg is required and must be the version type.  Valid values are 'production', 'preview' or 'either'.";

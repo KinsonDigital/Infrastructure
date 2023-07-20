@@ -46,6 +46,41 @@ export class GitHubVariableService {
 	}
 
 	/**
+	 * Gets a value indicating whether or not a variable with a name that matches the given {@link name} exists.
+	 * @param name The name of the variable.
+	 * @returns True if the variable exists; otherwise, false.
+	 */
+	public async varExists(name: string): Promise<boolean> {
+		const variable = await this.getVar(name);
+
+		if (variable === undefined) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	/**
+	 * Gets a value indicating whether or not all of the given variable {@link names} exist.
+	 * @param names The list of variable names.
+	 * @returns A tuple containing a value indicating whether or not all of the variables
+	 * exist and a list of the non-existing variables.
+	 */
+	public async allVarsExist(names: string[]): Promise<[boolean, string[]]> {
+		const nonExistingVars: string[] = [];
+
+		for (let i = 0; i < names.length; i++) {
+			const name = names[i];
+
+			if ((await this.getVar(name)) === undefined) {
+				nonExistingVars.push(name);
+			}
+		}
+
+		return [nonExistingVars.length <= 0, nonExistingVars];
+	}
+
+	/**
 	 * Gets a variable with a name that matches the given {@link name}.
 	 * @param name The name of the variable.
 	 * @returns The variable.

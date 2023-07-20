@@ -1,4 +1,4 @@
-name: ✨Prepare Release
+name: 🚁Prepare Release
 
 
 defaults:
@@ -28,77 +28,80 @@ on:
 
 
 jobs:
-  validate_inputs:
-    name: Validate Inputs
+  print_validate_workflow:
+    name: Print & Validate Prepare Release Workflow
     runs-on: ubuntu-latest
     steps:
-      - name: Validating Inputs
-        run: |
-          $projectName = "${{ inputs.project-name }}";
-          $releaseType = "${{ inputs.release-type }}".ToLower();
-          $releaseVersion = "${{ inputs.release-version }}";
+      - name: Print Environment Variables
+        run: Get-ChildItem -Path Env:* | Sort-Object Name
 
-          if ($projectName -eq "") {
-            Write-Host "::error::The project name input cannot be empty.";
+      - name: Validate Workflow Inputs
+        run: |
+          $releaseType = "${{ inputs.release-type }}".Trim().ToLower();
+
+          if ("${{ inputs.project-name }}".Trim().ToLower() -eq "") {
+            Write-Host "::error::The 'project-name' workflow input cannot be empty.";
             exit 1;
           }
 
 
           if ($releaseType -eq "") {
-            Write-Host "::error::The release type input cannot be empty.";
+            Write-Host "::error::The 'release-type' workflow input cannot be empty.";
             exit 1;
           }
 
 
           if ($releaseType -ne 'preview' -and $releaseType -ne 'roduction') {
-            Write-Host "::error::The release type input must be either 'Preview' or 'Production'.";
+            Write-Host "::error::The 'release-type' workflow input is invalid.  Expecting value of 'Preview' or 'Production'.";
             exit 1;
           }
 
 
-          if ($releaseVersion -eq "") {
-            Write-Host "::error::The release version input cannot be empty.";
-            exit 1;
-          }
+          $releaseVersion = "${{ inputs.release-version }}".Trim().ToLower();
+          $releaseVersion = $releaseVersion.StartsWith("v") ? $releaseVersion : "v$releaseVersion";
 
-
-          $prodVersionRegex = "v[0-9]+\.[0-9]+\.[0-9]+";
-          $prevVersionRegex = "v[0-9]+\.[0-9]+\.[0-9]+-preview\.[0-9]+";
-          
-          # Verify that the version has valid syntax
-          if (($version -match $prodVersionRegex) -or ($version -match $prevVersionRegex)) {
-            Write-Host "::notice::The version is valid.";
+          if ($releaseType -eq "production") {
+            if ($releaseVersion -notmatch "v[0-9]+\.[0-9]+\.[0-9]+") {
+              Write-Host "::error::The production release version input is invalid. Expected version format: 'v#.#.#'";
+              exit 1;
+            }
           } else {
-            $versionSyntax = $releaseType == "production" ? "v#.#.#" : "v#.#.#-preview.#";
-            Write-Host "::error::The version is not valid.\nThe version format is: '$versionSyntax";
-            exit 1;
+            if ($releaseVersion -notmatch "v[0-9]+\.[0-9]+\.[0-9]+-preview\.[0-9]+") {
+              Write-Host "::error::The preview release version input is invalid. Expected version format: 'v#.#.#-preview.#'";
+              exit 1;
+            }
           }
-
-
-  build_script_url:
-    name: Build Script URL
-    needs: validate_inputs
-    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v9.1.0
-    with:
-      project-name: "${{ inputs.project-name }}"
-      cicd-scripts-version: "${{ vars.CICD_SCRIPTS_VERSION }}"
 
 
   prepare_release:
     name: Prepare ${{ inputs.release-type }} Release
-    needs: build_script_url
+    needs: print_validate_workflow
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set Up Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
       - name: Generate Release Notes
         run: |
-          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/prepare-release.ts";
+          # Construct the URL to the organizations CICD scripts
+          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
+          $scriptUrl = $scriptUrl.Replace("\", "/").Replace("//", "/");
+          $scriptUrl = $scriptUrl.EndsWith("/") ? $scriptUrl.Substring(0, $scriptUrl.Length - 1) : $scriptUrl;
+          $scriptUrl = "$scriptUrl/prepare-release.ts";
+
+          Write-Host "::notice::NuGet Package Check Script URL: $scriptUrl";
 
           <# Deno Args:
-            1. Organization Name
-            2. Project Name
-            3. Release Type - 'production' or 'preview'
-            4. Release Version
-            5. CICD PAT
+            1. Organization name
+            2. Project name
+            3. Release type - 'production' or 'preview'
+            4. Release version
+            5. PAT
           #>
           deno run `
             --allow-read --allow-write --allow-net `
@@ -107,5 +110,4 @@ jobs:
             "${{ inputs.project-name }}" `
             "${{ inputs.release-type }}" `
             "${{ inputs.release-version }}" `
-            "${{ github.workspace }}" `
             "${{ secrets.cicd-pat }}";

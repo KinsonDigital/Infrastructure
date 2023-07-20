@@ -3,10 +3,8 @@ import { PullRequestClient } from "../clients/PullRequestClient.ts";
 import { RepoClient } from "../clients/RepoClient.ts";
 import { Utils } from "../core/Utils.ts";
 
-const scriptName = Utils.getScriptName();
-
-if (Deno.args.length != 5) {
-	let errorMsg = `The '${scriptName}' cicd script must have 6 arguments.`;
+if (Deno.args.length != 6) {
+	let errorMsg = `The  cicd script must have 6 arguments but has ${Deno.args.length} argument(s).`;
 	errorMsg += "\nThe 1st arg is required and must be the GitHub repo name.";
 	errorMsg += "\nThe 2nd arg is required and must be a valid pull request number.";
 	errorMsg += "\nThe 3rd arg is required and must be the head branch of the pull request.";
@@ -40,7 +38,7 @@ Utils.printInGroup("Script Arguments", [
 	`Pull Request Head Branch (Required): ${headBranch}`,
 	`Expected Pull Request Head Branch (Required): ${expectedBranch}`,
 	`Label (Required): ${label}`,
-	"GitHub Token (optional): ****",
+	"GitHub Token (Required): ****",
 ]);
 
 const repoClient: RepoClient = new RepoClient(token);

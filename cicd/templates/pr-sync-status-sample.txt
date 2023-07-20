@@ -1,0 +1,26 @@
+### **Description:**
+To allow this pull request to be merged, please make sure that the following items of this pull request are complete.
+
+This pull request closes #123456
+
+✅ The pull request head branch must be a feature branch with the syntax `feature/<issue-num>-sync-testing`.
+✅ The pull request base branch must be 'main' or 'preview'.
+✅ The pull request head branch contains a valid issue number.
+✅ The pull request title matches the linked issue title exactly.
+✅ The pull request assignees match the assignees of the issue.
+✅ The pull request labels match the labels of the issue.
+✅ The pull request organizational projects match the organizational projects of the issue.
+✅ The pull requests milestone matches the milestone of the issue.
+
+---
+
+### **Additional Info:**
+1. Pull requests are automatically synced with the associated issue upon creation by one of the KinsonDigital workflow bots. 
+2. The associated issue is the issue number that is embedded in the pull request head branch.
+3. The list above will be automatically updated as the pull request's various settings match or do not match the associated issue.
+4. To manually sync the pull request to the issue, create a comment with the `[run-sync]` command.
+    > **Note** You must be an admin member of the organization to use this command.
+
+---
+
+- [x] Sync with the issue.  Use this to enable or disable this pull request from syncing with its associated issue.

@@ -21,10 +21,6 @@ on:
         required: true
         description: The name of the tag to validate.
         type: string
-      cicd-scripts-version:
-        required: true
-        description: The version of the CICD scripts to use.
-        type: string
     secrets:
       cicd-pat:
         required: true
@@ -33,63 +29,45 @@ on:
         
 jobs:
   validate_workflow_inputs:
-    name: Validate Workflow Inputs
+    name: Print & Validate Tag Workflow
     runs-on: ubuntu-latest
     steps:
       - name: Validate Inputs
         run: |
           # Verify that the project name workflow input is not empty
-          if ("${{ inputs.project-name }}" -eq "") {
+          if ("${{ inputs.project-name }}".Trim().ToLower() -eq "") {
             Write-Host "::error::The 'project-name' workflow input cannot be empty.";
             exit 1;
           }
 
 
-          $releaseType = "${{ inputs.release-type }}";
+          $releaseType = "${{ inputs.release-type }}".Trim().ToLower();
 
           # Verify that the release type is only 'Preview' or 'Production'
           if ($releaseType -ne "Preview" -and $releaseType -ne "Production") {
-            Write-Host "::error::The release type '$releaseType' is invalid.  Valid values are 'Preview' or 'Production'.";
+            Write-Host "::error::The 'release-type' workflow input is invalid.  Expecting value of 'Preview' or 'Production'.";
             exit 1;
           }
 
 
-          $tagName = "${{ inputs.tag-name }}";
-          $tagNameRegex = "v[0-9]+\.[0-9]+\.[0-9]+";
-          
-          # Verify that the cicd script version has valid syntax
-          if ($tagName -match $tagNameRegex) {
-            Write-Host "::notice::The tag name is valid.";
+          $tagName = "${{ inputs.tag-name }}".Trim().ToLower();
+
+          if ($releaseType -eq "production") {
+            if ($tagName -notmatch "v[0-9]+\.[0-9]+\.[0-9]+") {
+              Write-Host "::error::The 'tag-name' workflow input is invalid. Expected version format: 'v#.#.#'";
+              exit 1;
+            }
           } else {
-            Write-Host "::error::The tag name is not valid.\nThe version format is: 'v#.#.#'";
-            exit 1;
+            if ($tagName -notmatch "v[0-9]+\.[0-9]+\.[0-9]+-preview\.[0-9]+") {
+              Write-Host "::error::The 'tag-name' workflow input is invalid. Expected version format: 'v#.#.#-preview.#'";
+              exit 1;
+            }
           }
-
-
-          $cicdScriptVersion = "${{ inputs.cicd-scripts-version }}";
-          $cicdScriptVersionRegex = "v[0-9]+\.[0-9]+\.[0-9]+";
-          
-          # Verify that the cicd script version has valid syntax
-          if ($cicdScriptVersion -match $cicdScriptVersionRegex) {
-            Write-Host "::notice::The cicd script version is valid.";
-          } else {
-            Write-Host "::error::The cicd script version is not valid.\nThe version format is: 'v#.#.#'";
-            exit 1;
-          }
-
-
-  build_script_url:
-    name: Build Script URL
-    uses: KinsonDigital/Infrastructure/.github/workflows/create-script-url.yml@v9.1.0
-    with:
-      project-name: ${{ inputs.project-name }}
-      cicd-scripts-version: ${{ inputs.cicd-scripts-version }}
 
 
   validate_tag:
     name: Validate Tag
     runs-on: ubuntu-latest
-    needs: build_script_url
     steps:
       - name: Set Up Deno
         uses: denoland/setup-deno@v1
@@ -98,13 +76,19 @@ jobs:
 
       - name: Validate Tag
         run: |
-          $scriptUrl = "${{ needs.build_script_url.outputs.script-url }}/validate-tag.ts";
+          # Construct the URL to the organizations CICD scripts
+          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
+          $scriptUrl = $scriptUrl.Replace("\", "/").Replace("//", "/");
+          $scriptUrl = $scriptUrl.EndsWith("/") ? $scriptUrl.Substring(0, $scriptUrl.Length - 1) : $scriptUrl;
+          $scriptUrl = "$scriptUrl/validate-tag.ts";
+
+          Write-Host "::notice::Validate Tag Script URL: $scriptUrl";
         
           <# Deno Args:
-            1. Repo Name
-            2. Tag Type
-            3. Release Type - Either 'Preview' or 'Production'
-            3. Tag Name - This is the version
+            1. Repo name
+            2. Tag type
+            3. Release type - Either 'Preview' or 'Production'
+            3. Tag name - This is the version
             4. PAT
           #>
           deno run `

@@ -4,10 +4,10 @@ import { Utils } from "../../core/Utils.ts";
  * Provides a base class for processing script arguments and running scripts.
  */
 export abstract class ScriptRunner {
-	protected readonly args: string[];
 	protected readonly fineGrainedTokenPrefix = "github_pat_";
 	protected readonly classicTokenPrefix = "ghp_";
 	protected readonly token;
+	protected args: string[];
 
 	/**
 	 * Initializes a new instance of the {@link ScriptRunner} class.
@@ -15,20 +15,26 @@ export abstract class ScriptRunner {
 	 */
 	constructor(args: string[]) {
 		// If the args do not contain a github token of any kind, throw and error
-		const lastArg = args[args.length - 1];
-		const hasFineGrainedToken = lastArg.startsWith(this.fineGrainedTokenPrefix);
-		const hasClassicToken = lastArg.startsWith(this.classicTokenPrefix);
+		const token = args[args.length - 1];
+		const hasFineGrainedToken = token.startsWith(this.fineGrainedTokenPrefix);
+		const hasClassicToken = token.startsWith(this.classicTokenPrefix);
 
-		if (hasFineGrainedToken == false && hasClassicToken == false) {
+		if (hasFineGrainedToken === false && hasClassicToken === false) {
 			const errorMsg = "The arguments must contain a GitHub PAT(Personal Access Token) and must be the last argument.";
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
-		this.token = args[args.length - 1];
+		const argValues = args.map((arg) => {
+			return arg.startsWith(this.fineGrainedTokenPrefix) || arg.startsWith(this.classicTokenPrefix)
+				? "***"
+				: arg;
+		});
 
-		this.validateArgs(args);
-		this.args = this.mutateArgs(args);
+		Utils.printInGroup("Script Arguments:", argValues);
+
+		this.args = args;
+		this.token = token;
 	}
 
 	/**
@@ -46,7 +52,9 @@ export abstract class ScriptRunner {
 	/**
 	 * Runs a script.
 	 */
-	protected async run(): Promise<void> {
+	public async run(): Promise<void> {
+		await this.validateArgs(this.args);
+		this.args = this.mutateArgs(this.args);
 	}
 
 	/**
@@ -65,7 +73,7 @@ export abstract class ScriptRunner {
 			Deno.exit(1);
 		}
 
-		if (releaseType == "production") {
+		if (releaseType === "production") {
 			if (Utils.isNotValidProdVersion(version)) {
 				let errorMsg = `The production version '${version}' is not valid.`;
 				errorMsg += "\nRequired Syntax: v#.#.#";

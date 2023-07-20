@@ -4,13 +4,11 @@ import { PullRequestModel } from "../core/Models/PullRequestModel.ts";
 import { RepoClient } from "../clients/RepoClient.ts";
 import { Utils } from "../core/Utils.ts";
 
-const scriptName = Utils.getScriptName();
-
-if (Deno.args.length < 2) {
-	let errorMsg = `The '${scriptName}' cicd script must have at least 2 arguments with an additional 1 optional arguments.`;
+if (Deno.args.length != 3) {
+	let errorMsg = `The cicd script must have at 3 arguments but has ${Deno.args.length} argument(s).`;
 	errorMsg += "\nThe 1st arg is required and must be the GitHub repo name.";
 	errorMsg += "\nThe 2nd arg is required and must be the title of the milestone.";
-	errorMsg += "\nThe 3rd arg is optional and must be a GitHub PAT (Personal Access Token).";
+	errorMsg += "\nThe 3rd arg is required and must be a GitHub PAT (Personal Access Token).";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
@@ -25,7 +23,7 @@ const token = Deno.args.length >= 3 ? Deno.args[2].trim() : "";
 Utils.printInGroup("Script Arguments", [
 	`Repo Name (Required): ${repoName}`,
 	`Milestone Title (Required): ${milestoneTitle}`,
-	`GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,
+	`GitHub Token (Required): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,
 ]);
 
 const repoClient: RepoClient = new RepoClient(token);

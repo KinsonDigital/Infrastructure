@@ -1,14 +1,12 @@
 import { ReleaseClient } from "../clients/ReleaseClient.ts";
 import { Utils } from "../core/Utils.ts";
 
-const scriptName = Utils.getScriptName();
-
 // Validate the arguments
-if (Deno.args.length < 2) {
-	let errorMsg = `The '${scriptName}' cicd script must have at least 2 arguments and 1 optional argument.`;
+if (Deno.args.length != 3) {
+	let errorMsg = `The cicd script must have 3 arguments but has ${Deno.args.length} argument(s).`;
 	errorMsg += "\nThe 1st arg is required and must be a the name of the repository.";
 	errorMsg += "\nThe 2nd arg is required and must be the name of the tag for the release.";
-	errorMsg += "\nThe 2nd arg is optional and must be a GitHub PAT (Personal Access Token).";
+	errorMsg += "\nThe 2nd arg is required and must be a GitHub PAT (Personal Access Token).";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
@@ -22,7 +20,7 @@ const githubToken = Deno.args.length >= 3 ? Deno.args[2].trim() : "";
 Utils.printInGroup("Script Arguments", [
 	`Repository Name (Required): ${repoName}`,
 	`Tag Name (Required): ${tagName}`,
-	`GitHub Token (Optional): ${githubToken}`,
+	`GitHub Token (Required): ${githubToken}`,
 ]);
 
 // Validate the tag

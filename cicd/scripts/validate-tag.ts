@@ -2,15 +2,13 @@ import { RepoClient } from "../clients/RepoClient.ts";
 import { TagClient } from "../clients/TagClient.ts";
 import { Utils } from "../core/Utils.ts";
 
-const scriptName = Utils.getScriptName();
-
 // Validate the arguments
-if (Deno.args.length < 3) {
-	let errorMsg = `The '${scriptName}' cicd script must have 3 arguments and with an additional 1 optional argument.`;
+if (Deno.args.length != 4) {
+	let errorMsg = `The cicd script must have 4 arguments but has ${Deno.args.length} argument(s).`;
 	errorMsg += "\nThe 1st arg is required and must be a valid GitHub repo.";
 	errorMsg += "\nThe 2nd arg is required and must be either 'production', 'preview' or 'either'.";
 	errorMsg += "\nThe 3rd arg is required and must be the name of the tag.";
-	errorMsg += "\nThe 4th arg is optional and must be a GitHub PAT (Personal Access Token).";
+	errorMsg += "\nThe 4th arg is required and must be a GitHub PAT (Personal Access Token).";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
@@ -27,7 +25,7 @@ Utils.printInGroup("Script Arguments", [
 	`Repo Name (Required): ${repoName}`,
 	`Tag Type (Required): ${tagType}`,
 	`Tag (Required): ${tag}`,
-	`GitHub Token (Optional): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,
+	`GitHub Token (Required): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,
 ]);
 
 const versionTypeInvalid = tagType != "production" && tagType != "preview" && tagType != "either";

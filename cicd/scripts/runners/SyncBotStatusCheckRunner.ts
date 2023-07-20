@@ -3,7 +3,7 @@ import { ScriptRunner } from "./ScriptRunner.ts";
 import { IssueClient } from "../../clients/IssueClient.ts";
 import { ProjectClient } from "../../clients/ProjectClient.ts";
 import { PullRequestClient } from "../../clients/PullRequestClient.ts";
-import { EventType } from "../../core/Types.ts";
+import { EventType } from "../../core/Enums.ts";
 import { PullRequestModel } from "../../core/Models/PullRequestModel.ts";
 import { IssueModel } from "../../core/Models/IssueModel.ts";
 import { ProjectModel } from "../../core/Models/ProjectModel.ts";
@@ -39,7 +39,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 
 		const [orgName, repoName, , , token] = args;
 
-		this.prTemplateManager = new PRTemplateManager(orgName, repoName, token);
+		this.prTemplateManager = new PRTemplateManager();
 		this.issueClient = new IssueClient(token);
 		this.projClient = new ProjectClient(token);
 		this.prClient = new PullRequestClient(token);
@@ -52,13 +52,13 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	public async run(): Promise<void> {
 		await super.run();
 
-		const [orgName, repoName, issueOrPrNumber, eventType] = this.args;
+		const [orgName, repoName, issueOrPrNumber, eventTypeStr] = this.args;
 
 		Utils.printInGroup("Script Arguments", [
 			`Organization Name (Required): ${orgName}`,
 			`Repo Name (Required): ${repoName}`,
-			`${eventType === "issue" ? "Issue" : "Pull Request"} Number (Required): ${issueOrPrNumber}`,
-			`Event Type (Required): ${eventType}`,
+			`${eventTypeStr === "issue" ? "Issue" : "Pull Request"} Number (Required): ${issueOrPrNumber}`,
+			`Event Type (Required): ${eventTypeStr}`,
 			`GitHub Token (Required): "****"}`,
 		]);
 
@@ -66,7 +66,9 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		let issueNumber = 0;
 		let prNumber = 0;
 
-		if (eventType === "issue") {
+		const eventType = <EventType> eventTypeStr.toLowerCase();
+
+		if (eventType === EventType.issue) {
 			issueNumber = Number.parseInt(issueOrPrNumber);
 
 			if (!(await this.issueClient.openIssueExists(repoName, issueNumber))) {
@@ -124,7 +126,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			Deno.exit(0);
 		}
 
-		if (eventType === "issue") {
+		if (eventTypeStr === EventType.issue) {
 			await this.runAsSyncBot(repoName, issueNumber, prNumber);
 		} else {
 			problemsFound.push(...await this.runAsStatusCheck(repoName, issueNumber, prNumber));
@@ -154,8 +156,9 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 */
 	protected async validateArgs(args: string[]): Promise<void> {
 		if (args.length != 5) {
+			const mainMsg = `The cicd script must have 5 arguments but has ${args.length} argument(s).`;
+
 			const argDescriptions = [
-				`The cicd script must have 5 arguments but has ${args.length} argument(s).`,
 				"Required and must be a valid GitHub organization name.",
 				"Required and must be a valid GitHub repository name.",
 				"Required and must be a valid issue or pull request number.",
@@ -163,7 +166,8 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 				"Required and must be a GitHub PAT (Personal Access Token).",
 			];
 
-			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.error);
+			Utils.printAsGitHubError(mainMsg);
+			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.normal);
 			Deno.exit(1);
 		}
 
@@ -306,16 +310,17 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		const milestoneInSync = issueMilestone?.number === prMilestone?.number;
 		const projectsInSync = Utils.orgProjectsMatch(issueProjects, prProjects);
 
-		const templateSettings: IPRTemplateSettings = {};
-		templateSettings.issueNumber = issueNumber;
-		templateSettings.headBranchValid = headBranchIsValid;
-		templateSettings.baseBranchValid = baseBranchIsValid;
-		templateSettings.issueNumValid = true;
-		templateSettings.titleInSync = titleInSync;
-		templateSettings.assigneesInSync = assigneesInSync;
-		templateSettings.labelsInSync = labelsInSync;
-		templateSettings.projectsInSync = projectsInSync;
-		templateSettings.milestoneInSync = milestoneInSync;
+		const templateSettings: IPRTemplateSettings = {
+			issueNumber: issueNumber,
+			headBranchValid: headBranchIsValid,
+			baseBranchValid: baseBranchIsValid,
+			issueNumValid: true,
+			titleInSync: titleInSync,
+			assigneesInSync: assigneesInSync,
+			labelsInSync: labelsInSync,
+			projectsInSync: projectsInSync,
+			milestoneInSync: milestoneInSync,
+		};
 
 		return templateSettings;
 	}
@@ -440,21 +445,19 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 * @param prNumber The pull request number.
 	 */
 	private async updatePRBody(repoName: string, issueNumber: number, prNumber: number): Promise<void> {
-		const prBody = (await this.prClient.getPullRequest(repoName, prNumber)).body;
-
+		const allowedPRBaseBranches = await this.getAllowedPRBaseBranches();
 		const templateSettings = await this.buildTemplateSettings(repoName, issueNumber, prNumber);
-
-		const [updatedPRDescription, statusOfSyncItems] = this.prTemplateManager.processSyncTemplate(prBody, templateSettings);
+		const updatedPRDescription = this.prTemplateManager.createPrSyncTemplate(
+			allowedPRBaseBranches,
+			issueNumber,
+			templateSettings,
+		);
 
 		const prRequestData: IIssueOrPRRequestData = {
 			body: updatedPRDescription,
 		};
 
 		await this.prClient.updatePullRequest(repoName, prNumber, prRequestData);
-
-		statusOfSyncItems.forEach((syncItemStatusMsg) => {
-			Utils.printAsGitHubNotice(syncItemStatusMsg);
-		});
 	}
 
 	/**

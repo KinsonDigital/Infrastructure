@@ -408,3 +408,38 @@ export enum ReleaseType {
 	 */
 	production = "production",
 }
+
+/**
+ * Represents different types of events.
+ */
+export enum EventType {
+	/**
+	 * An issue event type.
+	 */
+	issue = "issue",
+
+	/**
+	 * A pull request event type.
+	 */
+	pullRequest = "pr",
+}
+
+/**
+ * Represents if a number is an issue number, pull request number or neither.
+ */
+export enum IssueOrPullRequest {
+	/**
+	 * Represents an issue number.
+	 */
+	issue = 1,
+
+	/**
+	 * Represents a pull request number.
+	 */
+	pullRequest = 2,
+
+	/**
+	 * Represents neither an issue number or pull request number.
+	 */
+	neither = 3,
+}

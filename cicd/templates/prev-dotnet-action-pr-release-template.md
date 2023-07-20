@@ -3,8 +3,8 @@
 - [ ] All issues in the assigned milestone are closed and all issue tasks are complete.
 - [ ] Add _**`🚀Preview Release`**_ label to this pull request.
 - [ ] The pull request is assigned to a project.
-- [ ] All unit tests have been executed locally and have passed. _(Check out the appropriate release branch before running tests).
-- [ ] The version in csharp project file updated.
+- [ ] All unit tests have been executed locally and have passed. _(Check out the appropriate release branch before running tests)_.
+- [ ] The version in the csharp project file updated.
 - [ ] Release notes created.
 - [ ] Release to **_preview_** completed. _(The release is performed by running the `🚀Release` workflow)_.
 
@@ -41,4 +41,4 @@ The `<AssemblyVersion/>` XML tag can only hold production values.  Preview value
 
 ### Code of Conduct
 
-- [ ]  I agree to follow this project's Code of Conduct
+- [x]  I agree to follow this project's Code of Conduct

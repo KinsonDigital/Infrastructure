@@ -36,6 +36,28 @@ jobs:
     name: Add Issue ${{ github.event.issue.number }} To Project
     runs-on: ubuntu-latest
     steps:
+      - name: Print Environment Variables
+        run: Get-ChildItem -Path Env:* | Sort-Object Name
+
+      - name: Validate Workflow Inputs
+        run: |
+          if ("${{ inputs.org-name }}" -eq "") {
+            Write-Host ":error::The 'org-name' workflow input cannot be empty.";
+            exit 1;
+          }
+
+
+          if ("${{ inputs.org-project-name }}" -eq "") {
+            Write-Host ":error::The 'org-project-name' workflow input cannot be empty.";
+            exit 1;
+          }
+
+
+          if ("${{ inputs.project-name }}" -eq "") {
+            Write-Host ":error::The 'project-name' workflow input cannot be empty.";
+            exit 1;
+          }
+
       - name: Add To Project
         run: |
           # Get the raw json data using the GH CLI

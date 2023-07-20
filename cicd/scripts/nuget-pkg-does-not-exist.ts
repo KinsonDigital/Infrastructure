@@ -1,10 +1,8 @@
 import { NuGetClient } from "../clients/NuGetClient.ts";
 import { Utils } from "../core/Utils.ts";
 
-const scriptName = Utils.getScriptName();
-
 if (Deno.args.length != 2) {
-	let errorMsg = `The '${scriptName}' cicd script must have at least 2 required arguments.`;
+	let errorMsg = `The cicd script must have 2 arguments but has ${Deno.args.length} argument(s).`;
 	errorMsg += "\nThe 1st arg is required and must be a valid NuGet package name.";
 	errorMsg += "\nThe 2nd arg is required and must be a valid NuGet package version.";
 

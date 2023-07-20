@@ -67,14 +67,6 @@ export class Utils {
 	}
 
 	/**
-	 * Gets the name of the script that is running.
-	 * @returns The name of the script that is running.
-	 */
-	public static getScriptName(): string {
-		return Deno.mainModule.substring(Deno.mainModule.lastIndexOf("/") + 1);
-	}
-
-	/**
 	 * Filters the given list of issues or pull requests to only return issues.
 	 * @param issuesOrPrs The issues or pull requests to filter.
 	 * @returns The issues from the given list of issues or pull requests.
@@ -121,6 +113,16 @@ export class Utils {
 	}
 
 	/**
+	 * Prints the given {@link messages} as GitHub notices.
+	 * @param messages The messages to print.
+	 */
+	public static printAsGitHubNotices(messages: string[]): void {
+		messages.forEach((message) => {
+			Utils.printAsGitHubNotice(message);
+		});
+	}
+
+	/**
 	 * Prints the given {@link message} as a GitHub error.
 	 * @param message The message to print.
 	 */
@@ -128,6 +130,16 @@ export class Utils {
 		Utils.printEmptyLine();
 		console.log(`::error::${message}`);
 		Utils.printEmptyLine();
+	}
+
+	/**
+	 * Prints the given {@link messages} as GitHub errors.
+	 * @param messages The error messages.
+	 */
+	public static printAsGitHubErrors(messages: string[]): void {
+		messages.forEach((message) => {
+			Utils.printAsGitHubError(message);
+		});
 	}
 
 	/**
@@ -172,6 +184,21 @@ export class Utils {
 	}
 
 	/**
+	 * Adds sequential numbers to the given list of {@link items}.
+	 * @param items The items to number.
+	 * @returns The numbered items.
+	 */
+	public static numberItems(items: string[]): string[] {
+		const result: string[] = [];
+
+		for (let i = 0; i < items.length - 1; i++) {
+			result.push(`${Utils.toOrdinal(i + 1)} ${items[i]}}`);
+		}
+
+		return result;
+	}
+
+	/**
 	 * Prints the given list of {@link items} as a numbered list with each item prefixed with the given {@link prefix},
 	 * and logged to the GitHub console based on the given {@link logType}.
 	 * @param prefix The prefix to use for each item.
@@ -182,7 +209,7 @@ export class Utils {
 		const argInfos: string[] = [];
 
 		for (let i = 0; i < items.length - 1; i++) {
-			argInfos.push(`${Utils.toOrdinal(i + 1)}${prefix}${items[i]}}`);
+			argInfos.push(`${Utils.toOrdinal(i + 1)}${prefix}${items[i]}`);
 		}
 
 		argInfos.forEach((info) => {
@@ -453,6 +480,21 @@ export class Utils {
 	}
 
 	/**
+	 * Trims all of the given {@link values}.
+	 * @param values The values to trim.
+	 * @returns The given {@link values} with all values trimmed.
+	 */
+	public static trimAll(values: string[]): string[] {
+		const trimmedValues: string[] = [];
+
+		values.forEach((value) => {
+			trimmedValues.push(value.trim());
+		});
+
+		return trimmedValues;
+	}
+
+	/**
 	 * Removes any white space from the start of the given {@link value}.
 	 * @param value The value to remove the starting white space from.
 	 * @returns The given {@link value} with the starting white space removed.
@@ -507,7 +549,7 @@ export class Utils {
 			return valueToTrim;
 		}
 
-		while (valueToTrim.startsWith(valueToRemove)) {
+		while (valueToTrim.endsWith(valueToRemove)) {
 			valueToTrim = valueToTrim.slice(0, valueToTrim.length - 1);
 		}
 
@@ -516,14 +558,13 @@ export class Utils {
 
 	/**
 	 * Normalizes the given {@link path} by replacing all back slashes with forward slashes,
-	 * and trimming any starting and ending slashes.
+	 * and trimming any and ending slashes.
 	 * @param path The path to normalize.
 	 * @returns The normalized path.
 	 */
 	public static normalizePath(path: string): string {
 		path = path.replaceAll("\\", "/");
 		path = path.replaceAll("//", "/");
-		path = Utils.trimAllStartingValue(path, "/");
 		path = Utils.trimAllEndingValue(path, "/");
 
 		return path;
@@ -559,6 +600,10 @@ export class Utils {
 	 * @returns The values split by comma.
 	 */
 	public static splitByComma(value: string): string[] {
+		if (Utils.isNullOrEmptyOrUndefined(value)) {
+			return [];
+		}
+
 		return this.splitBy(value, ",");
 	}
 }

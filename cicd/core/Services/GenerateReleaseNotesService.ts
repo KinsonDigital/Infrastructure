@@ -68,6 +68,7 @@ export class GenerateReleaseNotesService {
 		releaseNotes += Utils.isNullOrEmptyOrUndefined(breakingChangesSection) ? "" : "\n\n" + breakingChangesSection;
 		releaseNotes += Utils.isNullOrEmptyOrUndefined(dependencyChangesSection) ? "" : "\n\n" + dependencyChangesSection;
 		releaseNotes += Utils.isNullOrEmptyOrUndefined(otherChangesSection) ? "" : "\n\n" + otherChangesSection;
+		releaseNotes += "\n";
 
 		return releaseNotes;
 	}

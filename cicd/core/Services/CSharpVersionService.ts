@@ -1,5 +1,4 @@
 import { RepoClient } from "../../clients/RepoClient.ts";
-import { File } from "../File.ts";
 import { Guard } from "../Guard.ts";
 import { Utils } from "../Utils.ts";
 
@@ -30,7 +29,7 @@ export class CSharpVersionService {
 	 * Updates the version tags to the given {@link version} in a csharp project file, on a branch with the
 	 * given {@link branchName}, at the given {@link relativeProjFilePath}.
 	 * @param branchName The name of the branch where the file exists.
-	 * @param relativeProjFilePath The relative path to the project file.
+	 * @param relativeProjFilePath The fully qualified file path to the project file.
 	 * @param version The version to update the project file to.
 	 */
 	public async updateVersion(branchName: string, relativeProjFilePath: string, version: string): Promise<void> {
@@ -45,11 +44,6 @@ export class CSharpVersionService {
 		// Remove the letter 'v' if it exists
 		version = version.startsWith("v") ? version.slice(1) : version;
 
-		if (File.DoesNotExist(relativeProjFilePath)) {
-			Utils.printAsGitHubError(`The file '${relativeProjFilePath}' does not exist.`);
-			Deno.exit(1);
-		}
-
 		if (!this.versionRegex.test(version)) {
 			let errorMsg = `The version '${version}' is not a valid preview or production version.`;
 			errorMsg += "\nRequired Syntax: v#.#.# or v#.#.#-preview.#";
@@ -57,7 +51,16 @@ export class CSharpVersionService {
 			Deno.exit(1);
 		}
 
-		let projFileData = File.LoadFile(relativeProjFilePath);
+		const repoClient = new RepoClient(this.token);
+
+		if (!(await repoClient.fileExists(this.repoName, branchName, relativeProjFilePath))) {
+			let errorMsg = `The csproj file '${relativeProjFilePath}' does not exist on the branch '${branchName}'.`;
+			errorMsg += "\nPlease create the file and try again.";
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
+
+		let projFileData = await repoClient.getFileContent(this.repoName, branchName, relativeProjFilePath);
 
 		if (!this.versionTagRegex.test(projFileData)) {
 			let errorMsg = `The file '${relativeProjFilePath}' does not contain a <Version/> tag.`;
@@ -105,8 +108,6 @@ export class CSharpVersionService {
 		// Replace the version tags with the new tags
 		projFileData = projFileData.replace(this.versionTagRegex, newVersionTag);
 		projFileData = projFileData.replace(this.fileVersionTagRegex, newFileVersionTag);
-
-		const repoClient = new RepoClient(this.token);
 
 		await repoClient.updateFile(
 			this.repoName,
