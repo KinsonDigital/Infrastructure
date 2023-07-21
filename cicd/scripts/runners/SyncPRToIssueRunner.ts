@@ -21,7 +21,7 @@ import { IPRTemplateSettings } from "../../core/IPRTemplateSettings.ts";
 export class SyncPRToIssueRunner extends ScriptRunner {
 	private static readonly DEFAULT_PR_REVIEWER = "DEFAULT_PR_REVIEWER";
 	private static readonly PR_SYNC_BASE_BRANCHES = "PR_SYNC_BASE_BRANCHES";
-	private static readonly prMetaDataRegex = /<!--closed-by-pr:[0-9]+-->/gm;
+	private static readonly prMetaDataRegex = /<!--\s*closed-by-pr:\s*[0-9]+\s*-->/gm;
 
 	/**
 	 * Initializes a new instance of the {@link SyncPRToIssueRunner} class.
