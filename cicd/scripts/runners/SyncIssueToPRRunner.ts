@@ -97,7 +97,7 @@ export class SyncIssueToPRRunner extends ScriptRunner {
 	 */
 	protected async validateArgs(args: string[]): Promise<void> {
 		if (args.length != 5) {
-			let errorMsg = `The cicd script must have at 6 arguments but has ${args.length} arguments(s).`;
+			let errorMsg = `The cicd script must have at 5 arguments but has ${args.length} arguments(s).`;
 			errorMsg += "\nThe 1st arg is required and must be a valid organization name.";
 			errorMsg += "\nThe 2nd arg is required and must be the GitHub repo name.";
 			errorMsg += "\nThe 3rd arg is required and must be a valid GitHub user that triggered the script to run.";
