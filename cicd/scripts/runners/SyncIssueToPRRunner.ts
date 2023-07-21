@@ -241,7 +241,7 @@ export class SyncIssueToPRRunner extends ScriptRunner {
 
 				if (prNumber === 0) {
 					let warningMsg = `The issue '${issueNumber}' does not contain any valid pull request number meta-data.`;
-					warningMsg += "A pull request was not synced to an issue.";
+					warningMsg += " A pull request was not synced to an issue.";
 					Utils.printAsGitHubWarning(warningMsg);
 					Deno.exit(0);
 				}
