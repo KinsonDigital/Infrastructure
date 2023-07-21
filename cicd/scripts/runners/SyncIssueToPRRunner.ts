@@ -174,14 +174,6 @@ export class SyncIssueToPRRunner extends ScriptRunner {
 
 		const pr: PullRequestModel = await prClient.getPullRequest(repoName, prNumber);
 
-		const prTemplateManager = new PRTemplateManager();
-
-		// Check if syncing is disabled but only if a [run-sync] command
-		if (prTemplateManager.syncingDisabled(pr.body)) {
-			Utils.printAsGitHubWarning("Syncing is disabled.  Syncing will not occur.");
-			Deno.exit(0);
-		}
-
 		const headBranch = pr.head.ref;
 
 		// If the branch is not a feature branch, exit
