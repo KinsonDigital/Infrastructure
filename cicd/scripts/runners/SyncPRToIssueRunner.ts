@@ -15,18 +15,16 @@ import { ProjectClient } from "../../clients/ProjectClient.ts";
 import { ProjectModel } from "../../core/Models/ProjectModel.ts";
 import { IPRTemplateSettings } from "../../core/IPRTemplateSettings.ts";
 
-// TODO: Rename from 'SyncIssueToPRRunner' to 'SyncPRToIssueRunner'
-
 /**
  * Syncs a pull request to an issue.
  */
-export class SyncIssueToPRRunner extends ScriptRunner {
+export class SyncPRToIssueRunner extends ScriptRunner {
 	private static readonly DEFAULT_PR_REVIEWER = "DEFAULT_PR_REVIEWER";
 	private static readonly PR_SYNC_BASE_BRANCHES = "PR_SYNC_BASE_BRANCHES";
 	private static readonly prMetaDataRegex = /<!--closed-by-pr:[0-9]+-->/gm;
 
 	/**
-	 * Initializes a new instance of the {@link SyncIssueToPRRunner} class.
+	 * Initializes a new instance of the {@link SyncPRToIssueRunner} class.
 	 * @param args The arguments to process.
 	 */
 	constructor(args: string[]) {
@@ -68,7 +66,7 @@ export class SyncIssueToPRRunner extends ScriptRunner {
 		}
 
 		await this.addIssueMetaData(repoName, issue, prNumber);
-		const defaultReviewer = await githubRepoService.getValue(SyncIssueToPRRunner.DEFAULT_PR_REVIEWER, false);
+		const defaultReviewer = await githubRepoService.getValue(SyncPRToIssueRunner.DEFAULT_PR_REVIEWER, false);
 		await prClient.requestReviewer(repoName, prNumber, defaultReviewer);
 
 		let reviewerMsg = `The reviewer '${defaultReviewer}' has been requested as a reviewer `;
@@ -183,13 +181,13 @@ export class SyncIssueToPRRunner extends ScriptRunner {
 			Deno.exit(1);
 		}
 
-		const defaultReviewer = await githubVarService.getValue(SyncIssueToPRRunner.DEFAULT_PR_REVIEWER, false);
+		const defaultReviewer = await githubVarService.getValue(SyncPRToIssueRunner.DEFAULT_PR_REVIEWER, false);
 
 		// If the default reviewer is not a valid GitHub user
 		if (!(await usersClient.userExists(defaultReviewer))) {
 			let errorMsg = `The default reviewer '${defaultReviewer}' does not exist.`;
 			errorMsg +=
-				`\nVerify that the value of the '${SyncIssueToPRRunner.DEFAULT_PR_REVIEWER}' or/repo variable is correct.`;
+				`\nVerify that the value of the '${SyncPRToIssueRunner.DEFAULT_PR_REVIEWER}' or/repo variable is correct.`;
 
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
@@ -279,10 +277,10 @@ export class SyncIssueToPRRunner extends ScriptRunner {
 	}
 
 	private async addIssueMetaData(repoName: string, issue: IssueModel, prNumber: number): Promise<void> {
-		const prMetaDataExists = SyncIssueToPRRunner.prMetaDataRegex.test(issue.body);
+		const prMetaDataExists = SyncPRToIssueRunner.prMetaDataRegex.test(issue.body);
 		const prMetaData = `<!--closed-by-pr:${prNumber}-->`;
 		const issueBody = prMetaDataExists
-			? issue.body.replace(SyncIssueToPRRunner.prMetaDataRegex, prMetaData)
+			? issue.body.replace(SyncPRToIssueRunner.prMetaDataRegex, prMetaData)
 			: issue.body + `\n\n${prMetaData}`;
 
 		const subText = prMetaDataExists ? "updated in" : "added to";
@@ -302,11 +300,11 @@ export class SyncIssueToPRRunner extends ScriptRunner {
 			return 0;
 		}
 
-		if (!SyncIssueToPRRunner.prMetaDataRegex.test(issueBody)) {
+		if (!SyncPRToIssueRunner.prMetaDataRegex.test(issueBody)) {
 			return 0;
 		}
 
-		const prMetaData = issueBody.match(SyncIssueToPRRunner.prMetaDataRegex)?.map((match) => match)[0] ?? "";
+		const prMetaData = issueBody.match(SyncPRToIssueRunner.prMetaDataRegex)?.map((match) => match)[0] ?? "";
 
 		const prNumberStr = prMetaData.replace("<!--closed-by-pr:", "").replace("-->", "");
 
@@ -376,11 +374,11 @@ export class SyncIssueToPRRunner extends ScriptRunner {
 		const defaultBranches = ["main", "preview"];
 
 		const githubVarService = new GitHubVariableService(orgName, repoName, this.token);
-		const prSyncBranchesStr = await githubVarService.getValue(SyncIssueToPRRunner.PR_SYNC_BASE_BRANCHES, false);
+		const prSyncBranchesStr = await githubVarService.getValue(SyncPRToIssueRunner.PR_SYNC_BASE_BRANCHES, false);
 
 		if (Utils.isNullOrEmptyOrUndefined(prSyncBranchesStr)) {
 			let noticeMsg =
-				`The optional variable '${SyncIssueToPRRunner.PR_SYNC_BASE_BRANCHES}' does not exist or contains no value.`;
+				`The optional variable '${SyncPRToIssueRunner.PR_SYNC_BASE_BRANCHES}' does not exist or contains no value.`;
 			noticeMsg += `\nUsing the default branches: ${defaultBranches.join(", ")}.`;
 			Utils.printAsGitHubNotice(noticeMsg);
 
@@ -403,6 +401,6 @@ export class SyncIssueToPRRunner extends ScriptRunner {
 	 * @returns The list of required vars.
 	*/
 	private getRequiredVars(): string[] {
-		return [SyncIssueToPRRunner.DEFAULT_PR_REVIEWER];
+		return [SyncPRToIssueRunner.DEFAULT_PR_REVIEWER];
 	}
 }

@@ -1,4 +1,4 @@
-import { SyncIssueToPRRunner } from "./runners/SyncIssueToPRRunner.ts";
+import { SyncPRToIssueRunner } from "./runners/SyncPRToIssueRunner.ts";
 
-const runner = new SyncIssueToPRRunner(Deno.args);
+const runner = new SyncPRToIssueRunner(Deno.args);
 await runner.run();
