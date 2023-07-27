@@ -131,6 +131,14 @@ jobs:
 
 
           $dirPath = "${{ inputs.relative-release-notes-dir-path }}".Trim().ToLower();
+
+          # Verify that the relative release notes dir path is not empty
+          if ($dirPath -eq "") {
+            Write-Host "::error::The 'relative-release-notes-dir-path' workflow input cannot be empty.";
+            exit 1;
+          }
+
+          
           $backSlash = "\\";
           $forwardSlash = "/";
           
