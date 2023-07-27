@@ -335,8 +335,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with: 
           name: "🚀${{ inputs.release-type }} Release - ${{ needs.validate_version.outputs.version }}" 
-          body_path: "${{ steps.base-dir-path.outputs.base-dir-path }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
-          files: "${{ steps.base-dir-path.outputs.base-dir-path }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
+          body_path: "${{ steps.base-dir-path.outputs.github-workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
+          files: "${{ steps.base-dir-path.outputs.github-workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
           tag_name: "${{ needs.validate_version.outputs.version }}"
           prerelease: ${{ inputs.release-type == 'Preview' }}
           draft: false
