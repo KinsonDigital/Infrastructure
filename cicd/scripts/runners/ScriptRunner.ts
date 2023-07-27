@@ -31,7 +31,7 @@ export abstract class ScriptRunner {
 				: arg;
 		});
 
-		Utils.printInGroup("Script Arguments:", argValues);
+		Utils.printInGroup("Script Arguments (Before Mutation):", argValues);
 
 		this.args = args;
 		this.token = token;
