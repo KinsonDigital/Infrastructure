@@ -14,7 +14,7 @@ export const createGetBranchesQuery = (repoOwner: string, repoName: string, firs
 	first = !Utils.isNullOrEmptyOrUndefined(first) && first <= 0 ? 1 : first;
 
 	const firstValue = Utils.isNullOrEmptyOrUndefined(first) ? ", first: 100" : `, first: ${first}`;
-	const cursorValue = Utils.isNullOrEmptyOrUndefined(cursor) ? "" : `, after: ${cursor}`;
+	const cursorValue = Utils.isNullOrEmptyOrUndefined(cursor) ? "" : `, after: "${cursor}"`;
 
 	return `{
         repository (owner: "${repoOwner}", name: "${repoName}") {
