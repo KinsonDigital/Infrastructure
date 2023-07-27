@@ -15,6 +15,7 @@ import { RepoClient } from "../../clients/RepoClient.ts";
 import { CSharpVersionService } from "../../core/Services/CSharpVersionService.ts";
 import { IIssueOrPRRequestData } from "../../core/IIssueOrPRRequestData.ts";
 import { ProjectClient } from "../../clients/ProjectClient.ts";
+import { Guard } from "../../core/Guard.ts";
 
 /**
  * Automates the process of generating release notes for a GitHub release.
@@ -618,6 +619,12 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	 * @param labels The list of labels to validate.
 	 */
 	private async validateLabelsExist(repoName: string, labels: string[]): Promise<void> {
+		Guard.isNullOrEmptyOrUndefined(repoName, "validateLabelsExist", "repoName");
+
+		if (labels.length <= 0) {
+			return;
+		}
+
 		const repoLabels = await this.getLabels(repoName);
 
 		const invalidLabels = labels.filter((ignoreLabel) => {
