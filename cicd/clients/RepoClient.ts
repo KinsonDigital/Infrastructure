@@ -205,6 +205,24 @@ export class RepoClient extends GitHubClient {
 	}
 
 	/**
+	 * Gets a value indicating whether or not a variable exists with a name that matches the given {@link variableName}
+	 * in a repository with a name that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
+	 * @param variableName The name of the variable.
+	 * @returns True if the variable exists; otherwise, false.
+	 */
+	public async repoVariableExists(repoName: string, variableName: string): Promise<boolean> {
+		Guard.isNullOrEmptyOrUndefined(repoName, "repoVariableExists", "repoName");
+		Guard.isNullOrEmptyOrUndefined(variableName, "repoVariableExists", "variableName");
+
+		const variables = await this.getVariables(repoName);
+
+		const variable = variables.find((v) => v.name === variableName);
+
+		return variable !== undefined && variable !== null;
+	}
+
+	/**
 	 * Creates a new file in a repository with a name that matches the given {@link repoName}, on a branch
 	 * that matches the given {@link branchName}, at the {@link relativeFilePath}, with the given {@link fileContent},
 	 * with the given {@link commitMessage}.
