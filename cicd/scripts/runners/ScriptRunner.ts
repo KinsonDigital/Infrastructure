@@ -26,9 +26,7 @@ export abstract class ScriptRunner {
 		}
 
 		const argValues = args.map((arg) => {
-			return arg.startsWith(this.fineGrainedTokenPrefix) || arg.startsWith(this.classicTokenPrefix)
-				? "***"
-				: arg;
+			return arg.startsWith(this.fineGrainedTokenPrefix) || arg.startsWith(this.classicTokenPrefix) ? "***" : arg;
 		});
 
 		Utils.printInGroup("Script Arguments (Before Mutation):", argValues);
