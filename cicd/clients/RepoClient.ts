@@ -223,8 +223,8 @@ export class RepoClient extends GitHubClient {
 	}
 
 	/**
-	 * Updates a variable with the given {@link variableName} in a repository with a name that matches the given
-	 * {@link repoName} to the given {@link variableValue}.
+	 * Updates a variable with a name that matches the given {@link variableName} in a repository with a name that
+	 * matches the given {@link repoName} to the given {@link variableValue}.
 	 * @param repoName The name of the repository.
 	 * @param variableName The name of the variable.
 	 * @param variableValue The value of the variable.
