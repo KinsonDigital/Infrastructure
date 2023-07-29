@@ -1,3 +1,4 @@
+import { RepoClient } from "../../cicd/clients/RepoClient.ts";
 import { TagClient } from "../../cicd/clients/TagClient.ts";
 import { Directory } from "../../cicd/core/Directory.ts";
 import { File } from "../../cicd/core/File.ts";
@@ -22,12 +23,13 @@ if (!Directory.Exists(baseDirPath)) {
 	Deno.exit(1);
 }
 
+const repoName = "Infrastructure";
 const allFiles = Directory.getFiles(baseDirPath, true);
 
 const yamlFiles = allFiles.filter((file) => file.toLowerCase().endsWith(".yaml") || file.toLowerCase().endsWith(".yml"));
 const tagClient: TagClient = new TagClient(token);
 
-const latestTag = (await tagClient.getAllTags("Infrastructure"))[0].name;
+const latestTag = (await tagClient.getAllTags(repoName))[0].name;
 
 const workflowsToUpdate: WorkflowToUpdate[] = [];
 
@@ -78,15 +80,35 @@ if (workflowsToUpdate.length === 0) {
 	Deno.exit(0);
 }
 
+const errorMsgs: string[] = [];
+
 // Print out all of the workflows that need to be updated as an error
 workflowsToUpdate.forEach(workflowToUpdate => {
 	const filePath = Path.getFileName(workflowToUpdate.filePath);
 
-	const errorMsgs: string[] = workflowToUpdate.workflowRefs.map((workflowRef) => {
-		return `Workflow reference '${workflowRef}' in file '${filePath}' is out of date.`;
+	const workflowErrors: string[] = workflowToUpdate.workflowRefs.map((workflowRef) => {
+		return `Workflow reference '${workflowRef}' in file '${filePath}' needs to be updated.`;
 	});
 
-	Utils.printAsGitHubErrors(errorMsgs);
+	errorMsgs.push(...workflowErrors);
 });
 
-Deno.exit(1);
+const repoVarName = "CICD_SCRIPTS_VERSION";
+const repoClient = new RepoClient(token);
+
+if (!(await repoClient.repoVariableExists(repoName, repoVarName))) {
+	errorMsgs.push(`The repository variable '${repoVarName}' does not exist.`);
+} else {
+	const scriptVersionVar = (await repoClient.getVariables(repoName)).find((v) => v.name == repoVarName);
+	
+	if (scriptVersionVar?.value === latestTag) {
+		let errorMsg = `The repository variable '${repoVarName}' version value `;
+		errorMsg += `of '${scriptVersionVar?.value}' needs to be updated.`;
+		errorMsgs.push(errorMsg);
+	}
+}
+
+if (errorMsgs.length > 0) {
+	Utils.printAsGitHubErrors(errorMsgs);
+	Deno.exit(1);
+}
