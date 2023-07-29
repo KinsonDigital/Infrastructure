@@ -7,6 +7,7 @@ defaults:
 
 
 on:
+  workflow_dispatch:
   pull_request:
     branches: main
 
@@ -24,10 +25,12 @@ jobs:
         with:
           deno-version: v1.x
 
-      - name: Run Linting
+      - name: Run Status Check Script
         run: |
+          $scriptPath = "${{ github.workspace }}/.github/internal-cicd/workflow-version-status-check.ts";
+
           deno run `
             --allow-read --allow-net `
-            "../internal-cicd/workflow-version-status-check.ts" `
+            $scriptPath `
             "${{ github.workspace }}/.github/workflows" `
             "${{ secrets.CICD_TOKEN }}";

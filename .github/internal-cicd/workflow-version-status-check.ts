@@ -15,7 +15,7 @@ if (Deno.args.length != 2) {
 let baseDirPath = Deno.args[0];
 const token = Deno.args[1];
 
-baseDirPath = Utils.normalizePath(baseDirPath.trim().toLowerCase());
+baseDirPath = Utils.normalizePath(baseDirPath.trim());
 
 if (!Directory.Exists(baseDirPath)) {
 	Utils.printAsGitHubError(`Directory '${baseDirPath}' does not exist.`);
