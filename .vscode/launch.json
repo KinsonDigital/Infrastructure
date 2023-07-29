@@ -455,6 +455,53 @@
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
+        },
+		{
+            "name": "Workflow Version Status Check (DEBUG)",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/.github/internal-cicd/workflow-version-status-check.ts",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": [
+				"${workspaceFolder}/.github/workflows",
+				"${env:CICD_TOKEN}",
+			],
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+		{
+            "name": "Update Workflow Versions (DEBUG)",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/.github/internal-cicd/update-workflow-versions.ts",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": [
+				"${workspaceFolder}/.github/workflows",
+				"${env:CICD_TOKEN}",
+			],
+            "attachSimplePort": 9229,
+			"console": "integratedTerminal",
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
         }
     ]
 }

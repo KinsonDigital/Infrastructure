@@ -1,0 +1,35 @@
+name: ✅Workflow Version Status Check
+
+
+defaults:
+  run:
+    shell: pwsh
+
+
+on:
+  pull_request:
+    branches: main
+
+
+jobs:
+  workflow_version_status_check:
+    name: Workflow Version Status Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set Up Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Run Status Check Script
+        run: |
+          $scriptPath = "${{ github.workspace }}/.github/internal-cicd/workflow-version-status-check.ts";
+
+          deno run `
+            --allow-read --allow-net `
+            $scriptPath `
+            "${{ github.workspace }}/.github/workflows" `
+            "${{ secrets.CICD_TOKEN }}";

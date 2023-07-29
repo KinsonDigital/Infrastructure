@@ -205,6 +205,60 @@ export class RepoClient extends GitHubClient {
 	}
 
 	/**
+	 * Gets a value indicating whether or not a variable exists with a name that matches the given {@link variableName}
+	 * in a repository with a name that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
+	 * @param variableName The name of the variable.
+	 * @returns True if the variable exists; otherwise, false.
+	 */
+	public async repoVariableExists(repoName: string, variableName: string): Promise<boolean> {
+		Guard.isNullOrEmptyOrUndefined(repoName, "repoVariableExists", "repoName");
+		Guard.isNullOrEmptyOrUndefined(variableName, "repoVariableExists", "variableName");
+
+		const variables = await this.getVariables(repoName);
+
+		const variable = variables.find((v) => v.name === variableName);
+
+		return variable !== undefined && variable !== null;
+	}
+
+	/**
+	 * Updates a variable with a name that matches the given {@link variableName} in a repository with a name that
+	 * matches the given {@link repoName} to the given {@link variableValue}.
+	 * @param repoName The name of the repository.
+	 * @param variableName The name of the variable.
+	 * @param variableValue The value of the variable.
+	 */
+	public async updateVariable(repoName: string, variableName: string, variableValue: string): Promise<void> {
+		const funcName = "updateVariable";
+		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNullOrEmptyOrUndefined(variableName, funcName, "variableName");
+		Guard.isNullOrEmptyOrUndefined(variableValue, funcName, "variableValue");
+
+		if (!(await this.repoVariableExists(repoName, variableName))) {
+			Utils.printAsGitHubError(`The variable '${variableName}' does not exist for the repository '${repoName}'.`);
+			Deno.exit(1);
+		}
+
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/actions/variables/${variableName}`;
+
+		const body = {
+			name: variableName,
+			value: variableValue,
+		};
+
+		const response = await this.requestPATCH(url, JSON.stringify(body));
+
+		if (response.status != GitHubHttpStatusCodes.NoContent) {
+			let errorMsg = `An error occurred when updating the variable '${variableName}' for the repository '${repoName}'.`;
+			errorMsg += `\nError: ${response.status}(${response.statusText})`;
+
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
+	}
+
+	/**
 	 * Creates a new file in a repository with a name that matches the given {@link repoName}, on a branch
 	 * that matches the given {@link branchName}, at the {@link relativeFilePath}, with the given {@link fileContent},
 	 * with the given {@link commitMessage}.

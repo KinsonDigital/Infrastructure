@@ -50,6 +50,25 @@ export class TagClient extends GitHubClient {
 	}
 
 	/**
+	 * Gets all of the tags for a repository with a name that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
+	 * @returns All of the tags.
+	 */
+	public async getAllTags(repoName: string): Promise<TagModel[]> {
+		const result: TagModel[] = [];
+
+		await this.getAllData(async (page: number, qtyPerPage?: number) => {
+			const [tags, response] = await this.getTags(repoName, page, qtyPerPage ?? 100);
+
+			result.push(...tags);
+
+			return [tags, response];
+		});
+
+		return result;
+	}
+
+	/**
 	 * Gets a tag with the given {@link tagName} for a repository with the given {@link repoName}.
 	 * @param repoName The name of the repository.
 	 * @param tagName The name of the tag.

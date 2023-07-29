@@ -70,7 +70,7 @@ jobs:
   resolve_proj_file_path:
     name: Resolving ${{ inputs.project-name }} Project File Path
     needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/resolve-csharp-proj-file.yml@v10.0.3
+    uses: KinsonDigital/Infrastructure/.github/workflows/resolve-csharp-proj-file.yml@v10.1.0
     with:
       project-name: ${{ inputs.project-name }}
       base-path: ${{ inputs.base-path }}
