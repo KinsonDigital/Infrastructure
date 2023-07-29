@@ -1,6 +1,7 @@
 import { TagClient } from "../../cicd/clients/TagClient.ts";
 import { Directory } from "../../cicd/core/Directory.ts";
 import { File } from "../../cicd/core/File.ts";
+import { Path } from "../../cicd/core/Path.ts";
 import { Utils } from "../../cicd/core/Utils.ts";
 
 if (Deno.args.length != 2) {
@@ -79,10 +80,13 @@ if (workflowsToUpdate.length === 0) {
 
 // Print out all of the workflows that need to be updated as an error
 workflowsToUpdate.forEach(workflowToUpdate => {
+	const filePath = Path.getFileName(workflowToUpdate.filePath);
+
 	const errorMsgs: string[] = workflowToUpdate.workflowRefs.map((workflowRef) => {
-		return `Workflow reference '${workflowRef}' in file '${workflowToUpdate.filePath}' is out of date.`;
+		return `Workflow reference '${workflowRef}' in file '${filePath}' is out of date.`;
 	});
-	Utils.printAsGitHubErrors(errorMsgs);	
+
+	Utils.printAsGitHubErrors(errorMsgs);
 });
 
 Deno.exit(1);
