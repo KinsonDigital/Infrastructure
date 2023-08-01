@@ -153,7 +153,7 @@ jobs:
   validate_version:
     name: Validate Version
     needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v10.1.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v10.1.1
     with:
       project-name: "${{ inputs.project-name }}"
       release-type: "${{ inputs.release-type }}"
@@ -164,7 +164,7 @@ jobs:
   validate_tag:
     name: Validate Tag
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-tag.yml@v10.1.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-tag.yml@v10.1.1
     with:
       project-name: "${{ inputs.project-name }}"
       release-type: "${{ inputs.release-type }}"
@@ -200,7 +200,7 @@ jobs:
   validate_github_release:
     name: GitHub Release Does Not Exist
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-github-release.yml@v10.1.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-github-release.yml@v10.1.1
     with:
       project-name: "${{ inputs.project-name }}"
       version: "${{ needs.validate_version.outputs.version }}"
@@ -211,7 +211,7 @@ jobs:
   build_project:
     name: Build Main Project (${{ inputs.project-name }})
     needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v10.1.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v10.1.1
     with:
       project-name: "${{ inputs.project-name }}"
       runs-on: "${{ inputs.runs-on }}"
@@ -222,7 +222,7 @@ jobs:
   run_tests:
     name: Run Tests
     needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v10.1.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v10.1.1
     with:
       project-name: "${{ inputs.project-name }}Tests"
       runs-on: "${{ inputs.runs-on }}"
