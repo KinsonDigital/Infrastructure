@@ -135,7 +135,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 			Deno.exit(1);
 		}
 
-		if (Utils.isNotValidPreviewVersion(version) || Utils.isNotValidProdVersion(version)) {
+		if (Utils.isNotValidPreviewVersion(version) && Utils.isNotValidProdVersion(version)) {
 			let errorMsg = `The version '${version}' is not a valid preview or production version.`;
 			errorMsg += "\nRequired Syntax: v#.#.# or v#.#.#-preview.#";
 			Utils.printAsGitHubError(errorMsg);
