@@ -1,6 +1,7 @@
 import { OrgClient } from "../../clients/OrgClient.ts";
 import { RepoClient } from "../../clients/RepoClient.ts";
 import { TwitterClient } from "../../clients/TwitterClient.ts";
+import { GitHubLogType } from "../../core/Enums.ts";
 import { ReleaseTweetBuilder } from "../../core/ReleaseTweetBuilder.ts";
 import { GitHubVariableService } from "../../core/Services/GitHubVariableService.ts";
 import { TwitterAuthValues } from "../../core/TwitterAuthValues.ts";
@@ -99,17 +100,21 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 	protected async validateArgs(args: string[]): Promise<void> {
 		// TODO: Print org and/or repo required/optional vars
 		if (Deno.args.length != 8) {
-			let errorMsg = `The cicd script must have 8 arguments but has ${args.length} argument(s).`;
-			errorMsg += "\nThe 1st arg is required and must be a repository owner.";
-			errorMsg += "\nThe 2nd arg is required and must be a project name";
-			errorMsg += "\nThe 3rd arg is required and must be a valid version. ";
-			errorMsg += "\nThe 4th arg is required and must be a valid twitter consumer api key.";
-			errorMsg += "\nThe 5th arg is required and must be a valid twitter consumer api secret.";
-			errorMsg += "\nThe 6th arg is required and must be a valid twitter access token key.";
-			errorMsg += "\nThe 7th arg is required and must be a valid twitter access token secret.";
-			errorMsg += "\nThe 8th arg is required and must be a GitHub PAT (Personal Access Token).";
+			const errorMsg = `The cicd script must have 8 arguments but has ${args.length} argument(s).`;
+
+			const argDescriptions = [
+				"Required and must be a repository owner.",
+				"Required and must be a project name",
+				"Required and must be a valid version. ",
+				"Required and must be a valid twitter consumer api key.",
+				"Required and must be a valid twitter consumer api secret.",
+				"Required and must be a valid twitter access token key.",
+				"Required and must be a valid twitter access token secret.",
+				"Required and must be a GitHub PAT (Personal Access Token).",
+			];
 
 			Utils.printAsGitHubError(errorMsg);
+			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.normal);
 			Deno.exit(1);
 		}
 
@@ -135,7 +140,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 			Deno.exit(1);
 		}
 
-		if (Utils.isNotValidPreviewVersion(version) || Utils.isNotValidProdVersion(version)) {
+		if (Utils.isNotValidPreviewVersion(version) && Utils.isNotValidProdVersion(version)) {
 			let errorMsg = `The version '${version}' is not a valid preview or production version.`;
 			errorMsg += "\nRequired Syntax: v#.#.# or v#.#.#-preview.#";
 			Utils.printAsGitHubError(errorMsg);

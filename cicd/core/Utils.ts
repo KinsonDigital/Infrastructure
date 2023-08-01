@@ -253,7 +253,7 @@ export class Utils {
 	 * @returns True if the version is a valid production version, otherwise false.
 	 */
 	public static validProdVersion(version: string): boolean {
-		return this.prodVersionRegex.test(version);
+		return this.prodVersionRegex.test(version.trim().toLowerCase());
 	}
 
 	/**
@@ -271,7 +271,7 @@ export class Utils {
 	 * @returns True if the version is a valid preview version, otherwise false.
 	 */
 	public static validPreviewVersion(version: string): boolean {
-		return this.prevVersionRegex.test(version);
+		return this.prevVersionRegex.test(version.trim().toLowerCase());
 	}
 
 	/**
