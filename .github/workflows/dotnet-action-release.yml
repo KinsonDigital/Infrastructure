@@ -182,7 +182,7 @@ jobs:
         run: |
           $relativeDirPath = "${{ inputs.relative-release-notes-dir-path }}";
         
-          # Remove all leading forwaard slashes until non are left
+          # Remove all leading forwaard slashes until none are left
           $relativeDirPath = $relativeDirPath.Replace("\", "/");
           $relativeDirPath = $relativeDirPath.TrimStart("/").TrimEnd("/");
 
