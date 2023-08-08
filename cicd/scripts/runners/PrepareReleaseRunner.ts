@@ -146,7 +146,6 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	 * @inheritdoc
 	 */
 	protected async validateArgs(args: string[]): Promise<void> {
-		// TODO: Print org and/or repo required/optional vars
 		if (args.length != 5) {
 			const mainMsg = `The cicd script must have 5 arguments but has ${args.length} argument(s).`;
 
@@ -295,30 +294,24 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 		await this.validateLabelsExist(repoName, [prIncludeLabel]);
 
-		// TODO: Get variable value here
+		const shouldUseMilestoneItems = await this.shouldUseItemsFromMilestone();
 
-		// TODO: Only get list of items if the 'ADD_ITEMS_FROM_MILESTONE' var is true
 		// Filter out any issues that have a label included in the ignore label list
-		const [issues, ignoredIssues] = await this.getMilestoneIssues(repoName, version);
+		const [issues, ignoredIssues] = shouldUseMilestoneItems
+			? await this.getMilestoneIssues(repoName, version)
+			: [[], []];
 
 		const releaseNoteGeneratorService = new GenerateReleaseNotesService();
 
-		// TODO: Only get list of items if the 'ADD_ITEMS_FROM_MILESTONE' var is true
 		// Filter out any prs that have a label included in the ignore label list
-		const [pullRequests, ignoredPullRequests] = await this.getMilestonePullRequests(
-			repoName,
-			version,
-			prIncludeLabel,
-		);
+		const [pullRequests, ignoredPullRequests] = shouldUseMilestoneItems
+			? await this.getMilestonePullRequests(repoName, version, prIncludeLabel)
+			: [[], []];
 
-		// TODO: Only get list of items if the 'ADD_ITEMS_FROM_MILESTONE' var is true
-		const releaseNotes = releaseNoteGeneratorService.generateReleaseNotes(
-			repoName,
-			releaseType,
-			version,
-			issues,
-			pullRequests,
-		);
+		const releaseNotes = shouldUseMilestoneItems
+			? releaseNoteGeneratorService.generateReleaseNotes(repoName, releaseType, version, issues, pullRequests)
+			: releaseNoteGeneratorService.generateEmptyReleaseNotes(repoName, releaseType, version);
+
 		const headBranch = await this.getHeadBranchName(releaseType);
 		const releaseNotesFilePath = await this.buildReleaseNotesFilePath(version, releaseType);
 
@@ -333,24 +326,42 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 		const ignoredItemList: string[] = [];
 
-		// TODO: Only get list of items if the 'ADD_ITEMS_FROM_MILESTONE' var is true
-		if (ignoredIssues.length > 0) {
-			ignoredIssues.forEach((issue) => {
-				const issueUrl = Utils.buildIssueUrl(orgName, repoName, issue.number);
-				ignoredItemList.push(`${issue.title} (Issue #${issue.number}) - ${issueUrl})}`);
-			});
+		if (shouldUseMilestoneItems) {
+			if (ignoredIssues.length > 0) {
+				ignoredIssues.forEach((issue) => {
+					const issueUrl = Utils.buildIssueUrl(orgName, repoName, issue.number);
+					ignoredItemList.push(`${issue.title} (Issue #${issue.number}) - ${issueUrl})}`);
+				});
+			}
+
+			if (ignoredPullRequests.length > 0) {
+				ignoredPullRequests.forEach((pr) => {
+					const prUrl = Utils.buildPullRequestUrl(orgName, repoName, pr.number);
+					ignoredItemList.push(`${pr.title} (PR #${pr.number}) - ${prUrl}`);
+				});
+			}
+
+			Utils.printInGroup("Ignored Issues And PRs", ignoredItemList);
+		}
+	}
+
+	/**
+	 * Returns a value indicating whether or not the milestone items should be used in the release notes.
+	 * @returns True if the milestone items should be used in the release notes. False otherwise.
+	 */
+	private async shouldUseItemsFromMilestone(): Promise<boolean> {
+		const addItemsFromMilestone = (await this.githubVarService
+			.getValue(PrepareReleaseRunner.ADD_ITEMS_FROM_MILESTONE, false))
+			.trim()
+			.toLowerCase();
+
+		if (addItemsFromMilestone != "true") {
+			let noticeMsg = `The optional variable ${PrepareReleaseRunner.ADD_ITEMS_FROM_MILESTONE} `;
+			noticeMsg += "does not exist. No milestone items added to the release notes.";
+			Utils.printAsGitHubNotice(noticeMsg);
 		}
 
-		// TODO: Only get list of items if the 'ADD_ITEMS_FROM_MILESTONE' var is true
-		if (ignoredPullRequests.length > 0) {
-			ignoredPullRequests.forEach((pr) => {
-				const prUrl = Utils.buildPullRequestUrl(orgName, repoName, pr.number);
-				ignoredItemList.push(`${pr.title} (PR #${pr.number}) - ${prUrl}`);
-			});
-		}
-
-		// TODO: Only get list of items if the 'ADD_ITEMS_FROM_MILESTONE' var is true
-		Utils.printInGroup("Ignored Issues And PRs", ignoredItemList);
+		return addItemsFromMilestone === "true";
 	}
 
 	/**
@@ -652,7 +663,10 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	 * @returns The list of optional vars.
 	 */
 	private getOptionalVars(): string[] {
-		return [PrepareReleaseRunner.PREV_PREP_RELEASE_PR_LABELS, PrepareReleaseRunner.PROD_PREP_RELEASE_PR_LABELS];
+		return [
+			PrepareReleaseRunner.PREV_PREP_RELEASE_PR_LABELS,
+			PrepareReleaseRunner.PROD_PREP_RELEASE_PR_LABELS,
+			PrepareReleaseRunner.ADD_ITEMS_FROM_MILESTONE];
 	}
 
 	/**
