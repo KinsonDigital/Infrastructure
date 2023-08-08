@@ -53,7 +53,11 @@ on:
         required: false
         description: If true, the release will not be created.
         default: false
-        type: boolean  
+        type: boolean
+    secrets:
+      cicd-pat:
+        required: true
+        description: The CICD personal access token.
 
 
 jobs:
@@ -137,8 +141,8 @@ jobs:
 
   validate_branch:
     name: Validate Branch (${{ inputs.run-branch }})
-    runs-on: ubuntu-latest
     needs: print_validate_workflow
+    runs-on: ubuntu-latest
     steps:
       - name: Validate Branch
         run: |
@@ -152,8 +156,8 @@ jobs:
         
   validate_version:
     name: Validate Version
-    needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v10.2.0
+    needs: [print_validate_workflow, validate_branch]
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v10.2.1
     with:
       project-name: "${{ inputs.project-name }}"
       release-type: "${{ inputs.release-type }}"
@@ -164,7 +168,7 @@ jobs:
   validate_tag:
     name: Validate Tag
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-tag.yml@v10.2.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-tag.yml@v10.2.1
     with:
       project-name: "${{ inputs.project-name }}"
       release-type: "${{ inputs.release-type }}"
@@ -178,11 +182,14 @@ jobs:
     needs: validate_version
     runs-on: ubuntu-latest
     steps:
+      - name:  Checkout Repo
+        uses: actions/checkout@v3
+
       - name: Release Notes Exist
         run: |
           $relativeDirPath = "${{ inputs.relative-release-notes-dir-path }}";
         
-          # Remove all leading forwaard slashes until non are left
+          # Remove all leading forwaard slashes until none are left
           $relativeDirPath = $relativeDirPath.Replace("\", "/");
           $relativeDirPath = $relativeDirPath.TrimStart("/").TrimEnd("/");
 
@@ -200,7 +207,7 @@ jobs:
   validate_github_release:
     name: GitHub Release Does Not Exist
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-github-release.yml@v10.2.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-github-release.yml@v10.2.1
     with:
       project-name: "${{ inputs.project-name }}"
       version: "${{ needs.validate_version.outputs.version }}"
@@ -211,7 +218,7 @@ jobs:
   build_project:
     name: Build Main Project (${{ inputs.project-name }})
     needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v10.2.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v10.2.1
     with:
       project-name: "${{ inputs.project-name }}"
       runs-on: "${{ inputs.runs-on }}"
@@ -222,7 +229,7 @@ jobs:
   run_tests:
     name: Run Tests
     needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v10.2.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v10.2.1
     with:
       project-name: "${{ inputs.project-name }}Tests"
       runs-on: "${{ inputs.runs-on }}"
@@ -232,7 +239,7 @@ jobs:
 
   perform_release:
     name: Perform ${{ inputs.release-type }} Release
-    needs: [validate_version, build_project, run_tests]
+    needs: [print_validate_workflow, validate_version, build_project, run_tests]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -246,7 +253,7 @@ jobs:
     - name: Creating ${{ inputs.release-type }} Release
       uses: softprops/action-gh-release@v1
       with: 
-        name: "🚀${{ inputs.release-type }} Release - v${{ needs.validate_version.outputs.version }}" 
+        name: "🚀${{ inputs.release-type }} Release - ${{ needs.validate_version.outputs.version }}" 
         body_path: "${{ steps.base-dir-path.outputs.github-workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
         files: "${{ steps.base-dir-path.outputs.github-workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md"
         tag_name: "${{ needs.validate_version.outputs.version }}"
