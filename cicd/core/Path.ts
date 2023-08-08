@@ -19,6 +19,22 @@ export class Path {
 	}
 
 	/**
+	 * Gets the file name without the file extension.
+	 * @param filePath The file path.
+	 * @returns The file name without the file extension.
+	 */
+	public static getFileNameWithoutExtension(filePath: string): string {
+		if (Utils.isNullOrEmptyOrUndefined(filePath)) {
+			return "";
+		}
+
+		const fileName = Path.getFileName(filePath);
+		const fileExtension = Path.getFileExtension(filePath);
+
+		return fileName.replace(fileExtension, "");
+	}
+
+	/**
 	 * Gets the file extension from the given {@link filePath}.
 	 * @param filePath The file path.
 	 * @returns The file extension from the given {@link filePath}.

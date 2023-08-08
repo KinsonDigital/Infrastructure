@@ -21,6 +21,8 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	private readonly linkStartTagRegEx = /<a\s*href\s*=\s*('|").+?('|")>/gm;
 	private readonly linkEndTagRegEx = /<\/\s*a\s*>/gm;
 	private readonly markdownStartingWithWhiteSpaceRegEx = /^\s+!*\[.+\]\(.+\)/g;
+	private readonly imgMarkdownLightModeRegex = /!\[.+\]\(.+-light-mode\.(svg|png|jpg|jpeg)#gh-light-mode-only\)/gm;
+	private readonly imgMarkdownDarkModeRegex = /!\[.+\]\(.+-dark-mode\.(svg|png|jpg|jpeg)#gh-dark-mode-only\)/gm;
 
 	/**
 	 * Initializes a new instance of the {@link TranspileReadMeRunner} class.
@@ -64,6 +66,8 @@ export class TranspileReadMeRunner extends ScriptRunner {
 		readmeFileContent = this.transpileHeaderTags(readmeFileContent);
 
 		readmeFileContent = this.transpileImageTags(readmeFileContent);
+
+		readmeFileContent = this.removeDarkModeImages(readmeFileContent);
 
 		readmeFileContent = this.bumpMarkdownLinksToLeft(readmeFileContent);
 
@@ -156,6 +160,80 @@ export class TranspileReadMeRunner extends ScriptRunner {
 		}
 
 		return content;
+	}
+
+	/**
+	 * Removes all dark mode images from the given content.
+	 * @param content The content that might contain the markdown images.
+	 * @returns The content with the dark mode images removed.
+	 */
+	public removeDarkModeImages(content: string): string {
+		const darkModeImages = content.match(this.imgMarkdownDarkModeRegex)?.filter((m) => m) ?? [];
+		const lightModeImages = content.match(this.imgMarkdownLightModeRegex)?.filter((m) => m) ?? [];
+
+		for (const darkModeImage of darkModeImages) {
+			const darkModeItem = this.getFileNameWithoutMode(darkModeImage);
+
+			const lightModeItem = this.getFileNameWithoutMode(
+				lightModeImages.find((l) => {
+					return this.getFileNameWithoutMode(l) === darkModeItem;
+				}) ?? "",
+			);
+
+			if (lightModeItem === "") {
+				let errorMsg = `The markdown dark mode image '${darkModeImage}' does not have a matching light mode image.`;
+				errorMsg += "\nIf a dark mode image is being used, then a light mode image must also be used.";
+				errorMsg += "\nThis is to ensure that a light mode image is left behind for the README.md file for nuget.org.";
+				errorMsg += "\nThis is because nuget.org does not support the GitHub dark mode syntax.";
+				Utils.printAsGitHubError(errorMsg);
+				Deno.exit(1);
+			}
+
+			if (lightModeItem === darkModeItem) {
+				content = content.replaceAll(darkModeImage, "");
+			}
+		}
+
+		return content;
+	}
+
+	/**
+	 * Gets the file name without the mode string that is embedded in the given {@link markdown}.
+	 * @param markdown The markdown content to process.
+	 * @returns The file name without the mode string.
+	 */
+	private getFileNameWithoutMode(markdown: string): string {
+		const modeKeyWordsWithExtRegex = /-(light|dark)-mode\.(svg|png|jpg|jpeg)/gm;
+
+		const fileName = this.getImageFileNameFromImgMarkdown(markdown);
+
+		const darkTextToRemove = fileName.match(modeKeyWordsWithExtRegex)?.filter((m) => m)[0] ?? "";
+
+		return fileName.replace(darkTextToRemove, "");
+	}
+
+	/**
+	 * Gets the image file name from the given {@link markdown}.
+	 * @param markdown The markdown content to process.
+	 * @returns The file file name from the image markdown.
+	 */
+	private getImageFileNameFromImgMarkdown(markdown: string): string {
+		const lightModeRegex = /#gh-light-mode-only/gm;
+		const darkModeRegex = /#gh-dark-mode-only/gm;
+
+		if (!lightModeRegex.test(markdown) && !darkModeRegex.test(markdown)) {
+			return markdown;
+		}
+
+		const uri = markdown.replace(/!\[.+\]\(/gm, "")
+			.replace(")", "")
+			.replace(lightModeRegex, "")
+			.replace(darkModeRegex, "")
+			.replaceAll("\\", "/");
+
+		const uriSections = uri.split("/");
+
+		return uriSections[uriSections.length - 1];
 	}
 
 	/**

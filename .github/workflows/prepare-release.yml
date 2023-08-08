@@ -51,7 +51,7 @@ jobs:
           }
 
 
-          if ($releaseType -ne 'preview' -and $releaseType -ne 'roduction') {
+          if ($releaseType -ne 'preview' -and $releaseType -ne 'production') {
             Write-Host "::error::The 'release-type' workflow input is invalid.  Expecting value of 'Preview' or 'Production'.";
             exit 1;
           }
