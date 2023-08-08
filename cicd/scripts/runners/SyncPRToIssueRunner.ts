@@ -22,6 +22,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 	private static readonly DEFAULT_PR_REVIEWER = "DEFAULT_PR_REVIEWER";
 	private static readonly PR_SYNC_BASE_BRANCHES = "PR_SYNC_BASE_BRANCHES";
 	private static readonly prMetaDataRegex = /<!--\s*closed-by-pr:\s*[0-9]+\s*-->/gm;
+	private readonly githubVarService: GitHubVariableService;
 
 	/**
 	 * Initializes a new instance of the {@link SyncPRToIssueRunner} class.
@@ -29,6 +30,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 	 */
 	constructor(args: string[]) {
 		super(args);
+		this.githubVarService = new GitHubVariableService(this.token);
 	}
 
 	/**
@@ -37,7 +39,18 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 	public async run(): Promise<void> {
 		await super.run();
 
-		const [orgName, repoName, , prNumberStr] = this.args;
+		const [orgName, repoName, githubUser, prNumberStr] = this.args;
+
+		// Print out all of the arguments
+		Utils.printInGroup("Script Arguments", [
+			`Organization Name (Required): ${orgName}`,
+			`Repository Name (Required): ${repoName}`,
+			`GitHub User (Required): ${githubUser}`,
+			`Pull Request Number (Required): ${prNumberStr}`,
+			`GitHub Token (Required): "****"`,
+		]);
+
+		this.githubVarService.setOrgAndRepo(orgName, repoName);
 
 		const issueClient = new IssueClient(this.token);
 		const prClient = new PullRequestClient(this.token);
@@ -49,7 +62,6 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 		const issue: IssueModel = await issueClient.getIssue(repoName, issueNumber);
 		const pr: PullRequestModel = await prClient.getPullRequest(repoName, prNumber);
 		const projectClient: ProjectClient = new ProjectClient(this.token);
-		const githubRepoService = new GitHubVariableService(orgName, repoName, this.token);
 
 		const issueProjects: ProjectModel[] = await projectClient.getIssueProjects(repoName, issueNumber);
 
@@ -65,8 +77,8 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 			Utils.printAsGitHubNotice(`Pull request '${prNumber}' has been added to project '${proj.title}'.`);
 		}
 
-		await this.addIssueMetaData(repoName, issue, prNumber);
-		const defaultReviewer = await githubRepoService.getValue(SyncPRToIssueRunner.DEFAULT_PR_REVIEWER, false);
+		await this.addPullRequestMetaData(repoName, issue, prNumber);
+		const defaultReviewer = await this.githubVarService.getValue(SyncPRToIssueRunner.DEFAULT_PR_REVIEWER, false);
 		await prClient.requestReviewer(repoName, prNumber, defaultReviewer);
 
 		let reviewerMsg = `The reviewer '${defaultReviewer}' has been requested as a reviewer `;
@@ -87,7 +99,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 		await prClient.updatePullRequest(repoName, prNumber, prData);
 
 		// Update the pr body to reflect the sync status between the issue and the pr
-		await this.updateIssueBody(orgName, repoName, issueNumber, prNumber);
+		await this.updatePullRequestBody(repoName, issueNumber, prNumber);
 	}
 
 	/**
@@ -115,8 +127,6 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 		const prClient = new PullRequestClient(this.token);
 		const usersClient = new UsersClient(this.token);
 
-		const githubVarService = new GitHubVariableService(orgName, repoName, this.token);
-
 		if (!Utils.isNumeric(issueOrPRNumberStr)) {
 			Utils.printAsGitHubError(`The given issue or pull request number '${issueOrPRNumberStr}' is not a valid number.`);
 			Deno.exit(1);
@@ -129,7 +139,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 		const orgRepoVariables = this.getRequiredVars();
 
 		// Check if all of the required org and/or repo variables exist
-		const [orgRepoVarExist, missingVars] = await githubVarService.allVarsExist(orgRepoVariables);
+		const [orgRepoVarExist, missingVars] = await this.githubVarService.allVarsExist(orgRepoVariables);
 
 		if (!orgRepoVarExist) {
 			const missingVarErrors: string[] = [];
@@ -181,7 +191,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 			Deno.exit(1);
 		}
 
-		const defaultReviewer = await githubVarService.getValue(SyncPRToIssueRunner.DEFAULT_PR_REVIEWER, false);
+		const defaultReviewer = await this.githubVarService.getValue(SyncPRToIssueRunner.DEFAULT_PR_REVIEWER, false);
 
 		// If the default reviewer is not a valid GitHub user
 		if (!(await usersClient.userExists(defaultReviewer))) {
@@ -201,6 +211,12 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 		return Utils.trimAll(args);
 	}
 
+	/**
+	 * Gets the issue and pull request numbers that are linked to each other.
+	 * @param repoName The name of the repository.
+	 * @param issueOrPrNumber The issue or pull request number.
+	 * @returns Both the issue and pull request numbers.
+	 */
 	private async getIssueAndPrNumbers(repoName: string, issueOrPrNumber: number): Promise<[number, number]> {
 		let issueNumber = 0;
 		let prNumber = 0;
@@ -212,8 +228,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 		const issueClient = new IssueClient(this.token);
 		const prClient = new PullRequestClient(this.token);
 
-		if (
-			issueOrPr != IssueOrPullRequest.issue &&
+		if (issueOrPr != IssueOrPullRequest.issue &&
 			issueOrPr != IssueOrPullRequest.pullRequest &&
 			issueOrPr != IssueOrPullRequest.neither
 		) {
@@ -261,6 +276,12 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 		return [issueNumber, prNumber];
 	}
 
+	/**
+	 * Returns a value indicating if the given {@link issueOrPullRequestNumber} is an issue, pull request, or neither.
+	 * @param repoName The name of the repository.
+	 * @param issueOrPullRequestNumber The issue or pull request number.
+	 * @returns Enum representing if the given {@link issueOrPullRequestNumber} is an issue, pull request, or neither.
+	 */
 	private async isIssueOrPullRequestNumber(repoName: string, issueOrPullRequestNumber: number): Promise<IssueOrPullRequest> {
 		const issueClient = new IssueClient(this.token);
 		const prClient = new PullRequestClient(this.token);
@@ -276,7 +297,14 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 		return IssueOrPullRequest.neither;
 	}
 
-	private async addIssueMetaData(repoName: string, issue: IssueModel, prNumber: number): Promise<void> {
+	/**
+	 * Adds pull request meta-data to the given {@link issue}, with the given {@link prNumber},
+	 * for a repository with a name that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
+	 * @param issue The issue to add the meta-data to.
+	 * @param prNumber The pull request number to add to the meta-data.
+	 */
+	private async addPullRequestMetaData(repoName: string, issue: IssueModel, prNumber: number): Promise<void> {
 		const prMetaDataExists = SyncPRToIssueRunner.prMetaDataRegex.test(issue.body);
 		const prMetaData = `<!--closed-by-pr:${prNumber}-->`;
 		const issueBody = prMetaDataExists
@@ -295,6 +323,11 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 		await issueClient.updateIssue(repoName, issue.number, issueData);
 	}
 
+	/**
+	 * Gets the pull request number embedded in meta-data that is in the given {@link issueBody}.
+	 * @param issueBody The body of an issue.
+	 * @returns The pull request number.
+	 */
 	private getPRNumberFromIssueBody(issueBody: string): number {
 		if (Utils.isNullOrEmptyOrUndefined(issueBody)) {
 			return 0;
@@ -311,9 +344,15 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 		return parseInt(prNumberStr);
 	}
 
-	// TODO: Cache the issue, but not the pr
-
-	private async updateIssueBody(orgName: string, repoName: string, issueNumber: number, prNumber: number): Promise<void> {
+	/**
+	 * Updates the body of a pull request that belongs to a repository with a name that matches the given {@link repoName},
+	 * where the pull request has a number that matches the given {@link prNumber}, with an issue linked
+	 * to the pull request that matches the given {@link issueNumber}, 
+	 * @param repoName The name of the repository.
+	 * @param issueNumber The issue number.
+	 * @param prNumber The pull request number.
+	 */
+	private async updatePullRequestBody(repoName: string, issueNumber: number, prNumber: number): Promise<void> {
 		const issueClient = new IssueClient(this.token);
 		const prClient = new PullRequestClient(this.token);
 
@@ -326,7 +365,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 		const prProjects: ProjectModel[] = await projectClient.getPullRequestProjects(repoName, prNumber);
 		const issueProjects: ProjectModel[] = await projectClient.getIssueProjects(repoName, issueNumber);
 
-		const allowedPRBaseBranches = await this.getAllowedPRBaseBranches(orgName, repoName);
+		const allowedPRBaseBranches = await this.getAllowedPRBaseBranches();
 		const prBaseBranchValid = allowedPRBaseBranches.some((branch) => branch === pr.base.ref);
 
 		const syncSettings: IPRTemplateSettings = {
@@ -364,17 +403,13 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 	}
 
 	/**
-	 * Gets the list of allowed base branches for a repository with a name that matches the given {@link repoName}.
-	 * @param orgName The name of the organization.
-	 * @param repoName The name of the repository.
-	 * @param repoName The name of the repository.
+	 * Gets the list of allowed base branches.
 	 * @returns The list of allowed base branches.
 	 */
-	private async getAllowedPRBaseBranches(orgName: string, repoName: string): Promise<string[]> {
+	private async getAllowedPRBaseBranches(): Promise<string[]> {
 		const defaultBranches = ["main", "preview"];
 
-		const githubVarService = new GitHubVariableService(orgName, repoName, this.token);
-		const prSyncBranchesStr = await githubVarService.getValue(SyncPRToIssueRunner.PR_SYNC_BASE_BRANCHES, false);
+		const prSyncBranchesStr = await this.githubVarService.getValue(SyncPRToIssueRunner.PR_SYNC_BASE_BRANCHES, false);
 
 		if (Utils.isNullOrEmptyOrUndefined(prSyncBranchesStr)) {
 			let noticeMsg =

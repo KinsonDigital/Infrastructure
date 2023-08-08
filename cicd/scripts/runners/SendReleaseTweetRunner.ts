@@ -17,6 +17,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 	private static readonly RELEASE_TWEET_TEMPLATE_REPO_NAME = "RELEASE_TWEET_TEMPLATE_REPO_NAME";
 	private static readonly RELEASE_TWEET_TEMPLATE_BRANCH_NAME = "RELEASE_TWEET_TEMPLATE_BRANCH_NAME";
 	private static readonly RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH = "RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH";
+	private readonly githubVarService: GitHubVariableService;
 
 	/**
 	 * Initializes a new instance of the {@link SendReleaseTweetRunner} class.
@@ -24,6 +25,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 	 */
 	constructor(args: string[]) {
 		super(args);
+		this.githubVarService = new GitHubVariableService(this.token);
 	}
 
 	public async run(): Promise<void> {
@@ -43,9 +45,9 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 			`GitHub Token (Required): "****"`,
 		]);
 
-		const githubVarService = new GitHubVariableService(orgName, repoName, this.token);
+		this.githubVarService.setOrgAndRepo(orgName, repoName);
 
-		let twitterBroadcastEnabled = await githubVarService.getValue(SendReleaseTweetRunner.TWITTER_BROADCAST_ENABLED, false);
+		let twitterBroadcastEnabled = await this.githubVarService.getValue(SendReleaseTweetRunner.TWITTER_BROADCAST_ENABLED, false);
 		twitterBroadcastEnabled = twitterBroadcastEnabled.toLowerCase();
 
 		if (Utils.isNullOrEmptyOrUndefined(twitterBroadcastEnabled) || twitterBroadcastEnabled === "false") {
@@ -57,13 +59,13 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 			Deno.exit(0);
 		}
 
-		const discordInviteCode = await githubVarService.getValue(SendReleaseTweetRunner.DISCORD_INVITE_CODE, false);
-		const templateRepoName = await githubVarService.getValue(SendReleaseTweetRunner.RELEASE_TWEET_TEMPLATE_REPO_NAME, false);
-		const templateBranchName = await githubVarService.getValue(
+		const discordInviteCode = await this.githubVarService.getValue(SendReleaseTweetRunner.DISCORD_INVITE_CODE, false);
+		const templateRepoName = await this.githubVarService.getValue(SendReleaseTweetRunner.RELEASE_TWEET_TEMPLATE_REPO_NAME, false);
+		const templateBranchName = await this.githubVarService.getValue(
 			SendReleaseTweetRunner.RELEASE_TWEET_TEMPLATE_BRANCH_NAME,
 			false,
 		);
-		const relativeTemplateFilePath = await githubVarService.getValue(
+		const relativeTemplateFilePath = await this.githubVarService.getValue(
 			SendReleaseTweetRunner.RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH,
 			false,
 		);
@@ -147,9 +149,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 			Deno.exit(1);
 		}
 
-		const githubVarService = new GitHubVariableService(orgName, repoName, this.token);
-
-		const twitterBroadcastEnabled = (await githubVarService.getValue(
+		const twitterBroadcastEnabled = (await this.githubVarService.getValue(
 			SendReleaseTweetRunner.TWITTER_BROADCAST_ENABLED,
 			false,
 		)).toLowerCase();
@@ -159,7 +159,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 			const orgRepoVariables = this.getRequiredVars();
 
 			// Check if all of the required org and/or repo variables exist
-			const [orgRepoVarExist, missingVars] = await githubVarService.allVarsExist(orgRepoVariables);
+			const [orgRepoVarExist, missingVars] = await this.githubVarService.allVarsExist(orgRepoVariables);
 
 			if (!orgRepoVarExist) {
 				const missingVarErrors: string[] = [];
