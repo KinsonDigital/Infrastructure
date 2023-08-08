@@ -53,7 +53,11 @@ on:
         required: false
         description: If true, the release will not be created.
         default: false
-        type: boolean  
+        type: boolean
+    secrets:
+      cicd-pat:
+        required: true
+        description: The CICD personal access token.
 
 
 jobs:
