@@ -27,6 +27,39 @@ export class GenerateReleaseNotesService {
 	}
 
 	/**
+	 * Generates empty release notes with the title, preview message, and the section headers.
+	 * @param projectName The name of the project.
+	 * @param releaseType The type of release.
+	 * @param version The version of the release.
+	 * @returns 
+	 */
+	public generateEmptyReleaseNotes(
+		projectName: string,
+		releaseType: ReleaseType,
+		version: string
+	): string {
+		const title = this.createTitle(projectName, releaseType, version);
+		const quickReminder = this.createQuickReminder(releaseType);
+
+		const newFeaturesHeader = this.htmlService.createHeader("New Features ✨", 2, "", true, true);
+		const bugFixHeader = this.htmlService.createHeader("Bug Fixes 🐛", 2, this.noColor, true, true);
+		const breakingChangeHeader = this.htmlService.createHeader("Breaking Changes 🧨", 2, this.noColor, true, true);
+		const depChangeHeader = this.htmlService.createHeader("Dependency Updates 📦", 2, this.noColor, true, true);
+		const otherChangesHeader = this.htmlService.createHeader("Other 🪧", 2, this.noColor, true, true);
+
+		let releaseNotes = title;
+		releaseNotes += Utils.isNullOrEmptyOrUndefined(quickReminder) ? "" : `\n\n${quickReminder}`;
+		releaseNotes += `\n\n${newFeaturesHeader}`;
+		releaseNotes += `\n\n${bugFixHeader}`;
+		releaseNotes += `\n\n${breakingChangeHeader}`;
+		releaseNotes += `\n\n${depChangeHeader}`;
+		releaseNotes += `\n\n${otherChangesHeader}`;
+		releaseNotes += "\n";
+
+		return releaseNotes;
+	}
+
+	/**
 	 * Generates release notes based on the given {@link projectName}, {@link releaseType}, {@link version}, {@link issues}, and {@link prs}.
 	 * @param projectName The name of the project.
 	 * @param releaseType The type of release.
