@@ -1,5 +1,6 @@
 import { OrgClient } from "../../clients/OrgClient.ts";
 import { RepoClient } from "../../clients/RepoClient.ts";
+import { Guard } from "../Guard.ts";
 import { GitHubVarModel } from "../Models/GitHubVarModel.ts";
 
 /**
@@ -8,21 +9,38 @@ import { GitHubVarModel } from "../Models/GitHubVarModel.ts";
 export class GitHubVariableService {
 	private readonly orgClient: OrgClient;
 	private readonly repoClient: RepoClient;
-	private readonly orgName: string;
-	private readonly repoName: string;
 	private readonly cachedVars: GitHubVarModel[] = [];
+	private orgName?: string;
+	private repoName?: string;
 
 	/**
 	 * Initializes a new instance of the {@link GitHubVariableService} class.
+	 * @param token The token to use for authentication.
 	 * @param orgName The name of the organization.
 	 * @param repoName The name of the repository.
-	 * @param token The token to use for authentication.
 	 */
-	constructor(orgName: string, repoName: string, token: string) {
+	constructor(token: string, orgName?: string, repoName?: string) {
+		const funcName = "setOrgAndRepo";
+		Guard.isNullOrEmptyOrUndefined(token, funcName,  "token");
+
 		this.repoName = repoName;
 		this.orgName = orgName;
 		this.orgClient = new OrgClient(token);
 		this.repoClient = new RepoClient(token);
+	}
+
+	/**
+	 * Sets the name of the organization and repository.
+	 * @param orgName The name of the organization.
+	 * @param repoName The name of the repository.
+	 */
+	public setOrgAndRepo(orgName: string, repoName: string): void {
+		const funcName = "setOrgAndRepo";
+		Guard.isNullOrEmptyOrUndefined(orgName, funcName,  "orgName");
+		Guard.isNullOrEmptyOrUndefined(repoName, funcName,  "repoName");
+
+		this.orgName = orgName;
+		this.repoName = repoName;
 	}
 
 	/**
@@ -87,9 +105,13 @@ export class GitHubVariableService {
 	 * @remarks The variables are cached to reduce requests to GitHub.
 	 */
 	private async getVar(name: string): Promise<GitHubVarModel | undefined> {
+		const funcName = "getVar";
+		Guard.isNullOrEmptyOrUndefined(this.orgName, funcName,  "GitHubVariableService.orgName");
+		Guard.isNullOrEmptyOrUndefined(this.repoName, funcName,  "GitHubVariableService.repoName");
+
 		if (this.cachedVars.length === 0) {
-			const orgVars = await this.orgClient.getVariables(this.orgName);
-			const repoVars = await this.repoClient.getVariables(this.repoName);
+			const orgVars = await this.orgClient.getVariables(this.orgName!);
+			const repoVars = await this.repoClient.getVariables(this.repoName!);
 
 			const orgVarsToKeep = orgVars.filter((orgVar) => {
 				return !repoVars.some((repoVar) => repoVar.name === orgVar.name);
