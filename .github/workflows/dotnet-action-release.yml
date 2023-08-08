@@ -178,6 +178,9 @@ jobs:
     needs: validate_version
     runs-on: ubuntu-latest
     steps:
+      - name:  Checkout Repo
+        uses: actions/checkout@v3
+
       - name: Release Notes Exist
         run: |
           $relativeDirPath = "${{ inputs.relative-release-notes-dir-path }}";
