@@ -37,13 +37,13 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	constructor(args: string[]) {
 		super(args);
 
-		const [orgName, repoName, , , token] = args;
+		const [, , , , token] = args;
 
 		this.prTemplateManager = new PRTemplateManager();
 		this.issueClient = new IssueClient(token);
 		this.projClient = new ProjectClient(token);
 		this.prClient = new PullRequestClient(token);
-		this.githubVarService = new GitHubVariableService(orgName, repoName, token);
+		this.githubVarService = new GitHubVariableService(token);
 	}
 
 	/**
@@ -51,16 +51,10 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 */
 	public async run(): Promise<void> {
 		await super.run();
-
+		
 		const [orgName, repoName, issueOrPrNumber, eventTypeStr] = this.args;
 
-		Utils.printInGroup("Script Arguments", [
-			`Organization Name (Required): ${orgName}`,
-			`Repo Name (Required): ${repoName}`,
-			`${eventTypeStr === "issue" ? "Issue" : "Pull Request"} Number (Required): ${issueOrPrNumber}`,
-			`Event Type (Required): ${eventTypeStr}`,
-			`GitHub Token (Required): "****"}`,
-		]);
+		this.githubVarService.setOrgAndRepo(orgName, repoName);
 
 		const problemsFound: string[] = [];
 		let issueNumber = 0;

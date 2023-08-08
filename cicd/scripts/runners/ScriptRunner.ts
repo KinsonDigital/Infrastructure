@@ -25,12 +25,6 @@ export abstract class ScriptRunner {
 			Deno.exit(1);
 		}
 
-		const argValues = args.map((arg) => {
-			return arg.startsWith(this.fineGrainedTokenPrefix) || arg.startsWith(this.classicTokenPrefix) ? "***" : arg;
-		});
-
-		Utils.printInGroup("Script Arguments (Before Mutation):", argValues);
-
 		this.args = args;
 		this.token = token;
 	}
@@ -52,7 +46,20 @@ export abstract class ScriptRunner {
 	 */
 	public async run(): Promise<void> {
 		await this.validateArgs(this.args);
+
+		const argValuesBeforeMutation = this.args.map((arg) => {
+			return arg.startsWith(this.fineGrainedTokenPrefix) || arg.startsWith(this.classicTokenPrefix) ? "***" : arg;
+		});
+
+		Utils.printInGroup("Script Arguments (Before Mutation):", argValuesBeforeMutation);
+
 		this.args = this.mutateArgs(this.args);
+
+		const argValuesAfterMutation = this.args.map((arg) => {
+			return arg.startsWith(this.fineGrainedTokenPrefix) || arg.startsWith(this.classicTokenPrefix) ? "***" : arg;
+		});
+
+		Utils.printInGroup("Script Arguments (After Mutation):", argValuesAfterMutation);
 	}
 
 	/**
