@@ -45,8 +45,6 @@ export abstract class ScriptRunner {
 	 * Runs a script.
 	 */
 	public async run(): Promise<void> {
-		await this.validateArgs(this.args);
-
 		const argValuesBeforeMutation = this.args.map((arg) => {
 			return arg.startsWith(this.fineGrainedTokenPrefix) || arg.startsWith(this.classicTokenPrefix) ? "***" : arg;
 		});
@@ -60,6 +58,8 @@ export abstract class ScriptRunner {
 		});
 
 		Utils.printInGroup("Script Arguments (After Mutation):", argValuesAfterMutation);
+
+		await this.validateArgs(this.args);
 	}
 
 	/**
