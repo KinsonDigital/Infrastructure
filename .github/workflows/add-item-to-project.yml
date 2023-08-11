@@ -1,0 +1,95 @@
+name: Add Issue To Project
+
+
+defaults:
+  run:
+    shell: pwsh
+
+
+on:
+  workflow_call:
+    inputs:
+      org-name:
+        description: The name of the organization that owns the project.
+        required: true
+        type: string
+      org-project-name:
+        description: The name of the organization project to add the issue to.
+        required: true
+        type: string
+      repo-name:
+        required: true
+        description: "The name of the C# project to validate."
+        type: string
+      item-number:
+        required: true
+        description: "The issue or pr number of the item to add to the project."
+        type: string
+    secrets:
+      cicd-pat:
+        description: The CICD personal access token.
+        required: true
+
+
+jobs:
+  add_issue_to_project:
+    name: Add Item To Project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Environment Variables
+        run: Get-ChildItem -Path Env:* | Sort-Object Name
+
+      - name: Validate Workflow Inputs
+        run: |
+          if ("${{ inputs.org-name }}" -eq "") {
+            Write-Host ":error::The 'org-name' workflow input cannot be empty.";
+            exit 1;
+          }
+
+
+          if ("${{ inputs.org-project-name }}" -eq "") {
+            Write-Host ":error::The 'org-project-name' workflow input cannot be empty.";
+            exit 1;
+          }
+
+
+          if ("${{ inputs.repo-name }}" -eq "") {
+            Write-Host ":error::The 'repo-name' workflow input cannot be empty.";
+            exit 1;
+          }
+
+          if ("${{ inputs.item-number }}" -eq "") {
+            Write-Host ":error::The 'item-number' workflow input cannot be empty.";
+            exit 1;
+          }
+
+      - name: Set Up Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Add To Project
+        run: |
+          # Construct the URL to the organizations CICD scripts
+          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
+          $scriptUrl = $scriptUrl.Replace("\", "/");
+          $scriptUrl = $scriptUrl.EndsWith("/") ? $scriptUrl.Substring(0, $scriptUrl.Length - 1) : $scriptUrl;
+          $scriptUrl = "$scriptUrl/add-item-to-project.ts";
+
+          Write-Host "::notice::NuGet Package Check Script URL: $scriptUrl";
+
+          <# Deno Args:
+            1. Organization name
+            2. Project name
+            3. Repo name
+            4. Issue or PR number
+            5. PAT
+          #>
+          deno run `
+            --allow-net `
+            "$scriptUrl" `
+            "${{ inputs.org-name }}" `
+            "${{ inputs.org-project-name }}" `
+            "${{ inputs.repo-name }}" `
+            "${{ inputs.item-number }}" `
+            "${{ secrets.cicd-pat }}";
