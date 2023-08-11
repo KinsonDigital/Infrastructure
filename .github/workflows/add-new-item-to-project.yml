@@ -33,7 +33,7 @@ jobs:
           "item-number=$itemNumber" >> $env:GITHUB_OUTPUT;
 
 
-  add_new_issue_to_project:
+  add_new_item_to_project:
     name: Add New Issue
     needs: item_number
     uses: KinsonDigital/Infrastructure/.github/workflows/add-item-to-project.yml@v12.0.0
