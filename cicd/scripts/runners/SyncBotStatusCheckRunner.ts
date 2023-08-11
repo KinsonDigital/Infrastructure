@@ -51,7 +51,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	 */
 	public async run(): Promise<void> {
 		await super.run();
-		
+
 		const [orgName, repoName, issueOrPrNumber, eventTypeStr] = this.args;
 
 		this.githubVarService.setOrgAndRepo(orgName, repoName);

@@ -36,7 +36,7 @@ export class ProjectClient extends GraphQLClient {
 	 * @param projectName The name of the project.
 	 * @returns True if the project exists, otherwise false.
 	 */
-	public async projectExists(projectName: string): Promise<boolean> {
+	public async exists(projectName: string): Promise<boolean> {
 		Guard.isNullOrEmptyOrUndefined(projectName, "projectExists");
 
 		projectName = projectName.trim();
