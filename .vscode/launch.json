@@ -306,7 +306,7 @@
             }
         },
 		{
-            "name": "Sync Issue To PR (DEBUG)",
+            "name": "Sync Bot (DEBUG)",
             "request": "launch",
             "type": "node",
             "program": "${workspaceFolder}/cicd/scripts/sync-issue-to-pr.ts",
