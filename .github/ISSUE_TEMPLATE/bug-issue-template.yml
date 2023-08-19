@@ -2,6 +2,7 @@ name: 🐛 Bug
 description: File a bug
 title: "🐛"
 labels: [bug, ⚕️NEEDS TRIAGE]
+projects: ["KinsonDigital/11"]
 body:
 - type: checkboxes
   attributes:
@@ -45,24 +46,26 @@ body:
   validations:
     required: false
 
-- type: checkboxes
+- type: dropdown
   attributes:
-    label: Operating System
-    description: Which operating system have you seen the bug occur on?
+    label: Browser(s)
+    description: Which browser(s) does the issue exist on?
+    multiple: true
     options:
-    - label: Windows
-    - label: Linux
-    - label: Android
-    - label: Mac OS
-    - label: iOS
+      - Chrome
+      - MS Edge
+      - Brave
+      - FireFox
+      - Safari
+      - Opera
   validations:
-    required: false
+    required: true
 
 - type: textarea
   attributes:
-    label: If you know what OS version the bug occurred on, enter the OS version here.
-    description: Enter operating system version here.
-    placeholder: os version
+    label: If you know what browser version the bug occurred on, enter the browser version here.
+    description: Enter browser version here.
+    placeholder: Add versions for each browser chosen
   validations:
     required: false
 
