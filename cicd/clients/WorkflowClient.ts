@@ -9,11 +9,11 @@ import { AnyBranch } from "../core/Types.ts";
 /**
  * Provides a client for interacting with workflow runs.
  */
-export class WorkflowRunClient extends GitHubClient {
+export class WorkflowClient extends GitHubClient {
 	private readonly AnyBranch: AnyBranch = null;
 
 	/**
-	 * Initializes a new instance of the {@link WorkflowRunClient} class.
+	 * Initializes a new instance of the {@link WorkflowClient} class.
 	 * @param token The GitHub token to use for authentication.
 	 * @remarks If no token is provided, then the client will not be authenticated.
 	 */
