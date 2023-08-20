@@ -122,9 +122,10 @@ export enum GitHubHttpStatusCodes {
 	Gone = 410,
 
 	/**
-	 * The request was well-formed but was unable to be followed due to semantic errors.
+	 * The server understands the content type of the request entity, and the syntax of the request entity is correct,
+	 * but it was unable to process the contained instructions
 	 */
-	ValidationFailed = 422,
+	UnprocessableContent = 422,
 
 	/**
 	 * The server has encountered a situation it does not know how to handle.
