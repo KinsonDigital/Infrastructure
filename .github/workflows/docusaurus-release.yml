@@ -40,7 +40,7 @@ on:
         type: string
       runs-on:
         required: false
-        description: The type of machine to run the job on.
+        description: The operating system to run the job on.
         type: string
         default: ubuntu-latest
       environment-name:

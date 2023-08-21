@@ -398,8 +398,8 @@ export class WorkflowClient extends GitHubClient {
 	}
 
 	/**
-	 * Executes a workflow that matches the given {@link workflowFileName} on the given {@link branchName}
-	 * in a repository with a name that matches the given {@link repoName}.
+	 * Executes a workflow that matches the given {@link workflowFileName} on a branch that matches the
+	 * given {@link branchName} in a repository with a name that matches the given {@link repoName}.
 	 * @param repoName The name of the repository.
 	 * @param branchName The name of the branch.
 	 * @param workflowFileName The file name of the workflow.
@@ -424,8 +424,6 @@ export class WorkflowClient extends GitHubClient {
 			errorMsg += `\nThe workflow file name must end with '.yml' or '.yaml'.`;
 			Deno.exit(1);
 		}
-
-		// TODO: Check that the keys in the inputs are not duplicated
 
 		let body = {};
 
