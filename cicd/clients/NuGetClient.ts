@@ -63,7 +63,9 @@ export class NuGetClient extends WebAPIClient {
 		const statusCode: NuGetHttpStatusCodes = response.status as NuGetHttpStatusCodes;
 
 		if (this.statusCodeValid(statusCode)) {
-			return await this.getResponseData<string[]>(response);
+			const data = await this.getResponseData<{ versions: string[] }>(response);
+
+			return data.versions;
 		} else {
 			let errorMsg = `There was an issue getting the versions for the '${packageName}' NuGet package.`;
 			errorMsg += `\n${this.getErrorMsg(response)}}`;

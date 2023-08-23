@@ -5,15 +5,16 @@ import { GitHubClient } from "../core/GitHubClient.ts";
 import { WorkflowRunModel } from "../core/Models/WorkflowRunModel.ts";
 import { WorkflowRunsModel } from "../core/Models/WorkflowRunsModel.ts";
 import { AnyBranch } from "../core/Types.ts";
+import { GithubResponse } from "./GithubResponse.ts";
 
 /**
  * Provides a client for interacting with workflow runs.
  */
-export class WorkflowRunClient extends GitHubClient {
+export class WorkflowClient extends GitHubClient {
 	private readonly AnyBranch: AnyBranch = null;
 
 	/**
-	 * Initializes a new instance of the {@link WorkflowRunClient} class.
+	 * Initializes a new instance of the {@link WorkflowClient} class.
 	 * @param token The GitHub token to use for authentication.
 	 * @remarks If no token is provided, then the client will not be authenticated.
 	 */
@@ -393,6 +394,98 @@ export class WorkflowRunClient extends GitHubClient {
 				errorMsg += `Error: ${response.status}(${response.statusText})`, Utils.printAsGitHubError(errorMsg);
 				Deno.exit(1);
 			}
+		}
+	}
+
+	/**
+	 * Executes a workflow that matches the given {@link workflowFileName} on a branch that matches the
+	 * given {@link branchName} in a repository with a name that matches the given {@link repoName}.
+	 * @param repoName The name of the repository.
+	 * @param branchName The name of the branch.
+	 * @param workflowFileName The file name of the workflow.
+	 */
+	public async executeWorkflow(
+		repoName: string,
+		branchName: string,
+		workflowFileName: string,
+		inputs?: [string, string][],
+	): Promise<void> {
+		const funcName = "executeWorkflow";
+		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNullOrEmptyOrUndefined(branchName, funcName, "branchName");
+		Guard.isNullOrEmptyOrUndefined(workflowFileName, funcName, "workflowFileName");
+
+		branchName = branchName.trim().toLowerCase();
+		workflowFileName = workflowFileName.trim().toLowerCase();
+
+		// If the workflow file name does not contain the correct extension
+		if (!workflowFileName.endsWith(".yml") && !workflowFileName.endsWith(".yaml")) {
+			let errorMsg = `The workflow file name '${workflowFileName}' does not contain the correct extension.`;
+			errorMsg += `\nThe workflow file name must end with '.yml' or '.yaml'.`;
+			Deno.exit(1);
+		}
+
+		let body = {};
+
+		if (inputs === undefined) {
+			inputs = [];
+		}
+
+		if (inputs.length <= 0) {
+			body = { ref: branchName };
+		} else {
+			inputs.forEach((input) => {
+				const workflowInput = input[0];
+
+				if ((inputs?.filter((i) => workflowInput === i[0]).length ?? 0) > 1) {
+					let errorMsg = `The workflow input '${workflowInput}' is duplicated.`;
+					errorMsg += `\n\tWorkflow: ${workflowFileName}`;
+					errorMsg += `\n\tBranch: ${branchName}`;
+					errorMsg += `\n\tRepository: ${repoName}`;
+					Utils.printAsGitHubError(errorMsg);
+					Deno.exit(1);
+				}
+			});
+
+			body = {
+				ref: branchName,
+				inputs: Object.fromEntries(inputs),
+			};
+		}
+
+		const url = `${this.baseUrl}/repos/${this.organization}/${repoName}/actions/workflows/${workflowFileName}/dispatches`;
+
+		const requestResponse: Response = await this.requestPOST(url, body);
+
+		if (requestResponse.status != GitHubHttpStatusCodes.NoContent) {
+			let errorMsg = "";
+			switch (requestResponse.status) {
+				case GitHubHttpStatusCodes.NotFound: {
+					errorMsg = `The workflow '${workflowFileName}' could not be found on branch `;
+					errorMsg += `'${branchName}' in the repository '${repoName}'.'`;
+					errorMsg += `\n\tError: ${requestResponse.status}(${requestResponse.statusText})`;
+					break;
+				}
+				case GitHubHttpStatusCodes.UnprocessableContent: {
+					errorMsg = `The workflow '${workflowFileName}' on branch '${branchName}' in the repository `;
+					errorMsg += `'${repoName}' was not processable.`;
+					const githubResponse: GithubResponse = JSON.parse(await requestResponse.text());
+
+					errorMsg += `\n\tError: ${requestResponse.status}(${requestResponse.statusText})`;
+					errorMsg += `\n${githubResponse.message}\n${githubResponse.documentation_url}`;
+					break;
+				}
+				default: {
+					errorMsg = `An error occurred trying to execute the workflow '${workflowFileName}' on branch `;
+					errorMsg += `'${branchName}' in the repository '${repoName}'.'`;
+					errorMsg += `\n\tError: ${requestResponse.status}(${requestResponse.statusText})`;
+					Utils.printAsGitHubError(errorMsg);
+					break;
+				}
+			}
+
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
 		}
 	}
 }

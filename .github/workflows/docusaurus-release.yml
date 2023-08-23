@@ -1,0 +1,152 @@
+name: 🚀Docusaurus Release
+run-name: Perform Docusaurus Release (${{ inputs.release-version }})
+
+
+defaults:
+  run:
+    shell: pwsh
+
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: "The version of NodeJS to use."
+        required: true
+        type: string
+      artifact-dir-path:
+        description: "The fully qualified directory path to the build artifacts."
+        required: true
+        type: string
+      release-version:
+        description: "The version of the release."
+        required: true
+        type: string
+      git-config-email:
+        description: "The email address to use for the git config."
+        required: true
+        type: string
+      git-config-name:
+        description: "The name to use for the git config."
+        required: true
+        type: string
+      runs-on:
+        required: false
+        description: The operating system to run the job on.
+        type: string
+        default: ubuntu-latest
+      environment-name:
+        description: "The name of the GitHub environment to deploy to."
+        required: false
+        type: string
+        default: "github-pages"
+      tag-message:
+        description: "The message to annotate on the release tag."
+        required: false
+        type: string
+
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+
+jobs:
+  validate_workflow_inputs:
+    name: Validate Workflow Inputs
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+      - name:  Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Validate Workflow Inputs
+        run: |
+          $envName = "${{ inputs.environment-name }}".Trim();
+          $nodeVersion = "${{ inputs.node-version }}".Trim();
+          $releaseVersion = "${{ inputs.release-version }}".Trim();
+          $gitConfigEmail = "${{ inputs.git-config-email }}".Trim();
+          $gitConfigName = "${{ inputs.git-config-name }}".Trim();
+
+
+          if ($envName -eq "") {
+              Write-Host "::error::The 'environment-name' workflow input cannot be empty.";
+              exit 1;
+          }
+          
+          
+          if ($nodeVersion -notmatch "^[0-9]+\.[0-9]+\.[0-9]+$") {
+              Write-Host "::error::The 'node-version' workflow input is invalid.";
+              exit 1;
+          }
+          
+          
+          if ($releaseVersion -eq "") {
+              Write-Host "::error::The 'release-version' workflow input cannot be empty.";
+              exit 1;
+          }
+          
+          
+          if ($gitConfigEmail -notmatch "^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z0-9]+$") {
+              Write-Host "::error::The 'git-config-email' workflow input is not a valid email.";
+              exit 1;
+          }
+          
+          
+          if ($gitConfigName -eq "") {
+              Write-Host "::error::The 'git-config-name' workflow input cannot be empty.";
+              exit 1;
+          }
+
+
+  release_website:
+    name: Release Website
+    needs: validate_workflow_inputs
+    runs-on: ${{ inputs.runs-on }}
+    environment:
+      name: ${{ inputs.environment-name}}
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node (v${{ inputs.node-version }})
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Setup YARN
+      run: npm install --global yarn
+
+    - name: Setup Docusaurus
+      run: yarn install
+
+    - name: Build Site
+      run: yarn build
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v3
+
+    - name: Upload Artifact
+      uses: actions/upload-pages-artifact@v2.0.0
+      with:
+        path: '${{ inputs.artifact-dir-path }}'
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v2
+
+    - name: Create Release Tag (${{ inputs.release-version }})
+      run: |
+        $tag = "${{ inputs.release-version }}";
+
+        git config --global user.email "${{ inputs.git-config-email }}";
+        git config --global user.name "${{ inputs.git-config-name }}"; 
+
+        git tag -a $tag -m "${{ inputs.tag-message }}";
+        git push origin $tag;

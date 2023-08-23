@@ -102,7 +102,7 @@ export class IssueClient extends GitHubClient {
 		if (response.status != GitHubHttpStatusCodes.OK) {
 			switch (response.status) {
 				case GitHubHttpStatusCodes.MovedPermanently:
-				case GitHubHttpStatusCodes.ValidationFailed:
+				case GitHubHttpStatusCodes.UnprocessableContent:
 				case GitHubHttpStatusCodes.Unauthorized: {
 					let errorMsg = `An error occurred trying to get the issues for the repository '${repoName}'.`;
 					errorMsg += `\n\tError: ${response.status}(${response.statusText})`;
@@ -217,7 +217,7 @@ export class IssueClient extends GitHubClient {
 			switch (response.status) {
 				case GitHubHttpStatusCodes.MovedPermanently:
 				case GitHubHttpStatusCodes.Gone:
-				case GitHubHttpStatusCodes.ValidationFailed:
+				case GitHubHttpStatusCodes.UnprocessableContent:
 				case GitHubHttpStatusCodes.ServiceUnavailable:
 				case GitHubHttpStatusCodes.Forbidden:
 				case GitHubHttpStatusCodes.Unauthorized: {
@@ -342,7 +342,7 @@ export class IssueClient extends GitHubClient {
 				switch (response.status) {
 					case GitHubHttpStatusCodes.MovedPermanently:
 					case GitHubHttpStatusCodes.Gone:
-					case GitHubHttpStatusCodes.ValidationFailed:
+					case GitHubHttpStatusCodes.UnprocessableContent:
 					case GitHubHttpStatusCodes.ServiceUnavailable:
 					case GitHubHttpStatusCodes.Unauthorized:
 					case GitHubHttpStatusCodes.Forbidden: {
