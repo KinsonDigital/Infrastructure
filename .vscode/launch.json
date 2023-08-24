@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Playground (DEBUG)",
+            "name": "Playground",
             "request": "launch",
             "type": "node",
             "program": "${workspaceFolder}/cicd/playground.ts",
@@ -28,142 +28,7 @@
             }
         },
         {
-            "name": "Validate Prod Tag (DEBUG)",
-            "request": "launch",
-            "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/validate-tag.ts",
-            "cwd": "${workspaceFolder}",
-            "runtimeArgs": [
-                "run",
-                "--inspect-wait",
-                "--allow-all"
-            ],
-            "args": ["Production", "v1.2.3", "PackageMonster"],
-            "attachSimplePort": 9229,
-            "console": "integratedTerminal",
-            "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
-            },
-            "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno"
-            }
-        },
-        {
-            "name": "Validate Preview Tag (DEBUG)",
-            "request": "launch",
-            "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/validate-tag.ts",
-            "cwd": "${workspaceFolder}",
-            "runtimeArgs": [
-                "run",
-                "--inspect-wait",
-                "--allow-all"
-            ],
-            "args": ["Preview", "v1.2.3-preview.5", "PackageMonster"],
-            "attachSimplePort": 9229,
-            "console": "integratedTerminal",
-            "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
-            },
-            "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno"
-            }
-        },        
-        {
-            "name": "Validate Either Tag (DEBUG)",
-            "request": "launch",
-            "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/validate-tag.ts",
-            "cwd": "${workspaceFolder}",
-            "runtimeArgs": [
-                "run",
-                "--inspect-wait",
-                "--allow-all"
-            ],
-            "args": ["Either", "v1.2.3", "PackageMonster"],
-            "attachSimplePort": 9229,
-            "console": "integratedTerminal",
-            "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
-            },
-            "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno"
-            }
-        },
-        {
-            "name": "Milestone Exists (DEBUG)",
-            "request": "launch",
-            "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/milestone-exists.ts",
-            "cwd": "${workspaceFolder}",
-            "runtimeArgs": [
-                "run",
-                "--inspect-wait",
-                "--allow-all"
-            ],
-            "args": [
-				"Infrastructure",
-				"v1.2.3-preview.4",
-				"${env:CICD_TOKEN}",
-			],
-            "attachSimplePort": 9229,
-            "console": "integratedTerminal",
-            "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
-            },
-            "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno"
-            }
-        },
-        {
-            "name": "Label If Head Branch (DEBUG)",
-            "request": "launch",
-            "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/label-if-head-branch.ts",
-            "cwd": "${workspaceFolder}",
-            "runtimeArgs": [
-                "run",
-                "--inspect-wait",
-                "--allow-all"
-            ],
-            "args": ["Infrastructure", "24", "master", "master"],
-            "attachSimplePort": 9229,
-            "console": "integratedTerminal",
-            "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
-            },
-            "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno"
-            }
-        },
-        {
-            "name": "Validate Release Notes (DEBUG)",
-            "request": "launch",
-            "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/validate-release-notes.ts",
-            "cwd": "${workspaceFolder}",
-            "runtimeArgs": [
-                "run",
-                "--inspect-wait",
-                "--allow-all"
-            ],
-            "args": [
-				"KinsonDigital",
-				"Infrastructure",
-				"preview",
-				"v1.0.0-preview.1",
-				"${env:CICD_TOKEN}",
-			],
-            "attachSimplePort": 9229,
-            "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
-            },
-            "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno"
-            }
-        },
-        {
-            "name": "Add Issue To Project (DEBUG)",
+            "name": "Add Issue To Project",
             "request": "launch",
             "type": "node",
             "program": "${workspaceFolder}/cicd/scripts/add-item-to-project.ts",
@@ -188,8 +53,35 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
+		{
+            "name": "Add Item To Project",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/add-item-to-project.ts",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": [
+				"KinsonDigital",
+				"KD-Team",
+				"Velaptor",
+				"683",
+				"${env:CICD_TOKEN}",
+			],
+            "attachSimplePort": 9229,
+			"console": "integratedTerminal",
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
         {
-            "name": "Close Milestone (DEBUG)",
+            "name": "Close Milestone",
             "request": "launch",
             "type": "node",
             "program": "${workspaceFolder}/cicd/scripts/close-milestone.ts",
@@ -213,17 +105,87 @@
             }
         },
 		{
-            "name": "Validate Version (DEBUG)",
+            "name": "GitHub Release Does Not Exist",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/validate-version.ts",
-            "cwd": "${workspaceFolder}/cicd",
+            "program": "${workspaceFolder}/cicd/scripts/github-release-does-not-exist.ts",
+            "cwd": "${workspaceFolder}/cicd/scripts",
             "runtimeArgs": [
                 "run",
                 "--inspect-wait",
                 "--allow-all"
             ],
-            "args": ["v1.2.3-preview.4", "preview"],
+            "args": [
+				"Infrastructure",
+				"v1.0.0-preview.10",
+				"${env:CICD_TOKEN}",
+			],
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+        {
+            "name": "Label If Head Branch",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/label-if-head-branch.ts",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": ["Infrastructure", "24", "master", "master"],
+            "attachSimplePort": 9229,
+            "console": "integratedTerminal",
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+		{
+            "name": "Milestone Exists",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/milestone-exists.ts",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": [
+				"Infrastructure",
+				"v1.2.3-preview.4",
+				"${env:CICD_TOKEN}",
+			],
+            "attachSimplePort": 9229,
+            "console": "integratedTerminal",
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+		{
+            "name": "NuGet Package Exists",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/nuget-pkg-exists.ts",
+            "cwd": "${workspaceFolder}/cicd/scripts",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": ["KinsonDigital.Velaptor"],
             "attachSimplePort": 9229,
             "windows": {
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
@@ -233,7 +195,33 @@
             }
         },
 		{
-            "name": "Send Release Tweet (DEBUG)",
+            "name": "Prepare Release",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/prepare-release.ts",
+            "cwd": "${workspaceFolder}/cicd",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": [
+				"KinsonDigital",
+				"CASL",
+				"preview",
+				"v1.0.0-preview.15",
+				"${env:CICD_TOKEN}",
+			],
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+		{
+            "name": "Send Release Tweet",
             "request": "launch",
             "type": "node",
             "program": "${workspaceFolder}/cicd/scripts/send-release-tweet.ts",
@@ -262,103 +250,7 @@
             }
         },
 		{
-            "name": "NuGet Package Exists (DEBUG)",
-            "request": "launch",
-            "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/nuget-pkg-exists.ts",
-            "cwd": "${workspaceFolder}/cicd/scripts",
-            "runtimeArgs": [
-                "run",
-                "--inspect-wait",
-                "--allow-all"
-            ],
-            "args": ["KinsonDigital.Velaptor"],
-            "attachSimplePort": 9229,
-            "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
-            },
-            "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno"
-            }
-        },
-		{
-            "name": "GitHub Release Does Not Exist (DEBUG)",
-            "request": "launch",
-            "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/github-release-does-not-exist.ts",
-            "cwd": "${workspaceFolder}/cicd/scripts",
-            "runtimeArgs": [
-                "run",
-                "--inspect-wait",
-                "--allow-all"
-            ],
-            "args": [
-				"Infrastructure",
-				"v1.0.0-preview.10",
-				"${env:CICD_TOKEN}",
-			],
-            "attachSimplePort": 9229,
-            "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
-            },
-            "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno"
-            }
-        },
-		{
-            "name": "Sync Bot (DEBUG)",
-            "request": "launch",
-            "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/sync-issue-to-pr.ts",
-            "cwd": "${workspaceFolder}/cicd",
-            "runtimeArgs": [
-                "run",
-                "--inspect-wait",
-                "--allow-all"
-            ],
-            "args": [
-				"KinsonDigital",
-				"Infrastructure",
-				"CalvinWilkinson",
-				"93",
-				"${env:CICD_TOKEN}",
-			],
-            "attachSimplePort": 9229,
-            "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
-            },
-            "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno"
-            }
-        },
-		{
-            "name": "Sync Status Check (DEBUG)",
-            "request": "launch",
-            "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/sync-bot-status-check.ts",
-            "cwd": "${workspaceFolder}/cicd",
-            "runtimeArgs": [
-                "run",
-                "--inspect-wait",
-                "--allow-all"
-            ],
-            "args": [
-				"KinsonDigital",
-				"Infrastructure",
-				"94",
-				"pr",
-				"${env:CICD_TOKEN}",
-			],
-            "attachSimplePort": 9229,
-            "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
-            },
-            "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno"
-            }
-        },
-		{
-            "name": "Sync Bot (DEBUG)",
+            "name": "Sync Bot",
             "request": "launch",
             "type": "node",
             "program": "${workspaceFolder}/cicd/scripts/sync-bot-status-check.ts",
@@ -384,7 +276,59 @@
             }
         },
 		{
-            "name": "Transpile README (DEBUG)",
+            "name": "Sync Issue To PR",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/sync-issue-to-pr.ts",
+            "cwd": "${workspaceFolder}/cicd",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": [
+				"KinsonDigital",
+				"Infrastructure",
+				"CalvinWilkinson",
+				"93",
+				"${env:CICD_TOKEN}",
+			],
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+		{
+            "name": "Sync Status Check",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/sync-bot-status-check.ts",
+            "cwd": "${workspaceFolder}/cicd",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": [
+				"KinsonDigital",
+				"Infrastructure",
+				"94",
+				"pr",
+				"${env:CICD_TOKEN}",
+			],
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+		{
+            "name": "Transpile README",
             "request": "launch",
             "type": "node",
             "program": "${workspaceFolder}/cicd/scripts/transpile-readme.ts",
@@ -407,33 +351,7 @@
             }
         },
 		{
-            "name": "Prepare Release (DEBUG)",
-            "request": "launch",
-            "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/prepare-release.ts",
-            "cwd": "${workspaceFolder}/cicd",
-            "runtimeArgs": [
-                "run",
-                "--inspect-wait",
-                "--allow-all"
-            ],
-            "args": [
-				"KinsonDigital",
-				"CASL",
-				"preview",
-				"v1.0.0-preview.15",
-				"${env:CICD_TOKEN}",
-			],
-            "attachSimplePort": 9229,
-            "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
-            },
-            "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno"
-            }
-        },
-		{
-            "name": "Update CSharp File (DEBUG)",
+            "name": "Update CSharp File",
             "request": "launch",
             "type": "node",
             "program": "${workspaceFolder}/cicd/scripts/update-csharp-proj.ts",
@@ -457,30 +375,7 @@
             }
         },
 		{
-            "name": "Workflow Version Status Check (DEBUG)",
-            "request": "launch",
-            "type": "node",
-            "program": "${workspaceFolder}/.github/internal-cicd/workflow-version-status-check.ts",
-            "cwd": "${workspaceFolder}",
-            "runtimeArgs": [
-                "run",
-                "--inspect-wait",
-                "--allow-all"
-            ],
-            "args": [
-				"${workspaceFolder}/.github/workflows",
-				"${env:CICD_TOKEN}",
-			],
-            "attachSimplePort": 9229,
-            "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
-            },
-            "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno"
-            }
-        },
-		{
-            "name": "Update Workflow Versions (DEBUG)",
+            "name": "Update Workflow Versions",
             "request": "launch",
             "type": "node",
             "program": "${workspaceFolder}/.github/internal-cicd/update-workflow-versions.ts",
@@ -504,10 +399,96 @@
             }
         },
 		{
-            "name": "Add Item To Project (DEBUG)",
+            "name": "Workflow Version Status Check",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/add-item-to-project.ts",
+            "program": "${workspaceFolder}/.github/internal-cicd/workflow-version-status-check.ts",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": [
+				"${workspaceFolder}/.github/workflows",
+				"${env:CICD_TOKEN}",
+			],
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+        {
+            "name": "Validate Either Tag",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/validate-tag.ts",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": ["Either", "v1.2.3", "PackageMonster"],
+            "attachSimplePort": 9229,
+            "console": "integratedTerminal",
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+        {
+            "name": "Validate Preview Tag",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/validate-tag.ts",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": ["Preview", "v1.2.3-preview.5", "PackageMonster"],
+            "attachSimplePort": 9229,
+            "console": "integratedTerminal",
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+        {
+            "name": "Validate Prod Tag",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/validate-tag.ts",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": ["Production", "v1.2.3", "PackageMonster"],
+            "attachSimplePort": 9229,
+            "console": "integratedTerminal",
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+        {
+            "name": "Validate Release Notes",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/validate-release-notes.ts",
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
@@ -516,19 +497,38 @@
             ],
             "args": [
 				"KinsonDigital",
-				"KD-Team",
-				"Velaptor",
-				"683",
+				"Infrastructure",
+				"preview",
+				"v1.0.0-preview.1",
 				"${env:CICD_TOKEN}",
 			],
             "attachSimplePort": 9229,
-			"console": "integratedTerminal",
             "windows": {
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
-        }
+        },
+		{
+            "name": "Validate Version",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/validate-version.ts",
+            "cwd": "${workspaceFolder}/cicd",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": ["v1.2.3-preview.4", "preview"],
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
     ]
 }

@@ -105,10 +105,11 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	 * @inheritdoc
 	 */
 	protected mutateArgs(args: string[]): string[] {
-		let dirPath = Utils.normalizePath(args[0]);
+		let [dirPath, token] = args;
+		dirPath = Utils.normalizePath(args[0]);
 		dirPath = Utils.trimAllEndingValue(dirPath, "/");
 
-		return [dirPath];
+		return [dirPath, token];
 	}
 
 	/**
