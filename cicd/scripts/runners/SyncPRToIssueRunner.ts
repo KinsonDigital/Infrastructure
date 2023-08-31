@@ -102,7 +102,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 			errorMsg += "\nThe 1st arg is required and must be a valid organization name.";
 			errorMsg += "\nThe 2nd arg is required and must be the GitHub repo name.";
 			errorMsg += "\nThe 3rd arg is required and must be a valid GitHub user that triggered the script to run.";
-			errorMsg += "\nThe 4th arg is required and must be a valid pull request number.";
+			errorMsg += "\nThe 4th arg is required and must be a valid issue or pull request number.";
 			errorMsg += "\nThe 5th arg is required and must be a valid GitHub PAT (Personal Access Token).";
 
 			Utils.printAsGitHubError(errorMsg);
