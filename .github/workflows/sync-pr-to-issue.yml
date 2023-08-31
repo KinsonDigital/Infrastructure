@@ -26,6 +26,7 @@ jobs:
     secrets:
       cicd-pat: ${{ secrets.CICD_TOKEN }}
 
+
   manual_sync:
     name: Start Sync Process
     if: ${{ github.event_name == 'issue_comment' && contains(github.event.comment.body, '[run-sync]') }}
