@@ -17,7 +17,7 @@ jobs:
   initial_sync:
     name: Start Sync Process
     if: ${{ github.event_name == 'pull_request_target' }}
-    uses: KinsonDigital/Infrastructure/.github/workflows/initial-manual-sync.yml@v12.2.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/initial-manual-sync.yml@v13.0.0
     with:
       issue-or-pr-number: ${{ github.event.issue.number }}
       sync-type: initial
@@ -29,7 +29,7 @@ jobs:
   manual_sync:
     name: Start Sync Process
     if: ${{ github.event_name == 'issue_comment' && contains(github.event.comment.body, '[run-sync]') }}
-    uses: KinsonDigital/Infrastructure/.github/workflows/initial-manual-sync.yml@v12.2.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/initial-manual-sync.yml@v13.0.0
     with:
       issue-or-pr-number: ${{ github.event.issue.number }}
       sync-type: manual

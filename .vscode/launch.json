@@ -279,7 +279,7 @@
             "name": "Sync Issue To PR",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/sync-issue-to-pr.ts",
+            "program": "${workspaceFolder}/cicd/scripts/sync-pr-to-issue.ts",
             "cwd": "${workspaceFolder}/cicd",
             "runtimeArgs": [
                 "run",
