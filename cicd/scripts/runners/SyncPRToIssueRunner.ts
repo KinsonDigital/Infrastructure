@@ -153,12 +153,21 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 			Deno.exit(1);
 		}
 
-		const userIsNotOrgMember = !(await orgClient.userIsOrgAdminMember(orgName, requestByUser));
-		if (userIsNotOrgMember) {
-			let errorMsg = `The user '${requestByUser}' is not member of the`;
-			errorMsg += ` organization '${orgName}' with the admin role.`;
-			Utils.printAsGitHubError(errorMsg);
-			Deno.exit(0);
+		const validateAsOrgMember = requestByUser.toLowerCase().startsWith("validate:org:");
+
+		// If the sync is manual, validate that the user is an org member
+		if (validateAsOrgMember) {
+			const githubLogin = requestByUser.toLowerCase().startsWith("validate:")
+				? requestByUser.replace("validate:", "")
+				: requestByUser;
+			
+			const userIsNotOrgMember = !(await orgClient.userIsOrgAdminMember(orgName, githubLogin));
+			if (userIsNotOrgMember) {
+				let errorMsg = `The user '${requestByUser}' is not member of the`;
+				errorMsg += ` organization '${orgName}' with the admin role.`;
+				Utils.printAsGitHubError(errorMsg);
+				Deno.exit(1);
+			}
 		}
 
 		const repoDoesNotExist = !(await repoClient.exists(repoName));
