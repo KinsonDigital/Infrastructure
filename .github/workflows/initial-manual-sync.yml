@@ -1,5 +1,5 @@
-name: 🔄️Sync Issue To PR
-run-name: 🔄️Sync Issue To PR (${{ inputs.sync-type }})
+name: 🔄️Sync PR To Issue
+run-name: 🔄️Sync PR To Issue (${{ inputs.sync-type }})
 
 
 defaults:
@@ -87,7 +87,7 @@ jobs:
       - name: Run Sync
         if: ${{ steps.should-skip.outputs.skip == 'false' }}
         run: |
-          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}/sync-issue-to-pr.ts";
+          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}/sync-pr-to-issue.ts";
           
           Write-Host "::notice::Sync Type: ${{ inputs.sync-type }}";
           Write-Host "::notice::Organization Name: ${{ vars.ORGANIZATION_NAME }}";

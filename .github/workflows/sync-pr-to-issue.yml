@@ -1,4 +1,4 @@
-name: 🔄️Sync Issue To PR
+name: 🔄️Sync PR To Issue
 
 
 defaults:
@@ -15,11 +15,11 @@ on:
 
 jobs:
   initial_sync:
-    name: Start Sync Process
+    name: Start Initial Sync
     if: ${{ github.event_name == 'pull_request_target' }}
-    uses: KinsonDigital/Infrastructure/.github/workflows/initial-manual-sync.yml@v12.2.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/initial-manual-sync.yml@v13.0.0
     with:
-      issue-or-pr-number: ${{ github.event.issue.number }}
+      issue-or-pr-number: ${{ github.event.issue }}
       sync-type: initial
       requested-by: ${{ github.event.sender.login }}
       branch: ${{ github.event.pull_request.head.ref }} # Input not required for initial sync
@@ -27,9 +27,9 @@ jobs:
       cicd-pat: ${{ secrets.CICD_TOKEN }}
 
   manual_sync:
-    name: Start Sync Process
+    name: Start Manual Sync
     if: ${{ github.event_name == 'issue_comment' && contains(github.event.comment.body, '[run-sync]') }}
-    uses: KinsonDigital/Infrastructure/.github/workflows/initial-manual-sync.yml@v12.2.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/initial-manual-sync.yml@v13.0.0
     with:
       issue-or-pr-number: ${{ github.event.issue.number }}
       sync-type: manual
