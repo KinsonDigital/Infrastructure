@@ -18,7 +18,7 @@ on:
         description: Type of sync to perform. ("manual" or "initial")
         required: true
         type: string
-      requested-by:
+      requested-by: # User can be prefixed with 'validate:'
         description: User who requested the sync
         required: true
         type: string
@@ -44,13 +44,13 @@ jobs:
 
           if ($validSyncType -eq $false) {
             $msg = "The sync type `${{ inputs.sync-type }}` is not valid.  Valid sync types are 'manual' or 'initial'.";
-            $msg += "  Verify that the 'sync-type' input is set correct.";
+            $msg += "  Verify that the 'sync-type' input is correct.";
             Write-Host "::error::$msg";
             exit 1;
           }
 
-      - name: Should Skip
-        id: should-skip
+      - name: Check For Skipping
+        id: skip-checking
         run: |
           $isManualSync = "${{ inputs.sync-type == 'manual' && contains(github.event.comment.body, '[run-sync]') }}";
           $isInitialSync = "${{ inputs.sync-type == 'initial'}}";
@@ -79,13 +79,13 @@ jobs:
           "$stepOutput" >> $env:GITHUB_OUTPUT;
 
       - name: Set Up Deno
-        if: ${{ steps.should-skip.outputs.skip == 'false' }}
+        if: ${{ steps.skip-checking.outputs.skip == 'false' }}
         uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
 
       - name: Run Sync
-        if: ${{ steps.should-skip.outputs.skip == 'false' }}
+        if: ${{ steps.skip-checking.outputs.skip == 'false' }}
         run: |
           $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}/sync-pr-to-issue.ts";
           
