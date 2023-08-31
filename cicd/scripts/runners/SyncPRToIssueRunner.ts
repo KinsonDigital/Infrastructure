@@ -102,7 +102,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 			errorMsg += "\nThe 1st arg is required and must be a valid organization name.";
 			errorMsg += "\nThe 2nd arg is required and must be the GitHub repo name.";
 			errorMsg += "\nThe 3rd arg is required and must be a valid GitHub user that triggered the script to run.";
-			errorMsg += "\nThe 4th arg is required and must be a valid pull request number.";
+			errorMsg += "\nThe 4th arg is required and must be a valid issue or pull request number.";
 			errorMsg += "\nThe 5th arg is required and must be a valid GitHub PAT (Personal Access Token).";
 
 			Utils.printAsGitHubError(errorMsg);
@@ -153,12 +153,21 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 			Deno.exit(1);
 		}
 
-		const userIsNotOrgMember = !(await orgClient.userIsOrgAdminMember(orgName, requestByUser));
-		if (userIsNotOrgMember) {
-			let errorMsg = `The user '${requestByUser}' is not member of the`;
-			errorMsg += ` organization '${orgName}' with the admin role.`;
-			Utils.printAsGitHubError(errorMsg);
-			Deno.exit(0);
+		const validateAsOrgMember = requestByUser.toLowerCase().startsWith("validate:org:");
+
+		// If the sync is manual, validate that the user is an org member
+		if (validateAsOrgMember) {
+			const githubLogin = requestByUser.toLowerCase().startsWith("validate:")
+				? requestByUser.replace("validate:", "")
+				: requestByUser;
+			
+			const userIsNotOrgMember = !(await orgClient.userIsOrgAdminMember(orgName, githubLogin));
+			if (userIsNotOrgMember) {
+				let errorMsg = `The user '${requestByUser}' is not member of the`;
+				errorMsg += ` organization '${orgName}' with the admin role.`;
+				Utils.printAsGitHubError(errorMsg);
+				Deno.exit(1);
+			}
 		}
 
 		const repoDoesNotExist = !(await repoClient.exists(repoName));
@@ -240,7 +249,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 
 				if (prNumber === 0) {
 					let warningMsg = `The issue '${issueNumber}' does not contain any valid pull request number meta-data.`;
-					warningMsg += " A pull request was not synced to an issue.";
+					warningMsg += " The pull request was not synced to an issue.";
 					Utils.printAsGitHubWarning(warningMsg);
 					Deno.exit(0);
 				}
@@ -253,7 +262,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 
 				if (!(await issueClient.issueExists(repoName, issueNumber))) {
 					let warningMsg = `The issue '${issueNumber}' does not exist.`;
-					warningMsg += "A pull request was not synced to an issue.";
+					warningMsg += " The pull request was not synced to an issue.";
 					Utils.printAsGitHubWarning(warningMsg);
 					Deno.exit(0);
 				}
@@ -261,7 +270,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 				break;
 			case IssueOrPullRequest.neither: {
 				let warningMsg = `The number '${issueOrPrNumber}' is not an issue or pull request number.`;
-				warningMsg += "A pull request was not synced to an issue.";
+				warningMsg += " The pull request was not synced to an issue.";
 				Utils.printAsGitHubWarning(warningMsg);
 				Deno.exit(0);
 			}

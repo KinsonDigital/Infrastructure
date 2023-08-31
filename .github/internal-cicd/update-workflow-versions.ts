@@ -24,10 +24,13 @@ if (!Directory.Exists(baseDirPath)) {
 	Deno.exit(0);
 }
 
+// Clear the console so the token is not visible from the tasks.json file
+console.clear();
+
 const tagRegex = /v[0-9]+\.[0-9]+\.[0-9]+/gm;
 
 const newVersion = await Input.prompt({
-	message: chalk.blue("What is your name?"),
+	message: chalk.blue("Enter version to upgrade workflows to:"),
 	hint: "Use a tag with the syntax 'v#.#.#'.",
 	minLength: 5,
 	validate: (value) => {
@@ -49,7 +52,7 @@ const allTags = (await tagClient.getAllTags(repoName)).map((t) => t.name);
 
 // If the new tag already exists, throw an error
 if (allTags.includes(newVersion)) {
-	chalk.red(`Tag '${newVersion}' already exists.`);
+	console.log(chalk.red(`Tag '${newVersion}' already exists.`));
 	Deno.exit(0);
 }
 
