@@ -65,7 +65,7 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
     steps:
       - name:  Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Validate Workflow Inputs
         run: |
@@ -114,7 +114,7 @@ jobs:
       name: ${{ inputs.environment-name}}
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Setup Node (v${{ inputs.node-version }})
       uses: actions/setup-node@v3

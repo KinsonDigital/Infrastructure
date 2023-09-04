@@ -83,7 +83,7 @@ jobs:
     needs: [print_validate_workflow, resolve_proj_file_path]
     runs-on: ${{ inputs.runs-on }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: actions/setup-dotnet@v3
         with:
