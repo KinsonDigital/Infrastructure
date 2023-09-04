@@ -70,7 +70,7 @@ jobs:
   resolve_proj_file_path:
     name: Resolving ${{ inputs.project-name }} Project File Path
     needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/resolve-csharp-proj-file.yml@v13.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/resolve-csharp-proj-file.yml@v13.0.1
     with:
       project-name: ${{ inputs.project-name }}
       base-path: ${{ inputs.base-path }}
@@ -81,7 +81,7 @@ jobs:
     needs: resolve_proj_file_path
     runs-on: ${{ inputs.runs-on }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup .NET SDK ${{ inputs.net-sdk-version }}
         uses: actions/setup-dotnet@v3

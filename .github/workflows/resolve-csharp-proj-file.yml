@@ -33,7 +33,7 @@ jobs:
       - name: Print Environment Variables
         run: Get-ChildItem -Path Env:* | Sort-Object Name
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Resolve Project File Path
         id: resolve-file-path
