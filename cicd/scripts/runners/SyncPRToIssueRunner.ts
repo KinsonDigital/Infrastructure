@@ -152,7 +152,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 		// If the sync is manual, validate that the user is an org member
 		if (validateAsOrgMember) {
 			const githubLogin = requestByUser.replace("validate:", "");
-			
+
 			const userIsNotOrgMember = !(await orgClient.userIsOrgAdminMember(orgName, githubLogin));
 			if (userIsNotOrgMember) {
 				let errorMsg = `The user '${requestByUser}' is not member of the`;
