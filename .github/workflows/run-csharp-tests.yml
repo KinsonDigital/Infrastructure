@@ -30,6 +30,16 @@ on:
         description: The type of machine to run the job on.
         type: string
         default: ubuntu-latest
+      checkout-ref:
+        required: false
+        description: The git reference to checkout the code at.
+        type: string
+        default: ${{ github.ref }}
+      checkout-repository:
+        required: false
+        description: The git repository to checkout the code from.
+        type: string
+        default: ${{ github.repository }}
 
 
 jobs:
@@ -84,6 +94,9 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.checkout-ref }}
+          repository: ${{ inputs.checkout-repository }}
 
       - uses: actions/setup-dotnet@v3
         with:
