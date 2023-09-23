@@ -289,8 +289,8 @@
             "args": [
 				"KinsonDigital",
 				"Infrastructure",
-				"CalvinWilkinson",
-				"93",
+				"validate:CalvinWilkinson",
+				"169",
 				"${env:CICD_TOKEN}",
 			],
             "attachSimplePort": 9229,
