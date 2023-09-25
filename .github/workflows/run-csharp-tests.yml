@@ -68,6 +68,12 @@ jobs:
           }
 
 
+          if ("${{ inputs.build-config }}" -ne "Debug" -and "${{ inputs.build-config }}" -ne "Release") {
+            Write-Host "::error::The 'build-config' workflow input is invalid.  Expected values: 'Debug' or 'Release'";
+            exit 1;
+          }
+
+
           $sdkVersion = "${{ inputs.net-sdk-version }}".Trim().ToLower();
           
           # Verify that the dotnet sdk version has valid syntax

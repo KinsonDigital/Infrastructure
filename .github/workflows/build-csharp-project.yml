@@ -68,6 +68,12 @@ jobs:
           }
 
 
+          if ("${{ inputs.build-config }}" -ne "Debug" -and "${{ inputs.build-config }}" -ne "Release") {
+            Write-Host "::error::The 'build-config' workflow input is invalid.  Expected values: 'Debug' or 'Release'";
+            exit 1;
+          }
+
+
           # Verify that the dotnet sdk version has valid syntax
           if ($sdkVersion -match "[0-9]+\.[0-9]+\.[0-9]+") {
             Write-Host "::notice::The 'net-sdk-version' workflow input is valid.";
