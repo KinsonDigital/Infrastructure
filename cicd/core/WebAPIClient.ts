@@ -45,7 +45,7 @@ export abstract class WebAPIClient {
 		Guard.isNullOrEmptyOrUndefined(url, funcName, "url");
 		Guard.isNullOrEmptyOrUndefined(body, funcName, "body");
 
-		const requestBody = typeof (body) === "string" ? body : JSON.stringify(body);
+		const requestBody = typeof body === "string" ? body : JSON.stringify(body);
 
 		return await fetch(url, {
 			method: "POST",

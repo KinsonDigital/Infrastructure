@@ -31,6 +31,16 @@ on:
         description: The type of machine to run the job on.
         type: string
         default: ubuntu-latest
+      checkout-ref:
+        required: false
+        description: The git reference to checkout the code at.
+        type: string
+        default: ${{ github.ref }}
+      checkout-repository:
+        required: false
+        description: The git repository to checkout the code from.
+        type: string
+        default: ${{ github.repository }}
 
 
 jobs:
@@ -58,6 +68,12 @@ jobs:
           }
 
 
+          if ("${{ inputs.build-config }}" -ne "Debug" -and "${{ inputs.build-config }}" -ne "Release") {
+            Write-Host "::error::The 'build-config' workflow input is invalid.  Expected values: 'Debug' or 'Release'";
+            exit 1;
+          }
+
+
           # Verify that the dotnet sdk version has valid syntax
           if ($sdkVersion -match "[0-9]+\.[0-9]+\.[0-9]+") {
             Write-Host "::notice::The 'net-sdk-version' workflow input is valid.";
@@ -70,7 +86,7 @@ jobs:
   resolve_proj_file_path:
     name: Resolving ${{ inputs.project-name }} Project File Path
     needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/resolve-csharp-proj-file.yml@v13.0.1
+    uses: KinsonDigital/Infrastructure/.github/workflows/resolve-csharp-proj-file.yml@v13.1.0
     with:
       project-name: ${{ inputs.project-name }}
       base-path: ${{ inputs.base-path }}
@@ -82,6 +98,9 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.checkout-ref }}
+          repository: ${{ inputs.checkout-repository }}
 
       - name: Setup .NET SDK ${{ inputs.net-sdk-version }}
         uses: actions/setup-dotnet@v3
