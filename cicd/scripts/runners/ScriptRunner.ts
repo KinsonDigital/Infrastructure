@@ -38,6 +38,7 @@ export abstract class ScriptRunner {
 	/**
 	 * Mutates the given {@link args}.
 	 * @param args The arguments to mutate.
+	 * @returns The mutated arguments.
 	 */
 	protected abstract mutateArgs(args: string[]): string[];
 
