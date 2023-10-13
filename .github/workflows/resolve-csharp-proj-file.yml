@@ -15,7 +15,7 @@ on:
         type: string
       base-path:
         required: false
-        description: The base directory path to start the search.
+        description: The the fully qualified base directory path to start the search.
         type: string
     outputs:
       project-file-path:
@@ -68,7 +68,8 @@ jobs:
           deno run `
             --allow-read `
             --allow-write `
+            --allow-env `
             "$scriptUrl" `
             "${{ vars.PROJECT_NAME }}" `
-            "${{ github.workspace }}/${{ vars.PROJECT_NAME }}" `
+            "${{ inputs.base-path }}" `
             "${{ secrets.cicd-pat }}";

@@ -18,7 +18,7 @@ export class ResolveCsProjRunner extends ScriptRunner {
 
 		const filteredResults: string[] = Directory.getFiles(baseDirPath, true)
 			.filter((f) => {
-				const fileName = Path.getFileNameWithoutExtension(f);
+				const fileName = Path.getFileName(f);
 
 				return fileName.endsWith(".csproj") && fileName.includes(projName);
 			});
