@@ -1,4 +1,4 @@
-import { basename, extname } from "https://deno.land/std@0.194.0/path/mod.ts";
+import { basename, extname } from "std/path/mod.ts";
 import { Utils } from "./Utils.ts";
 
 /**

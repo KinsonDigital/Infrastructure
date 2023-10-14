@@ -1,4 +1,4 @@
-import { Input } from "https://deno.land/x/cliffy@v1.0.0-rc.2/prompt/input.ts";
+import { Input } from "cliffy/prompt/input.ts";
 import chalk from "npm:chalk@5.3.0";
 import { TagClient } from "../../cicd/clients/TagClient.ts";
 import { Directory } from "../../cicd/core/Directory.ts";
