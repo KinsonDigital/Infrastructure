@@ -41,6 +41,10 @@ on:
         description: The git repository to checkout the code from.
         type: string
         default: ${{ github.repository }}
+    secrets:
+      cicd-pat:
+        description: "The GitHub Personal Access Token (PAT) used to authenticate to the GitHub API."
+        required: true
 
 
 jobs:
@@ -86,11 +90,12 @@ jobs:
   resolve_proj_file_path:
     name: Resolving ${{ inputs.project-name }} Project File Path
     needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/resolve-csharp-proj-file.yml@v13.2.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/resolve-csharp-proj-file.yml@v13.2.1
     with:
       project-name: ${{ inputs.project-name }}
       base-path: ${{ inputs.base-path }}
-
+    secrets:
+      cicd-pat: ${{ secrets.cicd-pat }}
 
   build_project:
     name: Building ${{ inputs.project-name }} Project
