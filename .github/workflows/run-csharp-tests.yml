@@ -4,8 +4,8 @@ name: Unit C# Tests
 defaults:
   run:
     shell: pwsh
-  
-  
+
+
 on:
   workflow_call:
     inputs:
@@ -92,7 +92,7 @@ jobs:
   resolve_proj_file_path:
     name: Resolving ${{ inputs.project-name }} Project File Path
     needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/resolve-csharp-proj-file.yml@v13.2.1
+    uses: KinsonDigital/Infrastructure/.github/workflows/resolve-csharp-proj-file.yml@v13.3.0
     with:
       project-name: ${{ inputs.project-name }}
       base-path: ${{ inputs.base-path }}
@@ -116,7 +116,6 @@ jobs:
 
       - name: Restore Dependencies
         run: dotnet restore "${{ needs.resolve_proj_file_path.outputs.project-file-path }}"
-
       - name: Execute Unit Tests
         run: dotnet build "${{ needs.resolve_proj_file_path.outputs.project-file-path }}" `
           -c ${{ inputs.build-config }} `
