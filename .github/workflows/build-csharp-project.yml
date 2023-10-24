@@ -97,6 +97,7 @@ jobs:
     secrets:
       cicd-pat: ${{ secrets.cicd-pat }}
 
+
   build_project:
     name: Building ${{ inputs.project-name }} Project
     needs: resolve_proj_file_path
