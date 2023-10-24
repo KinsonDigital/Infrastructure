@@ -15,7 +15,7 @@ on:
         type: string
       base-path:
         required: false
-        description: The the fully qualified base directory path to start the search.
+        description: The fully qualified base directory path to start the search.
         type: string
     outputs:
       project-file-path:
