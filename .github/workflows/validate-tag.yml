@@ -65,6 +65,14 @@ jobs:
           }
 
 
+          $orgName = "${{ vars.ORGANIZATION_NAME }}";
+
+          if([string]::IsNullOrEmpty($orgName)) {
+            Write-Host "::error::The 'ORGANIZATION_NAME' environment variable does not exist or is not set.";
+            exit 1;
+          }
+
+
   validate_tag:
     name: Validate Tag
     runs-on: ubuntu-latest
@@ -94,6 +102,7 @@ jobs:
           deno run `
             --allow-net `
             "$scriptUrl" `
+            "${{ vars.ORGANIZATION_NAME }}" `
             "${{ inputs.project-name }}" `
             "${{ inputs.release-type }}" `
             "${{ inputs.tag-name }}" `

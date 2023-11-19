@@ -434,7 +434,13 @@
                 "--inspect-wait",
                 "--allow-all"
             ],
-            "args": ["Either", "v1.2.3", "PackageMonster"],
+            "args": [
+				"KinsonDigital",
+				"PackageMonster",
+				"Either",
+				"v1.2.3",
+				"${ env:CICD_TOKEN }",
+			],
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
@@ -455,7 +461,13 @@
                 "--inspect-wait",
                 "--allow-all"
             ],
-            "args": ["Preview", "v1.2.3-preview.5", "PackageMonster"],
+            "args": [
+				"KinsonDigital",
+				"PackageMonster",
+				"Preview",
+				"v1.2.3-preview.5",
+				"${ env:CICD_TOKEN }",
+			],
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
@@ -476,7 +488,13 @@
                 "--inspect-wait",
                 "--allow-all"
             ],
-            "args": ["Production", "v1.2.3", "PackageMonster"],
+            "args": [
+				"KinsonDigital",
+				"PackageMonster",
+				"Production",
+				"v1.2.3",
+				"${ env:CICD_TOKEN }",
+			],
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
