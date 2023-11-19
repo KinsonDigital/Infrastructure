@@ -1,6 +1,5 @@
-import { Directory } from "../../../deps.ts";
+import { Directory, File } from "../../../deps.ts";
 import { GitHubLogType } from "../../core/Enums.ts";
-import { File } from "../../core/File.ts";
 import { Utils } from "../../core/Utils.ts";
 import { ScriptRunner } from "./ScriptRunner.ts";
 
