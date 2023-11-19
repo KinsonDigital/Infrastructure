@@ -1,6 +1,4 @@
-import { OrgClient } from "../../clients/OrgClient.ts";
-import { RepoClient } from "../../clients/RepoClient.ts";
-import { TwitterClient } from "../../clients/TwitterClient.ts";
+import { OrgClient, RepoClient, XClient } from "../../../deps.ts";
 import { GitHubLogType } from "../../core/Enums.ts";
 import { ReleaseTweetBuilder } from "../../core/ReleaseTweetBuilder.ts";
 import { GitHubVariableService } from "../../core/Services/GitHubVariableService.ts";
@@ -83,7 +81,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 			discordInviteCode,
 		);
 
-		const twitterClient: TwitterClient = new TwitterClient(authValues);
+		const twitterClient: XClient = new XClient(authValues);
 		await twitterClient.tweet(tweet);
 
 		const noticeMsg = `A release tweet was successfully broadcasted for the '${repoName}' project for version '${version}'.`;
@@ -98,7 +96,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 			const errorMsg = `The cicd script must have 8 arguments but has ${args.length} argument(s).`;
 
 			const argDescriptions = [
-				"Required and must be a repository owner.",
+				"Required and must be the name of a repository owner.",
 				"Required and must be a project name",
 				"Required and must be a valid version. ",
 				"Required and must be a valid twitter consumer api key.",
@@ -115,24 +113,24 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 
 		this.printOrgRepoVarsUsed();
 
-		let [orgName, repoName, version] = args;
+		let [ownerName, repoName, version] = args;
 
-		this.githubVarService.setOrgAndRepo(orgName, repoName);
+		this.githubVarService.setOrgAndRepo(ownerName, repoName);
 
-		orgName = orgName.trim();
+		ownerName = ownerName.trim();
 		repoName = repoName.trim();
 
-		const orgClient = new OrgClient(this.token);
-		const repoClient = new RepoClient(this.token);
+		const orgClient = new OrgClient(ownerName, this.token);
+		const repoClient = new RepoClient(ownerName, repoName, this.token);
 
 		// If the org does not exist
-		if (!(await orgClient.exists(orgName))) {
-			Utils.printAsGitHubError(`The organization '${orgName}' does not exist.`);
+		if (!(await orgClient.exists())) {
+			Utils.printAsGitHubError(`The organization '${ownerName}' does not exist.`);
 			Deno.exit(1);
 		}
 
 		// If the repo does not exist
-		if (!(await repoClient.exists(repoName))) {
+		if (!(await repoClient.exists())) {
 			Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
 			Deno.exit(1);
 		}
