@@ -1,23 +1,24 @@
-import { MilestoneClient } from "../clients/MilestoneClient.ts";
+import { MilestoneClient, RepoClient } from "../../deps.ts";
 import { IssueModel } from "../core/Models/IssueModel.ts";
 import { PullRequestModel } from "../core/Models/PullRequestModel.ts";
-import { RepoClient } from "../clients/RepoClient.ts";
 import { Utils } from "../core/Utils.ts";
 
 if (Deno.args.length != 3) {
-	let errorMsg = `The cicd script must have at 3 arguments but has ${Deno.args.length} argument(s).`;
-	errorMsg += "\nThe 1st arg is required and must be the GitHub repo name.";
-	errorMsg += "\nThe 2nd arg is required and must be the title of the milestone.";
-	errorMsg += "\nThe 3rd arg is required and must be a GitHub PAT (Personal Access Token).";
+	let errorMsg = `The cicd script must have at 4 arguments but has ${Deno.args.length} argument(s).`;
+	errorMsg += "\nThe 1st arg is required and must be the GitHub repository owner name.";
+	errorMsg += "\nThe 2nd arg is required and must be the GitHub repo name.";
+	errorMsg += "\nThe 3rd arg is required and must be the title of the milestone.";
+	errorMsg += "\nThe 4th arg is required and must be a GitHub PAT (Personal Access Token).";
 
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 
 // TODO: Fix all of these args
-const repoName = Deno.args[0].trim();
-const milestoneTitle = Deno.args[1].trim();
-const token = Deno.args.length >= 3 ? Deno.args[2].trim() : "";
+const ownerName = Deno.args[0].trim();
+const repoName = Deno.args[1].trim();
+const milestoneTitle = Deno.args[2].trim();
+const token = Deno.args.length >= 4 ? Deno.args[3].trim() : "";
 
 // Print out all of the arguments
 Utils.printInGroup("Script Arguments", [
@@ -26,16 +27,16 @@ Utils.printInGroup("Script Arguments", [
 	`GitHub Token (Required): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,
 ]);
 
-const repoClient: RepoClient = new RepoClient(token);
-const repoDoesNotExist = !(await repoClient.exists(repoName));
+const repoClient: RepoClient = new RepoClient(ownerName, repoName, token);
+const repoDoesNotExist = !(await repoClient.exists());
 
 if (repoDoesNotExist) {
 	Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
 	Deno.exit(1);
 }
 
-const milestoneClient: MilestoneClient = new MilestoneClient(token);
-const milestoneItems = await milestoneClient.getIssuesAndPullRequests(repoName, milestoneTitle);
+const milestoneClient: MilestoneClient = new MilestoneClient(ownerName, repoName, token);
+const milestoneItems = await milestoneClient.getIssuesAndPullRequests(milestoneTitle);
 
 const issues: IssueModel[] = Utils.filterIssues(milestoneItems);
 const prs: PullRequestModel[] = Utils.filterPullRequests(milestoneItems);
