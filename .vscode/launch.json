@@ -117,6 +117,7 @@
                 "--allow-all"
             ],
             "args": [
+				"KinsonDigital",
 				"Infrastructure",
 				"v1.0.0-preview.10",
 				"${env:CICD_TOKEN}",
