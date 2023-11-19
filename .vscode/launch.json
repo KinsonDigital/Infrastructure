@@ -402,7 +402,7 @@
             "name": "Workflow Version Status Check",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/.github/internal-cicd/workflow-version-status-check.ts",
+            "program": "${workspaceFolder}/.github/internal-cicd/scripts/workflow-version-status-check.ts",
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",

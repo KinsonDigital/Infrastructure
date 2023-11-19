@@ -26,7 +26,7 @@ jobs:
 
       - name: Run Status Check Script
         run: |
-          $scriptPath = "${{ github.workspace }}/.github/internal-cicd/workflow-version-status-check.ts";
+          $scriptPath = "${{ github.workspace }}/.github/internal-cicd/scripts/workflow-version-status-check.ts";
 
           deno run `
             --allow-read --allow-net `
