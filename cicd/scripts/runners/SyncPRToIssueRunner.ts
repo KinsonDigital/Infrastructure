@@ -32,7 +32,9 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 	 */
 	constructor(args: string[]) {
 		super(args);
-		this.githubVarService = new GitHubVariableService(this.token);
+
+		const [ownerName, repoName] = this.args;
+		this.githubVarService = new GitHubVariableService(ownerName, repoName, this.token);
 	}
 
 	/**
