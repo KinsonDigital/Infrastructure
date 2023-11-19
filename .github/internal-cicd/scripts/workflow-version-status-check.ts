@@ -1,9 +1,9 @@
-import { RepoClient } from "../../cicd/clients/RepoClient.ts";
-import { TagClient } from "../../cicd/clients/TagClient.ts";
-import { Directory } from "../../deps.ts";
-import { File } from "../../cicd/core/File.ts";
-import { Path } from "../../cicd/core/Path.ts";
-import { Utils } from "../../cicd/core/Utils.ts";
+import { RepoClient } from "../../../cicd/clients/RepoClient.ts";
+import { TagClient } from "../../../cicd/clients/TagClient.ts";
+import { Directory } from "../../../deps.ts";
+import { File } from "../../../cicd/core/File.ts";
+import { Path } from "../../../cicd/core/Path.ts";
+import { Utils } from "../../../cicd/core/Utils.ts";
 
 if (Deno.args.length != 2) {
 	let errorMsg = "Invalid number of arguments.";

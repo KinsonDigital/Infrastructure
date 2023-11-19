@@ -1,4 +1,4 @@
-import { existsSync } from "../../../deps.ts";
+import { existsSync } from "../../deps.ts";
 
 /**
  * Provides directory functionality.
