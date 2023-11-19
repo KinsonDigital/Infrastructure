@@ -1,6 +1,6 @@
 import { RepoClient } from "../../cicd/clients/RepoClient.ts";
 import { TagClient } from "../../cicd/clients/TagClient.ts";
-import { Directory } from "../../cicd/core/Directory.ts";
+import { Directory } from "../../deps.ts";
 import { File } from "../../cicd/core/File.ts";
 import { Path } from "../../cicd/core/Path.ts";
 import { Utils } from "../../cicd/core/Utils.ts";

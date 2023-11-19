@@ -1,4 +1,4 @@
-import { Directory } from "../../core/Directory.ts";
+import { Directory } from "../../../deps.ts";
 import { GitHubLogType } from "../../core/Enums.ts";
 import { File } from "../../core/File.ts";
 import { Utils } from "../../core/Utils.ts";

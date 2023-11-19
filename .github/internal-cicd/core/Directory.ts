@@ -1,4 +1,4 @@
-import { existsSync } from "std/fs/exists.ts";
+import { existsSync } from "../../../deps.ts";
 
 /**
  * Provides directory functionality.
@@ -30,6 +30,14 @@ export class Directory {
 	 */
 	public static getFiles(dirPath: string, recursive = false): string[] {
 		let files: string[] = [];
+
+		if (dirPath === undefined || dirPath === null || dirPath === "") {
+			const errorMsg = "The dirPath parameter cannot be null or empty.";
+			console.error(errorMsg);
+			Deno.exit(1);
+		}
+
+		dirPath = dirPath === "." || dirPath === "/" ? "." : dirPath;
 
 		for (const dirEntry of Deno.readDirSync(dirPath)) {
 			const entry = dirPath + "/" + dirEntry.name;

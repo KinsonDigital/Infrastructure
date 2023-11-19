@@ -1,4 +1,4 @@
-import { Directory } from "../../core/Directory.ts";
+import { Directory } from "../../../deps.ts";
 import { File } from "../../core/File.ts";
 import { Path } from "../../core/Path.ts";
 import { Utils } from "../../core/Utils.ts";
