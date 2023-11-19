@@ -1,8 +1,8 @@
-import { IssueClient } from "../../clients/IssueClient.ts";
-import { OrgClient } from "../../clients/OrgClient.ts";
-import { ProjectClient } from "../../clients/ProjectClient.ts";
-import { PullRequestClient } from "../../clients/PullRequestClient.ts";
-import { RepoClient } from "../../clients/RepoClient.ts";
+import { IssueClient } from "../../../deps.ts";
+import { OrgClient } from "../../../deps.ts";
+import { ProjectClient } from "../../../deps.ts";
+import { PullRequestClient } from "../../../deps.ts";
+import { RepoClient } from "../../../deps.ts";
 import { Utils } from "../../core/Utils.ts";
 import { ScriptRunner } from "./ScriptRunner.ts";
 
@@ -21,9 +21,11 @@ export class AddItemToProjectRunner extends ScriptRunner {
 	constructor(args: string[]) {
 		super(args);
 
-		this.projectClient = new ProjectClient(this.token);
-		this.issueClient = new IssueClient(this.token);
-		this.prClient = new PullRequestClient(this.token);
+		const [ownerName, _, repoName] = this.args;
+
+		this.projectClient = new ProjectClient(ownerName, repoName, this.token);
+		this.issueClient = new IssueClient(ownerName, repoName, this.token);
+		this.prClient = new PullRequestClient(ownerName, repoName, this.token);
 	}
 
 	/**
@@ -32,18 +34,14 @@ export class AddItemToProjectRunner extends ScriptRunner {
 	public async run(): Promise<void> {
 		await super.run();
 
-		const [, projectName, repoName, issueOrPRNumberStr] = this.args;
+		const [, projectName, _, issueOrPrNumberStr] = this.args;
 
-		const issueOrPrNumber = parseInt(issueOrPRNumberStr);
+		const issueOrPrNumber = parseInt(issueOrPrNumberStr);
 
-		const isIssueNumber = await this.issueClient.issueExists(repoName, issueOrPrNumber);
-		const isPRNumber = await this.prClient.pullRequestExists(repoName, issueOrPrNumber);
+		const isIssueNumber = await this.issueClient.issueExists(issueOrPrNumber);
+		const isPRNumber = await this.prClient.pullRequestExists(issueOrPrNumber);
 
-		const contentId = isIssueNumber && !isPRNumber
-			? (await this.issueClient.getIssue(repoName, issueOrPrNumber)).node_id ?? ""
-			: (await this.prClient.getPullRequest(repoName, issueOrPrNumber)).node_id ?? "";
-
-		await this.projectClient.addToProject(contentId, projectName);
+		await this.projectClient.addIssueToProject(issueOrPrNumber, projectName);
 
 		const itemType = isIssueNumber && !isPRNumber ? "issue" : "pull request";
 
@@ -66,22 +64,22 @@ export class AddItemToProjectRunner extends ScriptRunner {
 			Deno.exit(1);
 		}
 
-		const [orgName, projectName, repoName, issueOrPRNumberStr, token] = args;
+		const [ownerName, projectName, repoName, issueOrPRNumberStr] = args;
 
-		const orgClient = new OrgClient(token);
-		const repoClient = new RepoClient(token);
+		const orgClient = new OrgClient(ownerName, this.token);
+		const repoClient = new RepoClient(ownerName, repoName, this.token);
 
 		if (!Utils.isNumeric(issueOrPRNumberStr)) {
 			Utils.printAsGitHubError(`The given issue or pull request number '${issueOrPRNumberStr}' is not a valid number.`);
 			Deno.exit(1);
 		}
 
-		if (!(await orgClient.exists(orgName))) {
-			Utils.printAsGitHubError(`The organization '${orgName}' does not exist.`);
+		if (!(await orgClient.exists())) {
+			Utils.printAsGitHubError(`The organization '${ownerName}' does not exist.`);
 			Deno.exit(1);
 		}
 
-		if (!(await repoClient.exists(repoName))) {
+		if (!(await repoClient.exists())) {
 			Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
 			Deno.exit(1);
 		}
@@ -92,8 +90,8 @@ export class AddItemToProjectRunner extends ScriptRunner {
 		}
 		const issueOrPrNumber = parseInt(issueOrPRNumberStr);
 
-		const isIssueNumber = await this.issueClient.issueExists(repoName, issueOrPrNumber);
-		const isPRNumber = await this.prClient.pullRequestExists(repoName, issueOrPrNumber);
+		const isIssueNumber = await this.issueClient.issueExists(issueOrPrNumber);
+		const isPRNumber = await this.prClient.pullRequestExists(issueOrPrNumber);
 
 		// If the issue or PR number does not exist
 		if (!isIssueNumber && !isPRNumber) {
