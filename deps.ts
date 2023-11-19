@@ -1,6 +1,6 @@
 import { existsSync } from "https://deno.land/std@0.207.0/fs/exists.ts";
 import {
-	IssueClient, PullRequestClient, ProjectClient,
+	IssueClient, PullRequestClient, ProjectClient, UsersClient,
 	OrgClient, RepoClient, TagClient, LabelClient, MilestoneClient, GitClient
 } from "https://deno.land/x/kd_clients@v1.0.0-preview.4/GitHubClients/mod.ts";
 import { XClient } from "https://deno.land/x/kd_clients@v1.0.0-preview.4/OtherClients/mod.ts";
@@ -12,7 +12,7 @@ export { existsSync };
 export {
 	IssueClient, PullRequestClient, ProjectClient, MilestoneClient,
 	OrgClient, RepoClient, TagClient, LabelClient, GitClient,
-	XClient
+	XClient, UsersClient
 };
 export { Input };
 export default chalk;
