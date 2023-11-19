@@ -1,4 +1,4 @@
-import { NuGetClient } from "../clients/NuGetClient.ts";
+import { NuGetClient } from "../../deps.ts";
 import { Utils } from "../core/Utils.ts";
 
 if (Deno.args.length != 2) {
