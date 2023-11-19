@@ -378,7 +378,7 @@
             "name": "Update Workflow Versions",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/.github/internal-cicd/update-workflow-versions.ts",
+            "program": "${workspaceFolder}/.github/internal-cicd/scripts/update-workflow-versions.ts",
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",

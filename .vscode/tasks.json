@@ -14,7 +14,7 @@
 					"--allow-write",
 					"--allow-sys",
 					"--allow-net",
-					"${workspaceFolder}/.github/internal-cicd/update-workflow-versions.ts",
+					"${workspaceFolder}/.github/internal-cicd/scripts/update-workflow-versions.ts",
 					"${workspaceFolder}/.github/workflows",
 					"${env:CICD_TOKEN}",
 				]
