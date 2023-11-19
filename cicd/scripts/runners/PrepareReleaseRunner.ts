@@ -133,7 +133,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 		};
 
 		await pullRequestClient.updatePullRequest(newPr.number, prData);
-		await this.updateProjectVersions(repoName, headBranch, version);
+		await this.updateProjectVersions(ownerName, repoName, headBranch, version);
 		await this.generateReleaseNotes(ownerName, repoName, version, releaseType);
 	}
 
@@ -249,11 +249,13 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	/**
 	 * Updates the version tags with the given {@link version} in a csproj file in a repository with a name that
 	 * matches the given {@link repoName}, in the branch with the given {@link branchName}.
+	 * @param ownerName The name of the owner of the repository.
 	 * @param repoName The name of the repository.
 	 * @param branchName The name of the branch.
 	 * @param version The version to update the csproj file with.
 	 */
 	private async updateProjectVersions(
+		ownerName: string,
 		repoName: string,
 		branchName: string,
 		version: string,
@@ -262,7 +264,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 		relativeProjFilePath = Utils.normalizePath(relativeProjFilePath);
 		relativeProjFilePath = Utils.trimAllStartingValue(relativeProjFilePath, "/");
 
-		const updateProjFileService = new CSharpVersionService(repoName, this.token);
+		const updateProjFileService = new CSharpVersionService(ownerName, repoName, this.token);
 
 		// Update the version tags in the csproj file
 		await updateProjFileService.updateVersion(branchName, relativeProjFilePath, version);

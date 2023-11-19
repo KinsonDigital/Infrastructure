@@ -1,4 +1,4 @@
-import { RepoClient } from "../../clients/RepoClient.ts";
+import { RepoClient } from "../../../deps.ts";
 import { Guard } from "../Guard.ts";
 import { Utils } from "../Utils.ts";
 
@@ -9,18 +9,22 @@ export class CSharpVersionService {
 	private readonly versionRegex = /[0-9]+\.[0-9]+\.[0-9]+(|-preview.[0-9]+)/gm;
 	private readonly versionTagRegex = /<Version>[0-9]+\.[0-9]+\.[0-9]+(|-preview.[0-9]+)<\/Version>/gm;
 	private readonly fileVersionTagRegex = /<FileVersion>[0-9]+\.[0-9]+\.[0-9]+(|-preview.[0-9]+)<\/FileVersion>/gm;
+	private readonly ownerName: string;
 	private readonly repoName: string;
 	private readonly token: string;
 
 	/**
 	 * Initializes a new instance of the {@link CSharpVersionService} class.
+	 * @param ownerName The name of the GitHub repository owner.
 	 * @param repoName The name of the GitHub repository.
 	 * @param token The GitHub personal access token.
 	 */
-	constructor(repoName: string, token: string) {
+	constructor(ownerName: string, repoName: string, token: string) {
 		const funcName = "CSharpVersionService.ctor";
+		Guard.isNullOrEmptyOrUndefined(ownerName, funcName, "ownerName");
 		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
 
+		this.ownerName = ownerName;
 		this.repoName = repoName;
 		this.token = token;
 	}
@@ -51,16 +55,16 @@ export class CSharpVersionService {
 			Deno.exit(1);
 		}
 
-		const repoClient = new RepoClient(this.token);
+		const repoClient = new RepoClient(this.ownerName, this.repoName, this.token);
 
-		if (!(await repoClient.fileExists(this.repoName, branchName, relativeProjFilePath))) {
+		if (!(await repoClient.fileExists(branchName, relativeProjFilePath))) {
 			let errorMsg = `The csproj file '${relativeProjFilePath}' does not exist on the branch '${branchName}'.`;
 			errorMsg += "\nPlease create the file and try again.";
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
-		let projFileData = await repoClient.getFileContent(this.repoName, branchName, relativeProjFilePath);
+		let projFileData = await repoClient.getFileContent(branchName, relativeProjFilePath);
 
 		if (!this.versionTagRegex.test(projFileData)) {
 			let errorMsg = `The file '${relativeProjFilePath}' does not contain a <Version/> tag.`;
@@ -110,7 +114,6 @@ export class CSharpVersionService {
 		projFileData = projFileData.replace(this.fileVersionTagRegex, newFileVersionTag);
 
 		await repoClient.updateFile(
-			this.repoName,
 			branchName,
 			relativeProjFilePath,
 			projFileData,
