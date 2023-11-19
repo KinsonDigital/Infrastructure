@@ -1,6 +1,4 @@
-import { Directory } from "../../../deps.ts";
-import { File } from "../../core/File.ts";
-import { Path } from "../../core/Path.ts";
+import { Directory, File, Path } from "../../../deps.ts";
 import { Utils } from "../../core/Utils.ts";
 import { ScriptRunner } from "./ScriptRunner.ts";
 
