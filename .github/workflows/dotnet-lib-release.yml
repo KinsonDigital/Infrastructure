@@ -358,6 +358,7 @@ jobs:
           deno run `
             --allow-read --allow-net `
             "$scriptUrl" `
+            "${{ vars.ORGANIZATION_NAME }}" `
             "${{ inputs.project-name }}" `
             "${{ needs.validate_version.outputs.version }}" `
             "${{ secrets.cicd-pat }}";
