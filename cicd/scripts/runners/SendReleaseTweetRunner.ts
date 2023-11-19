@@ -29,9 +29,9 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 	public async run(): Promise<void> {
 		await super.run();
 
-		const [orgName, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret] = this.args;
+		const [repoOwner, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret] = this.args;
 
-		this.githubVarService.setOrgAndRepo(orgName, repoName);
+		this.githubVarService.setOrgAndRepo(repoOwner, repoName);
 
 		let twitterBroadcastEnabled = await this.githubVarService.getValue(
 			SendReleaseTweetRunner.TWITTER_BROADCAST_ENABLED,
@@ -69,11 +69,9 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 			access_token_secret: accessTokenSecret,
 		};
 
-		const tweetBuilder: ReleaseTweetBuilder = new ReleaseTweetBuilder();
+		const tweetBuilder: ReleaseTweetBuilder = new ReleaseTweetBuilder(repoOwner, templateRepoName);
 
 		const tweet = await tweetBuilder.buildTweet(
-			orgName,
-			templateRepoName,
 			templateBranchName,
 			relativeTemplateFilePath,
 			repoName,
