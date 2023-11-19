@@ -20,5 +20,24 @@
 				]
 			}
 		},
+		{
+			"label": "Deno Check",
+			"command": "deno",
+			"type": "shell",
+			"args": [
+				"run",
+				"--allow-read",
+				"--allow-run",
+				"--allow-sys",
+				"${workspaceFolder}/.github/internal-cicd/scripts/deno-check.ts"
+			],
+			"problemMatcher": [
+				"$tsc"
+			],
+			"presentation": {
+				"reveal": "always"
+			},
+			"group": "build"
+		}
     ]
 }
