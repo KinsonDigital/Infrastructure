@@ -41,7 +41,16 @@ export class AddItemToProjectRunner extends ScriptRunner {
 		const isIssueNumber = await this.issueClient.issueExists(issueOrPrNumber);
 		const isPRNumber = await this.prClient.pullRequestExists(issueOrPrNumber);
 
-		await this.projectClient.addIssueToProject(issueOrPrNumber, projectName);
+		if (isIssueNumber && !isPRNumber)
+		{
+			await this.projectClient.addIssueToProject(issueOrPrNumber, projectName);
+		} else if (!isIssueNumber && isPRNumber) {
+			await this.projectClient.addPullRequestToProject(issueOrPrNumber, projectName);
+		} else {
+			const errorMsg = `Could not distinguish between the issue or pull request number '${issueOrPrNumber}'.`;
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
 
 		const itemType = isIssueNumber && !isPRNumber ? "issue" : "pull request";
 
