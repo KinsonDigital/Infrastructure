@@ -11,7 +11,7 @@ export class Path {
 	 * @returns The file name from the given {@link filePath}.
 	 */
 	public static getFileName(filePath: string): string {
-		if (Utils.isNullOrEmptyOrUndefined(filePath)) {
+		if (Utils.isNothing(filePath)) {
 			return "";
 		}
 
@@ -24,7 +24,7 @@ export class Path {
 	 * @returns The file name without the file extension.
 	 */
 	public static getFileNameWithoutExtension(filePath: string): string {
-		if (Utils.isNullOrEmptyOrUndefined(filePath)) {
+		if (Utils.isNothing(filePath)) {
 			return "";
 		}
 
@@ -40,7 +40,7 @@ export class Path {
 	 * @returns The file extension from the given {@link filePath}.
 	 */
 	public static getFileExtension(filePath: string): string {
-		if (Utils.isNullOrEmptyOrUndefined(filePath)) {
+		if (Utils.isNothing(filePath)) {
 			return "";
 		}
 
@@ -56,13 +56,13 @@ export class Path {
 	 * represent if the given {@link filePath} has any extension.
 	 */
 	public static hasExtension(filePath: string, expectedExtension?: string): boolean {
-		if (Utils.isNullOrEmptyOrUndefined(filePath)) {
+		if (Utils.isNothing(filePath)) {
 			return false;
 		}
 
 		const fileExtension = Path.getFileExtension(filePath);
 
-		return Utils.isNullOrEmptyOrUndefined(expectedExtension)
+		return Utils.isNothing(expectedExtension)
 			? fileExtension.length > 0 && fileExtension.startsWith(".")
 			: fileExtension === expectedExtension;
 	}

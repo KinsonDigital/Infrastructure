@@ -42,7 +42,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 		);
 		twitterBroadcastEnabled = twitterBroadcastEnabled.toLowerCase();
 
-		if (Utils.isNullOrEmptyOrUndefined(twitterBroadcastEnabled) || twitterBroadcastEnabled === "false") {
+		if (Utils.isNothing(twitterBroadcastEnabled) || twitterBroadcastEnabled === "false") {
 			let noticeMsg = `No tweet broadcast will be performed.`;
 			noticeMsg +=
 				`\nTo enable tweet broadcasting, set the '${SendReleaseTweetRunner.TWITTER_BROADCAST_ENABLED}' variable to 'true'.`;
@@ -149,7 +149,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 		)).toLowerCase();
 
 		// Print out all of the required variables but only if the twitter broadcast is enabled
-		if (!Utils.isNullOrEmptyOrUndefined(twitterBroadcastEnabled) && twitterBroadcastEnabled === "true") {
+		if (!Utils.isNothing(twitterBroadcastEnabled) && twitterBroadcastEnabled === "true") {
 			const orgRepoVariables = this.getRequiredVars();
 
 			// Check if all of the required org and/or repo variables exist

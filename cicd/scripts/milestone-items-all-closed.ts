@@ -23,7 +23,7 @@ const token = Deno.args.length >= 4 ? Deno.args[3].trim() : "";
 Utils.printInGroup("Script Arguments", [
 	`Repo Name (Required): ${repoName}`,
 	`Milestone Title (Required): ${milestoneTitle}`,
-	`GitHub Token (Required): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,
+	`GitHub Token (Required): ${Utils.isNothing(token) ? "Not Provided" : "****"}`,
 ]);
 
 const repoClient: RepoClient = new RepoClient(ownerName, repoName, token);

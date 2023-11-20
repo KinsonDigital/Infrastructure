@@ -334,7 +334,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 	 * @returns The pull request number.
 	 */
 	private getPRNumberFromIssueBody(issueBody: string): number {
-		if (Utils.isNullOrEmptyOrUndefined(issueBody)) {
+		if (Utils.isNothing(issueBody)) {
 			return 0;
 		}
 
@@ -417,7 +417,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 
 		const prSyncBranchesStr = await this.githubVarService.getValue(SyncPRToIssueRunner.PR_SYNC_BASE_BRANCHES, false);
 
-		if (Utils.isNullOrEmptyOrUndefined(prSyncBranchesStr)) {
+		if (Utils.isNothing(prSyncBranchesStr)) {
 			let noticeMsg =
 				`The optional variable '${SyncPRToIssueRunner.PR_SYNC_BASE_BRANCHES}' does not exist or contains no value.`;
 			noticeMsg += `\nUsing the default branches: ${defaultBranches.join(", ")}.`;

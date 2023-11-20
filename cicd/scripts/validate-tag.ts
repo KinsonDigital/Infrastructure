@@ -27,7 +27,7 @@ Utils.printInGroup("Script Arguments", [
 	`Repo Name (Required): ${repoName}`,
 	`Tag Type (Required): ${tagType}`,
 	`Tag (Required): ${tag}`,
-	`GitHub Token (Required): ${Utils.isNullOrEmptyOrUndefined(token) ? "Not Provided" : "****"}`,
+	`GitHub Token (Required): ${Utils.isNothing(token) ? "Not Provided" : "****"}`,
 ]);
 
 const versionTypeInvalid = tagType != "production" && tagType != "preview" && tagType != "either";

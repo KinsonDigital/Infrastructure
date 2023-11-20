@@ -345,7 +345,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 
 		const prSyncBranchesStr = await this.githubVarService.getValue(prSyncBaseBranchesVarName, false);
 
-		if (Utils.isNullOrEmptyOrUndefined(prSyncBranchesStr)) {
+		if (Utils.isNothing(prSyncBranchesStr)) {
 			let warningMsg = "The optional variable 'PR_SYNC_BASE_BRANCHES' does not exist or contains no value.";
 			warningMsg += `\nUsing the default branches: ${defaultBranches.join(", ")}.`;
 			Utils.printAsGitHubWarning(warningMsg);

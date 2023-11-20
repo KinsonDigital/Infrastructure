@@ -522,7 +522,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 		const labels: string[] = [];
 		const ignoreLabelsStr = await this.githubVarService.getValue(PrepareReleaseRunner.IGNORE_LABELS, false);
 
-		if (Utils.isNullOrEmptyOrUndefined(ignoreLabelsStr)) {
+		if (Utils.isNothing(ignoreLabelsStr)) {
 			return labels;
 		} else {
 			const ignoreLabels = Utils.splitByComma(ignoreLabelsStr);
