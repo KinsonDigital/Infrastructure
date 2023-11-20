@@ -8,13 +8,11 @@ import {
 } from "../../../deps.ts";
 import { Utils } from "../../core/Utils.ts";
 import { ScriptRunner } from "./ScriptRunner.ts";
-import { PullRequestModel } from "../../core/Models/PullRequestModel.ts";
+import { PullRequestModel, IssueModel, ProjectModel } from "../../../deps.ts";
 import { PRTemplateManager } from "../../core/PRTemplateManager.ts";
 import { GitHubVariableService } from "../../core/Services/GitHubVariableService.ts";
-import { IssueModel } from "../../core/Models/IssueModel.ts";
 import { IIssueOrPRRequestData } from "../../core/IIssueOrPRRequestData.ts";
 import { IssueOrPullRequest, IssueState } from "../../core/Enums.ts";
-import { ProjectModel } from "../../core/Models/ProjectModel.ts";
 import { IPRTemplateSettings } from "../../core/IPRTemplateSettings.ts";
 
 /**

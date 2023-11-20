@@ -1,6 +1,6 @@
 import { OrgClient, RepoClient } from "../../../deps.ts";
 import { Guard } from "../Guard.ts";
-import { GitHubVarModel } from "../Models/GitHubVarModel.ts";
+import { GitHubVarModel } from "../../../deps.ts";
 
 /**
  * Provides a service for interacting with GitHub organization or repository variables.

@@ -1,11 +1,9 @@
 import { IssueClient, ProjectClient, PullRequestClient,
 	OrgClient, RepoClient } from "../../../deps.ts"; 
+import { PullRequestModel, IssueModel, ProjectModel } from "../../../deps.ts";
 import { Utils } from "../../core/Utils.ts";
 import { ScriptRunner } from "./ScriptRunner.ts";
 import { EventType, GitHubLogType, IssueState } from "../../core/Enums.ts";
-import { PullRequestModel } from "../../core/Models/PullRequestModel.ts";
-import { IssueModel } from "../../core/Models/IssueModel.ts";
-import { ProjectModel } from "../../core/Models/ProjectModel.ts";
 import { IIssueOrPRRequestData } from "../../core/IIssueOrPRRequestData.ts";
 import { IPRTemplateSettings } from "../../core/IPRTemplateSettings.ts";
 import { PRTemplateManager } from "../../core/PRTemplateManager.ts";

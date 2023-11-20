@@ -1,6 +1,5 @@
 import { ReleaseType } from "../Enums.ts";
-import { IssueModel } from "../Models/IssueModel.ts";
-import { PullRequestModel } from "../Models/PullRequestModel.ts";
+import { IssueModel, PullRequestModel } from "../../../deps.ts";
 import { HTMLService } from "./HTMLService.ts";
 import { MarkdownService } from "./MarkdownService.ts";
 import { Utils } from "../Utils.ts";

@@ -1,5 +1,5 @@
 import { RepoClient, MilestoneClient } from "../../deps.ts";
-import { MilestoneModel } from "../core/Models/MilestoneModel.ts";
+import { MilestoneModel } from "../../deps.ts";
 import { Utils } from "../core/Utils.ts";
 
 if (Deno.args.length != 3) {

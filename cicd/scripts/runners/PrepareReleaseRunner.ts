@@ -9,9 +9,7 @@ import {
 } from "../../../deps.ts";
 
 import { GitHubLogType, ReleaseType } from "../../core/Enums.ts";
-import { IssueModel } from "../../core/Models/IssueModel.ts";
-import { LabelModel } from "../../core/Models/LabelModel.ts";
-import { PullRequestModel } from "../../core/Models/PullRequestModel.ts";
+import { IssueModel, LabelModel, PullRequestModel } from "../../../deps.ts";
 import { GenerateReleaseNotesService } from "../../core/Services/GenerateReleaseNotesService.ts";
 import { Utils } from "../../core/Utils.ts";
 import { ScriptRunner } from "./ScriptRunner.ts";
