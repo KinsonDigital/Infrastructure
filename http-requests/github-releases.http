@@ -1,4 +1,0 @@
-
-# Get All Releases
-GET {{hostAddress}}/repos/{{repoOwner}}/{{repoName}}/releases
-
