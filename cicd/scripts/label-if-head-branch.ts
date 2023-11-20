@@ -1,8 +1,4 @@
-import {
-	LabelClient,
-	PullRequestClient,
-	RepoClient }
-from "../../deps.ts";
+import { LabelClient, PullRequestClient, RepoClient } from "../../deps.ts";
 import { Utils } from "../core/Utils.ts";
 
 const labelIfHeadBranchExecutor = async () => {
@@ -15,7 +11,7 @@ const labelIfHeadBranchExecutor = async () => {
 		errorMsg += "\nThe 5th arg is required and must be the intended head branch of the pull request.";
 		errorMsg += "\nThe 6th arg is required and must be the label to add if the head branch of the pull request is correct.";
 		errorMsg += "\nThe 7th arg is required and must be a GitHub PAT (Personal Access Token).";
-		
+
 		Utils.printAsGitHubError(errorMsg);
 		Deno.exit(1);
 	}

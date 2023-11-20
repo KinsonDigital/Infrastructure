@@ -1,14 +1,7 @@
-import {
-	OrgClient,
-	RepoClient,
-	IssueClient,
-	PullRequestClient,
-	UsersClient,
-	ProjectClient
-} from "../../../deps.ts";
+import { IssueClient, OrgClient, ProjectClient, PullRequestClient, RepoClient, UsersClient } from "../../../deps.ts";
 import { Utils } from "../../core/Utils.ts";
 import { ScriptRunner } from "./ScriptRunner.ts";
-import { PullRequestModel, IssueModel, ProjectModel } from "../../../deps.ts";
+import { IssueModel, ProjectModel, PullRequestModel } from "../../../deps.ts";
 import { PRTemplateManager } from "../../core/PRTemplateManager.ts";
 import { GitHubVariableService } from "../../core/Services/GitHubVariableService.ts";
 import { IIssueOrPRRequestData } from "../../core/IIssueOrPRRequestData.ts";
@@ -231,7 +224,8 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 		const issueClient = new IssueClient(ownerName, repoName, this.token);
 		const prClient = new PullRequestClient(ownerName, repoName, this.token);
 
-		if (issueOrPr != IssueOrPullRequest.issue &&
+		if (
+			issueOrPr != IssueOrPullRequest.issue &&
 			issueOrPr != IssueOrPullRequest.pullRequest &&
 			issueOrPr != IssueOrPullRequest.neither
 		) {
@@ -286,7 +280,11 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 	 * @param issueOrPullRequestNumber The issue or pull request number.
 	 * @returns Enum representing if the given {@link issueOrPullRequestNumber} is an issue, pull request, or neither.
 	 */
-	private async isIssueOrPullRequestNumber(ownerName: string, repoName: string, issueOrPullRequestNumber: number): Promise<IssueOrPullRequest> {
+	private async isIssueOrPullRequestNumber(
+		ownerName: string,
+		repoName: string,
+		issueOrPullRequestNumber: number,
+	): Promise<IssueOrPullRequest> {
 		const issueClient = new IssueClient(ownerName, repoName, this.token);
 		const prClient = new PullRequestClient(ownerName, repoName, this.token);
 
@@ -309,7 +307,12 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 	 * @param issue The issue to add the meta-data to.
 	 * @param prNumber The pull request number to add to the meta-data.
 	 */
-	private async addPullRequestMetaData(ownerName: string, repoName: string, issue: IssueModel, prNumber: number): Promise<void> {
+	private async addPullRequestMetaData(
+		ownerName: string,
+		repoName: string,
+		issue: IssueModel,
+		prNumber: number,
+	): Promise<void> {
 		const prMetaDataExists = SyncPRToIssueRunner.prMetaDataRegex.test(issue.body);
 		const prMetaData = `<!--closed-by-pr:${prNumber}-->`;
 		const issueBody = prMetaDataExists
@@ -358,7 +361,12 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 	 * @param issueNumber The issue number.
 	 * @param prNumber The pull request number.
 	 */
-	private async updatePullRequestBody(ownerName: string, repoName: string, issueNumber: number, prNumber: number): Promise<void> {
+	private async updatePullRequestBody(
+		ownerName: string,
+		repoName: string,
+		issueNumber: number,
+		prNumber: number,
+	): Promise<void> {
 		const issueClient = new IssueClient(ownerName, repoName, this.token);
 		const prClient = new PullRequestClient(ownerName, repoName, this.token);
 

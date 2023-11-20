@@ -41,8 +41,7 @@ export class AddItemToProjectRunner extends ScriptRunner {
 		const isIssueNumber = await this.issueClient.issueExists(issueOrPrNumber);
 		const isPRNumber = await this.prClient.pullRequestExists(issueOrPrNumber);
 
-		if (isIssueNumber && !isPRNumber)
-		{
+		if (isIssueNumber && !isPRNumber) {
 			await this.projectClient.addIssueToProject(issueOrPrNumber, projectName);
 		} else if (!isIssueNumber && isPRNumber) {
 			await this.projectClient.addPullRequestToProject(issueOrPrNumber, projectName);

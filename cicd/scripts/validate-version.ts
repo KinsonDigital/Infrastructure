@@ -1,12 +1,13 @@
 import { Utils } from "../core/Utils.ts";
 
-const validateVersionExecutor = async () => {
+const validateVersionExecutor = () => {
 	// Validate the arguments
 	if (Deno.args.length != 2) {
 		let errorMsg = `The cicd script must have 2 arguments but has ${Deno.args.length} argument(s).`;
 		errorMsg += "\nThe 1st arg is required and must be a production or preview version.";
 
-		errorMsg += "\nThe 2nd arg is required and must be the version type.  Valid values are 'production', 'preview' or 'either'.";
+		errorMsg +=
+			"\nThe 2nd arg is required and must be the version type.  Valid values are 'production', 'preview' or 'either'.";
 		errorMsg += "\n\tThe production version syntax is as follows: v<major>.<minor>.<patch>";
 		errorMsg += "\n\tThe preview version syntax is as follows: v<major>.<minor>.<patch>-preview.<preview number>";
 

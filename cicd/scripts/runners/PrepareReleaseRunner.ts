@@ -2,10 +2,10 @@ import {
 	GitClient,
 	LabelClient,
 	MilestoneClient,
-	PullRequestClient,
 	OrgClient,
+	ProjectClient,
+	PullRequestClient,
 	RepoClient,
-	ProjectClient
 } from "../../../deps.ts";
 
 import { GitHubLogType, ReleaseType } from "../../core/Enums.ts";
@@ -53,7 +53,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	constructor(args: string[]) {
 		super(args);
 
-		const [ownerName, repoName] = this.args
+		const [ownerName, repoName] = this.args;
 
 		this.githubVarService = new GitHubVariableService(ownerName, repoName, this.token);
 	}
@@ -295,7 +295,9 @@ export class PrepareReleaseRunner extends ScriptRunner {
 		const shouldUseMilestoneItems = await this.shouldUseItemsFromMilestone();
 
 		// Filter out any issues that have a label included in the ignore label list
-		const [issues, ignoredIssues] = shouldUseMilestoneItems ? await this.getMilestoneIssues(ownerName, repoName, version) : [[], []];
+		const [issues, ignoredIssues] = shouldUseMilestoneItems
+			? await this.getMilestoneIssues(ownerName, repoName, version)
+			: [[], []];
 
 		const releaseNoteGeneratorService = new GenerateReleaseNotesService();
 
@@ -644,7 +646,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	 * @param repoName The name of the repository that contains the labels.
 	 * @returns The list of repository labels.
 	 */
-	private async getLabels(ownerName:string, repoName: string): Promise<LabelModel[]> {
+	private async getLabels(ownerName: string, repoName: string): Promise<LabelModel[]> {
 		if (this.cachedRepoLabels.length <= 0) {
 			const labelClient = new LabelClient(ownerName, repoName, this.token);
 			const repoLabels: LabelModel[] = await labelClient.getAllLabels();

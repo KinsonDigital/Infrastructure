@@ -1,6 +1,5 @@
-import { IssueClient, ProjectClient, PullRequestClient,
-	OrgClient, RepoClient } from "../../../deps.ts"; 
-import { PullRequestModel, IssueModel, ProjectModel } from "../../../deps.ts";
+import { IssueClient, OrgClient, ProjectClient, PullRequestClient, RepoClient } from "../../../deps.ts";
+import { IssueModel, ProjectModel, PullRequestModel } from "../../../deps.ts";
 import { Utils } from "../../core/Utils.ts";
 import { ScriptRunner } from "./ScriptRunner.ts";
 import { EventType, GitHubLogType, IssueState } from "../../core/Enums.ts";

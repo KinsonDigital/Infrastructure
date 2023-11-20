@@ -17,7 +17,7 @@ export class ReleaseTweetBuilder {
 	/**
 	 * Creates a new instance of the {@link ReleaseTweetBuilder} class.
 	 */
-	constructor(repoOwner:string, repoName: string, token?: string) {
+	constructor(repoOwner: string, repoName: string, token?: string) {
 		this.repoOwner = repoOwner;
 		this.repoClient = new RepoClient(repoOwner, repoName, token);
 	}

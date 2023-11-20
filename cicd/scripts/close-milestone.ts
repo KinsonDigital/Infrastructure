@@ -1,4 +1,4 @@
-import { RepoClient, MilestoneClient } from "../../deps.ts";
+import { MilestoneClient, RepoClient } from "../../deps.ts";
 import { MilestoneModel } from "../../deps.ts";
 import { Utils } from "../core/Utils.ts";
 
@@ -13,12 +13,12 @@ const closeMilestoneExecutor = async () => {
 		Utils.printAsGitHubError(errorMsg);
 		Deno.exit(1);
 	}
-	
+
 	const ownerName: string = Deno.args[0].trim();
 	const repoName: string = Deno.args[1].trim();
 	const milestoneName: string = Deno.args[2].trim();
 	const token = Deno.args[3].trim();
-	
+
 	// Print out all of the arguments
 	Utils.printInGroup("Script Arguments", [
 		`Owner Name (Required): ${ownerName}`,
@@ -26,15 +26,15 @@ const closeMilestoneExecutor = async () => {
 		`Milestone Name (Required): ${milestoneName}`,
 		`GitHub Token (Required): ****`,
 	]);
-	
+
 	const repoClient: RepoClient = new RepoClient(ownerName, repoName, token);
 	const repoDoesNotExist = !(await repoClient.exists());
-	
+
 	if (repoDoesNotExist) {
 		Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
 		Deno.exit(1);
 	}
-	
+
 	const milestoneClient: MilestoneClient = new MilestoneClient(ownerName, repoName, token);
 
 	const milestone: MilestoneModel = await milestoneClient.getMilestoneByName(milestoneName);
