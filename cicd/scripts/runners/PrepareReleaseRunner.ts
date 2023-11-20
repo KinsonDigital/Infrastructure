@@ -54,7 +54,10 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	 */
 	constructor(args: string[]) {
 		super(args);
-		this.githubVarService = new GitHubVariableService(this.token);
+
+		const [ownerName, repoName] = this.args
+
+		this.githubVarService = new GitHubVariableService(ownerName, repoName, this.token);
 	}
 
 	/**
@@ -188,14 +191,14 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	 * @inheritdoc
 	 */
 	protected mutateArgs(args: string[]): string[] {
-		let [orgName, repoName, releaseType, version, token] = args;
+		let [ownerName, repoName, releaseType, version, token] = args;
 
-		orgName = orgName.trim();
+		ownerName = ownerName.trim();
 		repoName = repoName.trim();
 		releaseType = releaseType.trim().toLowerCase();
 		version = version.startsWith("v") ? version : `v${version}`;
 
-		return [orgName, repoName, releaseType, version, token];
+		return [ownerName, repoName, releaseType, version, token];
 	}
 
 	/**
@@ -226,11 +229,11 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	 * Sets up the type of branching based on the given {@link releaseType}.
 	 * @param releaseType The type of release.
 	 */
-	private async setupBranching(orgName: string, repoName: string, releaseType: ReleaseType): Promise<void> {
+	private async setupBranching(ownerName: string, repoName: string, releaseType: ReleaseType): Promise<void> {
 		const headBranch = await this.getHeadBranchName(releaseType);
 		const baseBranch = await this.getBaseBranchName(releaseType);
 
-		const gitClient = new GitClient(orgName, repoName, this.token);
+		const gitClient = new GitClient(ownerName, repoName, this.token);
 
 		if (!gitClient.branchExists(baseBranch)) {
 			let errorMsg = `The base branch '${baseBranch}' does not exist.`;
@@ -241,7 +244,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 		// If the head branch does not exist, create it
 		if (!(await gitClient.branchExists(headBranch))) {
-			const gitClient = new GitClient(orgName, repoName, this.token);
+			const gitClient = new GitClient(ownerName, repoName, this.token);
 			await gitClient.createBranch(headBranch, baseBranch);
 		}
 	}
