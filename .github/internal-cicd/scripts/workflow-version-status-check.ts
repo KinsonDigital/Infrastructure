@@ -1,5 +1,4 @@
-import { RepoClient } from "../../../cicd/clients/RepoClient.ts";
-import { TagClient } from "../../../cicd/clients/TagClient.ts";
+import { RepoClient, TagClient } from "../../../deps.ts";
 import { Directory } from "../../../deps.ts";
 import { File } from "../../../cicd/core/File.ts";
 import { Path } from "../../../cicd/core/Path.ts";
@@ -23,13 +22,14 @@ if (!Directory.Exists(baseDirPath)) {
 	Deno.exit(1);
 }
 
+const ownerName = "KinsonDigital";
 const repoName = "Infrastructure";
 const allFiles = Directory.getFiles(baseDirPath, true);
 
 const yamlFiles = allFiles.filter((file) => file.toLowerCase().endsWith(".yaml") || file.toLowerCase().endsWith(".yml"));
-const tagClient: TagClient = new TagClient(token);
+const tagClient: TagClient = new TagClient(ownerName, repoName, token);
 
-const latestTag = (await tagClient.getAllTags(repoName))[0].name;
+const latestTag = (await tagClient.getAllTags())[0].name;
 
 const workflowsToUpdate: WorkflowToUpdate[] = [];
 
@@ -94,12 +94,12 @@ workflowsToUpdate.forEach(workflowToUpdate => {
 });
 
 const repoVarName = "CICD_SCRIPTS_VERSION";
-const repoClient = new RepoClient(token);
+const repoClient = new RepoClient(ownerName, repoName, token);
 
-if (!(await repoClient.repoVariableExists(repoName, repoVarName))) {
+if (!(await repoClient.repoVariableExists(repoVarName))) {
 	errorMsgs.push(`The repository variable '${repoVarName}' does not exist.`);
 } else {
-	const scriptVersionVar = (await repoClient.getVariables(repoName)).find((v) => v.name == repoVarName);
+	const scriptVersionVar = (await repoClient.getVariables()).find((v) => v.name == repoVarName);
 	
 	if (scriptVersionVar?.value === latestTag) {
 		let errorMsg = `The repository variable '${repoVarName}' version value `;

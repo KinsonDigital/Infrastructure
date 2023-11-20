@@ -39,7 +39,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		this.issueClient = new IssueClient(ownerName, repoName, token);
 		this.projClient = new ProjectClient(ownerName, repoName, token);
 		this.prClient = new PullRequestClient(ownerName, repoName, token);
-		this.githubVarService = new GitHubVariableService(token);
+		this.githubVarService = new GitHubVariableService(ownerName, repoName, token);
 	}
 
 	/**

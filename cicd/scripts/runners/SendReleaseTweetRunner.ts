@@ -23,15 +23,18 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 	 */
 	constructor(args: string[]) {
 		super(args);
-		this.githubVarService = new GitHubVariableService(this.token);
+
+		const [ownerName, repoName] = this.args;
+
+		this.githubVarService = new GitHubVariableService(ownerName, repoName, this.token);
 	}
 
 	public async run(): Promise<void> {
 		await super.run();
 
-		const [repoOwner, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret] = this.args;
+		const [ownerName, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret] = this.args;
 
-		this.githubVarService.setOrgAndRepo(repoOwner, repoName);
+		this.githubVarService.setOrgAndRepo(ownerName, repoName);
 
 		let twitterBroadcastEnabled = await this.githubVarService.getValue(
 			SendReleaseTweetRunner.TWITTER_BROADCAST_ENABLED,
@@ -69,7 +72,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 			access_token_secret: accessTokenSecret,
 		};
 
-		const tweetBuilder: ReleaseTweetBuilder = new ReleaseTweetBuilder(repoOwner, templateRepoName);
+		const tweetBuilder: ReleaseTweetBuilder = new ReleaseTweetBuilder(ownerName, templateRepoName);
 
 		const tweet = await tweetBuilder.buildTweet(
 			templateBranchName,
@@ -173,12 +176,12 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 	protected mutateArgs(args: string[]): string[] {
 		args = Utils.trimAll(args);
 
-		let [orgName, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret, token] = args;
+		let [ownerName, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret, token] = args;
 
 		version = version.toLowerCase();
 		version = version.startsWith("v") ? version : `v${version}`;
 
-		return [orgName, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret, token];
+		return [ownerName, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret, token];
 	}
 
 	/**
