@@ -1,4 +1,4 @@
-import { basename, extname } from "std/path/mod.ts";
+import { basename, extname } from "../../deps.ts";
 import { Utils } from "./Utils.ts";
 
 /**

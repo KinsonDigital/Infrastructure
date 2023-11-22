@@ -21,7 +21,7 @@
 			}
 		},
 		{
-			"label": "Deno Check",
+			"label": "Build (Deno Check)",
 			"command": "deno",
 			"type": "shell",
 			"args": [

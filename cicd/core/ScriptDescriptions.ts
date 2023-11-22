@@ -1,4 +1,4 @@
-import { extname, resolve } from "std/path/mod.ts";
+import { extname, resolve } from "../../deps.ts";
 import { File } from "./File.ts";
 import { Utils } from "./Utils.ts";
 
