@@ -176,7 +176,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		}
 
 		ownerName = ownerName.trim();
-		const orgClient = new OrgClient(this.token);
+		const orgClient = new OrgClient(ownerName, this.token);
 
 		// If the org does not exist
 		if (!(await orgClient.exists())) {

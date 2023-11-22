@@ -164,7 +164,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 		this.githubVarService.setOrgAndRepo(ownerName, repoName);
 
-		const orgClient = new OrgClient(this.token);
+		const orgClient = new OrgClient(ownerName, this.token);
 
 		// If the org does not exist
 		if (!(await orgClient.exists())) {
