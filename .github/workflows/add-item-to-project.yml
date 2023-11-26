@@ -86,7 +86,7 @@ jobs:
             5. PAT
           #>
           deno run `
-            --allow-net `
+            --allow-net --allow-read `
             "$scriptUrl" `
             "${{ inputs.org-name }}" `
             "${{ inputs.org-project-name }}" `
