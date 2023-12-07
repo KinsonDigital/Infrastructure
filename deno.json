@@ -1,4 +1,10 @@
 {
+    "tasks": {
+        "clear": "deno run -A ./.github/internal-cicd/deno-tasks/clear-screen.ts",
+        "build": "deno task clear && deno run -A ./.github/internal-cicd/scripts/deno-check.ts",
+        "lint": "deno task clear && deno lint",
+        "format": "deno task clear && deno fmt"
+    },
     "lint": {
         "include": [
             "cicd/"
