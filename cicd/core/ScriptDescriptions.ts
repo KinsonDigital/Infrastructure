@@ -1,4 +1,4 @@
-import { extname, resolve } from "https://deno.land/std@0.194.0/path/mod.ts";
+import { extname, resolve } from "../../deps.ts";
 import { File } from "./File.ts";
 import { Utils } from "./Utils.ts";
 
@@ -15,7 +15,7 @@ export class ScriptDescriptions {
 		const descriptionFileName: string = scriptName.replace(extension, ".txt");
 		const scriptDescription: string = this.getScriptDescription(descriptionFileName);
 
-		if (Utils.isNullOrEmptyOrUndefined(scriptDescription)) {
+		if (Utils.isNothing(scriptDescription)) {
 			Utils.printAsGitHubWarning(`::warning::A script description file was not found for the script '${scriptName}'.`);
 		} else {
 			Utils.printInGroup("Script Info", scriptDescription);

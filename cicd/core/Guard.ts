@@ -14,7 +14,7 @@ export class Guard {
 		funcName = "",
 		paramName = "",
 	): void {
-		if (Utils.isNullOrEmptyOrUndefined(value)) {
+		if (Utils.isNothing(value)) {
 			Utils.printAsGitHubError("The value is null, undefined, or empty.");
 
 			if (funcName != "") {

@@ -1,10 +1,9 @@
-import { Input } from "https://deno.land/x/cliffy@v1.0.0-rc.2/prompt/input.ts";
-import chalk from "npm:chalk@5.3.0";
-import { TagClient } from "../../cicd/clients/TagClient.ts";
-import { Directory } from "../../cicd/core/Directory.ts";
-import { File } from "../../cicd/core/File.ts";
-import { Utils } from "../../cicd/core/Utils.ts";
-import { RepoClient } from "../../cicd/clients/RepoClient.ts";
+import {
+	TagClient, RepoClient, Directory, Input
+} from "../../../deps.ts";
+import chalk from "../../../deps.ts";
+import { File } from "../../../cicd/core/File.ts";
+import { Utils } from "../../../cicd/core/Utils.ts";
 
 if (Deno.args.length != 2) {
 	let errorMsg = "Invalid number of arguments.";
@@ -43,12 +42,14 @@ const newVersion = await Input.prompt({
 	}
 });
 
+const ownerName = "KinsonDigital";
 const repoName = "Infrastructure";
 const allFiles = Directory.getFiles(baseDirPath, true);
 
 const yamlFiles = allFiles.filter((file) => file.toLowerCase().endsWith(".yaml") || file.toLowerCase().endsWith(".yml"));
-const tagClient: TagClient = new TagClient(token);
-const allTags = (await tagClient.getAllTags(repoName)).map((t) => t.name);
+const tagClient: TagClient = new TagClient(ownerName, repoName, token);
+
+const allTags = (await tagClient.getAllTags()).map((t) => t.name);
 
 // If the new tag already exists, throw an error
 if (allTags.includes(newVersion)) {
@@ -106,15 +107,15 @@ if (noFilesUpdated) {
 }
 
 const repoVarName = "CICD_SCRIPTS_VERSION";
-const repoClient = new RepoClient(token);
+const repoClient = new RepoClient(ownerName, repoName, token);
 
-if (!(await repoClient.repoVariableExists(repoName, repoVarName))) {
+if (!(await repoClient.repoVariableExists(repoVarName))) {
 	console.log(chalk.red(`The repository variable '${repoVarName}' does not exist.`));
 	Deno.exit(0);
 }
 
-const scriptVersionVar = (await repoClient.getVariables(repoName)).find((v) => v.name == repoVarName);
+const scriptVersionVar = (await repoClient.getVariables()).find((v) => v.name == repoVarName);
 
-await repoClient.updateVariable(repoName, repoVarName, newVersion);
+await repoClient.updateVariable(repoVarName, newVersion);
 
 console.log(chalk.cyan(`Updated repository variable '${repoVarName}' from version '${scriptVersionVar?.value}' to '${newVersion}'.`));

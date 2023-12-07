@@ -1,10 +1,6 @@
 import { GitHubHttpStatusCodes, GitHubLogType } from "./Enums.ts";
 import { Guard } from "./Guard.ts";
-import { IssueModel } from "./Models/IssueModel.ts";
-import { LabelModel } from "./Models/LabelModel.ts";
-import { ProjectModel } from "./Models/ProjectModel.ts";
-import { PullRequestModel } from "./Models/PullRequestModel.ts";
-import { UserModel } from "./Models/UserModel.ts";
+import { IssueModel, LabelModel, ProjectModel, PullRequestModel, UserModel } from "../../deps.ts";
 
 /**
  * Provides utility functions.
@@ -48,7 +44,7 @@ export class Utils {
 	 * @param value The value to check.
 	 * @returns True if the value is null, undefined, or empty, otherwise false.
 	 */
-	public static isNullOrEmptyOrUndefined<T>(
+	public static isNothing<T>(
 		value: undefined | null | string | number | boolean | T[] | (() => T) | object,
 	): value is undefined | null | "" | number | T[] | (() => T) {
 		if (value === undefined || value === null) {
@@ -460,7 +456,7 @@ export class Utils {
 	 * @returns The given {@link value} with its first letter converted to upper case.
 	 */
 	public static firstLetterToUpper(value: string): string {
-		if (Utils.isNullOrEmptyOrUndefined(value)) {
+		if (Utils.isNothing(value)) {
 			return value;
 		}
 
@@ -500,7 +496,7 @@ export class Utils {
 	 * @returns The given {@link value} with the starting white space removed.
 	 */
 	public static trimAllStartingWhiteSpace(value: string): string {
-		if (Utils.isNullOrEmptyOrUndefined(value)) {
+		if (Utils.isNothing(value)) {
 			return value;
 		}
 
@@ -518,11 +514,11 @@ export class Utils {
 	 * @returns The given {@link valueToTrim} with the starting value trimmed.
 	 */
 	public static trimAllStartingValue(valueToTrim: string, valueToRemove: string): string {
-		if (Utils.isNullOrEmptyOrUndefined(valueToTrim)) {
+		if (Utils.isNothing(valueToTrim)) {
 			return valueToTrim;
 		}
 
-		if (Utils.isNullOrEmptyOrUndefined(valueToRemove)) {
+		if (Utils.isNothing(valueToRemove)) {
 			return valueToTrim;
 		}
 
@@ -541,11 +537,11 @@ export class Utils {
 	 * @returns The given {@link valueToTrim} with the ending value trimmed.
 	 */
 	public static trimAllEndingValue(valueToTrim: string, valueToRemove: string): string {
-		if (Utils.isNullOrEmptyOrUndefined(valueToTrim)) {
+		if (Utils.isNothing(valueToTrim)) {
 			return valueToTrim;
 		}
 
-		if (Utils.isNullOrEmptyOrUndefined(valueToRemove)) {
+		if (Utils.isNothing(valueToRemove)) {
 			return valueToTrim;
 		}
 
@@ -578,11 +574,11 @@ export class Utils {
 	 * @remarks Only the first character will be used by the given {@link separator}.
 	 */
 	public static splitBy(value: string, separator: string): string[] {
-		if (Utils.isNullOrEmptyOrUndefined(value)) {
+		if (Utils.isNothing(value)) {
 			return [];
 		}
 
-		if (Utils.isNullOrEmptyOrUndefined(separator)) {
+		if (Utils.isNothing(separator)) {
 			return [value];
 		}
 
@@ -591,7 +587,7 @@ export class Utils {
 
 		return value.indexOf(separator) === -1 ? [value] : value.split(separator)
 			.map((v) => v.trim())
-			.filter((i) => !Utils.isNullOrEmptyOrUndefined(i));
+			.filter((i) => !Utils.isNothing(i));
 	}
 
 	/**
@@ -600,7 +596,7 @@ export class Utils {
 	 * @returns The values split by comma.
 	 */
 	public static splitByComma(value: string): string[] {
-		if (Utils.isNullOrEmptyOrUndefined(value)) {
+		if (Utils.isNothing(value)) {
 			return [];
 		}
 

@@ -42,7 +42,7 @@ export class PRTemplateManager {
 	 * @returns True if syncing is disabled, false otherwise.
 	 */
 	public syncingDisabled(template: string): boolean {
-		if (Utils.isNullOrEmptyOrUndefined(template)) {
+		if (Utils.isNothing(template)) {
 			return true;
 		}
 

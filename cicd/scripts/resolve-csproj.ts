@@ -1,4 +1,6 @@
 import { ResolveCsProjRunner } from "./runners/ResolveCsProjRunner.ts";
 
-const runner: ResolveCsProjRunner = new ResolveCsProjRunner(Deno.args);
-await runner.run();
+const resolveCsProjExecutor: ResolveCsProjRunner = new ResolveCsProjRunner(Deno.args);
+await resolveCsProjExecutor.run();
+
+export default resolveCsProjExecutor;

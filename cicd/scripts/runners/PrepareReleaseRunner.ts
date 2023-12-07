@@ -1,26 +1,28 @@
-import { GitClient } from "../../clients/GitClient.ts";
-import { LabelClient } from "../../clients/LabelClient.ts";
-import { MilestoneClient } from "../../clients/MilestoneClient.ts";
-import { PullRequestClient } from "../../clients/PullRequestClient.ts";
+import {
+	GitClient,
+	LabelClient,
+	MilestoneClient,
+	OrgClient,
+	ProjectClient,
+	PullRequestClient,
+	RepoClient,
+} from "../../../deps.ts";
+
 import { GitHubLogType, ReleaseType } from "../../core/Enums.ts";
-import { IssueModel } from "../../core/Models/IssueModel.ts";
-import { LabelModel } from "../../core/Models/LabelModel.ts";
-import { PullRequestModel } from "../../core/Models/PullRequestModel.ts";
+import { IssueModel, LabelModel, PullRequestModel } from "../../../deps.ts";
 import { GenerateReleaseNotesService } from "../../core/Services/GenerateReleaseNotesService.ts";
 import { Utils } from "../../core/Utils.ts";
 import { ScriptRunner } from "./ScriptRunner.ts";
 import { GitHubVariableService } from "../../core/Services/GitHubVariableService.ts";
-import { OrgClient } from "../../clients/OrgClient.ts";
-import { RepoClient } from "../../clients/RepoClient.ts";
 import { CSharpVersionService } from "../../core/Services/CSharpVersionService.ts";
 import { IIssueOrPRRequestData } from "../../core/IIssueOrPRRequestData.ts";
-import { ProjectClient } from "../../clients/ProjectClient.ts";
 import { Guard } from "../../core/Guard.ts";
 
 /**
  * Automates the process of generating release notes for a GitHub release.
  */
 export class PrepareReleaseRunner extends ScriptRunner {
+	private static readonly ORGANIZATION_NAME = "ORGANIZATION_NAME";
 	private static readonly PREV_PREP_RELEASE_PR_LABELS = "PREV_PREP_RELEASE_PR_LABELS";
 	private static readonly PROD_PREP_RELEASE_PR_LABELS = "PROD_PREP_RELEASE_PR_LABELS";
 	private static readonly ADD_ITEMS_FROM_MILESTONE = "ADD_ITEMS_FROM_MILESTONE";
@@ -50,7 +52,10 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	 */
 	constructor(args: string[]) {
 		super(args);
-		this.githubVarService = new GitHubVariableService(this.token);
+
+		const [ownerName, repoName] = this.args;
+
+		this.githubVarService = new GitHubVariableService(ownerName, repoName, this.token);
 	}
 
 	/**
@@ -59,16 +64,16 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	public async run(): Promise<void> {
 		await super.run();
 
-		const [orgName, repoName, releaseTypeArg, version] = this.args;
+		const [ownerName, repoName, releaseTypeArg, version] = this.args;
 
-		this.githubVarService.setOrgAndRepo(orgName, repoName);
+		this.githubVarService.setOrgAndRepo(ownerName, repoName);
 
-		const gitClient = new GitClient(orgName, repoName, this.token);
-		const pullRequestClient = new PullRequestClient(this.token);
+		const gitClient = new GitClient(ownerName, repoName, this.token);
+		const pullRequestClient = new PullRequestClient(ownerName, repoName, this.token);
 
 		const releaseType: ReleaseType = <ReleaseType> releaseTypeArg;
 
-		await this.setupBranching(orgName, repoName, releaseType);
+		await this.setupBranching(ownerName, repoName, releaseType);
 
 		const headBranch = await this.getHeadBranchName(releaseType);
 		const baseBranch = await this.getBaseBranchName(releaseType);
@@ -80,7 +85,6 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 		// Create a release pull request
 		const newPr = await pullRequestClient.createPullRequest(
-			repoName,
 			`🚀${releaseTypeStr} Release (${version})`,
 			headBranch,
 			baseBranch,
@@ -88,7 +92,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 		);
 
 		const defaultReviewer = await this.githubVarService.getValue(PrepareReleaseRunner.DEFAULT_PR_REVIEWER, false);
-		await pullRequestClient.requestReviewer(repoName, newPr.number, defaultReviewer);
+		await pullRequestClient.requestReviewers(newPr.number, defaultReviewer);
 
 		let prLabelsVarName = "";
 
@@ -107,13 +111,13 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 		const prLabels = Utils.splitByComma(await this.githubVarService.getValue(prLabelsVarName, false));
 
-		await this.validateLabelsExist(repoName, prLabels);
+		await this.validateLabelsExist(ownerName, repoName, prLabels);
 
-		const milestoneClient = new MilestoneClient(this.token);
-		const milestone = await milestoneClient.getMilestoneByName(repoName, version);
+		const milestoneClient = new MilestoneClient(ownerName, repoName, this.token);
+		const milestone = await milestoneClient.getMilestoneByName(version);
 
 		const orgProjectName = await this.githubVarService.getValue(PrepareReleaseRunner.ORG_PROJECT_NAME, false);
-		const projectClient = new ProjectClient(this.token);
+		const projectClient = new ProjectClient(ownerName, repoName, this.token);
 		const orgProject = (await projectClient.getOrgProjects()).find((p) => p.title === orgProjectName);
 
 		if (orgProject === undefined) {
@@ -121,7 +125,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 			Deno.exit(1);
 		}
 
-		await projectClient.addToProject(newPr.node_id ?? "", orgProjectName);
+		await projectClient.addIssueToProject(newPr.number, orgProjectName);
 
 		// Update the pull request by setting the default reviewer, org project, labels and milestone
 		const prData: IIssueOrPRRequestData = {
@@ -129,9 +133,9 @@ export class PrepareReleaseRunner extends ScriptRunner {
 			milestone: milestone.number,
 		};
 
-		await pullRequestClient.updatePullRequest(repoName, newPr.number, prData);
-		await this.updateProjectVersions(repoName, headBranch, version);
-		await this.generateReleaseNotes(orgName, repoName, version, releaseType);
+		await pullRequestClient.updatePullRequest(newPr.number, prData);
+		await this.updateProjectVersions(ownerName, repoName, headBranch, version);
+		await this.generateReleaseNotes(ownerName, repoName, version, releaseType);
 	}
 
 	/**
@@ -142,7 +146,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 			const mainMsg = `The cicd script must have 5 arguments but has ${args.length} argument(s).`;
 
 			const argDescriptions = [
-				"Required and must be a valid GitHub organization name.",
+				"Required and must be a valid GitHub repository owner name.",
 				"Required and must be a valid GitHub repository name.",
 				"Required and must be the type of release.\n\tValid values are 'production' and 'preview' and are case-insensitive.",
 				"Required and must be a valid preview or production version.",
@@ -156,24 +160,22 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 		this.printOrgRepoVarsUsed();
 
-		let [orgName, repoName, releaseType, version] = args;
+		const [ownerName, repoName, releaseType, version] = args;
 
-		this.githubVarService.setOrgAndRepo(orgName, repoName);
+		this.githubVarService.setOrgAndRepo(ownerName, repoName);
 
-		orgName = orgName.trim();
-		const orgClient = new OrgClient(this.token);
+		const orgClient = new OrgClient(ownerName, this.token);
 
 		// If the org does not exist
-		if (!(await orgClient.exists(orgName))) {
-			Utils.printAsGitHubError(`The organization '${orgName}' does not exist.`);
+		if (!(await orgClient.exists())) {
+			Utils.printAsGitHubError(`The organization '${ownerName}' does not exist.`);
 			Deno.exit(1);
 		}
 
-		repoName = repoName.trim();
-		const repoClient = new RepoClient(this.token);
+		const repoClient = new RepoClient(ownerName, repoName, this.token);
 
 		// If the repo does not exist
-		if (!(await repoClient.exists(repoName))) {
+		if (!(await repoClient.exists())) {
 			Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
 			Deno.exit(1);
 		}
@@ -187,14 +189,14 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	 * @inheritdoc
 	 */
 	protected mutateArgs(args: string[]): string[] {
-		let [orgName, repoName, releaseType, version, token] = args;
+		let [ownerName, repoName, releaseType, version, token] = args;
 
-		orgName = orgName.trim();
+		ownerName = ownerName.trim();
 		repoName = repoName.trim();
 		releaseType = releaseType.trim().toLowerCase();
 		version = version.startsWith("v") ? version : `v${version}`;
 
-		return [orgName, repoName, releaseType, version, token];
+		return [ownerName, repoName, releaseType, version, token];
 	}
 
 	/**
@@ -225,11 +227,11 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	 * Sets up the type of branching based on the given {@link releaseType}.
 	 * @param releaseType The type of release.
 	 */
-	private async setupBranching(orgName: string, repoName: string, releaseType: ReleaseType): Promise<void> {
+	private async setupBranching(ownerName: string, repoName: string, releaseType: ReleaseType): Promise<void> {
 		const headBranch = await this.getHeadBranchName(releaseType);
 		const baseBranch = await this.getBaseBranchName(releaseType);
 
-		const gitClient = new GitClient(orgName, repoName, this.token);
+		const gitClient = new GitClient(ownerName, repoName, this.token);
 
 		if (!gitClient.branchExists(baseBranch)) {
 			let errorMsg = `The base branch '${baseBranch}' does not exist.`;
@@ -240,7 +242,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 		// If the head branch does not exist, create it
 		if (!(await gitClient.branchExists(headBranch))) {
-			const gitClient = new GitClient(orgName, repoName, this.token);
+			const gitClient = new GitClient(ownerName, repoName, this.token);
 			await gitClient.createBranch(headBranch, baseBranch);
 		}
 	}
@@ -248,11 +250,13 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	/**
 	 * Updates the version tags with the given {@link version} in a csproj file in a repository with a name that
 	 * matches the given {@link repoName}, in the branch with the given {@link branchName}.
+	 * @param ownerName The name of the owner of the repository.
 	 * @param repoName The name of the repository.
 	 * @param branchName The name of the branch.
 	 * @param version The version to update the csproj file with.
 	 */
 	private async updateProjectVersions(
+		ownerName: string,
 		repoName: string,
 		branchName: string,
 		version: string,
@@ -261,7 +265,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 		relativeProjFilePath = Utils.normalizePath(relativeProjFilePath);
 		relativeProjFilePath = Utils.trimAllStartingValue(relativeProjFilePath, "/");
 
-		const updateProjFileService = new CSharpVersionService(repoName, this.token);
+		const updateProjFileService = new CSharpVersionService(ownerName, repoName, this.token);
 
 		// Update the version tags in the csproj file
 		await updateProjFileService.updateVersion(branchName, relativeProjFilePath, version);
@@ -269,35 +273,37 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 	/**
 	 * Generates release notes for a repository with a name that matches the given {@link repoName}, that is in
-	 * a GitHub organization with a name that matches the given {@link orgName}, for a release type that matches
+	 * a GitHub organization with a name that matches the given {@link ownerName}, for a release type that matches
 	 * the given {@link releaseType}, and a version that matches the given {@link version}.
-	 * @param orgName The name of the organization.
+	 * @param ownerName The name of the owner of the repository.
 	 * @param repoName The name of the repository.
 	 * @param version The version of the release.
 	 * @param releaseType The type of release.
 	 */
 	private async generateReleaseNotes(
-		orgName: string,
+		ownerName: string,
 		repoName: string,
 		version: string,
 		releaseType: ReleaseType,
 	): Promise<void> {
 		const prIncludeLabel = await this.githubVarService.getValue(PrepareReleaseRunner.PR_INCLUDE_NOTES_LABEL, false);
 
-		const repoClient = new RepoClient(this.token);
+		const repoClient = new RepoClient(ownerName, repoName, this.token);
 
-		await this.validateLabelsExist(repoName, [prIncludeLabel]);
+		await this.validateLabelsExist(ownerName, repoName, [prIncludeLabel]);
 
 		const shouldUseMilestoneItems = await this.shouldUseItemsFromMilestone();
 
 		// Filter out any issues that have a label included in the ignore label list
-		const [issues, ignoredIssues] = shouldUseMilestoneItems ? await this.getMilestoneIssues(repoName, version) : [[], []];
+		const [issues, ignoredIssues] = shouldUseMilestoneItems
+			? await this.getMilestoneIssues(ownerName, repoName, version)
+			: [[], []];
 
 		const releaseNoteGeneratorService = new GenerateReleaseNotesService();
 
 		// Filter out any prs that have a label included in the ignore label list
 		const [pullRequests, ignoredPullRequests] = shouldUseMilestoneItems
-			? await this.getMilestonePullRequests(repoName, version, prIncludeLabel)
+			? await this.getMilestonePullRequests(ownerName, repoName, version, prIncludeLabel)
 			: [[], []];
 
 		const releaseNotes = shouldUseMilestoneItems
@@ -309,7 +315,6 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 		// Create a new release notes file
 		await repoClient.createFile(
-			repoName,
 			headBranch,
 			releaseNotesFilePath,
 			releaseNotes,
@@ -321,14 +326,14 @@ export class PrepareReleaseRunner extends ScriptRunner {
 		if (shouldUseMilestoneItems) {
 			if (ignoredIssues.length > 0) {
 				ignoredIssues.forEach((issue) => {
-					const issueUrl = Utils.buildIssueUrl(orgName, repoName, issue.number);
+					const issueUrl = Utils.buildIssueUrl(ownerName, repoName, issue.number);
 					ignoredItemList.push(`${issue.title} (Issue #${issue.number}) - ${issueUrl})}`);
 				});
 			}
 
 			if (ignoredPullRequests.length > 0) {
 				ignoredPullRequests.forEach((pr) => {
-					const prUrl = Utils.buildPullRequestUrl(orgName, repoName, pr.number);
+					const prUrl = Utils.buildPullRequestUrl(ownerName, repoName, pr.number);
 					ignoredItemList.push(`${pr.title} (PR #${pr.number}) - ${prUrl}`);
 				});
 			}
@@ -376,6 +381,11 @@ export class PrepareReleaseRunner extends ScriptRunner {
 				Deno.exit(1);
 		}
 
+		const releaseTemplateRepoOwnerName = await this.githubVarService.getValue(
+			PrepareReleaseRunner.ORGANIZATION_NAME,
+			false,
+		);
+
 		const releaseTemplateRepoName = await this.githubVarService.getValue(
 			PrepareReleaseRunner.PR_RELEASE_TEMPLATE_REPO_NAME,
 			false,
@@ -385,10 +395,9 @@ export class PrepareReleaseRunner extends ScriptRunner {
 			await this.githubVarService.getValue(releaseTemplateVarName, false),
 		);
 
-		const repoClient = new RepoClient(this.token);
+		const repoClient = new RepoClient(releaseTemplateRepoOwnerName, releaseTemplateRepoName, this.token);
 
 		return await repoClient.getFileContent(
-			releaseTemplateRepoName,
 			branchName,
 			relativeReleaseTemplateFilePath,
 		);
@@ -507,21 +516,22 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 	/**
 	 * Gets a list of labels that will be excluded from the release notes.
+	 * @param repoName The name of the owner of the repository.
 	 * @param repoName The name of the repository.
 	 * @returns The list of ignore labels.
 	 */
-	private async getIgnoreLabels(repoName: string): Promise<string[]> {
+	private async getIgnoreLabels(ownerName: string, repoName: string): Promise<string[]> {
 		const labels: string[] = [];
 		const ignoreLabelsStr = await this.githubVarService.getValue(PrepareReleaseRunner.IGNORE_LABELS, false);
 
-		if (Utils.isNullOrEmptyOrUndefined(ignoreLabelsStr)) {
+		if (Utils.isNothing(ignoreLabelsStr)) {
 			return labels;
 		} else {
 			const ignoreLabels = Utils.splitByComma(ignoreLabelsStr);
 			labels.push(...ignoreLabels);
 		}
 
-		await this.validateLabelsExist(repoName, labels);
+		await this.validateLabelsExist(ownerName, repoName, labels);
 
 		return labels;
 	}
@@ -529,20 +539,22 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	/**
 	 * Gets all of the issues that are in a milestone with a title that matches the given {@link milestoneTitle},
 	 * excluding any issues that have a label that are in the ignore label list.
+	 * @param ownerName The name of the owner of the repository.
 	 * @param repoName The name of the repository.
 	 * @param milestoneTitle The title of the milestone.
 	 * @returns The issues in the milestone.
 	 */
 	private async getMilestoneIssues(
+		ownerName: string,
 		repoName: string,
 		milestoneTitle: string,
 	): Promise<[IssueModel[], IssueModel[]]> {
 		const ignoredIssues: IssueModel[] = [];
-		const ignoreLabels: string[] = await this.getIgnoreLabels(repoName);
+		const ignoreLabels: string[] = await this.getIgnoreLabels(ownerName, repoName);
 
-		const milestoneClient = new MilestoneClient(this.token);
+		const milestoneClient = new MilestoneClient(ownerName, repoName, this.token);
 		// Filter out any issues that have a label included in the ignore label list
-		const issues = (await milestoneClient.getIssues(repoName, milestoneTitle))
+		const issues = (await milestoneClient.getIssues(milestoneTitle))
 			.filter((issue: IssueModel) => {
 				if (ignoreLabels.length <= 0) {
 					return true;
@@ -572,15 +584,16 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	 * @returns The pull requests that are in the milestone.
 	 */
 	private async getMilestonePullRequests(
+		ownerName: string,
 		repoName: string,
 		milestoneTitle: string,
 		prIncludeLabel: string,
 	): Promise<[PullRequestModel[], PullRequestModel[]]> {
 		const ignoredPullRequests: PullRequestModel[] = [];
-		const ignoreLabels: string[] = await this.getIgnoreLabels(repoName);
+		const ignoreLabels: string[] = await this.getIgnoreLabels(ownerName, repoName);
 
-		const milestoneClient = new MilestoneClient(this.token);
-		const pullRequests = (await milestoneClient.getPullRequests(repoName, milestoneTitle))
+		const milestoneClient = new MilestoneClient(ownerName, repoName, this.token);
+		const pullRequests = (await milestoneClient.getPullRequests(milestoneTitle))
 			.filter((pr: PullRequestModel) => {
 				const shouldNotIgnore = ignoreLabels.length <= 0 || ignoreLabels.every((ignoreLabel) => {
 					return pr.labels?.every((prLabel) => prLabel.name != ignoreLabel) ?? true;
@@ -601,17 +614,18 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	/**
 	 * Validates that the given list of {@link labels} exist in a repository with a name
 	 * that matches the given {@link repoName}.
+	 * @param repoName The name of the owner of the repository.
 	 * @param repoName The name of the repository that contains the labels.
 	 * @param labels The list of labels to validate.
 	 */
-	private async validateLabelsExist(repoName: string, labels: string[]): Promise<void> {
+	private async validateLabelsExist(ownerName: string, repoName: string, labels: string[]): Promise<void> {
 		Guard.isNullOrEmptyOrUndefined(repoName, "validateLabelsExist", "repoName");
 
 		if (labels.length <= 0) {
 			return;
 		}
 
-		const repoLabels = await this.getLabels(repoName);
+		const repoLabels = await this.getLabels(ownerName, repoName);
 
 		const invalidLabels = labels.filter((ignoreLabel) => {
 			return !repoLabels.some((label) => label.name === ignoreLabel);
@@ -628,13 +642,14 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 	/**
 	 * Gets all of the labels for a repository with a name that matches the given {@link repoName}.
+	 * @param repoName The name of the owner of the repository.
 	 * @param repoName The name of the repository that contains the labels.
 	 * @returns The list of repository labels.
 	 */
-	private async getLabels(repoName: string): Promise<LabelModel[]> {
+	private async getLabels(ownerName: string, repoName: string): Promise<LabelModel[]> {
 		if (this.cachedRepoLabels.length <= 0) {
-			const labelClient = new LabelClient(this.token);
-			const repoLabels: LabelModel[] = await labelClient.getAllLabels(repoName);
+			const labelClient = new LabelClient(ownerName, repoName, this.token);
+			const repoLabels: LabelModel[] = await labelClient.getAllLabels();
 
 			this.cachedRepoLabels.push(...repoLabels);
 		}
