@@ -12,8 +12,8 @@ export class MarkdownService {
 	 */
 	public createMarkdownLink(text: string, url: string): string {
 		const funcName = "createMarkdownLink";
-		Guard.isNullOrEmptyOrUndefined(text, funcName, "text");
-		Guard.isNullOrEmptyOrUndefined(url, funcName, "url");
+		Guard.isNothing(text, funcName, "text");
+		Guard.isNothing(url, funcName, "url");
 
 		return `[${text}](${url})`;
 	}
@@ -27,7 +27,7 @@ export class MarkdownService {
 	 */
 	public createHeader(text: string, level: number, isBold = false): string {
 		const funcName = "createHeader";
-		Guard.isNullOrEmptyOrUndefined(text, funcName, "text");
+		Guard.isNothing(text, funcName, "text");
 		Guard.isLessThanOne(level, funcName, "level");
 
 		level = level < 1 ? 1 : level;

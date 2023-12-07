@@ -39,11 +39,11 @@ export class ReleaseTweetBuilder {
 		discordInviteCode: string,
 	): Promise<string> {
 		const funcName = "buildTweet";
-		Guard.isNullOrEmptyOrUndefined(branchName, funcName, "branchName");
-		Guard.isNullOrEmptyOrUndefined(relativeFilePath, funcName, "relativeFilePath");
-		Guard.isNullOrEmptyOrUndefined(projectName, funcName, "projectName");
-		Guard.isNullOrEmptyOrUndefined(version, funcName, "version");
-		Guard.isNullOrEmptyOrUndefined(discordInviteCode, funcName, "discordInviteCode");
+		Guard.isNothing(branchName, funcName, "branchName");
+		Guard.isNothing(relativeFilePath, funcName, "relativeFilePath");
+		Guard.isNothing(projectName, funcName, "projectName");
+		Guard.isNothing(version, funcName, "version");
+		Guard.isNothing(discordInviteCode, funcName, "discordInviteCode");
 
 		version = version.startsWith("v") ? version : `v${version}`;
 

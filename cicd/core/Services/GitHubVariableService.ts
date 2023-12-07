@@ -19,7 +19,7 @@ export class GitHubVariableService {
 	 */
 	constructor(ownerName: string, repoName: string, token: string) {
 		const funcName = "setOrgAndRepo";
-		Guard.isNullOrEmptyOrUndefined(token, funcName, "token");
+		Guard.isNothing(token, funcName, "token");
 
 		this.orgClient = new OrgClient(ownerName, token);
 		this.repoClient = new RepoClient(ownerName, repoName, token);
@@ -32,8 +32,8 @@ export class GitHubVariableService {
 	 */
 	public setOrgAndRepo(ownerName: string, repoName: string): void {
 		const funcName = "setOrgAndRepo";
-		Guard.isNullOrEmptyOrUndefined(ownerName, funcName, "ownerName");
-		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNothing(ownerName, funcName, "ownerName");
+		Guard.isNothing(repoName, funcName, "repoName");
 	}
 
 	/**
@@ -98,7 +98,7 @@ export class GitHubVariableService {
 	 * @remarks The variables are cached to reduce requests to GitHub.
 	 */
 	private async getVar(name: string): Promise<GitHubVarModel | undefined> {
-		Guard.isNullOrEmptyOrUndefined(name, "getVar", "name");
+		Guard.isNothing(name, "getVar", "name");
 
 		if (this.cachedVars.length === 0) {
 			const orgVars = await this.orgClient.getVariables();

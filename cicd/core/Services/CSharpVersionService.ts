@@ -21,8 +21,8 @@ export class CSharpVersionService {
 	 */
 	constructor(ownerName: string, repoName: string, token: string) {
 		const funcName = "CSharpVersionService.ctor";
-		Guard.isNullOrEmptyOrUndefined(ownerName, funcName, "ownerName");
-		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNothing(ownerName, funcName, "ownerName");
+		Guard.isNothing(repoName, funcName, "repoName");
 
 		this.ownerName = ownerName;
 		this.repoName = repoName;
@@ -38,9 +38,9 @@ export class CSharpVersionService {
 	 */
 	public async updateVersion(branchName: string, relativeProjFilePath: string, version: string): Promise<void> {
 		const funcName = "updateVersion";
-		Guard.isNullOrEmptyOrUndefined(branchName, funcName, "branchName");
-		Guard.isNullOrEmptyOrUndefined(relativeProjFilePath, funcName, "projFilePath");
-		Guard.isNullOrEmptyOrUndefined(version, funcName, "version");
+		Guard.isNothing(branchName, funcName, "branchName");
+		Guard.isNothing(relativeProjFilePath, funcName, "projFilePath");
+		Guard.isNothing(version, funcName, "version");
 
 		relativeProjFilePath = Utils.normalizePath(relativeProjFilePath);
 		version = version.trim().toLowerCase();

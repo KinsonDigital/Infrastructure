@@ -619,7 +619,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	 * @param labels The list of labels to validate.
 	 */
 	private async validateLabelsExist(ownerName: string, repoName: string, labels: string[]): Promise<void> {
-		Guard.isNullOrEmptyOrUndefined(repoName, "validateLabelsExist", "repoName");
+		Guard.isNothing(repoName, "validateLabelsExist", "repoName");
 
 		if (labels.length <= 0) {
 			return;
