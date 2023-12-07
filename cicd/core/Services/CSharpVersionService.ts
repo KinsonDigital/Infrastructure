@@ -3,12 +3,15 @@ import { Guard } from "../Guard.ts";
 import { Utils } from "../Utils.ts";
 
 /**
+ * v1.2.3
+ * v1.2.3-preview.4
+ * v1.2.3-preview.4
  * Performs updates to csharp versions in csharp project files.
  */
 export class CSharpVersionService {
-	private readonly versionRegex = /[0-9]+\.[0-9]+\.[0-9]+(|-preview.[0-9]+)/gm;
-	private readonly versionTagRegex = /<Version>[0-9]+\.[0-9]+\.[0-9]+(|-preview.[0-9]+)<\/Version>/gm;
-	private readonly fileVersionTagRegex = /<FileVersion>[0-9]+\.[0-9]+\.[0-9]+(|-preview.[0-9]+)<\/FileVersion>/gm;
+	private readonly versionRegex = /[1-9][0-9]*\.[1-9][0-9]*\.[1-9][0-9]*(|-preview.[0-9]*)/gm;
+	private readonly versionTagRegex = /<Version>[1-9][0-9]*\.[1-9][0-9]*\.[1-9][0-9]*(|-preview.[1-9][0-9]*)<\/Version>/gm;
+	private readonly fileVersionTagRegex = /<FileVersion>[1-9][0-9]*\.[1-9][0-9]*\.[0-9]*(|-preview.[1-9][0-9]*)<\/FileVersion>/gm;
 	private readonly ownerName: string;
 	private readonly repoName: string;
 	private readonly token: string;
