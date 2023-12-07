@@ -1,6 +1,4 @@
-import { OrgClient } from "../../clients/OrgClient.ts";
-import { RepoClient } from "../../clients/RepoClient.ts";
-import { TwitterClient } from "../../clients/TwitterClient.ts";
+import { OrgClient, RepoClient, XClient } from "../../../deps.ts";
 import { GitHubLogType } from "../../core/Enums.ts";
 import { ReleaseTweetBuilder } from "../../core/ReleaseTweetBuilder.ts";
 import { GitHubVariableService } from "../../core/Services/GitHubVariableService.ts";
@@ -25,15 +23,18 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 	 */
 	constructor(args: string[]) {
 		super(args);
-		this.githubVarService = new GitHubVariableService(this.token);
+
+		const [ownerName, repoName] = this.args;
+
+		this.githubVarService = new GitHubVariableService(ownerName, repoName, this.token);
 	}
 
 	public async run(): Promise<void> {
 		await super.run();
 
-		const [orgName, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret] = this.args;
+		const [ownerName, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret] = this.args;
 
-		this.githubVarService.setOrgAndRepo(orgName, repoName);
+		this.githubVarService.setOrgAndRepo(ownerName, repoName);
 
 		let twitterBroadcastEnabled = await this.githubVarService.getValue(
 			SendReleaseTweetRunner.TWITTER_BROADCAST_ENABLED,
@@ -41,7 +42,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 		);
 		twitterBroadcastEnabled = twitterBroadcastEnabled.toLowerCase();
 
-		if (Utils.isNullOrEmptyOrUndefined(twitterBroadcastEnabled) || twitterBroadcastEnabled === "false") {
+		if (Utils.isNothing(twitterBroadcastEnabled) || twitterBroadcastEnabled === "false") {
 			let noticeMsg = `No tweet broadcast will be performed.`;
 			noticeMsg +=
 				`\nTo enable tweet broadcasting, set the '${SendReleaseTweetRunner.TWITTER_BROADCAST_ENABLED}' variable to 'true'.`;
@@ -71,11 +72,9 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 			access_token_secret: accessTokenSecret,
 		};
 
-		const tweetBuilder: ReleaseTweetBuilder = new ReleaseTweetBuilder();
+		const tweetBuilder: ReleaseTweetBuilder = new ReleaseTweetBuilder(ownerName, templateRepoName);
 
 		const tweet = await tweetBuilder.buildTweet(
-			orgName,
-			templateRepoName,
 			templateBranchName,
 			relativeTemplateFilePath,
 			repoName,
@@ -83,7 +82,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 			discordInviteCode,
 		);
 
-		const twitterClient: TwitterClient = new TwitterClient(authValues);
+		const twitterClient: XClient = new XClient(authValues);
 		await twitterClient.tweet(tweet);
 
 		const noticeMsg = `A release tweet was successfully broadcasted for the '${repoName}' project for version '${version}'.`;
@@ -98,7 +97,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 			const errorMsg = `The cicd script must have 8 arguments but has ${args.length} argument(s).`;
 
 			const argDescriptions = [
-				"Required and must be a repository owner.",
+				"Required and must be the name of a repository owner.",
 				"Required and must be a project name",
 				"Required and must be a valid version. ",
 				"Required and must be a valid twitter consumer api key.",
@@ -115,24 +114,24 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 
 		this.printOrgRepoVarsUsed();
 
-		let [orgName, repoName, version] = args;
+		let [ownerName, repoName, version] = args;
 
-		this.githubVarService.setOrgAndRepo(orgName, repoName);
+		this.githubVarService.setOrgAndRepo(ownerName, repoName);
 
-		orgName = orgName.trim();
+		ownerName = ownerName.trim();
 		repoName = repoName.trim();
 
-		const orgClient = new OrgClient(this.token);
-		const repoClient = new RepoClient(this.token);
+		const orgClient = new OrgClient(ownerName, this.token);
+		const repoClient = new RepoClient(ownerName, repoName, this.token);
 
 		// If the org does not exist
-		if (!(await orgClient.exists(orgName))) {
-			Utils.printAsGitHubError(`The organization '${orgName}' does not exist.`);
+		if (!(await orgClient.exists())) {
+			Utils.printAsGitHubError(`The organization '${ownerName}' does not exist.`);
 			Deno.exit(1);
 		}
 
 		// If the repo does not exist
-		if (!(await repoClient.exists(repoName))) {
+		if (!(await repoClient.exists())) {
 			Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
 			Deno.exit(1);
 		}
@@ -150,7 +149,7 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 		)).toLowerCase();
 
 		// Print out all of the required variables but only if the twitter broadcast is enabled
-		if (!Utils.isNullOrEmptyOrUndefined(twitterBroadcastEnabled) && twitterBroadcastEnabled === "true") {
+		if (!Utils.isNothing(twitterBroadcastEnabled) && twitterBroadcastEnabled === "true") {
 			const orgRepoVariables = this.getRequiredVars();
 
 			// Check if all of the required org and/or repo variables exist
@@ -177,12 +176,12 @@ export class SendReleaseTweetRunner extends ScriptRunner {
 	protected mutateArgs(args: string[]): string[] {
 		args = Utils.trimAll(args);
 
-		let [orgName, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret, token] = args;
+		let [ownerName, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret, token] = args;
 
 		version = version.toLowerCase();
 		version = version.startsWith("v") ? version : `v${version}`;
 
-		return [orgName, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret, token];
+		return [ownerName, repoName, version, consumerAPIKey, consumerAPISecret, accessTokenKey, accessTokenSecret, token];
 	}
 
 	/**

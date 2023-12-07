@@ -21,7 +21,7 @@ on:
       cicd-pat:
         required: true
         description: The CICD personal access token.
-      
+
 
 jobs:
   print_validate_workflow:
@@ -48,6 +48,14 @@ jobs:
             Write-Host "::notice::The 'version' workflow input is valid.";
           } else {
             Write-Host "::error::The 'version' workflow input is invalid.  Expected version format: 'v#.#.#(-preview.#)'";
+            exit 1;
+          }
+
+
+          $orgName = "${{ vars.ORGANIZATION_NAME }}";
+
+          if([string]::IsNullOrEmpty($orgName)) {
+            Write-Host "::error::The 'ORGANIZATION_NAME' environment variable does not exist or is not set.";
             exit 1;
           }
 
@@ -80,6 +88,7 @@ jobs:
           deno run `
             --allow-net `
             "$scriptUrl" `
+            "${{ vars.ORGANIZATION_NAME }}" `
             "${{ inputs.project-name }}" `
             "${{ inputs.version }}" `
             "${{ secrets.cicd-pat }}";

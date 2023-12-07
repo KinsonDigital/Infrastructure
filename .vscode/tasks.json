@@ -3,9 +3,39 @@
     // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
-		{
-			"label": "Update Versions",
+		{ // CLEAR TERMINAL
+			"label": "clear-terminal",
+			"detail": "Clears the terminal.",
 			"type": "shell",
+			"options": {
+				"cwd": "${workspaceFolder}/.github/cicd"
+			},
+			"windows": {
+				"command": "cls"
+			},
+			"linux": {
+				"command": "clear"
+			}
+		},
+		{ // FORMAT CODE
+			"label": "Format Code",
+			"detail": "Formats the code using deno fmt.",
+			"type": "shell",
+			"options": {
+				"cwd": "${workspaceFolder}/.github/cicd"
+			},
+			"dependsOn": ["clear-terminal"],
+			"command": "deno",
+			"args": [
+				"fmt",
+				"${workspaceFolder}/.github/cicd",
+			]
+		},
+		{ // UPDATE WORKFLOW VERSIONS
+			"label": "Update Workflow Versions",
+			"detail": "Updates all of the reusuable workflow versions.",
+			"type": "shell",
+			"dependsOn": ["clear-terminal"],
 			"windows": {
 				"command": "deno",
 				"args": [
@@ -14,11 +44,32 @@
 					"--allow-write",
 					"--allow-sys",
 					"--allow-net",
-					"${workspaceFolder}/.github/internal-cicd/update-workflow-versions.ts",
+					"${workspaceFolder}/.github/internal-cicd/scripts/update-workflow-versions.ts",
 					"${workspaceFolder}/.github/workflows",
 					"${env:CICD_TOKEN}",
 				]
 			}
 		},
+		{ // BUILD (DENO CHECK)
+			"label": "Build (Deno Check)",
+			"detail": "Builds the project using deno check.",
+			"command": "deno",
+			"dependsOn": ["clear-terminal"],
+			"type": "shell",
+			"args": [
+				"run",
+				"--allow-read",
+				"--allow-run",
+				"--allow-sys",
+				"${workspaceFolder}/.github/internal-cicd/scripts/deno-check.ts"
+			],
+			"problemMatcher": [
+				"$tsc"
+			],
+			"presentation": {
+				"reveal": "always"
+			},
+			"group": "build"
+		}
     ]
 }

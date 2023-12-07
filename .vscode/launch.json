@@ -92,6 +92,7 @@
                 "--allow-all"
             ],
             "args": [
+				"KinsonDigital",
 				"Infrastructure",
 				"v1.2.3-preview.4",
 				"${env:CICD_TOKEN}",
@@ -116,6 +117,7 @@
                 "--allow-all"
             ],
             "args": [
+				"KinsonDigital",
 				"Infrastructure",
 				"v1.0.0-preview.10",
 				"${env:CICD_TOKEN}",
@@ -161,6 +163,7 @@
                 "--allow-all"
             ],
             "args": [
+				"KinsonDigital",
 				"Infrastructure",
 				"v1.2.3-preview.4",
 				"${env:CICD_TOKEN}",
@@ -378,7 +381,7 @@
             "name": "Update Workflow Versions",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/.github/internal-cicd/update-workflow-versions.ts",
+            "program": "${workspaceFolder}/.github/internal-cicd/scripts/update-workflow-versions.ts",
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
@@ -402,7 +405,7 @@
             "name": "Workflow Version Status Check",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/.github/internal-cicd/workflow-version-status-check.ts",
+            "program": "${workspaceFolder}/.github/internal-cicd/scripts/workflow-version-status-check.ts",
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
@@ -432,7 +435,13 @@
                 "--inspect-wait",
                 "--allow-all"
             ],
-            "args": ["Either", "v1.2.3", "PackageMonster"],
+            "args": [
+				"KinsonDigital",
+				"PackageMonster",
+				"Either",
+				"v1.2.3",
+				"${ env:CICD_TOKEN }",
+			],
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
@@ -453,7 +462,13 @@
                 "--inspect-wait",
                 "--allow-all"
             ],
-            "args": ["Preview", "v1.2.3-preview.5", "PackageMonster"],
+            "args": [
+				"KinsonDigital",
+				"PackageMonster",
+				"Preview",
+				"v1.2.3-preview.5",
+				"${ env:CICD_TOKEN }",
+			],
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
@@ -474,7 +489,13 @@
                 "--inspect-wait",
                 "--allow-all"
             ],
-            "args": ["Production", "v1.2.3", "PackageMonster"],
+            "args": [
+				"KinsonDigital",
+				"PackageMonster",
+				"Production",
+				"v1.2.3",
+				"${ env:CICD_TOKEN }",
+			],
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
@@ -530,5 +551,30 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
+		{
+            "name": "Deno Check",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/.github/internal-cicd/scripts/deno-check.ts",
+			"cwd": "${workspaceFolder}",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+				"--allow-read",
+				"--allow-run",
+            ],
+            "attachSimplePort": 9229,
+            "runtimeExecutable": "npm",
+			"outputCapture": "std",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            },
+		}
     ]
 }

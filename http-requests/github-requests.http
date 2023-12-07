@@ -1,5 +1,0 @@
-@pr_number = 222
-
-
-# Get Pull Request
-GET {{hostAddress}}/repos/{{repoOwner}}/{{repoName}}/pulls/{{pr_number}}

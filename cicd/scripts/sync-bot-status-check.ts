@@ -1,5 +1,6 @@
 import { SyncBotStatusCheckRunner } from "./runners/SyncBotStatusCheckRunner.ts";
 
-const runner: SyncBotStatusCheckRunner = new SyncBotStatusCheckRunner(Deno.args);
+const syncBotStatusCheckExecutor: SyncBotStatusCheckRunner = new SyncBotStatusCheckRunner(Deno.args);
+await syncBotStatusCheckExecutor.run();
 
-await runner.run();
+export default syncBotStatusCheckExecutor;
