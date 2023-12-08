@@ -1,20 +1,15 @@
-import { RepoClient } from "../../../deps.ts";
 import { Guard } from "../Guard.ts";
+import { VersionServiceBase } from "./VersionServiceBase.ts";
 import { Utils } from "../Utils.ts";
+import { ReleaseType } from "../Enums.ts";
 
 /**
- * v1.2.3
- * v1.2.3-preview.4
- * v1.2.3-preview.4
- * Performs updates to csharp versions in csharp project files.
+ * Updates the version of a C# project file directly on a branch of a repository.
  */
-export class CSharpVersionService {
+export class CSharpVersionService extends VersionServiceBase {
 	private readonly versionRegex = /[1-9][0-9]*\.[1-9][0-9]*\.[1-9][0-9]*(|-preview.[0-9]*)/gm;
 	private readonly versionTagRegex = /<Version>[1-9][0-9]*\.[1-9][0-9]*\.[1-9][0-9]*(|-preview.[1-9][0-9]*)<\/Version>/gm;
 	private readonly fileVersionTagRegex = /<FileVersion>[1-9][0-9]*\.[1-9][0-9]*\.[0-9]*(|-preview.[1-9][0-9]*)<\/FileVersion>/gm;
-	private readonly ownerName: string;
-	private readonly repoName: string;
-	private readonly token: string;
 
 	/**
 	 * Initializes a new instance of the {@link CSharpVersionService} class.
@@ -23,88 +18,40 @@ export class CSharpVersionService {
 	 * @param token The GitHub personal access token.
 	 */
 	constructor(ownerName: string, repoName: string, token: string) {
-		const funcName = "CSharpVersionService.ctor";
-		Guard.isNothing(ownerName, funcName, "ownerName");
-		Guard.isNothing(repoName, funcName, "repoName");
-
-		this.ownerName = ownerName;
-		this.repoName = repoName;
-		this.token = token;
+		super(ownerName, repoName, token);
 	}
 
 	/**
-	 * Updates the version tags to the given {@link version} in a csharp project file, on a branch with the
-	 * given {@link branchName}, at the given {@link relativeProjFilePath}.
-	 * @param branchName The name of the branch where the file exists.
-	 * @param relativeProjFilePath The fully qualified file path to the project file.
-	 * @param version The version to update the project file to.
+	 * Updates the version values of a C# project file to the given {@link version}.
 	 */
-	public async updateVersion(branchName: string, relativeProjFilePath: string, version: string): Promise<void> {
-		const funcName = "updateVersion";
-		Guard.isNothing(branchName, funcName, "branchName");
-		Guard.isNothing(relativeProjFilePath, funcName, "projFilePath");
-		Guard.isNothing(version, funcName, "version");
+	public async updateVersion(version: string, releaseType: ReleaseType): Promise<void> {
+		Guard.isNothing(version, "updateVersion", "version");
 
-		relativeProjFilePath = Utils.normalizePath(relativeProjFilePath);
 		version = version.trim().toLowerCase();
 
 		// Remove the letter 'v' if it exists
-		version = version.startsWith("v") ? version.slice(1) : version;
+		version = version.startsWith("v") ? version.substring(1) : version;
 
-		if (!this.versionRegex.test(version)) {
+		if (!this.versionIsValid(version)) {
 			let errorMsg = `The version '${version}' is not a valid preview or production version.`;
-			errorMsg += "\nRequired Syntax: v#.#.# or v#.#.#-preview.#";
+			errorMsg += "\nRequired Syntax: #.#.# or v#.#.#-preview.#";
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
-		const repoClient = new RepoClient(this.ownerName, this.repoName, this.token);
+		let csprojFileData = await this.getFileData(releaseType);
+		const csprojFileName = await this.getVersionFileName();
 
-		if (!(await repoClient.fileExists(branchName, relativeProjFilePath))) {
-			let errorMsg = `The csproj file '${relativeProjFilePath}' does not exist on the branch '${branchName}'.`;
-			errorMsg += "\nPlease create the file and try again.";
-			Utils.printAsGitHubError(errorMsg);
-			Deno.exit(1);
-		}
-
-		let projFileData = await repoClient.getFileContent(branchName, relativeProjFilePath);
-
-		if (!this.versionTagRegex.test(projFileData)) {
-			let errorMsg = `The file '${relativeProjFilePath}' does not contain a <Version/> tag.`;
+		if (!this.fileContainsVersionSchema(csprojFileData)) {
+			let errorMsg = `The file '${csprojFileName}' does not contain a '<Version/>' tag.`;
 			errorMsg += "\nPlease add a version tag with the following syntax: <Version></Version>";
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
-		if (!this.fileVersionTagRegex.test(projFileData)) {
-			let errorMsg = `The file '${relativeProjFilePath}' does not contain a <FileVersion/> tag.`;
-			errorMsg += "\nPlease add a file version tag with the following syntax: <FileVersion></FileVersion>";
-			Utils.printAsGitHubError(errorMsg);
-			Deno.exit(1);
-		}
-
-		const versionTag = projFileData.match(this.versionTagRegex)![0];
-
-		// Get the version value from the version tag
-		const versionTagValue = versionTag.replace("<Version>", "").replace("</Version>", "");
-
-		// If the tag value matches the new version
-		if (versionTagValue === version) {
-			let errorMsg = `The version '${version}' is already set for the version tag in the file '${relativeProjFilePath}'.`;
+		if (this.versionAlreadyUpdated(csprojFileData, version)) {
+			let errorMsg = `The version '${version}' is already set for the version tag in the file '${csprojFileName}'.`;
 			errorMsg += "\nPlease use a different version.";
-			Utils.printAsGitHubError(errorMsg);
-			Deno.exit(1);
-		}
-
-		const fileVersionTag = projFileData.match(this.fileVersionTagRegex)![0];
-
-		// Get the file version value from the file version tag
-		const fileVersionTagValue = fileVersionTag.replace("<FileVersion>", "").replace("</FileVersion>", "");
-
-		// If the file tag version matches the new version
-		if (fileVersionTagValue === version) {
-			let errorMsg = `The version '${version}' is already set for the file version tag in the file`;
-			errorMsg += "\n '${relativeProjFilePath}'. Please use a different version.";
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
@@ -113,14 +60,36 @@ export class CSharpVersionService {
 		const newFileVersionTag = `<FileVersion>${version}</FileVersion>`;
 
 		// Replace the version tags with the new tags
-		projFileData = projFileData.replace(this.versionTagRegex, newVersionTag);
-		projFileData = projFileData.replace(this.fileVersionTagRegex, newFileVersionTag);
+		csprojFileData = csprojFileData.replace(this.versionTagRegex, newVersionTag);
+		csprojFileData = csprojFileData.replace(this.fileVersionTagRegex, newFileVersionTag);
 
-		await repoClient.updateFile(
-			branchName,
-			relativeProjFilePath,
-			projFileData,
-			`release: updated version to v${version}`,
-		);
+		await this.updateFileData(csprojFileData, version, releaseType);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public versionIsValid(version: string): boolean {
+		return this.versionRegex.test(version);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public fileContainsVersionSchema(fileData: string): boolean {
+		return this.versionTagRegex.test(fileData) && this.fileVersionTagRegex.test(fileData);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public versionAlreadyUpdated(fileData: string, version: string): boolean {
+		const versionTag = fileData.match(this.versionTagRegex)?.[0] ?? "";
+
+		// Get the version value from the version tag
+		const versionTagValue = versionTag.replace("<Version>", "").replace("</Version>", "");
+
+		// If the tag value matches the new version
+		return versionTagValue === version;
 	}
 }
