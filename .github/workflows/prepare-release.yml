@@ -94,8 +94,6 @@ jobs:
           $scriptUrl = $scriptUrl.EndsWith("/") ? $scriptUrl.Substring(0, $scriptUrl.Length - 1) : $scriptUrl;
           $scriptUrl = "$scriptUrl/prepare-release.ts";
 
-          Write-Host "::notice::NuGet Package Check Script URL: $scriptUrl";
-
           <# Deno Args:
             1. Organization name
             2. Project name
