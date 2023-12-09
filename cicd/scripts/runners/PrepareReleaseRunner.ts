@@ -244,7 +244,6 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 		// If the head branch does not exist, create it
 		if (!(await gitClient.branchExists(headBranch))) {
-			const gitClient = new GitClient(ownerName, repoName, this.token);
 			await gitClient.createBranch(headBranch, baseBranch);
 		}
 	}
