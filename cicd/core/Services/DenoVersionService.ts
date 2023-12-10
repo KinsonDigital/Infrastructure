@@ -38,15 +38,11 @@ export class DenoVersionService extends VersionServiceBase {
 			Deno.exit(1);
 		}
 		
-		
 		let denoConfigFileData = await this.getFileData(releaseType);
 		const denoConfigFileName = await this.getVersionFileName();
 		
 		if (!this.fileContainsVersionSchema(denoConfigFileData)) {
-			let errorMsg = `The file '${denoConfigFileName}' does not contain or has too many 'version' JSON keys.`;
-			errorMsg += "\nPlease add a single version key and value with the following syntax: \"version\": \"v#.#.#[-preview.#]\"";
-			Utils.printAsGitHubError(errorMsg);
-			Deno.exit(1);
+			denoConfigFileData = this.addVersionKeyAndValue(denoConfigFileData, version);
 		}
 
 		if (this.versionAlreadyUpdated(denoConfigFileData, version)) {
@@ -78,7 +74,7 @@ export class DenoVersionService extends VersionServiceBase {
 	public fileContainsVersionSchema(fileData: string): boolean {
 		const matches = fileData.match(this.versionKeyRegex) ?? [];
 
-		return matches.length === 1;
+		return matches.length <= 0;
 	}
 
 	/**
@@ -89,5 +85,20 @@ export class DenoVersionService extends VersionServiceBase {
 		const jsonValue = jsonKeyAndValue?.match(this.versionRegex)?.[0] ?? "";
 
 		return jsonValue === version;
+	}
+
+	/**
+	 * Adds a version key and value to the given deno JSON file data.
+	 * @param fileData The deno JSON file data.
+	 * @param version The version to add to the file.
+	 * @returns The updated file data.
+	 */
+	public addVersionKeyAndValue(fileData: string, version: string): string {
+		const jsonObj = JSON.parse(fileData);
+		
+		// Add a prop and value to the json object
+		jsonObj["version"] = version;
+
+		return JSON.stringify(jsonObj);
 	}
 }
