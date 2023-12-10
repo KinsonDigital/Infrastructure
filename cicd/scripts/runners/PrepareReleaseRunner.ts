@@ -85,6 +85,8 @@ export class PrepareReleaseRunner extends ScriptRunner {
 		const prTemplate = await this.getReleaseTemplate(releaseType);
 		const releaseTypeStr = Utils.firstLetterToUpper(releaseType);
 
+		console.log(`Creating pull request with head branch '${headBranch}' and base branch '${baseBranch}'.`);
+
 		// Create a release pull request
 		const newPr = await pullRequestClient.createPullRequest(
 			`🚀${releaseTypeStr} Release (${version})`,
@@ -94,6 +96,8 @@ export class PrepareReleaseRunner extends ScriptRunner {
 		);
 
 		const defaultReviewer = await this.githubVarService.getValue(PrepareReleaseRunner.DEFAULT_PR_REVIEWER, false);
+
+		console.log(`Setting pull request reviewer to '${defaultReviewer}'.`);
 		await pullRequestClient.requestReviewers(newPr.number, defaultReviewer);
 
 		let prLabelsVarName = "";
@@ -127,6 +131,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 			Deno.exit(1);
 		}
 
+		console.log(`Adding pull request '${newPr.number}' to project '${orgProjectName}'.`)
 		await projectClient.addPullRequestToProject(newPr.number, orgProjectName);
 
 		// Update the pull request by setting the default reviewer, org project, labels and milestone
@@ -135,8 +140,13 @@ export class PrepareReleaseRunner extends ScriptRunner {
 			milestone: milestone.number,
 		};
 
+		console.log(`Updating pull request '${newPr.number}'.`);
 		await pullRequestClient.updatePullRequest(newPr.number, prData);
+
+		console.log(`Updating project version to '${version}'.`);
 		await this.updateProjectVersions(ownerName, repoName, version, releaseType);
+
+		console.log(`Generating release '${releaseType}' notes for version '${version}'.`);
 		await this.generateReleaseNotes(ownerName, repoName, version, releaseType);
 	}
 
@@ -244,6 +254,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 		// If the head branch does not exist, create it
 		if (!(await gitClient.branchExists(headBranch))) {
+			console.log(`Creating branch '${headBranch}' from branch '${baseBranch}'.`);
 			await gitClient.createBranch(headBranch, baseBranch);
 		}
 	}
