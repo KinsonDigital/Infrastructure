@@ -127,7 +127,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 			Deno.exit(1);
 		}
 
-		await projectClient.addIssueToProject(newPr.number, orgProjectName);
+		await projectClient.addPullRequestToProject(newPr.number, orgProjectName);
 
 		// Update the pull request by setting the default reviewer, org project, labels and milestone
 		const prData: IIssueOrPRRequestData = {
