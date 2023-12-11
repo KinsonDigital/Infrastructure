@@ -74,7 +74,7 @@ export class DenoVersionService extends VersionServiceBase {
 	public fileContainsVersionSchema(fileData: string): boolean {
 		const matches = fileData.match(this.versionKeyRegex) ?? [];
 
-		return matches.length <= 0;
+		return matches.length > 0;
 	}
 
 	/**
