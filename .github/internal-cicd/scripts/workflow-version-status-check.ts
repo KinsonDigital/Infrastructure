@@ -33,7 +33,7 @@ const latestTag = (await tagClient.getAllTags())[0].name;
 
 const workflowsToUpdate: WorkflowToUpdate[] = [];
 
-const reusableWorkflowRegex = /uses: .+.(yml|yaml)@v[1-9][0-9]*\.[1-9][0-9]*\.[1-9][0-9]*/gm;
+const reusableWorkflowRegex = /uses: .+.(yml|yaml)@v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)(-preview\.([1-9]\d*))?/gm;
 
 type WorkflowToUpdate = {
 	/**
