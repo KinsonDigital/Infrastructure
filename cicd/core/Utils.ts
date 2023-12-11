@@ -6,8 +6,8 @@ import { IssueModel, LabelModel, ProjectModel, PullRequestModel, UserModel } fro
  * Provides utility functions.
  */
 export class Utils {
-	private static readonly prodVersionRegex = /^v[1-9][0-9]*\.[1-9][0-9]*\.[1-9][0-9]*$/;
-	private static readonly prevVersionRegex = /^v[1-9][0-9]*\.[1-9][0-9]*\.[1-9][0-9]*-preview\.[1-9][0-9]*$/;
+	private static readonly prodVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)$/;
+	private static readonly prevVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)(-preview\.([1-9]\d*))?$/;
 	private static readonly featureBranchRegex = /^feature\/[1-9][0-9]*-(?!-)[a-z-]+/gm;
 
 	/**
