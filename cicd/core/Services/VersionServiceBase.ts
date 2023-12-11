@@ -143,14 +143,7 @@ export abstract class VersionServiceBase {
 					Deno.exit(1);
 			}
 			
-			const branchName = await this.githubVarService.getValue(branchVarName)
-				.catch((_) => {
-					let errorMsg = `The script requires an organization or repository variable`;
-					errorMsg += `\n named '${branchVarName}'.`;
-					Utils.printAsGitHubError(errorMsg);
-					Deno.exit(1);
-				});
-
+			const branchName = await this.githubVarService.getValue(branchVarName);
 			this.branchName = branchName;
 		}
 
