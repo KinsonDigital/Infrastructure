@@ -74,8 +74,9 @@ export abstract class VersionServiceBase {
 		const relativeProjFilePath = await this.getVersionFileName();
 
 		if (!(await repoClient.fileExists(branchName, relativeProjFilePath))) {
-			let errorMsg = `The csproj file '${relativeProjFilePath}' does not exist on the branch '${branchName}'.`;
-			errorMsg += "\nPlease create the file and try again.";
+			let errorMsg = `The version file '${relativeProjFilePath}' does not exist on the branch '${branchName}' `;
+			errorMsg += "or the branch does not exist.";
+			errorMsg += "\nPlease make sure the branch and version file exist and try again.";
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
