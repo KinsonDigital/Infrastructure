@@ -7,9 +7,6 @@
 			"label": "clear-terminal",
 			"detail": "Clears the terminal.",
 			"type": "shell",
-			"options": {
-				"cwd": "${workspaceFolder}/.github/cicd"
-			},
 			"windows": {
 				"command": "cls"
 			},
