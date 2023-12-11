@@ -7,9 +7,9 @@ import { ReleaseType } from "../Enums.ts";
  * Updates the version of a C# project file directly on a branch of a repository.
  */
 export class CSharpVersionService extends VersionServiceBase {
-	private readonly versionRegex = /[1-9][0-9]*\.[1-9][0-9]*\.[1-9][0-9]*(|-preview.[0-9]*)/gm;
-	private readonly versionTagRegex = /<Version>[1-9][0-9]*\.[1-9][0-9]*\.[1-9][0-9]*(|-preview.[1-9][0-9]*)<\/Version>/gm;
-	private readonly fileVersionTagRegex = /<FileVersion>[1-9][0-9]*\.[1-9][0-9]*\.[0-9]*(|-preview.[1-9][0-9]*)<\/FileVersion>/gm;
+	private readonly versionRegex = /([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)(-preview\.([1-9]\d*))?/gm;
+	private readonly versionTagRegex = /<Version\s*>.*<\/Version\s*>/gm;
+	private readonly fileVersionTagRegex = /<FileVersion\s*>.*<\/FileVersion\s*>/gm;
 
 	/**
 	 * Initializes a new instance of the {@link CSharpVersionService} class.
