@@ -39,7 +39,7 @@ export class DenoVersionService extends VersionServiceBase {
 		}
 		
 		let denoConfigFileData = await this.getFileData(releaseType);
-		const denoConfigFileName = await this.getVersionFileName();
+		const denoConfigFileName = await this.getVersionFilePath();
 		
 		if (this.fileContainsVersionSchema(denoConfigFileData)) {
 			if (this.versionAlreadyUpdated(denoConfigFileData, version)) {

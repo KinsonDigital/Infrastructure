@@ -71,7 +71,7 @@ export abstract class VersionServiceBase {
 
 		const branchName = await this.getHeadBranchName(releaseType);
 
-		const relativeProjFilePath = await this.getVersionFileName();
+		const relativeProjFilePath = await this.getVersionFilePath();
 
 		if (!(await repoClient.fileExists(branchName, relativeProjFilePath))) {
 			let errorMsg = `The version file '${relativeProjFilePath}' does not exist on the branch '${branchName}' `;
@@ -92,7 +92,7 @@ export abstract class VersionServiceBase {
 	 */
 	public async updateFileData(updatedFileData: string, version: string, releaseType: ReleaseType): Promise<void> {
 		const branchName = await this.getHeadBranchName(releaseType);
-		const relativeProjFilePath = await this.getVersionFileName();
+		const relativeProjFilePath = await this.getVersionFilePath();
 
 		await this.repoClient.updateFile(
 			branchName,
@@ -106,7 +106,7 @@ export abstract class VersionServiceBase {
 	 * Gets the name of the version file.
 	 * @returns The name of the version file.
 	 */
-	protected async getVersionFileName(): Promise<string> {
+	protected async getVersionFilePath(): Promise<string> {
 		// If the value has not been pulled yet, cache it
 		if (Utils.isNothing(this.relativeProjFilePath)) {
 			let path = await this.githubVarService.getValue(VersionServiceBase.PREP_PROJ_RELATIVE_FILE_PATH, false);

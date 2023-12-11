@@ -40,7 +40,7 @@ export class CSharpVersionService extends VersionServiceBase {
 		}
 
 		let csprojFileData = await this.getFileData(releaseType);
-		const csprojFileName = await this.getVersionFileName();
+		const csprojFileName = await this.getVersionFilePath();
 
 		if (!this.fileContainsVersionSchema(csprojFileData)) {
 			let errorMsg = `The file '${csprojFileName}' does not contain a '<Version/>' tag.`;
