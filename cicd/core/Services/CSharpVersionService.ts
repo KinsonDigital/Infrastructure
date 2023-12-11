@@ -85,10 +85,36 @@ export class CSharpVersionService extends VersionServiceBase {
 	 * @inheritdoc
 	 */
 	public versionAlreadyUpdated(fileData: string, version: string): boolean {
+		return this.versionTagValueAlreadyUpdated(fileData, version) && this.fileVersionTagValueAlreadyUpdated(fileData, version);
+	}
+
+	/**
+	 * Checks if the given {@link fileData} already has the '<Version/>' tag value already updated to the given {@link version}.
+	 * @param fileData The file data to check.
+	 * @param version The new version.
+	 * @returns True if the tag value is already updated to the new version; otherwise, false.
+	 */
+	private versionTagValueAlreadyUpdated(fileData: string, version: string): boolean {
 		const versionTag = fileData.match(this.versionTagRegex)?.[0] ?? "";
 
 		// Get the version value from the version tag
-		const versionTagValue = versionTag.replace("<Version>", "").replace("</Version>", "");
+		const versionTagValue = versionTag.match(this.versionRegex)?.[0] ?? "";
+
+		// If the tag value matches the new version
+		return versionTagValue === version;
+	}
+
+	/**
+	 * Checks if the given {@link fileData} already has the '<FileVersion/>' tag value already updated to the given {@link version}.
+	 * @param fileData The file data to check.
+	 * @param version The new version.
+	 * @returns True if the tag value is already updated to the new version; otherwise, false.
+	 */
+	private fileVersionTagValueAlreadyUpdated(fileData: string, version: string): boolean {
+		const versionTag = fileData.match(this.fileVersionTagRegex)?.[0] ?? "";
+
+		// Get the version value from the version tag
+		const versionTagValue = versionTag.match(this.versionRegex)?.[0] ?? "";
 
 		// If the tag value matches the new version
 		return versionTagValue === version;
