@@ -9,23 +9,23 @@ export class Guard {
 	 * @param value The value to check.
 	 * @returns True if the value is null, undefined, or empty, otherwise false.
 	 */
-	public static isNullOrEmptyOrUndefined<T>(
+	public static isNothing<T>(
 		value: undefined | null | string | T[] | object,
 		funcName = "",
 		paramName = "",
 	): void {
 		if (Utils.isNothing(value)) {
-			Utils.printAsGitHubError("The value is null, undefined, or empty.");
+			let errorMsg = "The value is null, undefined, or empty.";
 
 			if (funcName != "") {
-				console.log(`Function Name: ${funcName}`);
+				errorMsg += `\nFunction Name: ${funcName}`;
 			}
 
 			if (paramName != "") {
-				console.log(`Param Name: ${paramName}`);
+				errorMsg += `\nParam Name: ${paramName}`;
 			}
 
-			Deno.exit(1);
+			throw new Error(errorMsg);
 		}
 	}
 

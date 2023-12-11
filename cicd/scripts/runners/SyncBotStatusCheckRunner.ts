@@ -62,7 +62,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 				problemsFound.push(`The issue '${issueNumber}' does not exist.`);
 			} else {
 				// Get the pull request number by parsing the pr metadata in the issue description
-				const closedByPRRegex = /<!--closed-by-pr:[0-9]+-->/gm;
+				const closedByPRRegex = /<!--closed-by-pr:\s*[1-9][0-9]*\s*-->/gm;
 				const issueDescription = (await this.getIssue(issueNumber)).body;
 				const prLinkMetaData = issueDescription.match(closedByPRRegex);
 

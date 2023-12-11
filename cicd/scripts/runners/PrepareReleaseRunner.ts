@@ -7,6 +7,7 @@ import {
 	PullRequestClient,
 	RepoClient,
 } from "../../../deps.ts";
+import { ProjectType } from "../../core/Types.ts";
 
 import { GitHubLogType, ReleaseType } from "../../core/Enums.ts";
 import { IssueModel, LabelModel, PullRequestModel } from "../../../deps.ts";
@@ -17,6 +18,7 @@ import { GitHubVariableService } from "../../core/Services/GitHubVariableService
 import { CSharpVersionService } from "../../core/Services/CSharpVersionService.ts";
 import { IIssueOrPRRequestData } from "../../core/IIssueOrPRRequestData.ts";
 import { Guard } from "../../core/Guard.ts";
+import { DenoVersionService } from "../../core/Services/DenoVersionService.ts";
 
 /**
  * Automates the process of generating release notes for a GitHub release.
@@ -40,8 +42,8 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	private static readonly PR_RELEASE_TEMPLATE_BRANCH_NAME = "PR_RELEASE_TEMPLATE_BRANCH_NAME";
 	private static readonly PR_INCLUDE_NOTES_LABEL = "PR_INCLUDE_NOTES_LABEL";
 	private static readonly RELEASE_NOTES_FILE_NAME_PREFIX = "RELEASE_NOTES_FILE_NAME_PREFIX";
-	private static readonly PREP_PROJ_RELATIVE_FILE_PATH = "PREP_PROJ_RELATIVE_FILE_PATH";
 	private static readonly IGNORE_LABELS = "IGNORE_LABELS";
+	private static readonly PROJECT_TYPE = "PROJECT_TYPE";
 	private readonly githubVarService: GitHubVariableService;
 	private cachedRepoLabels: LabelModel[] = [];
 
@@ -83,6 +85,8 @@ export class PrepareReleaseRunner extends ScriptRunner {
 		const prTemplate = await this.getReleaseTemplate(releaseType);
 		const releaseTypeStr = Utils.firstLetterToUpper(releaseType);
 
+		console.log(`Creating pull request with head branch '${headBranch}' and base branch '${baseBranch}'.`);
+
 		// Create a release pull request
 		const newPr = await pullRequestClient.createPullRequest(
 			`🚀${releaseTypeStr} Release (${version})`,
@@ -92,6 +96,8 @@ export class PrepareReleaseRunner extends ScriptRunner {
 		);
 
 		const defaultReviewer = await this.githubVarService.getValue(PrepareReleaseRunner.DEFAULT_PR_REVIEWER, false);
+
+		console.log(`Setting pull request reviewer to '${defaultReviewer}'.`);
 		await pullRequestClient.requestReviewers(newPr.number, defaultReviewer);
 
 		let prLabelsVarName = "";
@@ -125,7 +131,8 @@ export class PrepareReleaseRunner extends ScriptRunner {
 			Deno.exit(1);
 		}
 
-		await projectClient.addIssueToProject(newPr.number, orgProjectName);
+		console.log(`Adding pull request '${newPr.number}' to project '${orgProjectName}'.`)
+		await projectClient.addPullRequestToProject(newPr.number, orgProjectName);
 
 		// Update the pull request by setting the default reviewer, org project, labels and milestone
 		const prData: IIssueOrPRRequestData = {
@@ -133,8 +140,13 @@ export class PrepareReleaseRunner extends ScriptRunner {
 			milestone: milestone.number,
 		};
 
+		console.log(`Updating pull request '${newPr.number}'.`);
 		await pullRequestClient.updatePullRequest(newPr.number, prData);
-		await this.updateProjectVersions(ownerName, repoName, headBranch, version);
+
+		console.log(`Updating project version to '${version}'.`);
+		await this.updateProjectVersions(ownerName, repoName, version, releaseType);
+
+		console.log(`Generating release '${releaseType}' notes for version '${version}'.`);
 		await this.generateReleaseNotes(ownerName, repoName, version, releaseType);
 	}
 
@@ -242,7 +254,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 
 		// If the head branch does not exist, create it
 		if (!(await gitClient.branchExists(headBranch))) {
-			const gitClient = new GitClient(ownerName, repoName, this.token);
+			console.log(`Creating branch '${headBranch}' from branch '${baseBranch}'.`);
 			await gitClient.createBranch(headBranch, baseBranch);
 		}
 	}
@@ -258,17 +270,23 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	private async updateProjectVersions(
 		ownerName: string,
 		repoName: string,
-		branchName: string,
 		version: string,
+		releaseType: ReleaseType,
 	): Promise<void> {
-		let relativeProjFilePath = await this.githubVarService.getValue(PrepareReleaseRunner.PREP_PROJ_RELATIVE_FILE_PATH, false);
-		relativeProjFilePath = Utils.normalizePath(relativeProjFilePath);
-		relativeProjFilePath = Utils.trimAllStartingValue(relativeProjFilePath, "/");
+		const projectType = await this.getProjectType();
 
-		const updateProjFileService = new CSharpVersionService(ownerName, repoName, this.token);
-
-		// Update the version tags in the csproj file
-		await updateProjFileService.updateVersion(branchName, relativeProjFilePath, version);
+		switch (projectType) {
+			case "dotnet": {
+				const updateProjFileService = new CSharpVersionService(ownerName, repoName, this.token);
+				await updateProjFileService.updateVersion(version, releaseType);
+				break;
+			}
+			case "deno": {
+				const updateDenoProjFileService = new DenoVersionService(ownerName, repoName, this.token);
+				await updateDenoProjFileService.updateVersion(version, releaseType);
+				break;
+			}
+		}
 	}
 
 	/**
@@ -619,7 +637,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 	 * @param labels The list of labels to validate.
 	 */
 	private async validateLabelsExist(ownerName: string, repoName: string, labels: string[]): Promise<void> {
-		Guard.isNullOrEmptyOrUndefined(repoName, "validateLabelsExist", "repoName");
+		Guard.isNothing(repoName, "validateLabelsExist", "repoName");
 
 		if (labels.length <= 0) {
 			return;
@@ -655,6 +673,28 @@ export class PrepareReleaseRunner extends ScriptRunner {
 		}
 
 		return this.cachedRepoLabels;
+	}
+
+	/**
+	 * Gets the project type.
+	 * @returns The project type.
+	 */
+	private async getProjectType(): Promise<ProjectType> {
+		let projectType = await this.githubVarService.getValue(PrepareReleaseRunner.PROJECT_TYPE)
+			.catch((errorMsg: string) => {
+				throw new Error(errorMsg);
+			});
+
+		projectType = projectType.toLowerCase().trim();
+
+		if (projectType != "dotnet" && projectType != "deno") {
+			const errorMsg = `The project type '${projectType}' is not supported.` +
+				`\nSupported project types are 'dotnet' and 'deno'.`;
+			Utils.printAsGitHubError(errorMsg);
+			Deno.exit(1);
+		}
+
+		return projectType;
 	}
 
 	/**
@@ -697,8 +737,8 @@ export class PrepareReleaseRunner extends ScriptRunner {
 			PrepareReleaseRunner.PR_RELEASE_TEMPLATE_BRANCH_NAME,
 			PrepareReleaseRunner.PR_INCLUDE_NOTES_LABEL,
 			PrepareReleaseRunner.RELEASE_NOTES_FILE_NAME_PREFIX,
-			PrepareReleaseRunner.PREP_PROJ_RELATIVE_FILE_PATH,
 			PrepareReleaseRunner.IGNORE_LABELS,
+			PrepareReleaseRunner.PROJECT_TYPE,
 		];
 	}
 }

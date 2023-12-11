@@ -210,9 +210,9 @@
             ],
             "args": [
 				"KinsonDigital",
-				"CASL",
+				"Infrastructure",
 				"preview",
-				"v1.0.0-preview.15",
+				"v1.2.3-preview.4",
 				"${env:CICD_TOKEN}",
 			],
             "attachSimplePort": 9229,
@@ -357,16 +357,15 @@
             "name": "Update CSharp File",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/update-csharp-proj.ts",
-            "cwd": "${workspaceFolder}/cicd",
+            "program": "${workspaceFolder}/.github/internal-cicd/scripts/update-csharp-proj.ts",
+            "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
                 "--inspect-wait",
                 "--allow-all"
             ],
             "args": [
-				"${workspaceFolder}/cicd/test-data/sample-csharp-proj-file.csproj",
-				"v1.0.0-preview.1",
+				"v11.22.33-preview.44",
 				"${env:CICD_TOKEN}",
 			],
             "attachSimplePort": 9229,

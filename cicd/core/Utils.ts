@@ -6,8 +6,8 @@ import { IssueModel, LabelModel, ProjectModel, PullRequestModel, UserModel } fro
  * Provides utility functions.
  */
 export class Utils {
-	private static readonly prodVersionRegex = /^v[0-9]+\.[0-9]+\.[0-9]+$/;
-	private static readonly prevVersionRegex = /^v[0-9]+\.[0-9]+\.[0-9]+-preview\.[0-9]+$/;
+	private static readonly prodVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)$/;
+	private static readonly prevVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)(-preview\.([1-9]\d*))?$/;
 	private static readonly featureBranchRegex = /^feature\/[1-9][0-9]*-(?!-)[a-z-]+/gm;
 
 	/**
@@ -300,8 +300,8 @@ export class Utils {
 	 */
 	public static buildIssueUrl(repoOwner: string, repoName: string, issueNumber: number): string {
 		const funcName = "buildIssueUrl";
-		Guard.isNullOrEmptyOrUndefined(repoOwner, funcName, "repoOwner");
-		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNothing(repoOwner, funcName, "repoOwner");
+		Guard.isNothing(repoName, funcName, "repoName");
 		Guard.isLessThanOne(issueNumber, funcName, "issueNumber");
 
 		return `https://github.com/${repoOwner}/${repoName}/issues/${issueNumber}`;
@@ -317,8 +317,8 @@ export class Utils {
 	 */
 	public static buildPullRequestUrl(repoOwner: string, repoName: string, prNumber: number): string {
 		const funcName = "buildPullRequestUrl";
-		Guard.isNullOrEmptyOrUndefined(repoOwner, funcName, "repoOwner");
-		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNothing(repoOwner, funcName, "repoOwner");
+		Guard.isNothing(repoName, funcName, "repoName");
 		Guard.isLessThanOne(prNumber, funcName, "prNumber");
 
 		return `https://github.com/${repoOwner}/${repoName}/pull/${prNumber}`;
@@ -333,8 +333,8 @@ export class Utils {
 	 */
 	public static buildLabelsUrl(repoOwner: string, repoName: string): string {
 		const funcName = "buildLabelsUrl";
-		Guard.isNullOrEmptyOrUndefined(repoOwner, funcName, "repoOwner");
-		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNothing(repoOwner, funcName, "repoOwner");
+		Guard.isNothing(repoName, funcName, "repoName");
 
 		return `https://github.com/${repoOwner}/${repoName}/labels`;
 	}

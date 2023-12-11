@@ -14,7 +14,7 @@ import { IPRTemplateSettings } from "../../core/IPRTemplateSettings.ts";
 export class SyncPRToIssueRunner extends ScriptRunner {
 	private static readonly DEFAULT_PR_REVIEWER = "DEFAULT_PR_REVIEWER";
 	private static readonly PR_SYNC_BASE_BRANCHES = "PR_SYNC_BASE_BRANCHES";
-	private static readonly prMetaDataRegex = /<!--\s*closed-by-pr:\s*[0-9]+\s*-->/gm;
+	private static readonly prMetaDataRegex = /<!--\s*closed-by-pr:\s*[1-9][0-9]*\s*-->/gm;
 	private readonly githubVarService: GitHubVariableService;
 
 	/**

@@ -26,7 +26,7 @@ if (!Directory.Exists(baseDirPath)) {
 // Clear the console so the token is not visible from the tasks.json file
 console.clear();
 
-const tagRegex = /v[0-9]+\.[0-9]+\.[0-9]+/gm;
+const tagRegex = /v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)(-preview\.([1-9]\d*))?/gm;
 
 const newVersion = await Input.prompt({
 	message: chalk.blue("Enter version to upgrade workflows to:"),
@@ -57,7 +57,7 @@ if (allTags.includes(newVersion)) {
 	Deno.exit(0);
 }
 
-const reusableWorkflowRegex = /uses: .+.(yml|yaml)@v[0-9]+\.[0-9]+\.[0-9]+/gm;
+const reusableWorkflowRegex = /uses: .+.(yml|yaml)@v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)(-preview\.([1-9]\d*))?/gm;
 
 const updateMsgs: string[] = [];
 let noFilesUpdated = true;
