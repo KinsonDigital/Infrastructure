@@ -50,8 +50,9 @@ export class CSharpVersionService extends VersionServiceBase {
 		}
 
 		if (this.versionAlreadyUpdated(csprojFileData, version)) {
-			let errorMsg = `The version '${version}' is already set for the version tag in the file '${csprojFileName}'.`;
-			errorMsg += "\nPlease use a different version.";
+			const errorMsg = `The version '${version}' is already set for the '<Version/>' and/or '<FileVersion/>' tags in the` +
+				` file '${csprojFileName}'.` +
+				"\nPlease use a different version.";
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
