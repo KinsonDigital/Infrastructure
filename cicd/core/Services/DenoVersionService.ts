@@ -82,9 +82,15 @@ export class DenoVersionService extends VersionServiceBase {
 	 */
 	public versionAlreadyUpdated(fileData: string, version: string): boolean {
 		const jsonKeyAndValue = fileData.match(this.versionKeyRegex)?.[0] ?? "";
-		const jsonValue = jsonKeyAndValue?.match(this.versionRegex)?.[0] ?? "";
 
-		return jsonValue === version;
+		if (jsonKeyAndValue === "") {
+			return false;
+		}
+
+		const versionSection = jsonKeyAndValue.split(":")[1]
+			.replaceAll("\"", "").trim().toLowerCase();
+
+		return versionSection === version;
 	}
 
 	/**
