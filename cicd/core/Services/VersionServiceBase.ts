@@ -90,15 +90,17 @@ export abstract class VersionServiceBase {
 	 * @param version The version to update to.
 	 * @param releaseType The type of release.
 	 */
-	public async updateFileData(updatedFileData: string, version: string, releaseType: ReleaseType): Promise<void> {
+	protected async updateFileData(updatedFileData: string, version: string, releaseType: ReleaseType): Promise<void> {
 		const branchName = await this.getHeadBranchName(releaseType);
 		const relativeProjFilePath = await this.getVersionFilePath();
+
+		version = version.startsWith("v") ? version : `v${version}`;
 
 		await this.repoClient.updateFile(
 			branchName,
 			relativeProjFilePath,
 			updatedFileData,
-			`release: updated version to v${version}`,
+			`release: updated version to ${version}`,
 		);
 	}
 
