@@ -1,3 +1,4 @@
+import { isWindows } from "../../../deps.ts";
 import { ReleaseType } from "../Enums.ts";
 import { Guard } from "../Guard.ts";
 import { Utils } from "../Utils.ts";
@@ -104,10 +105,11 @@ export class DenoVersionService extends VersionServiceBase {
 	public addVersionKeyAndValue(fileData: string, version: string): string {
 		const jsonObj = JSON.parse(fileData);
 		const indent = 4;
+		const newLineChars = isWindows ? "\r\n" : "\n";
 		
 		// Add a prop and value to the json object
 		jsonObj["version"] = version;
 
-		return JSON.stringify(jsonObj, null, indent);
+		return JSON.stringify(jsonObj, null, indent) + newLineChars;
 	}
 }
