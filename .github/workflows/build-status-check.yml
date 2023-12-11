@@ -30,4 +30,4 @@ jobs:
 
     - name: Run Build
       run: |
-        deno run --allow-read --allow-run "./.github/internal-cicd/scripts/deno-check.ts";
+        deno run --allow-read --allow-run --allow-sys "./.github/internal-cicd/scripts/deno-check.ts";
