@@ -41,21 +41,23 @@ export class DenoVersionService extends VersionServiceBase {
 		let denoConfigFileData = await this.getFileData(releaseType);
 		const denoConfigFileName = await this.getVersionFileName();
 		
-		if (!this.fileContainsVersionSchema(denoConfigFileData)) {
+		if (this.fileContainsVersionSchema(denoConfigFileData)) {
+			if (this.versionAlreadyUpdated(denoConfigFileData, version)) {
+				let errorMsg = `The version '${version}' is already set for the version key in the file '${denoConfigFileName}'.`;
+				errorMsg += "\nPlease use a different version.";
+				Utils.printAsGitHubError(errorMsg);
+				Deno.exit(1);
+			}
+
+			// Build the replacement version key and value
+			const newVersionKeyAndValue = `"version": "${version}"`;
+	
+			// Since the version already exists and it is different than what the new version is,
+			//replace the version key and value with the new key and value
+			denoConfigFileData = denoConfigFileData.replace(this.versionKeyRegex, newVersionKeyAndValue);
+		} else {
 			denoConfigFileData = this.addVersionKeyAndValue(denoConfigFileData, version);
 		}
-
-		if (this.versionAlreadyUpdated(denoConfigFileData, version)) {
-			let errorMsg = `The version '${version}' is already set for the version key in the file '${denoConfigFileName}'.`;
-			errorMsg += "\nPlease use a different version.";
-			Utils.printAsGitHubError(errorMsg);
-			Deno.exit(1);
-		}
-
-		const newVersionKeyAndValue = `"version": "${version}"`;
-
-		// Replace the version key and value with the new key and value
-		denoConfigFileData = denoConfigFileData.replace(this.versionKeyRegex, newVersionKeyAndValue);
 
 		await this.updateFileData(denoConfigFileData, version, releaseType);
 	}
@@ -101,10 +103,11 @@ export class DenoVersionService extends VersionServiceBase {
 	 */
 	public addVersionKeyAndValue(fileData: string, version: string): string {
 		const jsonObj = JSON.parse(fileData);
+		const indent = 4;
 		
 		// Add a prop and value to the json object
 		jsonObj["version"] = version;
 
-		return JSON.stringify(jsonObj);
+		return JSON.stringify(jsonObj, null, indent);
 	}
 }
