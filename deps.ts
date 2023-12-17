@@ -1,5 +1,5 @@
 // Deno Standard Library
-import { existsSync } from "https://deno.land/std@0.207.0/fs/exists.ts";
+import { existsSync, walkSync } from "https://deno.land/std@0.207.0/fs/mod.ts";
 import { extname, basename, resolve } from "https://deno.land/std@0.207.0/path/mod.ts";
 import { isWindows } from "https://deno.land/std@0.207.0/path/_os.ts";
 
@@ -28,7 +28,8 @@ import { Directory, CLI, File, Path } from "./cicd/core/mod.ts";
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 // Deno Standard Library
-export { existsSync, extname, basename, resolve };
+export { existsSync, walkSync };
+export { extname, basename, resolve };
 export { isWindows };
 
 // KD CLIENTS
