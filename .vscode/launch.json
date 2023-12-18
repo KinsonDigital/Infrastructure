@@ -574,6 +574,31 @@
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             },
-		}
+		},
+		{ // VALIDATE SDK SETUP
+            "name": "Validate SDK Setup",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/validate-sdk-setup.ts",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+				"--allow-read",
+				"--allow-net"
+            ],
+            "args": [
+				"KinsonDigital",
+				"Infrastructure",
+				"${env:CICD_TOKEN}",
+			],
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+			}
+        },
     ]
 }
