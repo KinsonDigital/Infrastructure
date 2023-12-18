@@ -1,5 +1,5 @@
-name: Build C# Project
-run-name: Build Project (${{ inputs.project-name }})
+name: ⚙️Build C# Project
+run-name: ⚙️Build Project (${{ inputs.project-name }})
 
 
 defaults:

@@ -1,5 +1,5 @@
-name: 🚀Perform DotNet Action Release
-run-name: Perform ${{ inputs.release-type }} Release (${{ inputs.build-config }} Build)
+name: ⚙️Perform DotNet Action Release
+run-name: ⚙️Perform ${{ inputs.release-type }} Release (${{ inputs.build-config }} Build)
 
 
 defaults:

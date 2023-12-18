@@ -1,5 +1,5 @@
-name: Check NuGet Package
-run-name: Check NuGet Package (${{ inputs.version }})
+name: ⚙️Check NuGet Package
+run-name: ⚙️Check NuGet Package (${{ inputs.version }})
 
 
 defaults:
