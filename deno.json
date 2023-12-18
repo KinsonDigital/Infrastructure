@@ -1,5 +1,5 @@
 {
-    "version":  "v1.0.0-preview.1",
+    "version":  "v13.6.0",
     "tasks": {
         "clear": "deno run -A ./.github/internal-cicd/deno-tasks/clear-screen.ts",
         "build": "deno task clear && deno run -A ./.github/internal-cicd/scripts/deno-check.ts",
