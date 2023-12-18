@@ -30,16 +30,16 @@ on:
         description: The type of machine to run the job on.
         type: string
         default: ubuntu-latest
-      checkout-ref:
-        required: false
-        description: The git reference to checkout the code at.
-        type: string
-        default: ${{ github.ref }}
       checkout-repository:
         required: false
         description: The git repository to checkout the code from.
         type: string
         default: ${{ github.repository }}
+      checkout-ref:
+        required: false
+        description: The git reference to checkout the code at.
+        type: string
+        default: ${{ github.ref }}
     secrets:
       cicd-pat:
         description: "The GitHub Personal Access Token (PAT) used to authenticate to the GitHub API."
@@ -107,8 +107,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.checkout-ref }}
           repository: ${{ inputs.checkout-repository }}
+          ref: ${{ inputs.checkout-ref }}
 
       - uses: actions/setup-dotnet@v3
         with:
