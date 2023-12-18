@@ -9,7 +9,7 @@ const validateSDKSetupExecutor = async () => {
 		console.error(error);
 		Deno.exit(1);
 	}
-}
+};
 
 validateSDKSetupExecutor();
 

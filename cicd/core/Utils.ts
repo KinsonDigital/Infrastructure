@@ -308,9 +308,7 @@ export class Utils {
 	public static getCSProjTargetFrameworkVersion(csProjFileData: string): string {
 		const tagMatches = csProjFileData.match(this.targetFrameworkRegex);
 
-		const targetFrameworkTags = tagMatches === null || tagMatches.length === 0
-			? []
-			: [...tagMatches];
+		const targetFrameworkTags = tagMatches === null || tagMatches.length === 0 ? [] : [...tagMatches];
 
 		if (targetFrameworkTags.length === 0) {
 			throw new Error("Could not find any target framework XML tags in the given csproj file data.");

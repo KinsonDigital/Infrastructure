@@ -37,9 +37,7 @@ export class ValidateSDKSetupRunner extends ScriptRunner {
 			throw new Error("The NET_SDK_VERSION variable is not defined.");
 		}
 
-		dotnetSDKVersion = dotnetSDKVersion.startsWith("v")
-			? dotnetSDKVersion.substring(1)
-			: dotnetSDKVersion;
+		dotnetSDKVersion = dotnetSDKVersion.startsWith("v") ? dotnetSDKVersion.substring(1) : dotnetSDKVersion;
 
 		if (!Utils.isValidDotnetSDKVersion(dotnetSDKVersion)) {
 			Utils.printAsGitHubError(`The NET_SDK_VERSION variable is not a valid dotnet version: ${dotnetSDKVersion}`);
@@ -51,7 +49,7 @@ export class ValidateSDKSetupRunner extends ScriptRunner {
 
 		const filesWithoutTargetFramework: string[] = [];
 		const nonMatchingVersions: [string, string][] = [];
-		
+
 		for (const csProjFile of csProFiles) {
 			const fileData = Deno.readTextFileSync(csProjFile);
 
@@ -64,16 +62,16 @@ export class ValidateSDKSetupRunner extends ScriptRunner {
 				} catch (error) {
 					nonMatchingVersions.push([csProjFile, error.message]);
 				}
-				
+
 				const versionsMatch = this.versionsMatch(dotnetSDKVersion, targetFrameworkVersion);
-				
+
 				if (versionsMatch) {
 					continue;
 				}
-				
+
 				const errorMsg = `The target framework version in the csproj file '${csProjFile}' does not match the repo` +
-				` variable NET_SDK_VERSION.`;
-				nonMatchingVersions.push([csProjFile, errorMsg])
+					` variable NET_SDK_VERSION.`;
+				nonMatchingVersions.push([csProjFile, errorMsg]);
 			} else {
 				filesWithoutTargetFramework.push(csProjFile);
 			}
@@ -81,12 +79,12 @@ export class ValidateSDKSetupRunner extends ScriptRunner {
 
 		// If there are any issues with any of the files, print them out.
 		if (filesWithoutTargetFramework.length > 0 || nonMatchingVersions.length > 0) {
-			filesWithoutTargetFramework.forEach(fileWithout => {
+			filesWithoutTargetFramework.forEach((fileWithout) => {
 				Utils.printAsGitHubError(`The file '${fileWithout}' does not have a target framework defined.`);
 			});
 
-			nonMatchingVersions.forEach(nonMatchingVersion => {
-				const errorMsg = `The file '${nonMatchingVersion[0]}' has a target framework version that does not ` + 
+			nonMatchingVersions.forEach((nonMatchingVersion) => {
+				const errorMsg = `The file '${nonMatchingVersion[0]}' has a target framework version that does not ` +
 					`match the NET_SDK_VERSION variable.\n${nonMatchingVersion[1]}`;
 				Utils.printAsGitHubError(errorMsg);
 			});
@@ -104,8 +102,7 @@ export class ValidateSDKSetupRunner extends ScriptRunner {
 		// Validate that the repo exists
 		const repoExists = await this.repoClient.exists();
 
-		if (!repoExists)
-		{
+		if (!repoExists) {
 			throw new Error(`The repo ${repoOwner}/${repoName} does not exist.`);
 		}
 

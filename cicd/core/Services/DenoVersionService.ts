@@ -38,10 +38,10 @@ export class DenoVersionService extends VersionServiceBase {
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
-		
+
 		let denoConfigFileData = await this.getFileData(releaseType);
 		const denoConfigFileName = await this.getVersionFilePath();
-		
+
 		if (this.fileContainsVersionSchema(denoConfigFileData)) {
 			if (this.versionAlreadyUpdated(denoConfigFileData, version)) {
 				let errorMsg = `The version '${version}' is already set for the version key in the file '${denoConfigFileName}'.`;
@@ -52,7 +52,7 @@ export class DenoVersionService extends VersionServiceBase {
 
 			// Build the replacement version key and value
 			const newVersionKeyAndValue = `"version": "${version}"`;
-	
+
 			// Since the version already exists and it is different than what the new version is,
 			//replace the version key and value with the new key and value
 			denoConfigFileData = denoConfigFileData.replace(this.versionKeyRegex, newVersionKeyAndValue);
@@ -91,7 +91,7 @@ export class DenoVersionService extends VersionServiceBase {
 		}
 
 		const versionSection = jsonKeyAndValue.split(":")[1]
-			.replaceAll("\"", "").trim().toLowerCase();
+			.replaceAll('"', "").trim().toLowerCase();
 
 		return versionSection === version;
 	}
@@ -106,7 +106,7 @@ export class DenoVersionService extends VersionServiceBase {
 		const jsonObj = JSON.parse(fileData);
 		const indent = 4;
 		const newLineChars = isWindows ? "\r\n" : "\n";
-		
+
 		// Add a prop and value to the json object
 		jsonObj["version"] = version;
 

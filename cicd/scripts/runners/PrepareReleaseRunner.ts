@@ -131,7 +131,7 @@ export class PrepareReleaseRunner extends ScriptRunner {
 			Deno.exit(1);
 		}
 
-		console.log(`Adding pull request '${newPr.number}' to project '${orgProjectName}'.`)
+		console.log(`Adding pull request '${newPr.number}' to project '${orgProjectName}'.`);
 		await projectClient.addPullRequestToProject(newPr.number, orgProjectName);
 
 		// Update the pull request by setting the default reviewer, org project, labels and milestone

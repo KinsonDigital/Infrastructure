@@ -30,7 +30,7 @@ jobs:
     name: Validate SDK Setup
     runs-on: ubuntu-latest
     steps:
-      - name: Validate
+      - name: Validate Workflow Inputs
         run: |
           $repoName = "${{ inputs.repo-name }}";
 
