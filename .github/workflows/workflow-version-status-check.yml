@@ -15,6 +15,7 @@ jobs:
   workflow_version_status_check:
     name: Workflow Version Status Check
     runs-on: ubuntu-latest
+    if: github.head_ref == ${{ vars.PREV_PREP_RELEASE_HEAD_BRANCH }} || github.head_ref == ${{ vars.PROD_PREP_RELEASE_HEAD_BRANCH }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
