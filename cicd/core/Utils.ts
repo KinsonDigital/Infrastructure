@@ -292,6 +292,15 @@ export class Utils {
 	}
 
 	/**
+	 * Returns a value indicating whether or not the given {@link csProjFileData} contains the target framework XML tag.
+	 * @param csProjFileData The csproj file data that might contain the target framework version.
+	 * @returns True if the target framework XML tag exists in the given {@link csProjFileData}, otherwise false.
+	 */
+	public static targetFrameworkXMLExists(csProjFileData: string): boolean {
+		return this.targetFrameworkRegex.test(csProjFileData);
+	}
+
+	/**
 	 * Gets the first occurrence of a dotnet target framework version found in the given {@link csProjFileData}.
 	 * @param csProjFileData The csproj file data that might contain the target framework version.
 	 * @returns The dotnet SDK version.
