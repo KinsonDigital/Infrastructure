@@ -7,7 +7,6 @@ import { ReleaseType } from "../Enums.ts";
  * Updates the version of a C# project file directly on a branch of a repository.
  */
 export class CSharpVersionService extends VersionServiceBase {
-	private readonly versionRegex = /([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)(-preview\.([1-9]\d*))?/gm;
 	private readonly versionTagRegex = /<Version\s*>.*<\/Version\s*>/gm;
 	private readonly fileVersionTagRegex = /<FileVersion\s*>.*<\/FileVersion\s*>/gm;
 
@@ -71,7 +70,7 @@ export class CSharpVersionService extends VersionServiceBase {
 	 * @inheritdoc
 	 */
 	public versionIsValid(version: string): boolean {
-		return this.versionRegex.test(version);
+		return Utils.isValidDotnetSDKVersion(version);
 	}
 
 	/**
@@ -98,7 +97,7 @@ export class CSharpVersionService extends VersionServiceBase {
 		const versionTag = fileData.match(this.versionTagRegex)?.[0] ?? "";
 
 		// Get the version value from the version tag
-		const versionTagValue = versionTag.match(this.versionRegex)?.[0] ?? "";
+		const versionTagValue = Utils.getCSProjTargetFrameworkVersion(versionTag);
 
 		// If the tag value matches the new version
 		return versionTagValue === version;
@@ -114,7 +113,7 @@ export class CSharpVersionService extends VersionServiceBase {
 		const versionTag = fileData.match(this.fileVersionTagRegex)?.[0] ?? "";
 
 		// Get the version value from the version tag
-		const versionTagValue = versionTag.match(this.versionRegex)?.[0] ?? "";
+		const versionTagValue = Utils.getCSProjTargetFrameworkVersion(versionTag);
 
 		// If the tag value matches the new version
 		return versionTagValue === version;
