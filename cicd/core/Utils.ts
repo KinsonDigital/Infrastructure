@@ -8,6 +8,9 @@ import { IssueModel, LabelModel, ProjectModel, PullRequestModel, UserModel } fro
 export class Utils {
 	private static readonly prodVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)$/;
 	private static readonly prevVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)(-preview\.([1-9]\d*))?$/;
+	private static readonly dotnetSDKVersionRegex = /([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)/gm;
+	private static readonly csprojTargetFrameworkVersionRegex = /net([1-9]\d*|0)(\.([1-9]\d*|0)|)(\.([1-9]\d*|0)|)/gm;
+	private static readonly targetFrameworkRegex = /<TargetFramework\s*>\s*net.+\s*<\/TargetFramework\s*>/gm;
 	private static readonly featureBranchRegex = /^feature\/[1-9][0-9]*-(?!-)[a-z-]+/gm;
 
 	/**
@@ -277,6 +280,36 @@ export class Utils {
 	 */
 	public static isNotValidPreviewVersion(version: string): boolean {
 		return !Utils.validPreviewVersion(version);
+	}
+
+	/**
+	 * Returns a value indicating whether or not the given {@link version} is a valid version.
+	 * @param version The version to check.
+	 * @returns True if the version is a valid version, otherwise false.
+	 */
+	public static isValidDotnetSDKVersion(version: string): boolean {
+		return this.dotnetSDKVersionRegex.test(version.trim().toLowerCase());
+	}
+
+	/**
+	 * Gets the first occurrence of a dotnet target framework version found in the given {@link csProjFileData}.
+	 * @param csProjFileData The csproj file data that might contain the target framework version.
+	 * @returns The dotnet SDK version.
+	 */
+	public static getCSProjTargetFrameworkVersion(csProjFileData: string): string {
+		const tagMatches = csProjFileData.match(this.targetFrameworkRegex);
+
+		const targetFrameworkTags = tagMatches === null || tagMatches.length === 0
+			? []
+			: [...tagMatches];
+
+		if (targetFrameworkTags.length === 0) {
+			throw new Error("Could not find any target framework XML tags in the given csproj file data.");
+		}
+
+		const matches: string[] = targetFrameworkTags[0].match(this.csprojTargetFrameworkVersionRegex) ?? [];
+
+		return matches.length > 0 ? matches[0] : "";
 	}
 
 	/**
