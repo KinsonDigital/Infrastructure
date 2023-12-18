@@ -7,7 +7,7 @@ import { IssueModel, LabelModel, ProjectModel, PullRequestModel, UserModel } fro
  */
 export class Utils {
 	private static readonly prodVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)$/;
-	private static readonly prevVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)(-preview\.([1-9]\d*))?$/;
+	private static readonly prevVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)-preview\.([1-9]\d*|0)$/;
 	private static readonly dotnetSDKVersionRegex = /([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)/gm;
 	private static readonly csprojTargetFrameworkVersionRegex = /net([1-9]\d*|0)(\.([1-9]\d*|0)|)(\.([1-9]\d*|0)|)/gm;
 	private static readonly targetFrameworkRegex = /<TargetFramework\s*>\s*net.+\s*<\/TargetFramework\s*>/gm;
