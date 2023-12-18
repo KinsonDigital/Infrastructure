@@ -1,4 +1,4 @@
-name: 🚁Prepare Release
+name: ⚙️Prepare Release
 
 
 defaults:
@@ -57,19 +57,15 @@ jobs:
           }
 
 
-          $releaseVersion = "${{ inputs.release-version }}".Trim().ToLower();
-          $releaseVersion = $releaseVersion.StartsWith("v") ? $releaseVersion : "v$releaseVersion";
-
-          if ($releaseType -eq "production") {
-            if ($releaseVersion -notmatch "v[0-9]+\.[0-9]+\.[0-9]+") {
-              Write-Host "::error::The production release version input is invalid. Expected version format: 'v#.#.#'";
-              exit 1;
-            }
+          $versionRegex = "^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)(-preview\.([1-9]\d*|0))?$";
+          
+          # Verify that the version has valid syntax
+          if (($releaseVersion -match $versionRegex)) {
+            Write-Host "::notice::The 'release-version' workflow input is valid.";
           } else {
-            if ($releaseVersion -notmatch "v[0-9]+\.[0-9]+\.[0-9]+-preview\.[0-9]+") {
-              Write-Host "::error::The preview release version input is invalid. Expected version format: 'v#.#.#-preview.#'";
-              exit 1;
-            }
+            $versionSyntax = $releaseType == "production" ? "v#.#.#" : "v#.#.#-preview.#";
+            Write-Host "::error::The 'release-version' workflow input is not valid.  Expected format: '$versionSyntax";
+            exit 1;
           }
 
 
@@ -84,7 +80,7 @@ jobs:
       - name: Set Up Deno
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.x
+          deno-version: ${{ vars.DENO_VERSION }}
 
       - name: Generate Release Notes
         run: |

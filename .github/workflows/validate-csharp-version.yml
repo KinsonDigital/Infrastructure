@@ -1,4 +1,4 @@
-name: Validate CSharp Version
+name: ⚙️Validate CSharp Version
 
 
 defaults:
@@ -75,7 +75,7 @@ jobs:
       - name: Set Up Deno
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.x
+          deno-version: ${{ vars.DENO_VERSION }}
         
       - name: Validate Version
         id: validate-version

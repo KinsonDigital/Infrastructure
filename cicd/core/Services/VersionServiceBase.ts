@@ -53,7 +53,7 @@ export abstract class VersionServiceBase {
 	 * @param fileData The file data to check.
 	 */
 	public abstract fileContainsVersionSchema(fileData: string): boolean;
-	
+
 	/**
 	 * Checks if the given {@link fileData} already has the given {@link version}.
 	 * @param fileData The file data to check.
@@ -132,7 +132,7 @@ export abstract class VersionServiceBase {
 		// If the branch name has not been set yet, cache it
 		if (Utils.isNothing(this.branchName)) {
 			let branchVarName = "";
-			
+
 			switch (releaseType) {
 				case ReleaseType.preview:
 					branchVarName = VersionServiceBase.PREV_PREP_RELEASE_HEAD_BRANCH;
@@ -144,7 +144,7 @@ export abstract class VersionServiceBase {
 					Utils.printAsGitHubError(`Unknown release type '${releaseType}'.`);
 					Deno.exit(1);
 			}
-			
+
 			const branchName = await this.githubVarService.getValue(branchVarName);
 			this.branchName = branchName;
 		}
@@ -184,6 +184,6 @@ export abstract class VersionServiceBase {
 			VersionServiceBase.PREP_PROJ_RELATIVE_FILE_PATH,
 			VersionServiceBase.PREV_PREP_RELEASE_HEAD_BRANCH,
 			VersionServiceBase.PROD_PREP_RELEASE_HEAD_BRANCH,
-		]
+		];
 	}
 }

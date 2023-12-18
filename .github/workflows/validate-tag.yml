@@ -1,4 +1,4 @@
-name: Validate Tag
+name: ⚙️Validate Tag
 
 
 defaults:
@@ -80,7 +80,7 @@ jobs:
       - name: Set Up Deno
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.x
+          deno-version: ${{ vars.DENO_VERSION }}
 
       - name: Validate Tag
         run: |
