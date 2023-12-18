@@ -1,0 +1,71 @@
+name: ⚙️Validate SDK Setup
+
+
+defaults:
+  run:
+    shell: pwsh
+
+
+on:
+  workflow_call:
+    inputs:
+      repo-name:
+        required: true
+        description: The name of the GitHub repository.
+        type: string
+      checkout-repository:
+        required: false
+        description: The git repository to checkout the code from.
+        type: string
+        default: ${{ github.repository }}
+      checkout-ref:
+        required: false
+        description: The git reference to checkout the code at.
+        type: string
+        default: ${{ github.ref }}
+
+
+jobs:
+  validate_sdk_setup:
+    name: Validate SDK Setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate
+        run: |
+          $repoName = "${{ inputs.repo-name }}";
+
+          if ($repoName -eq "") {
+            Write-Host "The repository name is required.";
+            exit 1;
+          }
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.checkout-repository }}
+          ref: ${{ inputs.checkout-ref }}
+
+      - name: Set Up Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ vars.DENO_VERSION }}
+
+      - name: Generate Release Notes
+        run: |
+          # Construct the URL to the organizations CICD scripts
+          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
+          $scriptUrl = $scriptUrl.Replace("\", "/").Replace("//", "/");
+          $scriptUrl = $scriptUrl.EndsWith("/") ? $scriptUrl.Substring(0, $scriptUrl.Length - 1) : $scriptUrl;
+          $scriptUrl = "$scriptUrl/validate-sdk-setup.ts";
+
+          <# Deno Args:
+            1. Organization name
+            2. Project name
+            3. PAT
+          #>
+          deno run `
+            --allow-read --allow-net `
+            "$scriptUrl" `
+            "${{ vars.ORGANIZATION_NAME }}" `
+            "${{ inputs.repo-name }}" `
+            "${{ secrets.cicd-pat }}";
