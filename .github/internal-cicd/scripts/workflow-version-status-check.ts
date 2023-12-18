@@ -29,11 +29,7 @@ const allFiles = Directory.getFiles(baseDirPath, true);
 const yamlFiles = allFiles.filter((file) => file.toLowerCase().endsWith(".yaml") || file.toLowerCase().endsWith(".yml"));
 const tagClient: TagClient = new TagClient(ownerName, repoName, token);
 
-// TODO: probably get rid of this
-const latestTag = (await tagClient.getAllTags())[0].name;
-
 const existingReleaseTags = (await tagClient.getAllTags()).map((t) => t.name);
-
 
 const workflowsToUpdate: WorkflowToUpdate[] = [];
 
