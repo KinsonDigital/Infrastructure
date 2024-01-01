@@ -7,14 +7,14 @@ import { isWindows } from "https://deno.land/std@0.207.0/path/_os.ts";
 import {
 	IssueClient, PullRequestClient, ProjectClient, UsersClient, ReleaseClient,
 	OrgClient, RepoClient, TagClient, LabelClient, MilestoneClient, GitClient
-} from "https://deno.land/x/kd_clients@v1.0.0-preview.7/GitHubClients/mod.ts";
-import { XClient } from "https://deno.land/x/kd_clients@v1.0.0-preview.7/OtherClients/mod.ts";
-import { NuGetClient } from "https://deno.land/x/kd_clients@v1.0.0-preview.7/PackageClients/mod.ts";
+} from "https://deno.land/x/kd_clients@v1.0.0-preview.8/GitHubClients/mod.ts";
+import { XClient } from "https://deno.land/x/kd_clients@v1.0.0-preview.8/OtherClients/mod.ts";
+import { NuGetClient } from "https://deno.land/x/kd_clients@v1.0.0-preview.8/PackageClients/mod.ts";
 
 import {
 	IssueModel, LabelModel, ProjectModel, PullRequestModel, UserModel,
 	GitHubVarModel, MilestoneModel
-} from "https://deno.land/x/kd_clients@v1.0.0-preview.7/core/Models/mod.ts";
+} from "https://deno.land/x/kd_clients@v1.0.0-preview.8/core/Models/mod.ts";
 
 // CLIFFY
 import { Input } from "https://deno.land/x/cliffy@v1.0.0-rc.3/prompt/input.ts";
