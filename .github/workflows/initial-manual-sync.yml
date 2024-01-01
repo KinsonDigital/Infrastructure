@@ -1,5 +1,5 @@
-name: 🔄️Sync PR To Issue
-run-name: 🔄️Sync PR To Issue (${{ inputs.sync-type }})
+name: ⚙️Sync PR To Issue
+run-name: ⚙️Sync PR To Issue (${{ inputs.sync-type }})
 
 
 defaults:
@@ -82,7 +82,7 @@ jobs:
         if: ${{ steps.skip-checking.outputs.skip == 'false' }}
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.x
+          deno-version: ${{ vars.DENO_VERSION }}
 
       - name: Run Sync
         if: ${{ steps.skip-checking.outputs.skip == 'false' }}

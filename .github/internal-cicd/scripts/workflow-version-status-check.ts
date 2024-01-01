@@ -1,4 +1,4 @@
-import { RepoClient, TagClient } from "../../../deps.ts";
+import { TagClient } from "../../../deps.ts";
 import { Directory } from "../../../deps.ts";
 import { File } from "../../../cicd/core/File.ts";
 import { Path } from "../../../cicd/core/Path.ts";
@@ -29,7 +29,7 @@ const allFiles = Directory.getFiles(baseDirPath, true);
 const yamlFiles = allFiles.filter((file) => file.toLowerCase().endsWith(".yaml") || file.toLowerCase().endsWith(".yml"));
 const tagClient: TagClient = new TagClient(ownerName, repoName, token);
 
-const latestTag = (await tagClient.getAllTags())[0].name;
+const existingReleaseTags = (await tagClient.getAllTags()).map((t) => t.name);
 
 const workflowsToUpdate: WorkflowToUpdate[] = [];
 
@@ -64,7 +64,7 @@ yamlFiles.forEach(yamlFile => {
 		const workflowRefVersion = possibleUpdate.split("@")[1];
 
 		// If the workflow version has not been updated
-		if (workflowRefVersion === latestTag) {
+		if (existingReleaseTags.includes(workflowRefVersion)) {
 			workflowToUpdate.workflowRefs.push(fullRef);
 		}
 	});
@@ -92,21 +92,6 @@ workflowsToUpdate.forEach(workflowToUpdate => {
 
 	errorMsgs.push(...workflowErrors);
 });
-
-const repoVarName = "CICD_SCRIPTS_VERSION";
-const repoClient = new RepoClient(ownerName, repoName, token);
-
-if (!(await repoClient.repoVariableExists(repoVarName))) {
-	errorMsgs.push(`The repository variable '${repoVarName}' does not exist.`);
-} else {
-	const scriptVersionVar = (await repoClient.getVariables()).find((v) => v.name == repoVarName);
-	
-	if (scriptVersionVar?.value === latestTag) {
-		let errorMsg = `The repository variable '${repoVarName}' version value `;
-		errorMsg += `of '${scriptVersionVar?.value}' needs to be updated.`;
-		errorMsgs.push(errorMsg);
-	}
-}
 
 if (errorMsgs.length > 0) {
 	Utils.printAsGitHubErrors(errorMsgs);

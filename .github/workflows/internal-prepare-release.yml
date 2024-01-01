@@ -1,5 +1,5 @@
-name: 🚁Prepare Release Test
-run-name: 🚁Prepare ${{ inputs.release-type }} Release Test (${{ inputs.release-version }})
+name: 🚁Prepare Release
+run-name: 🚁Prepare ${{ inputs.release-type }} Release (${{ inputs.release-version }})
 
 
 defaults:
@@ -49,7 +49,7 @@ jobs:
             Write-Host "::error::The release type input must be either 'Preview' or 'Production'.";
             exit 1;
           }
-
+          
           $releaseVersion = "${{ inputs.release-version }}".Trim().ToLower();
 
           if ($releaseVersion -eq "") {
@@ -58,14 +58,13 @@ jobs:
           }
 
 
-          $prodVersionRegex = "v[0-9]+\.[0-9]+\.[0-9]+";
-          $prevVersionRegex = "v[0-9]+\.[0-9]+\.[0-9]+-preview\.[0-9]+";
+          $versionRegex = "v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)(-preview\.([1-9]\d*))?";
           
           # Verify that the version has valid syntax
-          if (($releaseVersion -match $prodVersionRegex) -or ($releaseVersion -match $prevVersionRegex)) {
+          if (($releaseVersion -match $versionRegex)) {
             Write-Host "::notice::The 'release-version' workflow input is valid.";
           } else {
-            $versionSyntax = $releaseType == "production" ? "v#.#.#" : "v#.#.#-preview.#";
+            $versionSyntax = $releaseType -eq "production" ? "v#.#.#" : "v#.#.#-preview.#";
             Write-Host "::error::The 'release-version' workflow input is not valid.  Expected format: '$versionSyntax";
             exit 1;
           }
@@ -74,7 +73,7 @@ jobs:
   prepare_release:
     name: Prepare ${{ inputs.release-type }} Release Of ${{ vars.PROJECT_NAME }}
     needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/prepare-release.yml@v13.5.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/prepare-release.yml@v13.6.0
     with:
       project-name: "${{ vars.PROJECT_NAME }}"
       release-type: "${{ inputs.release-type }}"

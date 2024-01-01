@@ -1,5 +1,5 @@
+```[tasklist]
 ### Pre-Release ToDo List
-
 - [ ] All issues in the assigned milestone are closed and all issue tasks are complete.
 - [ ] Add _**`🚀Preview Release`**_ label to this pull request.
 - [ ] The pull request is assigned to a project.
@@ -7,10 +7,12 @@
 - [ ] The version in the csharp project file updated.
 - [ ] Release notes created.
 - [ ] Release to **_preview_** completed. _(The release is performed by running the `🚀Release` workflow)_.
+```
 
+```[tasklist]
 ### Post-Release ToDo List
-
 - [ ] The GitHub release has been created and is correct.
+```
 
 ### Additional Information:
 

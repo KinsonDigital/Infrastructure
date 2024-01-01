@@ -4,7 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        {
+        { // PLAYGROUND
             "name": "Playground",
             "request": "launch",
             "type": "node",
@@ -27,7 +27,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-        {
+        { // ADD ISSUE TO PROJECT
             "name": "Add Issue To Project",
             "request": "launch",
             "type": "node",
@@ -53,7 +53,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-		{
+		{ // ADD ITEM TO PROJECT
             "name": "Add Item To Project",
             "request": "launch",
             "type": "node",
@@ -80,7 +80,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-        {
+        { // CLOSE MILESTONE
             "name": "Close Milestone",
             "request": "launch",
             "type": "node",
@@ -105,7 +105,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-		{
+		{ // GITHUB RELEASE DOES NOT EXIST
             "name": "GitHub Release Does Not Exist",
             "request": "launch",
             "type": "node",
@@ -130,7 +130,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-        {
+        { // LABEL IF HEAD BRANCH
             "name": "Label If Head Branch",
             "request": "launch",
             "type": "node",
@@ -151,7 +151,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-		{
+		{ // MILESTONE EXISTS
             "name": "Milestone Exists",
             "request": "launch",
             "type": "node",
@@ -177,7 +177,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-		{
+		{ // NUGET PACKAGE EXISTS
             "name": "NuGet Package Exists",
             "request": "launch",
             "type": "node",
@@ -197,7 +197,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-		{
+		{ // PREPARE RELEASE
             "name": "Prepare Release",
             "request": "launch",
             "type": "node",
@@ -223,7 +223,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-		{
+		{ // SEND RELEASE TWEET
             "name": "Send Release Tweet",
             "request": "launch",
             "type": "node",
@@ -252,7 +252,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-		{
+		{ // SYNC BOT
             "name": "Sync Bot",
             "request": "launch",
             "type": "node",
@@ -278,7 +278,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-		{
+		{ // SYNC ISSUE TO PR
             "name": "Sync Issue To PR",
             "request": "launch",
             "type": "node",
@@ -304,7 +304,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-		{
+		{ // SYNC STATUS CHECK
             "name": "Sync Status Check",
             "request": "launch",
             "type": "node",
@@ -330,7 +330,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-		{
+		{ // TRANSPILE README
             "name": "Transpile README",
             "request": "launch",
             "type": "node",
@@ -353,7 +353,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-		{
+		{ // UPDATE CSHARP FILE
             "name": "Update CSharp File",
             "request": "launch",
             "type": "node",
@@ -376,7 +376,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-		{
+		{ // UPDATE WORKFLOW VERSIONS
             "name": "Update Workflow Versions",
             "request": "launch",
             "type": "node",
@@ -400,7 +400,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-		{
+		{ // WORKFLOW VERSION STATUS CHECK
             "name": "Workflow Version Status Check",
             "request": "launch",
             "type": "node",
@@ -423,7 +423,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-        {
+        { // VALIDATE EITHER TAG
             "name": "Validate Either Tag",
             "request": "launch",
             "type": "node",
@@ -450,7 +450,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-        {
+        { // VALIDATE PREVIEW TAG
             "name": "Validate Preview Tag",
             "request": "launch",
             "type": "node",
@@ -477,7 +477,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-        {
+        { // VALIDATE PROD TAG
             "name": "Validate Prod Tag",
             "request": "launch",
             "type": "node",
@@ -504,7 +504,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-        {
+        { // VALIDATE RELEASE NOTES
             "name": "Validate Release Notes",
             "request": "launch",
             "type": "node",
@@ -530,7 +530,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-		{
+		{ // VALIDATE VERSION
             "name": "Validate Version",
             "request": "launch",
             "type": "node",
@@ -550,8 +550,8 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-		{
-            "name": "Deno Check",
+		{ // BUILD (DENO CHECK)
+            "name": "Build (Deno Check)",
             "request": "launch",
             "type": "node",
             "program": "${workspaceFolder}/.github/internal-cicd/scripts/deno-check.ts",
@@ -574,6 +574,31 @@
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             },
-		}
+		},
+		{ // VALIDATE SDK SETUP
+            "name": "Validate SDK Setup",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/validate-sdk-setup.ts",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+				"--allow-read",
+				"--allow-net"
+            ],
+            "args": [
+				"KinsonDigital",
+				"Infrastructure",
+				"${env:CICD_TOKEN}",
+			],
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+			}
+        },
     ]
 }
