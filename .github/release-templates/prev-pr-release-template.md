@@ -12,6 +12,7 @@
 - [ ] The release notes have been created. _(All changes made directly on a 'prev-release' branch)_.
 - [ ] The pull request has been approved and merged into the _**preview**_ branch before performing the release. _(Releases are performed on the preview branch)_.
 - [ ] The preview release has been completed. _(The release is performed by running the `🚀Release` workflow)_.
+- [ ] Reusable workflow versions updated to match release version.
 ```
 
 ### Post-Release ToDo List
