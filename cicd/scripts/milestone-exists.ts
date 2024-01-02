@@ -16,17 +16,17 @@ const milestoneExistsExecutor = async () => {
 	const ownerName = Deno.args[0].trim();
 	const repoName = Deno.args[1].trim();
 	const milestoneTitle = Deno.args[2].trim();
-	const token = Deno.args.length >= 4 ? Deno.args[3].trim() : "";
+	const githubToken = Deno.args[3].trim();
 
 	// Print out all of the arguments
 	Utils.printInGroup("Script Arguments", [
 		`Repo Owner (Required): ${ownerName}`,
 		`Repo Name (Required): ${repoName}`,
 		`Milestone (Required): ${milestoneTitle}`,
-		`GitHub Token (Required): ${Utils.isNothing(token) ? "Not Provided" : "****"}`,
+		`GitHub Token (Required): ${Utils.isNothing(githubToken) ? "Not Provided" : "****"}`,
 	]);
 
-	const repoClient: RepoClient = new RepoClient(ownerName, repoName, token);
+	const repoClient: RepoClient = new RepoClient(ownerName, repoName, githubToken);
 	const repoDoesNotExist = !(await repoClient.exists());
 
 	if (repoDoesNotExist) {
@@ -34,7 +34,7 @@ const milestoneExistsExecutor = async () => {
 		Deno.exit(1);
 	}
 
-	const milestoneClient: MilestoneClient = new MilestoneClient(ownerName, repoName, token);
+	const milestoneClient: MilestoneClient = new MilestoneClient(ownerName, repoName, githubToken);
 
 	const milestoneDoesNotExist = !(await milestoneClient.milestoneExists(milestoneTitle));
 
