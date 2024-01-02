@@ -47,7 +47,7 @@ export class GenerateReleaseNotesService {
 		const otherChangesHeader = this.htmlService.createHeader("Other 🪧", 2, this.noColor, true, true);
 
 		let releaseNotes = title;
-		releaseNotes += Utils.isNothing(quickReminder) ? "" : `\n\n${quickReminder}`;
+		releaseNotes += Utils.isNothing(quickReminder) ? "" : `\n${quickReminder}`;
 		releaseNotes += `\n\n${newFeaturesHeader}`;
 		releaseNotes += `\n\n${bugFixHeader}`;
 		releaseNotes += `\n\n${breakingChangeHeader}`;

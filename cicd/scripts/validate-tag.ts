@@ -19,8 +19,8 @@ const validateTagExecutor = async () => {
 	const repoName: string = Deno.args[1];
 	const tagType: string = Deno.args[2].toLowerCase();
 	let tag: string = Deno.args[3].trim();
-	tag = tag.startsWith("v") ? tag : `v${Deno.args[3]}`;
-	const token = Deno.args.length >= 5 ? Deno.args[4].trim() : "";
+	tag = tag.startsWith("v") ? tag : `v${tag}`;
+	const token = Deno.args[4].trim();
 
 	// Print out all of the arguments
 	Utils.printInGroup("Script Arguments", [
@@ -28,7 +28,7 @@ const validateTagExecutor = async () => {
 		`Repo Name (Required): ${repoName}`,
 		`Tag Type (Required): ${tagType}`,
 		`Tag (Required): ${tag}`,
-		`GitHub Token (Required): ${Utils.isNothing(token) ? "Not Provided" : "****"}`,
+		`GitHub Token (Required): ****`,
 	]);
 
 	const versionTypeInvalid = tagType != "production" && tagType != "preview" && tagType != "either";

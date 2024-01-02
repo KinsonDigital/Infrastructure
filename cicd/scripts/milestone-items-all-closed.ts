@@ -3,7 +3,7 @@ import { IssueModel, PullRequestModel } from "../../deps.ts";
 import { Utils } from "../core/Utils.ts";
 
 const milestoneItemsAllClosedExecutor = async () => {
-	if (Deno.args.length != 3) {
+	if (Deno.args.length != 4) {
 		let errorMsg = `The cicd script must have at 4 arguments but has ${Deno.args.length} argument(s).`;
 		errorMsg += "\nThe 1st arg is required and must be the GitHub repository owner name.";
 		errorMsg += "\nThe 2nd arg is required and must be the GitHub repo name.";
@@ -18,13 +18,14 @@ const milestoneItemsAllClosedExecutor = async () => {
 	const ownerName = Deno.args[0].trim();
 	const repoName = Deno.args[1].trim();
 	const milestoneTitle = Deno.args[2].trim();
-	const token = Deno.args.length >= 4 ? Deno.args[3].trim() : "";
+	const token = Deno.args[3].trim();
 
 	// Print out all of the arguments
 	Utils.printInGroup("Script Arguments", [
+		`Owner Name (Required): ${ownerName}`,
 		`Repo Name (Required): ${repoName}`,
 		`Milestone Title (Required): ${milestoneTitle}`,
-		`GitHub Token (Required): ${Utils.isNothing(token) ? "Not Provided" : "****"}`,
+		`GitHub Token (Required): ****`,
 	]);
 
 	const repoClient: RepoClient = new RepoClient(ownerName, repoName, token);

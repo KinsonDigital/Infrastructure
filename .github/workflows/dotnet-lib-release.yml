@@ -182,7 +182,7 @@ jobs:
 
   validate_version:
     name: Validate Version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v13.6.1
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v13.6.2
     with:
       project-name: "${{ inputs.project-name }}"
       release-type: "${{ inputs.release-type }}"
@@ -193,7 +193,7 @@ jobs:
   validate_tag:
     name: Validate Tag
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-tag.yml@v13.6.1
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-tag.yml@v13.6.2
     with:
       project-name: "${{ inputs.project-name }}"
       release-type: "${{ inputs.release-type }}"
@@ -205,7 +205,7 @@ jobs:
   validate_sdk_setup:
     name: Validate SDK Setup
     needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-sdk-setup.yml@v13.6.1
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-sdk-setup.yml@v13.6.2
     with:
       repo-name: "${{ inputs.project-name }}"
     secrets: 
@@ -215,7 +215,7 @@ jobs:
   nuget_pkg_does_not_exist:
     name: Validate NuGet Package Does Not Exist
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/nuget-package-does-not-exist.yml@v13.6.1
+    uses: KinsonDigital/Infrastructure/.github/workflows/nuget-package-does-not-exist.yml@v13.6.2
     with:
       project-name: "${{ inputs.project-name }}"
       version: "${{ needs.validate_version.outputs.version }}"
@@ -224,7 +224,7 @@ jobs:
   validate_milestone_status:
     name: Validate Milestone Status
     needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-milestone-status.yml@v13.6.1
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-milestone-status.yml@v13.6.2
     with:
       project-name: "${{ inputs.project-name }}"
       version: "${{ needs.validate_version.outputs.version }}"
@@ -235,7 +235,7 @@ jobs:
   validate_github_release:
     name: GitHub Release Does Not Exist
     needs: [validate_version]
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-github-release.yml@v13.6.1
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-github-release.yml@v13.6.2
     with:
       project-name: "${{ inputs.project-name }}"
       version: "${{ needs.validate_version.outputs.version }}"
@@ -246,7 +246,7 @@ jobs:
   build_project:
     name: Build Main Project
     needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v13.6.1
+    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v13.6.2
     with:
       project-name: "${{ inputs.project-name }}"
       runs-on: "${{ inputs.runs-on }}"
@@ -259,7 +259,7 @@ jobs:
   run_tests:
     name: Run Tests
     needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v13.6.1
+    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v13.6.2
     with:
       project-name: "${{ inputs.project-name }}Tests"
       runs-on: "${{ inputs.runs-on }}"

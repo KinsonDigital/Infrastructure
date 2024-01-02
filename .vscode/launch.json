@@ -141,7 +141,15 @@
                 "--inspect-wait",
                 "--allow-all"
             ],
-            "args": ["Infrastructure", "24", "master", "master"],
+            "args": [
+				"KinsonDigital",
+				"Infrastructure",
+				"24",
+				"master",
+				"master",
+				"🚀Preview Release",
+				"${env:CICD_TOKEN}",
+			],
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
@@ -170,6 +178,31 @@
 			],
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
+            "windows": {
+                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+        { // MILESTONE ITEMS ALL CLOSED
+            "name": "Milestone Items All Closed",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/milestone-items-all-closed.ts",
+            "cwd": "${workspaceFolder}/cicd",
+            "runtimeArgs": [
+                "run",
+                "--inspect-wait",
+                "--allow-all"
+            ],
+            "args": [
+				"KinsonDigital",
+				"Infrastructure",
+				"v13.6.1",
+				"${env:CICD_TOKEN}",
+			],
+            "attachSimplePort": 9229,
             "windows": {
                 "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
             },
