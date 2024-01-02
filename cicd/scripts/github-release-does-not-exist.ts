@@ -2,8 +2,7 @@ import { ReleaseClient } from "../../deps.ts";
 import { Utils } from "../core/Utils.ts";
 
 const githubReleaseDoesNotExistExecutor = async () => {
-	// Validate the arguments
-	if (Deno.args.length != 3) {
+	if (Deno.args.length != 4) {
 		let errorMsg = `The cicd script must have 4 arguments but has ${Deno.args.length} argument(s).`;
 		errorMsg += "\nThe 1st arg is required and must be a the name of the repository owner.";
 		errorMsg += "\nThe 2nd arg is required and must be a the name of the repository.";
@@ -14,10 +13,10 @@ const githubReleaseDoesNotExistExecutor = async () => {
 		Deno.exit(1);
 	}
 
-	const ownerName = Deno.args[1].trim();
+	const ownerName = Deno.args[0].trim();
 	const repoName = Deno.args[1].trim();
 	const tagName = Deno.args[2].trim();
-	const githubToken = Deno.args.length >= 4 ? Deno.args[4].trim() : "";
+	const githubToken = Deno.args[3].trim();
 
 	// Print out all of the arguments
 	Utils.printInGroup("Script Arguments", [
