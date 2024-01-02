@@ -12,6 +12,7 @@
 - [ ] The release notes have been created. _(All changes made directly on a 'prod-release' branch)_.
 - [ ] The pull request has been approved and merged into the _**main**_ branch before performing the release. _(Releases are performed on the main branch)_.
 - [ ] The production release has been completed. _(The release is performed by running the `🚀Release` workflow)_.
+- [ ] Reusable workflow versions updated to match release version.
 ```
 
 ### Post-Release ToDo List
