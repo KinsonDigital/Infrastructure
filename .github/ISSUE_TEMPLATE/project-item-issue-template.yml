@@ -20,11 +20,11 @@ body:
 - type: textarea
   attributes:
     label: Acceptance Criteria
-    placeholder: |
-      Example:
-        - [ ] Item 1 complete
-        - [ ] Item 2 complete
     description: The items to complete in order to satisfy the Definition of Done.
+    value: |
+      ```[tasklist]
+      ### The items to complete in order to satisfy the Definition of Done.
+      ```
   validations:
     required: true
     render: markdown
