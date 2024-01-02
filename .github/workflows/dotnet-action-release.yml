@@ -183,7 +183,8 @@ jobs:
     uses: KinsonDigital/Infrastructure/.github/workflows/validate-sdk-setup.yml@v13.6.1
     with:
       repo-name: "${{ inputs.project-name }}"
-
+    secrets:
+      cicd-pat: "${{ secrets.cicd-pat }}"
 
   validate_release_notes_exist:
     name: Validate Release Notes Exist
