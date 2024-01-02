@@ -2,7 +2,7 @@ import { MilestoneClient, RepoClient } from "../../deps.ts";
 import { Utils } from "../core/Utils.ts";
 
 const milestoneExistsExecutor = async () => {
-	if (Deno.args.length != 3) {
+	if (Deno.args.length != 4) {
 		let errorMsg = `The cicd script must have 4 arguments but has ${Deno.args.length} argument(s).`;
 		errorMsg += "\nThe 1st arg is required and must be the GitHub repository owner name.";
 		errorMsg += "\nThe 2nd arg is required and must be the GitHub repo name.";
