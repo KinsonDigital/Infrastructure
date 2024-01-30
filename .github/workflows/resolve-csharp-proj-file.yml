@@ -47,8 +47,28 @@ jobs:
       - name: Create Script URL
         id: script-url
         run: |
+          $SCRIPT_BASE_URL = "${{ vars.SCRIPT_BASE_URL }}";
+          $CICD_SCRIPTS_VERSION="${{ vars.CICD_SCRIPTS_VERSION }}";
+          $SCRIPT_RELATIVE_DIR_PATH="${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
+          
+          $NEEDS_TRIMMING = $true;
+          
+          # Trim all line endings from the URL specific sections
+          while ($NEEDS_TRIMMING) {
+              $SCRIPT_BASE_URL = $SCRIPT_BASE_URL.TrimEnd("`r");
+              $SCRIPT_BASE_URL = $SCRIPT_BASE_URL.TrimEnd("`n");
+              $CICD_SCRIPTS_VERSION = $CICD_SCRIPTS_VERSION.TrimEnd("`r");
+              $CICD_SCRIPTS_VERSION = $CICD_SCRIPTS_VERSION.TrimEnd("`n");
+              $SCRIPT_RELATIVE_DIR_PATH = $SCRIPT_RELATIVE_DIR_PATH.TrimEnd("`r");
+              $SCRIPT_RELATIVE_DIR_PATH = $SCRIPT_RELATIVE_DIR_PATH.TrimEnd("`n");
+          
+              $NEEDS_TRIMMING = $SCRIPT_BASE_URL.EndsWith("`r") -or $SCRIPT_BASE_URL.EndsWith("`n") -or 
+              $CICD_SCRIPTS_VERSION.EndsWith("`r") -or $CICD_SCRIPTS_VERSION.EndsWith("`n") -or
+              $SCRIPT_RELATIVE_DIR_PATH.EndsWith("`r") -or $SCRIPT_RELATIVE_DIR_PATH.EndsWith("`n");
+          }
+          
           # Construct the URL to the organizations CICD scripts
-          $url = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
+          $url = "$SCRIPT_BASE_URL/$CICD_SCRIPTS_VERSION/$SCRIPT_RELATIVE_DIR_PATH";
           $url = $url.Replace("\", "/").Replace("//", "/");
           $url = $url.EndsWith("/") ? $url.Substring(0, $url.Length - 1) : $url;
           
