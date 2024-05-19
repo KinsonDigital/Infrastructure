@@ -1,6 +1,5 @@
 import { ReleaseType } from "../Enums.ts";
-import { IssueModel } from "../Models/IssueModel.ts";
-import { PullRequestModel } from "../Models/PullRequestModel.ts";
+import { IssueModel, PullRequestModel } from "../../../deps.ts";
 import { HTMLService } from "./HTMLService.ts";
 import { MarkdownService } from "./MarkdownService.ts";
 import { Utils } from "../Utils.ts";
@@ -48,7 +47,7 @@ export class GenerateReleaseNotesService {
 		const otherChangesHeader = this.htmlService.createHeader("Other 🪧", 2, this.noColor, true, true);
 
 		let releaseNotes = title;
-		releaseNotes += Utils.isNullOrEmptyOrUndefined(quickReminder) ? "" : `\n\n${quickReminder}`;
+		releaseNotes += Utils.isNothing(quickReminder) ? "" : `\n${quickReminder}`;
 		releaseNotes += `\n\n${newFeaturesHeader}`;
 		releaseNotes += `\n\n${bugFixHeader}`;
 		releaseNotes += `\n\n${breakingChangeHeader}`;
@@ -96,11 +95,11 @@ export class GenerateReleaseNotesService {
 
 		let releaseNotes = title;
 		releaseNotes += "\n\n" + quickReminder;
-		releaseNotes += Utils.isNullOrEmptyOrUndefined(newFeaturesSection) ? "" : "\n\n" + newFeaturesSection;
-		releaseNotes += Utils.isNullOrEmptyOrUndefined(bugFixesSection) ? "" : "\n\n" + bugFixesSection;
-		releaseNotes += Utils.isNullOrEmptyOrUndefined(breakingChangesSection) ? "" : "\n\n" + breakingChangesSection;
-		releaseNotes += Utils.isNullOrEmptyOrUndefined(dependencyChangesSection) ? "" : "\n\n" + dependencyChangesSection;
-		releaseNotes += Utils.isNullOrEmptyOrUndefined(otherChangesSection) ? "" : "\n\n" + otherChangesSection;
+		releaseNotes += Utils.isNothing(newFeaturesSection) ? "" : "\n\n" + newFeaturesSection;
+		releaseNotes += Utils.isNothing(bugFixesSection) ? "" : "\n\n" + bugFixesSection;
+		releaseNotes += Utils.isNothing(breakingChangesSection) ? "" : "\n\n" + breakingChangesSection;
+		releaseNotes += Utils.isNothing(dependencyChangesSection) ? "" : "\n\n" + dependencyChangesSection;
+		releaseNotes += Utils.isNothing(otherChangesSection) ? "" : "\n\n" + otherChangesSection;
 		releaseNotes += "\n";
 
 		return releaseNotes;

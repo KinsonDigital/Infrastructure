@@ -1,4 +1,12 @@
 {
+    "version": "v13.6.3",
+    "tasks": {
+        "clear": "deno run -A ./.github/internal-cicd/deno-tasks/clear-screen.ts",
+        "build": "deno task clear && deno run -A ./.github/internal-cicd/scripts/deno-check.ts",
+        "lint": "deno task clear && deno lint",
+        "format": "deno task clear && deno fmt",
+        "reload-cache": "deno task clear && deno cache --lock=deno.lock --lock-write \"./cicd/scripts/mod.ts\""
+    },
     "lint": {
         "include": [
             "cicd/"
@@ -15,5 +23,8 @@
         "indentWidth": 4,
         "semiColons": true,
         "singleQuote": false
+    },
+    "imports": {
+        "std/": "https://deno.land/std@0.203.0/"
     }
 }

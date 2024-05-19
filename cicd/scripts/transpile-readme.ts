@@ -1,5 +1,6 @@
 import { TranspileReadMeRunner } from "./runners/TranspileReadMeRunner.ts";
 
-const runner: TranspileReadMeRunner = new TranspileReadMeRunner(Deno.args);
+const transpileReadMeExecutor: TranspileReadMeRunner = new TranspileReadMeRunner(Deno.args);
+await transpileReadMeExecutor.run();
 
-await runner.run();
+export default transpileReadMeExecutor;

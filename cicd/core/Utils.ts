@@ -1,17 +1,16 @@
 import { GitHubHttpStatusCodes, GitHubLogType } from "./Enums.ts";
 import { Guard } from "./Guard.ts";
-import { IssueModel } from "./Models/IssueModel.ts";
-import { LabelModel } from "./Models/LabelModel.ts";
-import { ProjectModel } from "./Models/ProjectModel.ts";
-import { PullRequestModel } from "./Models/PullRequestModel.ts";
-import { UserModel } from "./Models/UserModel.ts";
+import { IssueModel, LabelModel, ProjectModel, PullRequestModel, UserModel } from "../../deps.ts";
 
 /**
  * Provides utility functions.
  */
 export class Utils {
-	private static readonly prodVersionRegex = /^v[0-9]+\.[0-9]+\.[0-9]+$/;
-	private static readonly prevVersionRegex = /^v[0-9]+\.[0-9]+\.[0-9]+-preview\.[0-9]+$/;
+	private static readonly prodVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)$/;
+	private static readonly prevVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)-preview\.([1-9]\d*|0)$/;
+	private static readonly dotnetSDKVersionRegex = /([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)/gm;
+	private static readonly csprojTargetFrameworkVersionRegex = /net([1-9]\d*|0)(\.([1-9]\d*|0)|)(\.([1-9]\d*|0)|)/gm;
+	private static readonly targetFrameworkRegex = /<TargetFramework\s*>\s*net.+\s*<\/TargetFramework\s*>/gm;
 	private static readonly featureBranchRegex = /^feature\/[1-9][0-9]*-(?!-)[a-z-]+/gm;
 
 	/**
@@ -48,7 +47,7 @@ export class Utils {
 	 * @param value The value to check.
 	 * @returns True if the value is null, undefined, or empty, otherwise false.
 	 */
-	public static isNullOrEmptyOrUndefined<T>(
+	public static isNothing<T>(
 		value: undefined | null | string | number | boolean | T[] | (() => T) | object,
 	): value is undefined | null | "" | number | T[] | (() => T) {
 		if (value === undefined || value === null) {
@@ -284,6 +283,43 @@ export class Utils {
 	}
 
 	/**
+	 * Returns a value indicating whether or not the given {@link version} is a valid version.
+	 * @param version The version to check.
+	 * @returns True if the version is a valid version, otherwise false.
+	 */
+	public static isValidDotnetSDKVersion(version: string): boolean {
+		return this.dotnetSDKVersionRegex.test(version.trim().toLowerCase());
+	}
+
+	/**
+	 * Returns a value indicating whether or not the given {@link csProjFileData} contains the target framework XML tag.
+	 * @param csProjFileData The csproj file data that might contain the target framework version.
+	 * @returns True if the target framework XML tag exists in the given {@link csProjFileData}, otherwise false.
+	 */
+	public static targetFrameworkXMLExists(csProjFileData: string): boolean {
+		return this.targetFrameworkRegex.test(csProjFileData);
+	}
+
+	/**
+	 * Gets the first occurrence of a dotnet target framework version found in the given {@link csProjFileData}.
+	 * @param csProjFileData The csproj file data that might contain the target framework version.
+	 * @returns The dotnet SDK version.
+	 */
+	public static getCSProjTargetFrameworkVersion(csProjFileData: string): string {
+		const tagMatches = csProjFileData.match(this.targetFrameworkRegex);
+
+		const targetFrameworkTags = tagMatches === null || tagMatches.length === 0 ? [] : [...tagMatches];
+
+		if (targetFrameworkTags.length === 0) {
+			throw new Error("Could not find any target framework XML tags in the given csproj file data.");
+		}
+
+		const matches: string[] = targetFrameworkTags[0].match(this.csprojTargetFrameworkVersionRegex) ?? [];
+
+		return matches.length > 0 ? matches[0] : "";
+	}
+
+	/**
 	 * Returns a number that is clamped between the given {@link min} and {@link max} values.
 	 * @param value The value to clamp.
 	 * @param min The minimum value.
@@ -304,8 +340,8 @@ export class Utils {
 	 */
 	public static buildIssueUrl(repoOwner: string, repoName: string, issueNumber: number): string {
 		const funcName = "buildIssueUrl";
-		Guard.isNullOrEmptyOrUndefined(repoOwner, funcName, "repoOwner");
-		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNothing(repoOwner, funcName, "repoOwner");
+		Guard.isNothing(repoName, funcName, "repoName");
 		Guard.isLessThanOne(issueNumber, funcName, "issueNumber");
 
 		return `https://github.com/${repoOwner}/${repoName}/issues/${issueNumber}`;
@@ -321,8 +357,8 @@ export class Utils {
 	 */
 	public static buildPullRequestUrl(repoOwner: string, repoName: string, prNumber: number): string {
 		const funcName = "buildPullRequestUrl";
-		Guard.isNullOrEmptyOrUndefined(repoOwner, funcName, "repoOwner");
-		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNothing(repoOwner, funcName, "repoOwner");
+		Guard.isNothing(repoName, funcName, "repoName");
 		Guard.isLessThanOne(prNumber, funcName, "prNumber");
 
 		return `https://github.com/${repoOwner}/${repoName}/pull/${prNumber}`;
@@ -337,8 +373,8 @@ export class Utils {
 	 */
 	public static buildLabelsUrl(repoOwner: string, repoName: string): string {
 		const funcName = "buildLabelsUrl";
-		Guard.isNullOrEmptyOrUndefined(repoOwner, funcName, "repoOwner");
-		Guard.isNullOrEmptyOrUndefined(repoName, funcName, "repoName");
+		Guard.isNothing(repoOwner, funcName, "repoOwner");
+		Guard.isNothing(repoName, funcName, "repoName");
 
 		return `https://github.com/${repoOwner}/${repoName}/labels`;
 	}
@@ -460,7 +496,7 @@ export class Utils {
 	 * @returns The given {@link value} with its first letter converted to upper case.
 	 */
 	public static firstLetterToUpper(value: string): string {
-		if (Utils.isNullOrEmptyOrUndefined(value)) {
+		if (Utils.isNothing(value)) {
 			return value;
 		}
 
@@ -500,7 +536,7 @@ export class Utils {
 	 * @returns The given {@link value} with the starting white space removed.
 	 */
 	public static trimAllStartingWhiteSpace(value: string): string {
-		if (Utils.isNullOrEmptyOrUndefined(value)) {
+		if (Utils.isNothing(value)) {
 			return value;
 		}
 
@@ -518,11 +554,11 @@ export class Utils {
 	 * @returns The given {@link valueToTrim} with the starting value trimmed.
 	 */
 	public static trimAllStartingValue(valueToTrim: string, valueToRemove: string): string {
-		if (Utils.isNullOrEmptyOrUndefined(valueToTrim)) {
+		if (Utils.isNothing(valueToTrim)) {
 			return valueToTrim;
 		}
 
-		if (Utils.isNullOrEmptyOrUndefined(valueToRemove)) {
+		if (Utils.isNothing(valueToRemove)) {
 			return valueToTrim;
 		}
 
@@ -541,11 +577,11 @@ export class Utils {
 	 * @returns The given {@link valueToTrim} with the ending value trimmed.
 	 */
 	public static trimAllEndingValue(valueToTrim: string, valueToRemove: string): string {
-		if (Utils.isNullOrEmptyOrUndefined(valueToTrim)) {
+		if (Utils.isNothing(valueToTrim)) {
 			return valueToTrim;
 		}
 
-		if (Utils.isNullOrEmptyOrUndefined(valueToRemove)) {
+		if (Utils.isNothing(valueToRemove)) {
 			return valueToTrim;
 		}
 
@@ -578,11 +614,11 @@ export class Utils {
 	 * @remarks Only the first character will be used by the given {@link separator}.
 	 */
 	public static splitBy(value: string, separator: string): string[] {
-		if (Utils.isNullOrEmptyOrUndefined(value)) {
+		if (Utils.isNothing(value)) {
 			return [];
 		}
 
-		if (Utils.isNullOrEmptyOrUndefined(separator)) {
+		if (Utils.isNothing(separator)) {
 			return [value];
 		}
 
@@ -591,7 +627,7 @@ export class Utils {
 
 		return value.indexOf(separator) === -1 ? [value] : value.split(separator)
 			.map((v) => v.trim())
-			.filter((i) => !Utils.isNullOrEmptyOrUndefined(i));
+			.filter((i) => !Utils.isNothing(i));
 	}
 
 	/**
@@ -600,7 +636,7 @@ export class Utils {
 	 * @returns The values split by comma.
 	 */
 	public static splitByComma(value: string): string[] {
-		if (Utils.isNullOrEmptyOrUndefined(value)) {
+		if (Utils.isNothing(value)) {
 			return [];
 		}
 

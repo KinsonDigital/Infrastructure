@@ -1,5 +1,5 @@
-name: 🔄️Sync PR To Issue
-run-name: 🔄️Sync PR To Issue (${{ inputs.sync-type }})
+name: ⚙️Sync PR To Issue
+run-name: ⚙️Sync PR To Issue (${{ inputs.sync-type }})
 
 
 defaults:
@@ -103,7 +103,7 @@ jobs:
             5. PAT
           #>
           deno run `
-            --allow-net `
+            --allow-net --allow-read `
             "$scriptUrl" `
             "${{ vars.ORGANIZATION_NAME }}" `
             "${{ vars.PROJECT_NAME }}" `

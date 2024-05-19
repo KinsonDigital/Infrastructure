@@ -1,4 +1,4 @@
-name: Validate Release Notes
+name: ⚙️Validate Release Notes
 
 
 defaults:
@@ -21,7 +21,7 @@ on:
       cicd-pat:
         required: true
         description: The CICD personal access token.
-      
+
 
 jobs:
   print_validate_workflow:
@@ -51,6 +51,13 @@ jobs:
             exit 1;
           }
 
+          $orgName = "${{ vars.ORGANIZATION_NAME }}";
+
+          if([string]::IsNullOrEmpty($orgName)) {
+            Write-Host "::error::The 'ORGANIZATION_NAME' environment variable does not exist or is not set.";
+            exit 1;
+          }
+
 
   validate_milestone_status:
     name: Validate Milestone Status
@@ -69,7 +76,7 @@ jobs:
           $url = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
           $url = $url.Replace("\", "/").Replace("//", "/");
           $url = $url.EndsWith("/") ? $url.Substring(0, $url.Length - 1) : $url;
-          
+
           Write-Host "::notice::DotNet Lib Release Script URL: $url";
           "url=$url" >> "$env:GITHUB_OUTPUT";
 
@@ -83,8 +90,9 @@ jobs:
             3. PAT
           #>
           deno run `
-            --allow-net `
+            --allow-net --allow-read `
             "$scriptUrl" `
+            "${{ vars.ORGANIZATION_NAME }}" `
             "${{ inputs.project-name }}" `
             "${{ inputs.version }}" `
             "${{ secrets.cicd-pat }}";
@@ -92,7 +100,7 @@ jobs:
       - name: Validate Milestone
         run: |
           $scriptUrl = "${{ steps.script-url.outputs.url }}/milestone-items-all-closed.ts";
-        
+
           <# Deno Args:
             1. Repo name
             2. MilestoneTitle - This is a prev or prod version
@@ -101,6 +109,7 @@ jobs:
           deno run `
             --allow-read --allow-net `
             "$scriptUrl" `
+            "${{ vars.ORGANIZATION_NAME }}" `
             "${{ inputs.project-name }}" `
             "${{ inputs.version }}" `
             "${{ secrets.cicd-pat }}";

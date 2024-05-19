@@ -20,7 +20,7 @@ export class HTMLService {
 		isCentered?: boolean,
 		onSeparateLines?: boolean,
 	): string {
-		Guard.isNullOrEmptyOrUndefined(text, "createHeader", "text");
+		Guard.isNothing(text, "createHeader", "text");
 
 		if (level < 1 || level > 6) {
 			Utils.printAsGitHubError(`The header level '${level}' is not valid. It must be between 1 and 6.`);
@@ -29,14 +29,14 @@ export class HTMLService {
 
 		let style = "";
 
-		if (!Utils.isNullOrEmptyOrUndefined(color) || !Utils.isNullOrEmptyOrUndefined(isBold)) {
+		if (!Utils.isNothing(color) || !Utils.isNothing(isBold)) {
 			style = `style="`;
 
-			if (!Utils.isNullOrEmptyOrUndefined(color)) {
+			if (!Utils.isNothing(color)) {
 				style += `color: ${color};`;
 			}
 
-			if (!Utils.isNullOrEmptyOrUndefined(isBold) && isBold) {
+			if (!Utils.isNothing(isBold) && isBold) {
 				style += "font-weight: bold;";
 			}
 
@@ -45,7 +45,7 @@ export class HTMLService {
 
 		const centeredAttr = isCentered ? this.createCenteredAttr() : "";
 
-		if (Utils.isNullOrEmptyOrUndefined(onSeparateLines) || !onSeparateLines) {
+		if (Utils.isNothing(onSeparateLines) || !onSeparateLines) {
 			return `<h${level} ${centeredAttr} ${style}>${text}</h${level}>`;
 		} else {
 			return `<h${level} ${centeredAttr} ${style}>\n${text}\n</h${level}>`;
@@ -59,7 +59,7 @@ export class HTMLService {
 	 * @returns The HTML div.
 	 */
 	public createCenteredDiv(text: string, onSeparateLines?: boolean): string {
-		Guard.isNullOrEmptyOrUndefined(text, "createCenteredDiv", "text");
+		Guard.isNothing(text, "createCenteredDiv", "text");
 
 		if (onSeparateLines) {
 			return `<div ${this.createCenteredAttr()}>\n${text}\n</div>`;

@@ -1,4 +1,4 @@
-name: Validate GitHub Release
+name: ⚙️Validate GitHub Release
 
 
 defaults:
@@ -21,7 +21,7 @@ on:
       cicd-pat:
         required: true
         description: The CICD personal access token.
-      
+
 
 jobs:
   print_validate_workflow:
@@ -52,6 +52,14 @@ jobs:
           }
 
 
+          $orgName = "${{ vars.ORGANIZATION_NAME }}";
+
+          if([string]::IsNullOrEmpty($orgName)) {
+            Write-Host "::error::The 'ORGANIZATION_NAME' environment variable does not exist or is not set.";
+            exit 1;
+          }
+
+
   validate_github_release:
     name: Validate GitHub Release
     needs: print_validate_workflow
@@ -78,8 +86,9 @@ jobs:
             3. PAT
           #>
           deno run `
-            --allow-net `
+            --allow-net --allow-read `
             "$scriptUrl" `
+            "${{ vars.ORGANIZATION_NAME }}" `
             "${{ inputs.project-name }}" `
             "${{ inputs.version }}" `
             "${{ secrets.cicd-pat }}";

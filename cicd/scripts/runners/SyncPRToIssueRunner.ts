@@ -1,18 +1,11 @@
-import { OrgClient } from "../../clients/OrgClient.ts";
-import { RepoClient } from "../../clients/RepoClient.ts";
-import { IssueClient } from "../../clients/IssueClient.ts";
-import { PullRequestClient } from "../../clients/PullRequestClient.ts";
-import { UsersClient } from "../../clients/UsersClient.ts";
+import { IssueClient, OrgClient, ProjectClient, PullRequestClient, RepoClient, UsersClient } from "../../../deps.ts";
 import { Utils } from "../../core/Utils.ts";
 import { ScriptRunner } from "./ScriptRunner.ts";
-import { PullRequestModel } from "../../core/Models/PullRequestModel.ts";
+import { IssueModel, ProjectModel, PullRequestModel } from "../../../deps.ts";
 import { PRTemplateManager } from "../../core/PRTemplateManager.ts";
 import { GitHubVariableService } from "../../core/Services/GitHubVariableService.ts";
-import { IssueModel } from "../../core/Models/IssueModel.ts";
 import { IIssueOrPRRequestData } from "../../core/IIssueOrPRRequestData.ts";
 import { IssueOrPullRequest, IssueState } from "../../core/Enums.ts";
-import { ProjectClient } from "../../clients/ProjectClient.ts";
-import { ProjectModel } from "../../core/Models/ProjectModel.ts";
 import { IPRTemplateSettings } from "../../core/IPRTemplateSettings.ts";
 
 /**
@@ -21,7 +14,7 @@ import { IPRTemplateSettings } from "../../core/IPRTemplateSettings.ts";
 export class SyncPRToIssueRunner extends ScriptRunner {
 	private static readonly DEFAULT_PR_REVIEWER = "DEFAULT_PR_REVIEWER";
 	private static readonly PR_SYNC_BASE_BRANCHES = "PR_SYNC_BASE_BRANCHES";
-	private static readonly prMetaDataRegex = /<!--\s*closed-by-pr:\s*[0-9]+\s*-->/gm;
+	private static readonly prMetaDataRegex = /<!--\s*closed-by-pr:\s*[1-9][0-9]*\s*-->/gm;
 	private readonly githubVarService: GitHubVariableService;
 
 	/**
@@ -30,7 +23,9 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 	 */
 	constructor(args: string[]) {
 		super(args);
-		this.githubVarService = new GitHubVariableService(this.token);
+
+		const [ownerName, repoName] = this.args;
+		this.githubVarService = new GitHubVariableService(ownerName, repoName, this.token);
 	}
 
 	/**
@@ -39,22 +34,22 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 	public async run(): Promise<void> {
 		await super.run();
 
-		const [orgName, repoName, , prNumberStr] = this.args;
+		const [ownerName, repoName, , prNumberStr] = this.args;
 
-		this.githubVarService.setOrgAndRepo(orgName, repoName);
+		this.githubVarService.setOrgAndRepo(ownerName, repoName);
 
-		const issueClient = new IssueClient(this.token);
-		const prClient = new PullRequestClient(this.token);
+		const issueClient = new IssueClient(ownerName, repoName, this.token);
+		const prClient = new PullRequestClient(ownerName, repoName, this.token);
 
 		const issueOrPrNumber = parseInt(prNumberStr);
 
-		const [issueNumber, prNumber] = await this.getIssueAndPrNumbers(repoName, issueOrPrNumber);
+		const [issueNumber, prNumber] = await this.getIssueAndPrNumbers(ownerName, repoName, issueOrPrNumber);
 
-		const issue: IssueModel = await issueClient.getIssue(repoName, issueNumber);
-		const pr: PullRequestModel = await prClient.getPullRequest(repoName, prNumber);
-		const projectClient: ProjectClient = new ProjectClient(this.token);
+		const issue: IssueModel = await issueClient.getIssue(issueNumber);
+		const pr: PullRequestModel = await prClient.getPullRequest(prNumber);
+		const projectClient: ProjectClient = new ProjectClient(ownerName, repoName, this.token);
 
-		const issueProjects: ProjectModel[] = await projectClient.getIssueProjects(repoName, issueNumber);
+		const issueProjects: ProjectModel[] = await projectClient.getIssueProjects(issueNumber);
 
 		// Add all of the issue org projects to the PR
 		for (let i = 0; i < issueProjects.length; i++) {
@@ -64,13 +59,13 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 				continue;
 			}
 
-			await projectClient.addToProject(pr.node_id, proj.title);
+			await projectClient.addPullRequestToProject(pr.number, proj.title);
 			Utils.printAsGitHubNotice(`Pull request '${prNumber}' has been added to project '${proj.title}'.`);
 		}
 
-		await this.addPullRequestMetaData(repoName, issue, prNumber);
+		await this.addPullRequestMetaData(ownerName, repoName, issue, prNumber);
 		const defaultReviewer = await this.githubVarService.getValue(SyncPRToIssueRunner.DEFAULT_PR_REVIEWER, false);
-		await prClient.requestReviewer(repoName, prNumber, defaultReviewer);
+		await prClient.requestReviewers(prNumber, defaultReviewer);
 
 		let reviewerMsg = `The reviewer '${defaultReviewer}' has been requested as a reviewer `;
 		reviewerMsg += `for the pull request ${prNumber}.`;
@@ -87,10 +82,10 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 		};
 
 		// Sync the pr to the issue
-		await prClient.updatePullRequest(repoName, prNumber, prData);
+		await prClient.updatePullRequest(prNumber, prData);
 
 		// Update the pr body to reflect the sync status between the issue and the pr
-		await this.updatePullRequestBody(repoName, issueNumber, prNumber);
+		await this.updatePullRequestBody(ownerName, repoName, issueNumber, prNumber);
 	}
 
 	/**
@@ -111,14 +106,14 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 
 		this.printOrgRepoVarsUsed();
 
-		const [orgName, repoName, requestByUser, issueOrPRNumberStr] = args;
+		const [ownerName, repoName, requestByUser, issueOrPRNumberStr] = args;
 
-		this.githubVarService.setOrgAndRepo(orgName, repoName);
+		this.githubVarService.setOrgAndRepo(ownerName, repoName);
 
-		const orgClient = new OrgClient(this.token);
-		const repoClient = new RepoClient(this.token);
-		const prClient = new PullRequestClient(this.token);
-		const usersClient = new UsersClient(this.token);
+		const orgClient = new OrgClient(ownerName, this.token);
+		const repoClient = new RepoClient(ownerName, repoName, this.token);
+		const prClient = new PullRequestClient(ownerName, repoName, this.token);
+		const usersClient = new UsersClient(ownerName, repoName, this.token);
 
 		if (!Utils.isNumeric(issueOrPRNumberStr)) {
 			Utils.printAsGitHubError(`The given issue or pull request number '${issueOrPRNumberStr}' is not a valid number.`);
@@ -127,7 +122,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 
 		const issueOrPrNumber = parseInt(issueOrPRNumberStr);
 
-		const [, prNumber] = await this.getIssueAndPrNumbers(repoName, issueOrPrNumber);
+		const [, prNumber] = await this.getIssueAndPrNumbers(ownerName, repoName, issueOrPrNumber);
 
 		const orgRepoVariables = this.getRequiredVars();
 
@@ -153,10 +148,10 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 		if (validateAsOrgMember) {
 			const githubLogin = requestByUser.replace("validate:", "");
 
-			const userIsNotOrgMember = !(await orgClient.userIsOrgAdminMember(orgName, githubLogin));
+			const userIsNotOrgMember = !(await orgClient.userIsOrgAdminMember(githubLogin));
 			if (userIsNotOrgMember) {
 				let errorMsg = `The user '${requestByUser}' is not member of the`;
-				errorMsg += ` organization '${orgName}' with the admin role.`;
+				errorMsg += ` organization '${ownerName}' with the admin role.`;
 				Utils.printAsGitHubError(errorMsg);
 				Deno.exit(1);
 			}
@@ -168,19 +163,19 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 			}
 		}
 
-		const repoDoesNotExist = !(await repoClient.exists(repoName));
+		const repoDoesNotExist = !(await repoClient.exists());
 		if (repoDoesNotExist) {
 			Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
 			Deno.exit(1);
 		}
 
-		const prDoesNotExist = !(await prClient.pullRequestExists(repoName, prNumber));
+		const prDoesNotExist = !(await prClient.pullRequestExists(prNumber));
 		if (prDoesNotExist) {
 			Utils.printAsGitHubError(`A pull request with the number '${prNumber}' does not exist.`);
 			Deno.exit(1);
 		}
 
-		const pr: PullRequestModel = await prClient.getPullRequest(repoName, prNumber);
+		const pr: PullRequestModel = await prClient.getPullRequest(prNumber);
 
 		const headBranch = pr.head.ref;
 
@@ -213,20 +208,21 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 
 	/**
 	 * Gets the issue and pull request numbers that are linked to each other.
+	 * @param ownerName The owner name of the repository.
 	 * @param repoName The name of the repository.
 	 * @param issueOrPrNumber The issue or pull request number.
 	 * @returns Both the issue and pull request numbers.
 	 */
-	private async getIssueAndPrNumbers(repoName: string, issueOrPrNumber: number): Promise<[number, number]> {
+	private async getIssueAndPrNumbers(ownerName: string, repoName: string, issueOrPrNumber: number): Promise<[number, number]> {
 		let issueNumber = 0;
 		let prNumber = 0;
 		let pr: PullRequestModel;
 		let issue: IssueModel;
 
-		const issueOrPr = await this.isIssueOrPullRequestNumber(repoName, issueOrPrNumber);
+		const issueOrPr = await this.isIssueOrPullRequestNumber(ownerName, repoName, issueOrPrNumber);
 
-		const issueClient = new IssueClient(this.token);
-		const prClient = new PullRequestClient(this.token);
+		const issueClient = new IssueClient(ownerName, repoName, this.token);
+		const prClient = new PullRequestClient(ownerName, repoName, this.token);
 
 		if (
 			issueOrPr != IssueOrPullRequest.issue &&
@@ -242,7 +238,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 		switch (issueOrPr) {
 			case IssueOrPullRequest.issue:
 				issueNumber = issueOrPrNumber;
-				issue = await issueClient.getIssue(repoName, issueNumber);
+				issue = await issueClient.getIssue(issueNumber);
 				prNumber = this.getPRNumberFromIssueBody(issue.body);
 
 				if (prNumber === 0) {
@@ -255,10 +251,10 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 				break;
 			case IssueOrPullRequest.pullRequest:
 				prNumber = issueOrPrNumber;
-				pr = await prClient.getPullRequest(repoName, prNumber);
+				pr = await prClient.getPullRequest(prNumber);
 				issueNumber = this.getIssueFromFeatureBranch(pr.head.ref);
 
-				if (!(await issueClient.issueExists(repoName, issueNumber))) {
+				if (!(await issueClient.issueExists(issueNumber))) {
 					let warningMsg = `The issue '${issueNumber}' does not exist.`;
 					warningMsg += " The pull request was not synced to an issue.";
 					Utils.printAsGitHubWarning(warningMsg);
@@ -279,19 +275,24 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 
 	/**
 	 * Returns a value indicating if the given {@link issueOrPullRequestNumber} is an issue, pull request, or neither.
+	 * @param ownerName The owner name of the repository.
 	 * @param repoName The name of the repository.
 	 * @param issueOrPullRequestNumber The issue or pull request number.
 	 * @returns Enum representing if the given {@link issueOrPullRequestNumber} is an issue, pull request, or neither.
 	 */
-	private async isIssueOrPullRequestNumber(repoName: string, issueOrPullRequestNumber: number): Promise<IssueOrPullRequest> {
-		const issueClient = new IssueClient(this.token);
-		const prClient = new PullRequestClient(this.token);
+	private async isIssueOrPullRequestNumber(
+		ownerName: string,
+		repoName: string,
+		issueOrPullRequestNumber: number,
+	): Promise<IssueOrPullRequest> {
+		const issueClient = new IssueClient(ownerName, repoName, this.token);
+		const prClient = new PullRequestClient(ownerName, repoName, this.token);
 
-		if (await prClient.pullRequestExists(repoName, issueOrPullRequestNumber)) {
+		if (await prClient.pullRequestExists(issueOrPullRequestNumber)) {
 			return IssueOrPullRequest.pullRequest;
 		}
 
-		if (await issueClient.issueExists(repoName, issueOrPullRequestNumber)) {
+		if (await issueClient.issueExists(issueOrPullRequestNumber)) {
 			return IssueOrPullRequest.issue;
 		}
 
@@ -301,11 +302,17 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 	/**
 	 * Adds pull request meta-data to the given {@link issue}, with the given {@link prNumber},
 	 * for a repository with a name that matches the given {@link repoName}.
+	 * @param repoName The owner name of the repository.
 	 * @param repoName The name of the repository.
 	 * @param issue The issue to add the meta-data to.
 	 * @param prNumber The pull request number to add to the meta-data.
 	 */
-	private async addPullRequestMetaData(repoName: string, issue: IssueModel, prNumber: number): Promise<void> {
+	private async addPullRequestMetaData(
+		ownerName: string,
+		repoName: string,
+		issue: IssueModel,
+		prNumber: number,
+	): Promise<void> {
 		const prMetaDataExists = SyncPRToIssueRunner.prMetaDataRegex.test(issue.body);
 		const prMetaData = `<!--closed-by-pr:${prNumber}-->`;
 		const issueBody = prMetaDataExists
@@ -320,8 +327,8 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 			body: issueBody,
 		};
 
-		const issueClient = new IssueClient(this.token);
-		await issueClient.updateIssue(repoName, issue.number, issueData);
+		const issueClient = new IssueClient(ownerName, repoName, this.token);
+		await issueClient.updateIssue(issue.number, issueData);
 	}
 
 	/**
@@ -330,7 +337,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 	 * @returns The pull request number.
 	 */
 	private getPRNumberFromIssueBody(issueBody: string): number {
-		if (Utils.isNullOrEmptyOrUndefined(issueBody)) {
+		if (Utils.isNothing(issueBody)) {
 			return 0;
 		}
 
@@ -349,22 +356,28 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 	 * Updates the body of a pull request that belongs to a repository with a name that matches the given {@link repoName},
 	 * where the pull request has a number that matches the given {@link prNumber}, with an issue linked
 	 * to the pull request that matches the given {@link issueNumber},
+	 * @param repoName The owner name of the repository.
 	 * @param repoName The name of the repository.
 	 * @param issueNumber The issue number.
 	 * @param prNumber The pull request number.
 	 */
-	private async updatePullRequestBody(repoName: string, issueNumber: number, prNumber: number): Promise<void> {
-		const issueClient = new IssueClient(this.token);
-		const prClient = new PullRequestClient(this.token);
+	private async updatePullRequestBody(
+		ownerName: string,
+		repoName: string,
+		issueNumber: number,
+		prNumber: number,
+	): Promise<void> {
+		const issueClient = new IssueClient(ownerName, repoName, this.token);
+		const prClient = new PullRequestClient(ownerName, repoName, this.token);
 
-		const issue: IssueModel = await issueClient.getIssue(repoName, issueNumber);
-		const pr: PullRequestModel = await prClient.getPullRequest(repoName, prNumber);
+		const issue: IssueModel = await issueClient.getIssue(issueNumber);
+		const pr: PullRequestModel = await prClient.getPullRequest(prNumber);
 
 		const prTemplateManager = new PRTemplateManager();
 
-		const projectClient: ProjectClient = new ProjectClient(this.token);
-		const prProjects: ProjectModel[] = await projectClient.getPullRequestProjects(repoName, prNumber);
-		const issueProjects: ProjectModel[] = await projectClient.getIssueProjects(repoName, issueNumber);
+		const projectClient: ProjectClient = new ProjectClient(ownerName, repoName, this.token);
+		const prProjects: ProjectModel[] = await projectClient.getPullRequestProjects(prNumber);
+		const issueProjects: ProjectModel[] = await projectClient.getIssueProjects(issueNumber);
 
 		const allowedPRBaseBranches = await this.getAllowedPRBaseBranches();
 		const prBaseBranchValid = allowedPRBaseBranches.some((branch) => branch === pr.base.ref);
@@ -386,7 +399,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 			body: prDescription,
 		};
 
-		await prClient.updatePullRequest(repoName, prNumber, prData);
+		await prClient.updatePullRequest(prNumber, prData);
 	}
 
 	/**
@@ -412,7 +425,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 
 		const prSyncBranchesStr = await this.githubVarService.getValue(SyncPRToIssueRunner.PR_SYNC_BASE_BRANCHES, false);
 
-		if (Utils.isNullOrEmptyOrUndefined(prSyncBranchesStr)) {
+		if (Utils.isNothing(prSyncBranchesStr)) {
 			let noticeMsg =
 				`The optional variable '${SyncPRToIssueRunner.PR_SYNC_BASE_BRANCHES}' does not exist or contains no value.`;
 			noticeMsg += `\nUsing the default branches: ${defaultBranches.join(", ")}.`;
