@@ -82,7 +82,7 @@ jobs:
         if: ${{ steps.skip-checking.outputs.skip == 'false' }}
         uses: denoland/setup-deno@v1
         with:
-          deno-version: ${{  vars.DENO_VERSION }}
+          deno-version: ${{ vars.DENO_VERSION }}
 
       - name: Run Sync
         if: ${{ steps.skip-checking.outputs.skip == 'false' }}
