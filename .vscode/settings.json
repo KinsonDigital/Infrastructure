@@ -8,6 +8,7 @@
 		"mediumseagreen",
 		"Nums",
 		"pwsh",
+		"REPONAME",
 		"tasklist",
 		"Transpiles",
 		"zipball"
@@ -19,6 +20,8 @@
 		"**/CVS": true,
 		"**/.DS_Store": true,
 		"**/Thumbs.db": true,
+		"**/cicd/**/bin": true,
+		"**/cicd/**/obj": true,
 	},
     "deno.enable": true,
 	"deno.lint": true,
