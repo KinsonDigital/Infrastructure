@@ -157,7 +157,7 @@ export class PRTemplateManager {
 		result += "or do not match the associated issue.";
 
 		result += "\n4. To manually sync the pull request to the issue, create a comment with the `[run-sync]` command.";
-		result += "\n\t> **Note** You must be an admin member of the organization to use this command.";
+		result += "\n> [!Note] You must be an admin member of the organization to use this command.";
 
 		return result;
 	}
