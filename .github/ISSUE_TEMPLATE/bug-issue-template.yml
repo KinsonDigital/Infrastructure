@@ -1,7 +1,7 @@
 name: 🐛 Bug
 description: File a bug
 title: "🐛"
-labels: [bug, ⚕️NEEDS TRIAGE]
+labels: [🐛bug, ⚕️NEEDS-TRIAGE]
 projects: ["KinsonDigital/11"]
 body:
 - type: checkboxes
