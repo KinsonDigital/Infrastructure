@@ -30,14 +30,14 @@ on:
         required: true
         description: The relative directory path to the release notes.
         type: string
-      release-notes-file-name-prefix:
-        required: true
-        description: The prefix of the release notes file name.  This is what is prefixed before the version number.
-        type: string
       build-config:
         required: true
         description: The build configuration to use. This is either 'Debug' or 'Release'.
         default: Debug
+        type: string
+      release-notes-file-name-prefix:
+        required: false
+        description: The prefix of the release notes file name.  This is what is prefixed before the version number.
         type: string
       runs-on:
         required: false
@@ -145,13 +145,6 @@ jobs:
           # Verify that the relative release notes dir path does not start or end with a with a forward or back slash
           if ($dirPath.StartsWith($backSlash) -or $dirPath.StartsWith($forwardSlash) -or $dirPath.EndsWith($backSlash) -or $dirPath.EndsWith($forwardSlash)) {
             Write-Host "::error::The 'relative-release-notes-dir-path' cannot start or end with a forward or back slash.";
-            exit 1;
-          }
-
-
-          # Verify that the release notes file name prefix workflow input is not empty
-          if ("${{ inputs.release-notes-file-name-prefix }}".Trim().ToLower() -eq "") {
-            Write-Host "::error::The 'release-notes-file-name-prefix' workflow input cannot be empty.";
             exit 1;
           }
 
