@@ -433,6 +433,31 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
+		{ // RESOLVE CSPROJ File
+            "name": "Resolve CSProj File",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/resolve-csproj.ts",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": [
+                "run",
+				"-ERW",
+                "--inspect-wait",
+            ],
+			"env": {
+				"PROJECT_NAME": "VelaptorTesting",
+				"BASE_DIR_PATH": "K:/SOFTWARE-DEVELOPMENT/PERSONAL/Velaptor",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}"
+			},
+            "attachSimplePort": 9229,
+            "console": "integratedTerminal",
+            "windows": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
 		{ // WORKFLOW VERSION STATUS CHECK
             "name": "Workflow Version Status Check",
             "request": "launch",

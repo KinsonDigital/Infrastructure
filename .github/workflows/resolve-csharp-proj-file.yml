@@ -34,12 +34,9 @@ jobs:
     outputs:
       project-file-path: ${{ steps.resolve-file-path.outputs.project-file-path }}
     steps:
-      - name: Print Environment Variables
-        run: Get-ChildItem -Path Env:* | Sort-Object Name
-
       - uses: actions/checkout@v4
 
-      - name: Set Up Deno
+      - name: Set Up Deno (${{ vars.DENO_VERSION }})
         uses: denoland/setup-deno@v1
         with:
           deno-version: ${{ vars.DENO_VERSION }}
@@ -77,20 +74,8 @@ jobs:
 
       - name: Resolve Project File Path
         id: resolve-file-path
-        run: |
-          $scriptUrl = "${{ steps.script-url.outputs.url }}/resolve-csproj.ts";
-          $basePath = "${{ inputs.base-path }}" -eq "" ? "${{ github.workspace }}" : "${{ inputs.base-path }}";
-
-          <# Deno Args:
-            1. The name of the project
-            2. The fully qualified directory path to start the search
-            3. The GitHub token
-          #>
-          deno run `
-            --allow-read `
-            --allow-write `
-            --allow-env `
-            "$scriptUrl" `
-            "${{ vars.PROJECT_NAME }}" `
-            "$basePath" `
-            "${{ secrets.cicd-pat }}";
+        env:
+          PROJECT_NAME: "${{ vars.PROJECT_NAME }}"
+          BASE_DIR_PATH: "${{ inputs.base-path == '' && github.workspace || inputs.base-path }}"
+          GITHUB_TOKEN: ${{ secrets.cicd-pat }}
+        run: deno run -ERW "${{ steps.script-url.outputs.url }}/resolve-csproj.ts";

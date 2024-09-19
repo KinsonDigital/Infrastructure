@@ -25,6 +25,6 @@
         "singleQuote": false
     },
     "imports": {
-        "std/": "https://deno.land/std@0.203.0/"
+        "@std/fs": "jsr:@std/fs@^1.0.3"
     }
 }

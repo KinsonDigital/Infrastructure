@@ -2,10 +2,23 @@
   "version": "3",
   "packages": {
     "specifiers": {
+      "jsr:@std/fs@^1.0.3": "jsr:@std/fs@1.0.3",
+      "jsr:@std/path@^1.0.4": "jsr:@std/path@1.0.6",
       "npm:chalk@4.1.1": "npm:chalk@4.1.1",
       "npm:chalk@5.3.0": "npm:chalk@5.3.0",
       "npm:superjson@1.13.3": "npm:superjson@1.13.3",
       "npm:twitter-api-v2@1.15.0": "npm:twitter-api-v2@1.15.0"
+    },
+    "jsr": {
+      "@std/fs@1.0.3": {
+        "integrity": "3cb839b1360b0a42d8b367c3093bfe4071798e6694fa44cf1963e04a8edba4fe",
+        "dependencies": [
+          "jsr:@std/path@^1.0.4"
+        ]
+      },
+      "@std/path@1.0.6": {
+        "integrity": "ab2c55f902b380cf28e0eec501b4906e4c1960d13f00e11cfbcd21de15f18fed"
+      }
     },
     "npm": {
       "ansi-styles@4.3.0": {
@@ -357,5 +370,10 @@
     "https://deno.land/x/kd_clients@v1.0.0-preview.8/core/Utils.ts": "aee538b5263f055a57827bc168067c98e02a98081767843182505415ed39e1f1",
     "https://deno.land/x/kd_clients@v1.0.0-preview.8/core/WebApiClient.ts": "ad9f538a96c06da7087cd91d4141298dba3f70a5ff7e48748416342db6ee01e7",
     "https://deno.land/x/kd_clients@v1.0.0-preview.8/deps.ts": "da70fd766668d0c177407dea89912b2d4e154605fe242533d603fb6af6e2305c"
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@std/fs@^1.0.3"
+    ]
   }
 }
