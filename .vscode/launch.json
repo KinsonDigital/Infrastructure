@@ -21,7 +21,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -47,7 +47,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -74,7 +74,7 @@
             "attachSimplePort": 9229,
 			"console": "integratedTerminal",
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -99,7 +99,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -124,7 +124,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -153,7 +153,7 @@
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -179,7 +179,7 @@
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -204,7 +204,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -224,7 +224,7 @@
             "args": ["KinsonDigital.Velaptor"],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -250,7 +250,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -279,7 +279,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -305,7 +305,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -331,7 +331,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -357,7 +357,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -380,7 +380,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -403,7 +403,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -427,7 +427,7 @@
             "attachSimplePort": 9229,
 			"console": "integratedTerminal",
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -450,7 +450,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -477,7 +477,7 @@
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -504,7 +504,7 @@
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -531,7 +531,7 @@
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -557,7 +557,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -577,7 +577,7 @@
             "args": ["v1.2.3-preview.4", "preview"],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -602,7 +602,7 @@
                 "<node_internals>/**"
             ],
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -627,7 +627,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
