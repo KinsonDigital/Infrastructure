@@ -46,12 +46,10 @@ jobs:
             exit 1;
           }
 
-
           if ("${{ inputs.org-project-name }}" -eq "") {
             Write-Host ":error::The 'org-project-name' workflow input cannot be empty.";
             exit 1;
           }
-
 
           if ("${{ inputs.repo-name }}" -eq "") {
             Write-Host ":error::The 'repo-name' workflow input cannot be empty.";
@@ -69,6 +67,12 @@ jobs:
           deno-version: ${{ vars.DENO_VERSION }}
 
       - name: Add To Project
+        env:
+          REPO_OWNER: "${{ inputs.org-name }}"
+          REPO_NAME: "${{ inputs.org-project-name }}"
+          PROJECT_NAME: "${{ inputs.repo-name }}"
+          ISSUE_OR_PR_NUMBER: "${{ inputs.item-number }}"
+          GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
         run: |
           # Construct the URL to the organizations CICD scripts
           $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
@@ -78,18 +82,4 @@ jobs:
 
           Write-Host "::notice::NuGet Package Check Script URL: $scriptUrl";
 
-          <# Deno Args:
-            1. Organization name
-            2. Project name
-            3. Repo name
-            4. Issue or PR number
-            5. PAT
-          #>
-          deno run `
-            --allow-net --allow-read `
-            "$scriptUrl" `
-            "${{ inputs.org-name }}" `
-            "${{ inputs.org-project-name }}" `
-            "${{ inputs.repo-name }}" `
-            "${{ inputs.item-number }}" `
-            "${{ secrets.cicd-pat }}";
+          deno run --allow-net --allow-read "$scriptUrl";
