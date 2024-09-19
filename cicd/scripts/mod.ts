@@ -3,7 +3,6 @@
 import closeMilestoneExecutor from "./close-milestone.ts";
 import githubReleaseDoesNotExistExecutor from "./github-release-does-not-exist.ts";
 import labelIfHeadBranchExecutor from "./label-if-head-branch.ts";
-import milestoneExistsExecutor from "./milestone-exists.ts";
 import milestoneItemsAllClosedExecutor from "./milestone-items-all-closed.ts";
 import nugetPkgDoesNotExistExecutor from "./nuget-pkg-does-not-exist.ts";
 import prepareReleaseExecutor from "./prepare-release.ts";

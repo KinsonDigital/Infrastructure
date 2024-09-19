@@ -22,6 +22,10 @@ on:
         required: true
         description: The CICD personal access token.
 
+env:
+  OWNER_NAME: "${{ vars.ORGANIZATION_NAME }}"
+  REPO_NAME: "${{ INPUTS.project-name }}"
+
 
 jobs:
   print_validate_workflow:
@@ -81,21 +85,10 @@ jobs:
           "url=$url" >> "$env:GITHUB_OUTPUT";
 
       - name: Milestone Exists
-        run: |
-          $scriptUrl = "${{ steps.script-url.outputs.url }}/milestone-exists.ts";
-
-          <# Deno Args:
-            1. Project name
-            2. Milestone title - This is a prev or prod version
-            3. PAT
-          #>
-          deno run `
-            --allow-net --allow-read `
-            "$scriptUrl" `
-            "${{ vars.ORGANIZATION_NAME }}" `
-            "${{ inputs.project-name }}" `
-            "${{ inputs.version }}" `
-            "${{ secrets.cicd-pat }}";
+        env:
+          MILESTONE_TITLE: "${{ inputs.version }}"
+          GITHUB_TOKEN: ${{ secrets.cicd-pat }}
+        run: deno run -ERNS "${{ steps.script-url.outputs.url }}/milestone-exists.ts";
 
       - name: Validate Milestone
         run: |

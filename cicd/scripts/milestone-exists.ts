@@ -1,50 +1,9 @@
-import { MilestoneClient, RepoClient } from "../../deps.ts";
-import { Utils } from "../core/Utils.ts";
+import getEnvVar from "../core/GetEnvVar.ts";
+import { validateMilestoneExists, validateRepoExists } from "../core/Validators.ts";
 
-const milestoneExistsExecutor = async () => {
-	if (Deno.args.length != 4) {
-		let errorMsg = `The cicd script must have 4 arguments but has ${Deno.args.length} argument(s).`;
-		errorMsg += "\nThe 1st arg is required and must be the GitHub repository owner name.";
-		errorMsg += "\nThe 2nd arg is required and must be the GitHub repo name.";
-		errorMsg += "\nThe 3rd arg is required and must be the title of the milestone.";
-		errorMsg += "\nThe 4th arg is required and must be a GitHub PAT (Personal Access Token).";
+const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
-		Utils.printAsGitHubError(errorMsg);
-		Deno.exit(1);
-	}
+const milestoneTitle = getEnvVar("MILESTONE_TITLE", scriptFileName);
 
-	const ownerName = Deno.args[0].trim();
-	const repoName = Deno.args[1].trim();
-	const milestoneTitle = Deno.args[2].trim();
-	const githubToken = Deno.args[3].trim();
-
-	// Print out all of the arguments
-	Utils.printInGroup("Script Arguments", [
-		`Repo Owner (Required): ${ownerName}`,
-		`Repo Name (Required): ${repoName}`,
-		`Milestone (Required): ${milestoneTitle}`,
-		`GitHub Token (Required): ${Utils.isNothing(githubToken) ? "Not Provided" : "****"}`,
-	]);
-
-	const repoClient: RepoClient = new RepoClient(ownerName, repoName, githubToken);
-	const repoDoesNotExist = !(await repoClient.exists());
-
-	if (repoDoesNotExist) {
-		Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
-		Deno.exit(1);
-	}
-
-	const milestoneClient: MilestoneClient = new MilestoneClient(ownerName, repoName, githubToken);
-
-	const milestoneDoesNotExist = !(await milestoneClient.milestoneExists(milestoneTitle));
-
-	// Check if the milestone exists
-	if (milestoneDoesNotExist) {
-		Utils.printAsGitHubError(`The milestone '${milestoneTitle}' for repo '${repoName}' does not exist.`);
-		Deno.exit(1);
-	}
-};
-
-milestoneExistsExecutor();
-
-export default milestoneExistsExecutor;
+await validateRepoExists(scriptFileName);
+await validateMilestoneExists(milestoneTitle, scriptFileName);

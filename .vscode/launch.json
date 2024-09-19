@@ -167,15 +167,15 @@
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
+				"-ERNS",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"KinsonDigital",
-				"Infrastructure",
-				"v1.2.3-preview.4",
-				"${env:CICD_TOKEN}",
-			],
+			"env": {
+				"OWNER_NAME": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
+				"MILESTONE_TITLE": "v1.2.3-preview.4",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}"
+			},
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
