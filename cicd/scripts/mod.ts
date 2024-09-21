@@ -6,7 +6,6 @@ import labelIfHeadBranchExecutor from "./label-if-head-branch.ts";
 import milestoneItemsAllClosedExecutor from "./milestone-items-all-closed.ts";
 import nugetPkgDoesNotExistExecutor from "./nuget-pkg-does-not-exist.ts";
 import prepareReleaseExecutor from "./prepare-release.ts";
-import sendReleaseTweetExecutor from "./send-release-tweet.ts";
 import syncPrToIssueExecutor from "./sync-pr-to-issue.ts";
 import transpileReadMeExecutor from "./transpile-readme.ts";
 import validateTagExecutor from "./validate-tag.ts";

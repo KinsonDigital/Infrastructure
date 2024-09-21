@@ -264,19 +264,24 @@
             "cwd": "${workspaceFolder}/cicd/scripts",
             "runtimeArgs": [
                 "run",
+				"-ERN",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"KinsonDigital",
-				"Infrastructure",
-				"v1.0.0-preview.15",
-				"${env:TWITTER_CONSUMER_API_KEY}",
-				"${env:TWITTER_CONSUMER_API_SECRET}",
-				"${env:TWITTER_ACCESS_TOKEN_KEY}",
-				"${env:TWITTER_ACCESS_TOKEN_SECRET}",
-				"${env:CICD_TOKEN}",
-			],
+            "env": {
+				"OWNER_NAME": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
+				"VERSION": "v1.0.0-preview.15",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+				"RELEASE_TWEET_TEMPLATE_REPO_NAME": "Infrastructure",
+				"RELEASE_TWEET_TEMPLATE_BRANCH_NAME": "main",
+				"RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH": "cicd/templates/release-tweet-template.txt",
+				"DISCORD_INVITE_CODE": "qewu6fNgv7",
+				"TWITTER_BROADCAST_ENABLED": "true",
+				"TWITTER_ACCESS_TOKEN_KEY": "${env:TWITTER_ACCESS_TOKEN_KEY}",
+				"TWITTER_ACCESS_TOKEN_SECRET": "${env:TWITTER_ACCESS_TOKEN_SECRET}",
+				"TWITTER_CONSUMER_API_KEY": "${env:TWITTER_CONSUMER_API_KEY}",
+				"TWITTER_CONSUMER_API_SECRET": "${env:TWITTER_CONSUMER_API_SECRET}",
+			},
             "attachSimplePort": 9229,
             "windows": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
