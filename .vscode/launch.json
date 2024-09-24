@@ -214,14 +214,17 @@
             "name": "NuGet Package Exists",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/nuget-pkg-exists.ts",
-            "cwd": "${workspaceFolder}/cicd/scripts",
+            "program": "${workspaceFolder}/cicd/scripts/nuget-pkg-does-not-exist.ts",
+            "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
+				"-ERN",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": ["KinsonDigital.Velaptor"],
+            "env": {
+				"NUGET_PKG_NAME": "KinsonDigital.Velaptor",
+				"NUGET_PKG_VERSION": "1.0.0-preview.36",
+			},
             "attachSimplePort": 9229,
             "windows": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
