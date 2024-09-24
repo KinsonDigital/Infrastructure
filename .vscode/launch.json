@@ -603,10 +603,13 @@
             "cwd": "${workspaceFolder}/cicd",
             "runtimeArgs": [
                 "run",
+				"-E",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": ["v1.2.3-preview.4", "preview"],
+			"env": {
+				"VERSION": "v1.2.3-preview.4",
+				"RELEASE_TYPE": "preview",
+			},
             "attachSimplePort": 9229,
             "windows": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
