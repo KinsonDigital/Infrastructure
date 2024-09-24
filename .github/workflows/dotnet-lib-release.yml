@@ -317,8 +317,8 @@ jobs:
       - name: Create Nuget Package
         run: |
           dotnet pack `
-            "$env:GITHUB_WORKSPACE/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj" `
-            -o "$env:GITHUB_WORKSPACE" `
+            "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj" `
+            -o "${{ github.workspace }}" `
             -c ${{ inputs.build-config }};
 
       - name: Publish Nuget Package
@@ -328,14 +328,14 @@ jobs:
           $version = $version.StartsWith("v") ? $version.Substring(1) : $version;
           
           dotnet nuget push `
-            "$env:GITHUB_WORKSPACE/${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}.$version.nupkg" `
+            "${{ github.workspace }}/${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}.$version.nupkg" `
             --api-key ${{ secrets.nuget-org-api-key }} `
             --source https://api.nuget.org/v3/index.json;
 
       - name: Get GitHub Workspace
         id: base-dir-path
         run: |
-          "github-workspace=$env:GITHUB_WORKSPACE" >> $env:GITHUB_OUTPUT;
+          "github-workspace=${{ github.workspace }}" >> $env:GITHUB_OUTPUT;
 
       - name: Create GitHub Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: ${{ inputs.dry-run == false }}
