@@ -70,7 +70,7 @@ export class CSharpVersionService extends VersionServiceBase {
 	 * @inheritdoc
 	 */
 	public versionIsValid(version: string): boolean {
-		return Utils.isValidDotnetSDKVersion(version);
+		return Utils.isValidPreviewVersion(version) && Utils.isValidProdVersion(version);
 	}
 
 	/**

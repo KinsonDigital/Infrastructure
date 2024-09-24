@@ -251,7 +251,7 @@ export class Utils {
 	 * @param version The version to check.
 	 * @returns True if the version is a valid production version, otherwise false.
 	 */
-	public static validProdVersion(version: string): boolean {
+	public static isValidProdVersion(version: string): boolean {
 		return this.prodVersionRegex.test(version.trim().toLowerCase());
 	}
 
@@ -261,7 +261,7 @@ export class Utils {
 	 * @returns True if the version is not a valid production version, otherwise false.
 	 */
 	public static isNotValidProdVersion(version: string): boolean {
-		return !Utils.validProdVersion(version);
+		return !Utils.isValidProdVersion(version);
 	}
 
 	/**
@@ -269,7 +269,7 @@ export class Utils {
 	 * @param version The version to check.
 	 * @returns True if the version is a valid preview version, otherwise false.
 	 */
-	public static validPreviewVersion(version: string): boolean {
+	public static isValidPreviewVersion(version: string): boolean {
 		return this.prevVersionRegex.test(version.trim().toLowerCase());
 	}
 
@@ -279,7 +279,7 @@ export class Utils {
 	 * @returns True if the version is not a valid preview version, otherwise false.
 	 */
 	public static isNotValidPreviewVersion(version: string): boolean {
-		return !Utils.validPreviewVersion(version);
+		return !Utils.isValidPreviewVersion(version);
 	}
 
 	/**
