@@ -55,21 +55,14 @@ jobs:
           deno-version: ${{ vars.DENO_VERSION }}
 
       - name: Generate Release Notes
+        env:
+          BASE_SEARCH_DIR_PATHL: "${{ github.workspace }}"
+          NET_SDK_VERSIONL: "${{ vars.NET_SDK_VERSION }}"
         run: |
           # Construct the URL to the organizations CICD scripts
           $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
           $scriptUrl = $scriptUrl.Replace("\", "/").Replace("//", "/");
           $scriptUrl = $scriptUrl.EndsWith("/") ? $scriptUrl.Substring(0, $scriptUrl.Length - 1) : $scriptUrl;
-          $scriptUrl = "$scriptUrl/validate-sdk-setup.ts";
+          $scriptUrl = "$scriptUrl/validate-sdk-versions.ts";
 
-          <# Deno Args:
-            1. Organization name
-            2. Project name
-            3. PAT
-          #>
-          deno run `
-            --allow-read --allow-net `
-            "$scriptUrl" `
-            "${{ vars.ORGANIZATION_NAME }}" `
-            "${{ inputs.repo-name }}" `
-            "${{ secrets.cicd-pat }}";
+          deno run -ER "$scriptUrl";

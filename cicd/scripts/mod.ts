@@ -9,4 +9,3 @@ import prepareReleaseExecutor from "./prepare-release.ts";
 import syncPrToIssueExecutor from "./sync-pr-to-issue.ts";
 import validateTagExecutor from "./validate-tag.ts";
 import validateVersionExecutor from "./validate-version.ts";
-import validateSDKSetupExecutor from "./validate-sdk-setup.ts";
