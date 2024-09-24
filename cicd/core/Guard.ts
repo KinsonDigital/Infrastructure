@@ -1,5 +1,7 @@
 import { Utils } from "./Utils.ts";
 
+// TODO: Rename this class to 'ParamGuards'
+
 /**
  * A class that contains functions to check if values are invalid.
  */

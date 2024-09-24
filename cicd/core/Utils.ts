@@ -39,6 +39,8 @@ export class Utils {
 		console.log("::endgroup::");
 	}
 
+	// TODO: Move this function to a Guards class
+
 	/**
 	 * Checks if the value is null, undefined, or empty.
 	 * @param value The value to check.
