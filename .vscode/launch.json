@@ -372,17 +372,16 @@
             "name": "Transpile README",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/transpile-readme.ts",
+            "program": "${workspaceFolder}/cicd/core/services/transpile-readme.ts",
             "cwd": "${workspaceFolder}/cicd",
             "runtimeArgs": [
                 "run",
+				"-ERW",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"${workspaceFolder}",
-				"${env:CICD_TOKEN}",
-			],
+			"env": {
+				"BASE_DIR_PATH": "${workspaceFolder}",
+			},
             "attachSimplePort": 9229,
             "windows": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"

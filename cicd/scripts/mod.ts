@@ -7,7 +7,6 @@ import milestoneItemsAllClosedExecutor from "./milestone-items-all-closed.ts";
 import nugetPkgDoesNotExistExecutor from "./nuget-pkg-does-not-exist.ts";
 import prepareReleaseExecutor from "./prepare-release.ts";
 import syncPrToIssueExecutor from "./sync-pr-to-issue.ts";
-import transpileReadMeExecutor from "./transpile-readme.ts";
 import validateTagExecutor from "./validate-tag.ts";
 import validateVersionExecutor from "./validate-version.ts";
 import validateSDKSetupExecutor from "./validate-sdk-setup.ts";

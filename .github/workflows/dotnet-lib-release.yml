@@ -310,20 +310,9 @@ jobs:
 
       - name: Transpile README
         if: inputs.transpile-readme == true
-        run: |
-          $scriptUrl = "${{ steps.script-url.outputs.url }}/transpile-readme.ts";
-          $readmeDirPath = "$env:GITHUB_WORKSPACE";
-
-          <# Deno Args:
-            1. Readme file directory path
-            2. PAT
-          #>
-          deno run `
-            --allow-read `
-            --allow-write `
-            "$scriptUrl" `
-            "$readmeDirPath" `
-            "${{ secrets.cicd-pat }}";
+        env:
+          BASE_DIR_PATH: "${{ github.workspace }}" 
+        run: deno run -ERW "${{ steps.script-url.outputs.url }}/transpile-readme.ts";
 
       - name: Create Nuget Package
         run: |
