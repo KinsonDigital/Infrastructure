@@ -1,6 +1,5 @@
 // deno-lint-ignore-file no-unused-vars
 
-import closeMilestoneExecutor from "./close-milestone.ts";
 import githubReleaseDoesNotExistExecutor from "./github-release-does-not-exist.ts";
 import labelIfHeadBranchExecutor from "./label-if-head-branch.ts";
 import milestoneItemsAllClosedExecutor from "./milestone-items-all-closed.ts";

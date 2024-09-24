@@ -370,21 +370,10 @@ jobs:
 
       - name: Close Milestone
         if: ${{ inputs.dry-run == false }}
-        run: |
-          $scriptUrl = "${{ steps.script-url.outputs.url }}/close-milestone.ts";
-        
-          <# Deno Args:
-            1. Project name
-            2. Milestone name - This is the version
-            3. PAT
-          #>
-          deno run `
-            --allow-read --allow-net `
-            "$scriptUrl" `
-            "${{ vars.ORGANIZATION_NAME }}" `
-            "${{ inputs.project-name }}" `
-            "${{ needs.validate_version.outputs.version }}" `
-            "${{ secrets.cicd-pat }}";
+        env:
+          MILESTONE_NAME: "${{ needs.validate_version.outputs.version }}"
+          GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
+        run: deno run -ERN "${{ steps.script-url.outputs.url }}/close-milestone.ts";
 
       - name: Send Twitter Announcement
         if: ${{ inputs.send-release-tweet == true && inputs.dry-run == false }}
