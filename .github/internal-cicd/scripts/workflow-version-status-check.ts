@@ -1,32 +1,33 @@
+import { walkSync } from "@std/fs/walk";
+import { exists } from "@std/fs/exists";
+import { basename } from "@std/path/basename";
 import { TagClient } from "../../../deps.ts";
-import { Directory } from "../../../deps.ts";
-import { File } from "../../../cicd/core/File.ts";
-import { Path } from "../../../cicd/core/Path.ts";
 import { Utils } from "../../../cicd/core/Utils.ts";
+import getEnvVar from "../../../cicd/core/GetEnvVar.ts";
+import { validateOrgExists, validateRepoExists } from "../../../cicd/core/Validators.ts";
 
-if (Deno.args.length != 2) {
-	let errorMsg = "Invalid number of arguments.";
-	errorMsg += "\nArg 1: Fully qualified directory path of where to search for YAML files.";
-	errorMsg += "\nArg 2: GitHub token.";
-	Utils.printAsGitHubError(errorMsg);
-	Deno.exit(1);
-}
+const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
-let baseDirPath = Deno.args[0];
-const token = Deno.args[1];
+const ownerName = getEnvVar("OWNER_NAME", scriptFileName);
+const repoName = getEnvVar("REPO_NAME", scriptFileName);
+let baseDirPath = getEnvVar("BASE_DIR_PATH", scriptFileName);
+baseDirPath = Utils.normalizePath(baseDirPath);
+const token = getEnvVar("GITHUB_TOKEN", scriptFileName);
 
-baseDirPath = Utils.normalizePath(baseDirPath.trim());
+await validateOrgExists(scriptFileName);
+await validateRepoExists(scriptFileName);
 
-if (!Directory.Exists(baseDirPath)) {
+if (!exists(baseDirPath)) {
 	Utils.printAsGitHubError(`Directory '${baseDirPath}' does not exist.`);
 	Deno.exit(1);
 }
 
-const ownerName = "KinsonDigital";
-const repoName = "Infrastructure";
-const allFiles = Directory.getFiles(baseDirPath, true);
+const yamlFiles = [...walkSync(baseDirPath, {
+	includeDirs: false,
+	includeFiles: true,
+	exts: [".yaml", ".yml"],
+})].map((e) => e.path);
 
-const yamlFiles = allFiles.filter((file) => file.toLowerCase().endsWith(".yaml") || file.toLowerCase().endsWith(".yml"));
 const tagClient: TagClient = new TagClient(ownerName, repoName, token);
 
 const existingReleaseTags = (await tagClient.getAllTags()).map((t) => t.name);
@@ -54,7 +55,7 @@ yamlFiles.forEach(yamlFile => {
 		workflowRefs: []
 	};
 
-	const fileContent = File.LoadFile(yamlFile);
+	const fileContent = Deno.readTextFileSync(yamlFile);
 
 	const possibleUpdates = fileContent.match(reusableWorkflowRegex)?.map((w) => w) ?? [];
 
@@ -84,7 +85,7 @@ const errorMsgs: string[] = [];
 
 // Print out all of the workflows that need to be updated as an error
 workflowsToUpdate.forEach(workflowToUpdate => {
-	const filePath = Path.getFileName(workflowToUpdate.filePath);
+	const filePath = basename(workflowToUpdate.filePath);
 
 	const workflowErrors: string[] = workflowToUpdate.workflowRefs.map((workflowRef) => {
 		return `Workflow reference '${workflowRef}' in file '${filePath}' needs to be updated.`;

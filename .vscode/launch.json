@@ -473,13 +473,15 @@
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
+				"-ERN",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"${workspaceFolder}/.github/workflows",
-				"${env:CICD_TOKEN}",
-			],
+            "env": {
+				"OWNER_NAME": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
+				"BASE_DIR_PATH": "${workspaceFolder}/.github/workflows",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+			},
             "attachSimplePort": 9229,
             "windows": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
