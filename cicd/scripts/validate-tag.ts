@@ -1,86 +1,46 @@
-import { RepoClient, TagClient } from "../../deps.ts";
+import { TagClient } from "../../deps.ts";
+import getEnvVar from "../core/GetEnvVar.ts";
 import { Utils } from "../core/Utils.ts";
+import { validateOrgExists, validateRepoExists } from "../core/Validators.ts";
 
-const validateTagExecutor = async () => {
-	// Validate the arguments
-	if (Deno.args.length != 5) {
-		let errorMsg = `The cicd script must have 4 arguments but has ${Deno.args.length} argument(s).`;
-		errorMsg += "\nThe 1st arg is required and must be a valid GitHub repository owner name.";
-		errorMsg += "\nThe 2nd arg is required and must be a valid GitHub repo.";
-		errorMsg += "\nThe 3rd arg is required and must be either 'production', 'preview' or 'either'.";
-		errorMsg += "\nThe 4th arg is required and must be the name of the tag.";
-		errorMsg += "\nThe 5th arg is required and must be a GitHub PAT (Personal Access Token).";
+type ReleaseType = "production" | "preview";
 
-		Utils.printAsGitHubError(errorMsg);
-		Deno.exit(1);
-	}
+const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
-	const ownerName: string = Deno.args[0];
-	const repoName: string = Deno.args[1];
-	const tagType: string = Deno.args[2].toLowerCase();
-	let tag: string = Deno.args[3].trim();
-	tag = tag.startsWith("v") ? tag : `v${tag}`;
-	const token = Deno.args[4].trim();
+const ownerName: string = getEnvVar("OWNER_NAME", scriptFileName);
+const repoName: string = getEnvVar("REPO_NAME", scriptFileName);
+const releaseType = <ReleaseType>getEnvVar("RELEASE_TYPE", scriptFileName).toLowerCase();
+let tag: string = getEnvVar("TAG_NAME", scriptFileName);
+tag = tag.startsWith("v") ? tag : `v${tag}`;
+const token = getEnvVar("GITHUB_TOKEN", scriptFileName);
 
-	// Print out all of the arguments
-	Utils.printInGroup("Script Arguments", [
-		`Owner Name (Required): ${ownerName}`,
-		`Repo Name (Required): ${repoName}`,
-		`Tag Type (Required): ${tagType}`,
-		`Tag (Required): ${tag}`,
-		`GitHub Token (Required): ****`,
-	]);
+const releaseTypeInvalid = releaseType != "production" && releaseType != "preview";
 
-	const versionTypeInvalid = tagType != "production" && tagType != "preview" && tagType != "either";
+if (releaseTypeInvalid) {
+	const errorMsg = `The tag type argument '${releaseType}' is invalid.  Valid values are 'production', 'preview' or 'either'.`;
+	Utils.printAsGitHubError(errorMsg);
+	Deno.exit(1);
+}
 
-	if (versionTypeInvalid) {
-		Utils.printAsGitHubError(
-			`The tag type argument '${tagType}' is invalid.  Valid values are 'production', 'preview' or 'either'.`,
-		);
-		Deno.exit(1);
-	}
+const tagIsInvalid = releaseType === "production"
+	? Utils.isNotValidProdVersion(tag)
+	: Utils.isNotValidPreviewVersion(tag);
 
-	let tagIsInvalid = false;
+if (tagIsInvalid) {
+	const tagTypeStr = releaseType === "production" || releaseType === "preview" ? releaseType : "production or preview";
 
-	switch (tagType) {
-		case "production":
-			tagIsInvalid = Utils.isNotValidProdVersion(tag);
-			break;
-		case "preview":
-			tagIsInvalid = Utils.isNotValidPreviewVersion(tag);
-			break;
-		case "either":
-			tagIsInvalid = Utils.isNotValidProdVersion(tag) || Utils.isNotValidPreviewVersion(tag);
-			break;
-		default:
-			break;
-	}
+	Utils.printAsGitHubError(`The tag is not in the correct ${tagTypeStr} version syntax.`);
+	Deno.exit(1);
+}
 
-	if (tagIsInvalid) {
-		const tagTypeStr = tagType === "production" || tagType === "preview" ? tagType : "production or preview";
+await validateOrgExists(scriptFileName);
+await validateRepoExists(scriptFileName);
 
-		Utils.printAsGitHubError(`The tag is not in the correct ${tagTypeStr} version syntax.`);
-		Deno.exit(1);
-	}
+const tagClient: TagClient = new TagClient(ownerName, repoName, token);
 
-	const repoClient: RepoClient = new RepoClient(ownerName, repoName, token);
-	const repoDoesNotExist = !(await repoClient.exists());
+const tagExists = await tagClient.tagExists(tag);
 
-	if (repoDoesNotExist) {
-		Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
-		Deno.exit(1);
-	}
-
-	const tagClient: TagClient = new TagClient(ownerName, repoName, token);
-
-	const tagExists = await tagClient.tagExists(tag);
-
-	if (tagExists) {
-		Utils.printAsGitHubError(`The tag '${tag}' already exists.`);
-		Deno.exit(1);
-	}
-};
-
-validateTagExecutor();
-
-export default validateTagExecutor;
+if (tagExists) {
+	Utils.printAsGitHubError(`The tag '${tag}' already exists.`);
+	Deno.exit(1);
+}

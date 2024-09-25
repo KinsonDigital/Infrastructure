@@ -488,78 +488,24 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-        { // VALIDATE EITHER TAG
-            "name": "Validate Either Tag",
+        { // VALIDATE TAG
+            "name": "Validate Tag",
             "request": "launch",
             "type": "node",
             "program": "${workspaceFolder}/cicd/scripts/validate-tag.ts",
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
+				"-ERNS",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"KinsonDigital",
-				"PackageMonster",
-				"Either",
-				"v1.2.3",
-				"${ env:CICD_TOKEN }",
-			],
-            "attachSimplePort": 9229,
-            "console": "integratedTerminal",
-            "windows": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
-            },
-            "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno"
-            }
-        },
-        { // VALIDATE PREVIEW TAG
-            "name": "Validate Preview Tag",
-            "request": "launch",
-            "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/validate-tag.ts",
-            "cwd": "${workspaceFolder}",
-            "runtimeArgs": [
-                "run",
-                "--inspect-wait",
-                "--allow-all"
-            ],
-            "args": [
-				"KinsonDigital",
-				"PackageMonster",
-				"Preview",
-				"v1.2.3-preview.5",
-				"${ env:CICD_TOKEN }",
-			],
-            "attachSimplePort": 9229,
-            "console": "integratedTerminal",
-            "windows": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
-            },
-            "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno"
-            }
-        },
-        { // VALIDATE PROD TAG
-            "name": "Validate Prod Tag",
-            "request": "launch",
-            "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/validate-tag.ts",
-            "cwd": "${workspaceFolder}",
-            "runtimeArgs": [
-                "run",
-                "--inspect-wait",
-                "--allow-all"
-            ],
-            "args": [
-				"KinsonDigital",
-				"PackageMonster",
-				"Production",
-				"v1.2.3",
-				"${ env:CICD_TOKEN }",
-			],
+            "env": {
+				"OWNER_NAME": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
+				"RELEASE_TYPE": "Production",
+				"TAG_NAME": "v13.6.3",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+			},
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {

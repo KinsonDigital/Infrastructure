@@ -83,6 +83,12 @@ jobs:
           deno-version: ${{ vars.DENO_VERSION }}
 
       - name: Validate Tag
+        env:
+          OWNER_NAME: "${{ vars.ORGANIZATION_NAME }}"
+          REPO_NAME: "${{ inputs.project-name }}"
+          RELEASE_TYPE: "${{ inputs.release-type }}"
+          TAG_NAME: "${{ inputs.tag-name }}"
+          GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
         run: |
           # Construct the URL to the organizations CICD scripts
           $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
@@ -92,18 +98,4 @@ jobs:
 
           Write-Host "::notice::Validate Tag Script URL: $scriptUrl";
         
-          <# Deno Args:
-            1. Repo name
-            2. Tag type
-            3. Release type - Either 'Preview' or 'Production'
-            3. Tag name - This is the version
-            4. PAT
-          #>
-          deno run `
-            --allow-net --allow-read `
-            "$scriptUrl" `
-            "${{ vars.ORGANIZATION_NAME }}" `
-            "${{ inputs.project-name }}" `
-            "${{ inputs.release-type }}" `
-            "${{ inputs.tag-name }}" `
-            "${{ secrets.cicd-pat }}";
+          deno run -ERNS "$scriptUrl";
