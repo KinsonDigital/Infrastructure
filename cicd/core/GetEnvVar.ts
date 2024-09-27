@@ -10,7 +10,7 @@ const getEnvVar = (name: string, scriptFileName?: string, throwErrorIfMissing: b
 	
 	if (Utils.isNothing(value) && throwErrorIfMissing) {
 		const fileName = Utils.isNothing(scriptFileName) ? "" : `\n\t${scriptFileName}`;
-		const errorMsg = `The 'OWNER_NAME' environment variable does not exist.${fileName}`;
+		const errorMsg = `The '${name}' environment variable does not exist.${fileName}`;
 		Utils.printAsGitHubError(errorMsg);
 		Deno.exit(1);
 	}
