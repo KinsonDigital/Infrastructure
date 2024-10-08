@@ -91,93 +91,6 @@ env:
 
 
 jobs:
-  print_validate_workflow:
-    name: Print & Validate DotNet Lib Release Workflow
-    runs-on: ubuntu-latest
-    steps:
-      - name: Print Environment Variables
-        run: Get-ChildItem -Path Env:* | Sort-Object Name
-
-      - name: Validate Workflow Inputs
-        run: |
-          # Verify that the project name workflow input is not empty
-          if ("${{ inputs.project-name }}".Trim().ToLower() -eq "") {
-            Write-Host "::error::The 'project-name' workflow input cannot be empty.";
-            exit 1;
-          }
-
-
-          $releaseType = "${{ inputs.release-type }}".Trim().ToLower();
-
-          # Verify that the release type is only 'Preview' or 'Production'
-          if ($releaseType -ne "Preview" -and $releaseType -ne "Production") {
-            Write-Host "::error::The 'release-type' workflow input value of '$releaseType' is invalid.  Expecting value of 'Preview' or 'Production'.";
-            exit 1;
-          }
-
-
-          # Verify that the run branch workflow input is not empty
-          if ("${{ inputs.run-branch }}".Trim().ToLower() -eq "") {
-            Write-Host "::error::The 'run-branch' workflow input cannot be empty.";
-            exit 1;
-          }
-
-
-          $sdkVersion = "${{ inputs.net-sdk-version }}".Trim().ToLower();
-          $sdkVersionRegex = "[0-9]+\.[0-9]+\.[0-9]+";
-          
-          # Verify that the dotnet sdk version has valid syntax
-          if ($sdkVersion -match $sdkVersionRegex) {
-            Write-Host "::notice::The 'net-sdk-version' workflow input is valid.";
-          } else {
-            Write-Host "::error::The 'net-sdk'version' workflow input is invalid.  Expected version format: '#.#.#'";
-            exit 1;
-          }
-
-
-          $dirPath = "${{ inputs.relative-release-notes-dir-path }}".Trim().ToLower();
-
-          # Verify that the relative release notes dir path is not empty
-          if ($dirPath -eq "") {
-            Write-Host "::error::The 'relative-release-notes-dir-path' workflow input cannot be empty.";
-            exit 1;
-          }
-
-
-          $backSlash = "\\";
-          $forwardSlash = "/";
-          
-          # Verify that the relative release notes dir path does not start or end with a with a forward or back slash
-          if ($dirPath.StartsWith($backSlash) -or $dirPath.StartsWith($forwardSlash) -or $dirPath.EndsWith($backSlash) -or $dirPath.EndsWith($forwardSlash)) {
-            Write-Host "::error::The 'relative-release-notes-dir-path' cannot start or end with a forward or back slash.";
-            exit 1;
-          }
-
-
-          $buildConfig = "${{ inputs.build-config }}".Trim().ToLower();
-
-          # Verify that the build config is only 'Debug' or 'Release'
-          if ($buildConfig -ne "Debug" -and $buildConfig -ne "Release") {
-            Write-Host "::error::The 'build-config' workflow input is invalid.  Expecting a value of 'Debug' or 'Release'.";
-            exit 1;
-          }
-
-
-  validate_branch:
-    name: Validate Branch
-    runs-on: ubuntu-latest
-    needs: print_validate_workflow
-    steps:
-      - name: Validate Branch
-        run: |
-          $branch = "${{ github.ref_name }}"
-
-          if ($branch -ne "${{ inputs.run-branch }}") {
-            Write-Host "::error::The branch '$branch' is invalid. This release can only run on '${{ inputs.run-branch }}' branches."
-            exit 1;
-          }
-
-
   validate_version:
     name: Validate Version
     uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v13.6.3
@@ -188,62 +101,168 @@ jobs:
       cicd-pat: "${{ secrets.cicd-pat }}"
 
 
-  validate_tag:
-    name: Validate Tag
-    needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-tag.yml@v13.6.3
-    with:
-      project-name: "${{ inputs.project-name }}"
-      release-type: "${{ inputs.release-type }}"
-      tag-name: "${{ needs.validate_version.outputs.version }}"
-    secrets:
-      cicd-pat: "${{ secrets.cicd-pat }}"
-
-
-  validate_sdk_setup:
-    name: Validate SDK Setup
-    needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-sdk-versions.yml@v13.6.3
-    with:
-      repo-name: "${{ inputs.project-name }}"
-    secrets: 
-      cicd-pat: "${{ secrets.cicd-pat }}"
-
-
-  nuget_pkg_does_not_exist:
-    name: Validate NuGet Package Does Not Exist
-    needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/nuget-package-does-not-exist.yml@v13.6.3
-    with:
-      project-name: "${{ inputs.project-name }}"
-      version: "${{ needs.validate_version.outputs.version }}"
-
-
-  validate_milestone_status:
-    name: Validate Milestone Status
-    needs: validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-milestone-status.yml@v13.6.3
-    with:
-      project-name: "${{ inputs.project-name }}"
-      version: "${{ needs.validate_version.outputs.version }}"
-    secrets:
-      cicd-pat: "${{ secrets.cicd-pat }}"
-
-
-  validate_github_release:
-    name: GitHub Release Does Not Exist
+  run_prerelease_validation:
+    name: Run Pre-Release Validation
     needs: [validate_version]
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-github-release.yml@v13.6.3
-    with:
-      project-name: "${{ inputs.project-name }}"
-      version: "${{ needs.validate_version.outputs.version }}"
-    secrets:
-      cicd-pat: "${{ secrets.cicd-pat }}"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set Up Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ vars.DENO_VERSION }}
+
+      - name: Validate Branch
+        id: branch-check
+        continue-on-error: true
+        run: |
+          $branch = "${{ github.ref_name }}"
+
+          if ($branch -ne "${{ inputs.run-branch }}") {
+            Write-Host "::error::The branch '$branch' is invalid. This release can only run on '${{ inputs.run-branch }}' branches."
+            exit 1;
+          }
+
+      - name: Build Script Base URL
+        id: build-script-base-url
+        run: |
+          # Construct the URL to the organizations CICD scripts
+          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
+          $scriptUrl = $scriptUrl.Replace("\", "/").Replace("//", "/");
+          $scriptUrl = $scriptUrl.EndsWith("/") ? $scriptUrl.Substring(0, $scriptUrl.Length - 1) : $scriptUrl;
+
+          Write-Host "::notice::Script Base URL: $scriptUrl";
+
+          "url=$scriptUrl" >> $env:GITHUB_OUTPUT;
+
+      - name: Validate Tag
+        id: tag-check
+        continue-on-error: true
+        env:
+          OWNER_NAME: "${{ vars.ORGANIZATION_NAME }}"
+          REPO_NAME: "${{ inputs.project-name }}"
+          RELEASE_TYPE: "${{ inputs.release-type }}"
+          TAG_NAME: "${{ needs.validate_version.outputs.version }}"
+          GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
+        run: |
+          $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/validate-tag.ts";
+
+          Write-Host "::notice::Validate Tag Script URL: $scriptUrl";
+
+          deno run -ERNS "$scriptUrl";
+
+      - name: Validate SDK Versions
+        id: sdk-check
+        continue-on-error: true
+        env:
+          BASE_SEARCH_DIR_PATHL: "${{ github.workspace }}"
+          NET_SDK_VERSIONL: "${{ vars.NET_SDK_VERSION }}"
+        run: |
+          $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/validate-sdk-versions.ts";
+
+          deno run -ER "$scriptUrl";
+
+      - name: Package Does Not Exist
+        id: package-check
+        continue-on-error: true
+        env:
+          NUGET_PKG_NAME: "${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}"
+          NUGET_PKG_VERSION: "${{ needs.validate_version.outputs.version }}"
+        run: |
+          $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/nuget-pkg-does-not-exist.ts";
+
+          deno run -ERN "$scriptUrl";
+
+      - name: Milestone Exists
+        id: milestone-exists-check
+        continue-on-error: true
+        env:
+          MILESTONE_TITLE: "${{ needs.validate_version.outputs.version }}"
+          GITHUB_TOKEN: ${{ secrets.cicd-pat }}
+        run: |
+          $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/nuget-pkg-does-not-exist.ts";
+
+          deno run -ERNS "$scriptUrl";
+
+      - name: Validate Milestone
+        id: milestone-check
+        env:
+          OWNER_NAME: "${{ vars.ORGANIZATION_NAME }}"
+          REPO_NAME: "${{ inputs.project-name }}"
+          MILESTONE_TITLE: "${{ needs.validate_version.outputs.version }}"
+          GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
+        continue-on-error: true
+        run: |
+          $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/milestone-items-all-closed.ts";
+
+          deno run -EN "$scriptUrl";
+
+      - name: GitHub Release Does Not Exist 
+        id: github-release-check
+        continue-on-error: true
+        env:
+          OWNER_NAME: "${{ vars.ORGANIZATION_NAME }}"
+          REPO_NAME: "${{ inputs.project-name }}"
+          TAG_NAME: "${{ needs.validate_version.outputs.version }}"
+          GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
+        run: |
+          $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/github-release-does-not-exist.ts";
+
+          Write-Host "::notice::Validate GitHub Release Version Script URL: $scriptUrl";
+
+          deno run -ERN "$scriptUrl";
+    
+      - name: Should Fail Job
+        run: |
+          $branchCheckFailed = "${{ steps.branch-check.outcome == 'failure' }}";
+          $tagCheckFailed = "${{ steps.tag-check.outcome == 'failure' }}";
+          $sdkCheckFailed = "${{ steps.sdk-check.outcome == 'failure' }}";
+          $packageCheckFailed = "${{ steps.package-check.outcome == 'failure' }}";
+          $milestoneExistsCheckFailed = "${{ steps.milestone-exists-check.outcome == 'failure' }}";
+          $milestoneCheckFailed = "${{ steps.milestone-check.outcome == 'failure' }}";
+          $githubReleaseCheckFailed = "${{ steps.github-release-check.outcome == 'failure' }}";
+
+          if ($branchCheckFailed -eq "true") {
+            Write-Host "::error::The branch is invalid.  Check the 'run-branch' workflow input.";
+          }
+
+          if ($tagCheckFailed -eq "true") {
+            Write-Host "::error::Tag already exists.  Please update the version in the 'deno.json' file.";
+          }
+
+          if ($sdkCheckFailed -eq "true") {
+            Write-Host "::error::One or more of the SDK versions are invalid. Check each '.csproj' file.";
+          }
+
+          if ($packageCheckFailed -eq "true") {
+            Write-Host "::error::The NuGet package already exists.";
+          }
+
+          if ($milestoneExistsCheckFailed -eq "true") {
+            Write-Host "::error::The milestone '${{ needs.validate_version.outputs.version }}' does not exist.";
+          }
+
+          if ($milestoneCheckFailed -eq "true") {
+            Write-Host "::error::The milestone '${{ needs.validate_version.outputs.version }}' has one or more issues that are not closed.";
+          }
+
+          if ($githubReleaseCheckFailed -eq "true") {
+            Write-Host "::error::The GitHub release already exists.";
+          }
+
+          if ($branchCheckFailed -eq "true" `
+              -or $tagCheckFailed -eq "true" `
+              -or $sdkCheckFailed -eq "true" `
+              -or $packageCheckFailed -eq "true" `
+              -or $milestoneExistsCheckFailed -eq "true" `
+              -or $milestoneCheckFailed -eq "true" `
+              -or $githubReleaseCheckFailed -eq "true") {
+            exit 1;
+          }
 
 
   build_project:
     name: Build Main Project
-    needs: print_validate_workflow
+    needs: [run_prerelease_validation]
     uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v13.6.3
     with:
       project-name: "${{ inputs.project-name }}"
@@ -256,7 +275,7 @@ jobs:
 
   run_tests:
     name: Run Tests
-    needs: print_validate_workflow
+    needs: [run_prerelease_validation]
     uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v13.6.3
     with:
       project-name: "${{ inputs.project-name }}Tests"
@@ -270,16 +289,8 @@ jobs:
   perform_release:
     name: Perform ${{ inputs.release-type }} Release
     runs-on: ubuntu-latest
-    needs: [
-      validate_version,
-      build_project,
-      run_tests,
-      validate_branch,
-      validate_tag,
-      validate_sdk_setup,
-      nuget_pkg_does_not_exist,
-      validate_milestone_status,
-      validate_github_release]
+    needs: [run_prerelease_validation, validate_version,
+      build_project, run_tests]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
