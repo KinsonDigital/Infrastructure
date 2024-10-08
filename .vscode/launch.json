@@ -193,15 +193,15 @@
             "cwd": "${workspaceFolder}/cicd",
             "runtimeArgs": [
                 "run",
+				"-EN",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"KinsonDigital",
-				"Infrastructure",
-				"v13.6.1",
-				"${env:CICD_TOKEN}",
-			],
+            "env": {
+				"OWNER_NAME": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
+				"MILESTONE_TITLE": "v13.6.1",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+			},
             "attachSimplePort": 9229,
             "windows": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
