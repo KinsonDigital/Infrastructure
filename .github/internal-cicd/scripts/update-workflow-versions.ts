@@ -4,17 +4,12 @@ import {
 import chalk from "../../../deps.ts";
 import { File } from "../../../cicd/core/File.ts";
 import { Utils } from "../../../cicd/core/Utils.ts";
+import getEnvVar from "../../../cicd/core/GetEnvVar.ts";
 
-if (Deno.args.length != 2) {
-	let errorMsg = "Invalid number of arguments.";
-	errorMsg += "\nArg 1: Fully qualified directory path of where to search for YAML files.";
-	errorMsg += "\nArg 2: GitHub token.";
-	console.log(chalk.red(errorMsg));
-	Deno.exit(0);
-}
+const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
-let baseDirPath = Deno.args[0];
-const token = Deno.args[1];
+let baseDirPath = getEnvVar("BASE_DIR_PATH", scriptFileName);
+const token = getEnvVar("GITHUB_TOKEN", scriptFileName);
 
 baseDirPath = Utils.normalizePath(baseDirPath.trim());
 

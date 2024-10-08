@@ -424,13 +424,13 @@
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
+				"-ENRW",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"${workspaceFolder}/.github/workflows",
-				"${env:CICD_TOKEN}",
-			],
+            "env": {
+				"BASE_DIR_PATH": "${workspaceFolder}/.github/workflows",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+			},
             "attachSimplePort": 9229,
 			"console": "integratedTerminal",
             "windows": {
