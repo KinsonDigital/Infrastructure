@@ -35,15 +35,16 @@
 			"dependsOn": ["clear-terminal"],
 			"windows": {
 				"command": "deno",
+				"options": {
+					"env": {
+						"BASE_DIR_PATH": "${workspaceFolder}/.github/workflows",
+						"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+					}
+				},
 				"args": [
 					"run",
-					"--allow-read",
-					"--allow-write",
-					"--allow-sys",
-					"--allow-net",
+					"-ERWN",
 					"${workspaceFolder}/.github/internal-cicd/scripts/update-workflow-versions.ts",
-					"${workspaceFolder}/.github/workflows",
-					"${env:CICD_TOKEN}",
 				]
 			}
 		},

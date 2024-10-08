@@ -23,10 +23,6 @@ on:
         description: The git reference to checkout the code at.
         type: string
         default: ${{ github.ref }}
-    secrets:
-      cicd-pat:
-        required: true
-        description: The GitHub PAT to use for authenticating with the GitHub API.
 
 
 jobs:
@@ -43,18 +39,12 @@ jobs:
             exit 1;
           }
 
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ inputs.checkout-repository }}
-          ref: ${{ inputs.checkout-ref }}
-
       - name: Set Up Deno
         uses: denoland/setup-deno@v1
         with:
           deno-version: ${{ vars.DENO_VERSION }}
 
-      - name: Generate Release Notes
+      - name: Validate SDK Versions
         env:
           BASE_SEARCH_DIR_PATHL: "${{ github.workspace }}"
           NET_SDK_VERSIONL: "${{ vars.NET_SDK_VERSION }}"

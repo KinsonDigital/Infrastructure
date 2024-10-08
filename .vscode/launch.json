@@ -138,18 +138,18 @@
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
+				"-EN",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"KinsonDigital",
-				"Infrastructure",
-				"24",
-				"master",
-				"master",
-				"🚀Preview Release",
-				"${env:CICD_TOKEN}",
-			],
+            "env": {
+				"OWNER_NAME": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
+				"PR_NUMBER": "24",
+				"HEAD_BRANCH": "master",
+				"EXPECTED_BRANCH": "master",
+				"LABEL": "🚀Preview Release",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+			},
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
@@ -193,15 +193,15 @@
             "cwd": "${workspaceFolder}/cicd",
             "runtimeArgs": [
                 "run",
+				"-EN",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"KinsonDigital",
-				"Infrastructure",
-				"v13.6.1",
-				"${env:CICD_TOKEN}",
-			],
+            "env": {
+				"OWNER_NAME": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
+				"MILESTONE_TITLE": "v13.6.1",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+			},
             "attachSimplePort": 9229,
             "windows": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
@@ -401,13 +401,13 @@
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
+				"-EN",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"v11.22.33-preview.44",
-				"${env:CICD_TOKEN}",
-			],
+            "env": {
+				"VERSION": "v11.22.33-preview.44",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+			},
             "attachSimplePort": 9229,
             "windows": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
@@ -424,13 +424,13 @@
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
+				"-ENRW",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"${workspaceFolder}/.github/workflows",
-				"${env:CICD_TOKEN}",
-			],
+            "env": {
+				"BASE_DIR_PATH": "${workspaceFolder}/.github/workflows",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+			},
             "attachSimplePort": 9229,
 			"console": "integratedTerminal",
             "windows": {

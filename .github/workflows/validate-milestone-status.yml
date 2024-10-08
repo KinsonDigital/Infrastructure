@@ -91,18 +91,14 @@ jobs:
         run: deno run -ERNS "${{ steps.script-url.outputs.url }}/milestone-exists.ts";
 
       - name: Validate Milestone
+        id: milestone-check
+        env:
+          OWNER_NAME: "${{ vars.ORGANIZATION_NAME }}"
+          REPO_NAME: "${{ inputs.project-name }}"
+          MILESTONE_TITLE: "${{ inputs.version }}"
+          GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
+        continue-on-error: true
         run: |
           $scriptUrl = "${{ steps.script-url.outputs.url }}/milestone-items-all-closed.ts";
 
-          <# Deno Args:
-            1. Repo name
-            2. MilestoneTitle - This is a prev or prod version
-            3. PAT
-          #>
-          deno run `
-            --allow-read --allow-net `
-            "$scriptUrl" `
-            "${{ vars.ORGANIZATION_NAME }}" `
-            "${{ inputs.project-name }}" `
-            "${{ inputs.version }}" `
-            "${{ secrets.cicd-pat }}";
+          deno run -EN "$scriptUrl";
