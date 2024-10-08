@@ -138,18 +138,18 @@
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
+				"-EN",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"KinsonDigital",
-				"Infrastructure",
-				"24",
-				"master",
-				"master",
-				"🚀Preview Release",
-				"${env:CICD_TOKEN}",
-			],
+            "env": {
+				"OWNER_NAME": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
+				"PR_NUMBER": "24",
+				"HEAD_BRANCH": "master",
+				"EXPECTED_BRANCH": "master",
+				"LABEL": "🚀Preview Release",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+			},
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
