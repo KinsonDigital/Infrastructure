@@ -319,16 +319,25 @@ jobs:
           dotnet pack `
             "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj" `
             -o "${{ github.workspace }}" `
-            -c ${{ inputs.build-config }};
+            -c ${{ inputs.build-config }} `
+            -p:IncludeSymbols=true `
+            -p:SymbolPackageFormat=snupkg;
 
       - name: Publish Nuget Package
         if: ${{ inputs.dry-run == false }}
         run: |
           $version = "${{ needs.validate_version.outputs.version }}";
           $version = $version.StartsWith("v") ? $version.Substring(1) : $version;
-          
+
+          # Push the nuget package
           dotnet nuget push `
             "${{ github.workspace }}/${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}.$version.nupkg" `
+            --api-key ${{ secrets.nuget-org-api-key }} `
+            --source https://api.nuget.org/v3/index.json;
+
+          # Push the symbol package
+          dotnet nuget push `
+            "${{ github.workspace }}/${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}.$version.snupkg" `
             --api-key ${{ secrets.nuget-org-api-key }} `
             --source https://api.nuget.org/v3/index.json;
 
