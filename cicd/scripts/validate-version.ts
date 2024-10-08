@@ -1,69 +1,35 @@
+import getEnvVar from "../core/GetEnvVar.ts";
 import { Utils } from "../core/Utils.ts";
 
-const validateVersionExecutor = () => {
-	// Validate the arguments
-	if (Deno.args.length != 2) {
-		let errorMsg = `The cicd script must have 2 arguments but has ${Deno.args.length} argument(s).`;
-		errorMsg += "\nThe 1st arg is required and must be a production or preview version.";
+type ReleaseType = "production" | "preview";
 
-		errorMsg +=
-			"\nThe 2nd arg is required and must be the version type.  Valid values are 'production', 'preview' or 'either'.";
-		errorMsg += "\n\tThe production version syntax is as follows: v<major>.<minor>.<patch>";
-		errorMsg += "\n\tThe preview version syntax is as follows: v<major>.<minor>.<patch>-preview.<preview number>";
+const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
-		Utils.printAsGitHubError(errorMsg);
-		Deno.exit(1);
-	}
+let version: string = getEnvVar("VERSION", scriptFileName).toLowerCase();
+version = version.startsWith("v") ? version : `v${version}`;
 
-	let version: string = Deno.args[0].toLowerCase();
-	version = version.startsWith("v") ? version : `v${version}`;
+const releaseType: ReleaseType = <ReleaseType>getEnvVar("RELEASE_TYPE", scriptFileName).toLowerCase();
 
-	const versionType: string = Deno.args[1].toLowerCase();
+const releaseTypeInvalid = releaseType != "production" && releaseType != "preview";
 
-	const versionTypeInvalid = versionType != "production" && versionType != "preview" && versionType != "either";
+if (releaseTypeInvalid) {
+	const errorMsg = `The version type argument '${releaseType}' is invalid.  Valid values are 'production' or 'preview'.`;
+	Utils.printAsGitHubError(errorMsg);
+	Deno.exit(1);
+}
 
-	if (versionTypeInvalid) {
-		Utils.printAsGitHubError(
-			`The version type argument '${versionType}' is invalid.  Valid values are 'production', 'preview' or 'either'.`,
-		);
-		Deno.exit(1);
-	}
+const versionIsInvalid = releaseType === "production"
+	? Utils.isNotValidProdVersion(version)
+	: Utils.isNotValidPreviewVersion(version);
 
-	// Print out all of the arguments
-	Utils.printInGroup("Script Arguments", [
-		`Version (Required): ${version}`,
-		`Version Type (Required): ${versionType}`,
-	]);
+if (versionIsInvalid) {
+	const releaseTypeStr = releaseType === "production" || releaseType === "preview" ? releaseType : "production or preview";
+	const errorMsg = `\nThe version is not in the correct ${releaseTypeStr} version syntax.` +
+		"\n\tThe production version syntax is as follows: v<major>.<minor>.<patch>" +
+		"\n\tThe preview version syntax is as follows: v<major>.<minor>.<patch>-preview.<preview number>";
 
-	let versionIsInvalid = false;
+	Utils.printAsGitHubError(errorMsg);
+	Deno.exit(1);
+}
 
-	switch (versionType) {
-		case "production":
-			versionIsInvalid = Utils.isNotValidProdVersion(version);
-			break;
-		case "preview":
-			versionIsInvalid = Utils.isNotValidPreviewVersion(version);
-			break;
-		case "either":
-			versionIsInvalid = Utils.isNotValidProdVersion(version) || Utils.isNotValidPreviewVersion(version);
-			break;
-		default:
-			break;
-	}
-
-	if (versionIsInvalid) {
-		const tagTypeStr = version === "production" || version === "preview" ? version : "production or preview";
-
-		let errorMsg = `\nThe version is not in the correct ${tagTypeStr} version syntax.`;
-		errorMsg += "\n\tThe production version syntax is as follows: v<major>.<minor>.<patch>";
-		errorMsg += "\n\tThe preview version syntax is as follows: v<major>.<minor>.<patch>-preview.<preview number>";
-
-		Utils.printAsGitHubError(errorMsg);
-		Deno.exit(1);
-	} else {
-		Utils.printAsGitHubNotice(`✅The ${versionType} version '${version}' is valid!!✅`);
-	}
-};
-
-validateVersionExecutor();
-export default validateVersionExecutor;
+Utils.printAsGitHubNotice(`✅The ${releaseType} version '${version}' is valid!!✅`);

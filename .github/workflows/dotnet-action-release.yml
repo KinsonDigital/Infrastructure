@@ -180,7 +180,7 @@ jobs:
   validate_sdk_setup:
     name: Validate SDK Setup
     needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-sdk-setup.yml@v13.6.3
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-sdk-versions.yml@v13.6.3
     with:
       repo-name: "${{ inputs.project-name }}"
     secrets:

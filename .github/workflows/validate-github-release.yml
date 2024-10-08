@@ -71,6 +71,11 @@ jobs:
           deno-version: ${{ vars.DENO_VERSION }}
 
       - name: GitHub Release Does Not Exist 
+        env:
+          OWNER_NAME: "${{ vars.ORGANIZATION_NAME }}"
+          REPO_NAME: "${{ inputs.project-name }}"
+          TAG_NAME: "${{ inputs.version }}"
+          GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
         run: |
           # Construct the URL to the organizations CICD scripts
           $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
@@ -80,15 +85,4 @@ jobs:
 
           Write-Host "::notice::Validate GitHub Release Version Script URL: $scriptUrl";
 
-          <# Deno Args:
-            1. Repo name
-            2. TagName - This is prev or prod version
-            3. PAT
-          #>
-          deno run `
-            --allow-net --allow-read `
-            "$scriptUrl" `
-            "${{ vars.ORGANIZATION_NAME }}" `
-            "${{ inputs.project-name }}" `
-            "${{ inputs.version }}" `
-            "${{ secrets.cicd-pat }}";
+          deno run -ERN "$scriptUrl";

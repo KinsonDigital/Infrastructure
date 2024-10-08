@@ -79,6 +79,9 @@ jobs:
         
       - name: Validate Version
         id: validate-version
+        env:
+          VERSION: "${{ steps.get-version.outputs.version }}"
+          RELEASE_TYPE: "${{ inputs.release-type }}"
         run: |
           # Construct the URL to the organizations CICD scripts
           $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
@@ -88,18 +91,7 @@ jobs:
 
           Write-Host "::notice::Validate DotNet Version Script URL: $scriptUrl";
 
-          # Get the release version and make sure it starts with the letter 'v'
-          $releaseVersion = "${{ steps.get-version.outputs.version }}".Trim().ToLower();
-          $releaseVersion = $releaseVersion.StartsWith("v") ? $releaseVersion : "v$releaseVersion";
-
           # Set the output of this step
           "version=$releaseVersion" >> $env:GITHUB_OUTPUT;
 
-          <# Deno Args:
-            1. Version
-            2. Version type
-          #>
-          deno run `
-            "$scriptUrl" `
-            "$releaseVersion" `
-            "${{ inputs.release-type }}";
+          deno run -E "$scriptUrl";

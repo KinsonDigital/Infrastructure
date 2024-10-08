@@ -85,6 +85,11 @@ on:
         description: The Twitter access token secret.
 
 
+env:
+  OWNER_NAME: "${{ vars.ORGANIZATION_NAME }}"
+  REPO_NAME: "${{ inputs.project-name }}"
+
+
 jobs:
   print_validate_workflow:
     name: Print & Validate DotNet Lib Release Workflow
@@ -198,7 +203,7 @@ jobs:
   validate_sdk_setup:
     name: Validate SDK Setup
     needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-sdk-setup.yml@v13.6.3
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-sdk-versions.yml@v13.6.3
     with:
       repo-name: "${{ inputs.project-name }}"
     secrets: 
@@ -305,26 +310,15 @@ jobs:
 
       - name: Transpile README
         if: inputs.transpile-readme == true
-        run: |
-          $scriptUrl = "${{ steps.script-url.outputs.url }}/transpile-readme.ts";
-          $readmeDirPath = "$env:GITHUB_WORKSPACE";
-
-          <# Deno Args:
-            1. Readme file directory path
-            2. PAT
-          #>
-          deno run `
-            --allow-read `
-            --allow-write `
-            "$scriptUrl" `
-            "$readmeDirPath" `
-            "${{ secrets.cicd-pat }}";
+        env:
+          BASE_DIR_PATH: "${{ github.workspace }}" 
+        run: deno run -ERW "${{ steps.script-url.outputs.url }}/transpile-readme.ts";
 
       - name: Create Nuget Package
         run: |
           dotnet pack `
-            "$env:GITHUB_WORKSPACE/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj" `
-            -o "$env:GITHUB_WORKSPACE" `
+            "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj" `
+            -o "${{ github.workspace }}" `
             -c ${{ inputs.build-config }};
 
       - name: Publish Nuget Package
@@ -334,14 +328,14 @@ jobs:
           $version = $version.StartsWith("v") ? $version.Substring(1) : $version;
           
           dotnet nuget push `
-            "$env:GITHUB_WORKSPACE/${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}.$version.nupkg" `
+            "${{ github.workspace }}/${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}.$version.nupkg" `
             --api-key ${{ secrets.nuget-org-api-key }} `
             --source https://api.nuget.org/v3/index.json;
 
       - name: Get GitHub Workspace
         id: base-dir-path
         run: |
-          "github-workspace=$env:GITHUB_WORKSPACE" >> $env:GITHUB_OUTPUT;
+          "github-workspace=${{ github.workspace }}" >> $env:GITHUB_OUTPUT;
 
       - name: Create GitHub Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: ${{ inputs.dry-run == false }}
@@ -373,49 +367,26 @@ jobs:
             -F $fullReleaseNotesPath `
             $isPreRelease `
             $fullReleaseNotesPath;
-  
 
       - name: Close Milestone
         if: ${{ inputs.dry-run == false }}
-        run: |
-          $scriptUrl = "${{ steps.script-url.outputs.url }}/close-milestone.ts";
-        
-          <# Deno Args:
-            1. Project name
-            2. Milestone name - This is the version
-            3. PAT
-          #>
-          deno run `
-            --allow-read --allow-net `
-            "$scriptUrl" `
-            "${{ vars.ORGANIZATION_NAME }}" `
-            "${{ inputs.project-name }}" `
-            "${{ needs.validate_version.outputs.version }}" `
-            "${{ secrets.cicd-pat }}";
+        env:
+          MILESTONE_NAME: "${{ needs.validate_version.outputs.version }}"
+          GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
+        run: deno run -ERN "${{ steps.script-url.outputs.url }}/close-milestone.ts";
 
       - name: Send Twitter Announcement
         if: ${{ inputs.send-release-tweet == true && inputs.dry-run == false }}
-        run: |
-          $scriptUrl = "${{ steps.script-url.outputs.url }}/send-release-tweet.ts";
-
-          <# Deno Args:
-            1. Repo owner
-            2. Project name
-            3. Version
-            4. Twitter consumer api key
-            5. Twitter consumer api secret
-            6. Twitter access token
-            7. Twitter access token secret
-            8. PAT
-          #>
-          deno run `
-            --allow-read --allow-net --allow-env `
-            "$scriptUrl" `
-            "${{ vars.ORGANIZATION_NAME }}" `
-            "${{ inputs.project-name }}" `
-            "${{ needs.validate_version.outputs.version }}" `
-            "${{ secrets.twitter-consumer-api-key }}" `
-            "${{ secrets.twitter-consumer-api-secret }}" `
-            "${{ secrets.twitter-access-token }}" `
-            "${{ secrets.twitter-access-token-secret }}" `
-            "${{ secrets.cicd-pat }}";
+        env:
+          VERSION: "${{ needs.validate_version.outputs.version }}"
+          GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
+          RELEASE_TWEET_TEMPLATE_REPO_NAME: "${{ vars.RELEASE_TWEET_TEMPLATE_REPO_NAME }}"
+          RELEASE_TWEET_TEMPLATE_BRANCH_NAME: "${{ vars.RELEASE_TWEET_TEMPLATE_BRANCH_NAME }}"
+          RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH: "${{ vars.RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH }}"
+          DISCORD_INVITE_CODE: "${{ vars.DISCORD_INVITE_CODE }}"
+          TWITTER_BROADCAST_ENABLED: "${{ vars.TWITTER_BROADCAST_ENABLED }}"
+          TWITTER_ACCESS_TOKEN_KEY: "${{ secrets.twitter-access-token }}"
+          TWITTER_ACCESS_TOKEN_SECRET: "${{ secrets.twitter-access-token-secret }}"
+          TWITTER_CONSUMER_API_KEY: "${{ secrets.twitter-consumer-api-key }}"
+          TWITTER_CONSUMER_API_SECRET: "${{ secrets.twitter-consumer-api-secret }}"
+        run: deno run -ERN "${{ steps.script-url.outputs.url }}/send-release-tweet.ts";

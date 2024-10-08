@@ -16,8 +16,12 @@
         ]
     },
     "fmt": {
-        "include": ["cicd/"],
-        "exclude": ["**/*.md"],
+        "include": [
+            "cicd/"
+        ],
+        "exclude": [
+            "**/*.md"
+        ],
         "useTabs": true,
         "lineWidth": 130,
         "indentWidth": 4,
@@ -25,6 +29,7 @@
         "singleQuote": false
     },
     "imports": {
-        "std/": "https://deno.land/std@0.203.0/"
+        "@std/fs": "jsr:@std/fs@^1.0.4",
+        "@std/path": "jsr:@std/path@^1.0.6"
     }
 }

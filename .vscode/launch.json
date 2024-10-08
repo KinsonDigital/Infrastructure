@@ -15,13 +15,13 @@
                 "--inspect-wait",
                 "--allow-all"
             ],
-			"args": [
-				"${env:CICD_TOKEN}",
-				"${workspaceFolder}",
-			],
+			"env": {
+				"ROOT_REPO_DIR_PATH": "${workspaceFolder}",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+			},
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -47,7 +47,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -74,7 +74,7 @@
             "attachSimplePort": 9229,
 			"console": "integratedTerminal",
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -88,18 +88,18 @@
             "cwd": "${workspaceFolder}/cicd",
             "runtimeArgs": [
                 "run",
+				"-ENR",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"KinsonDigital",
-				"Infrastructure",
-				"v1.2.3-preview.4",
-				"${env:CICD_TOKEN}",
-			],
+            "env": {
+				"OWNER_NAME": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
+				"MILESTONE_NAME": "v1.2.3-preview.4",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+			},
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -113,18 +113,18 @@
             "cwd": "${workspaceFolder}/cicd/scripts",
             "runtimeArgs": [
                 "run",
+				"-ERN",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"KinsonDigital",
-				"Infrastructure",
-				"v1.0.0-preview.10",
-				"${env:CICD_TOKEN}",
-			],
+            "env": {
+				"OWNER_NAME": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
+				"TAG_NAME": "v13.6.3",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+			},
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -153,7 +153,7 @@
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -167,19 +167,19 @@
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
+				"-ERNS",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"KinsonDigital",
-				"Infrastructure",
-				"v1.2.3-preview.4",
-				"${env:CICD_TOKEN}",
-			],
+			"env": {
+				"OWNER_NAME": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
+				"MILESTONE_TITLE": "v1.2.3-preview.4",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}"
+			},
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -204,7 +204,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -214,17 +214,20 @@
             "name": "NuGet Package Exists",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/nuget-pkg-exists.ts",
-            "cwd": "${workspaceFolder}/cicd/scripts",
+            "program": "${workspaceFolder}/cicd/scripts/nuget-pkg-does-not-exist.ts",
+            "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
+				"-ERN",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": ["KinsonDigital.Velaptor"],
+            "env": {
+				"NUGET_PKG_NAME": "KinsonDigital.Velaptor",
+				"NUGET_PKG_VERSION": "1.0.0-preview.36",
+			},
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -250,7 +253,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -264,22 +267,27 @@
             "cwd": "${workspaceFolder}/cicd/scripts",
             "runtimeArgs": [
                 "run",
+				"-ERN",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"KinsonDigital",
-				"Infrastructure",
-				"v1.0.0-preview.15",
-				"${env:TWITTER_CONSUMER_API_KEY}",
-				"${env:TWITTER_CONSUMER_API_SECRET}",
-				"${env:TWITTER_ACCESS_TOKEN_KEY}",
-				"${env:TWITTER_ACCESS_TOKEN_SECRET}",
-				"${env:CICD_TOKEN}",
-			],
+            "env": {
+				"OWNER_NAME": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
+				"VERSION": "v1.0.0-preview.15",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+				"RELEASE_TWEET_TEMPLATE_REPO_NAME": "Infrastructure",
+				"RELEASE_TWEET_TEMPLATE_BRANCH_NAME": "main",
+				"RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH": "cicd/templates/release-tweet-template.txt",
+				"DISCORD_INVITE_CODE": "qewu6fNgv7",
+				"TWITTER_BROADCAST_ENABLED": "true",
+				"TWITTER_ACCESS_TOKEN_KEY": "${env:TWITTER_ACCESS_TOKEN_KEY}",
+				"TWITTER_ACCESS_TOKEN_SECRET": "${env:TWITTER_ACCESS_TOKEN_SECRET}",
+				"TWITTER_CONSUMER_API_KEY": "${env:TWITTER_CONSUMER_API_KEY}",
+				"TWITTER_CONSUMER_API_SECRET": "${env:TWITTER_CONSUMER_API_SECRET}",
+			},
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -305,7 +313,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -331,7 +339,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -357,7 +365,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -367,20 +375,19 @@
             "name": "Transpile README",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/transpile-readme.ts",
+            "program": "${workspaceFolder}/cicd/core/services/transpile-readme.ts",
             "cwd": "${workspaceFolder}/cicd",
             "runtimeArgs": [
                 "run",
+				"-ERW",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"${workspaceFolder}",
-				"${env:CICD_TOKEN}",
-			],
+			"env": {
+				"BASE_DIR_PATH": "${workspaceFolder}",
+			},
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -403,7 +410,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -427,7 +434,32 @@
             "attachSimplePort": 9229,
 			"console": "integratedTerminal",
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+            }
+        },
+		{ // RESOLVE CSPROJ File
+            "name": "Resolve CSProj File",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/resolve-csproj.ts",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": [
+                "run",
+				"-ERW",
+                "--inspect-wait",
+            ],
+			"env": {
+				"PROJECT_NAME": "VelaptorTesting",
+				"BASE_DIR_PATH": "K:/SOFTWARE-DEVELOPMENT/PERSONAL/Velaptor",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}"
+			},
+            "attachSimplePort": 9229,
+            "console": "integratedTerminal",
+            "windows": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -441,97 +473,45 @@
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
+				"-ERN",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"${workspaceFolder}/.github/workflows",
-				"${env:CICD_TOKEN}",
-			],
+            "env": {
+				"OWNER_NAME": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
+				"BASE_DIR_PATH": "${workspaceFolder}/.github/workflows",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+			},
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-        { // VALIDATE EITHER TAG
-            "name": "Validate Either Tag",
+        { // VALIDATE TAG
+            "name": "Validate Tag",
             "request": "launch",
             "type": "node",
             "program": "${workspaceFolder}/cicd/scripts/validate-tag.ts",
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
+				"-ERNS",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"KinsonDigital",
-				"PackageMonster",
-				"Either",
-				"v1.2.3",
-				"${ env:CICD_TOKEN }",
-			],
+            "env": {
+				"OWNER_NAME": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
+				"RELEASE_TYPE": "Production",
+				"TAG_NAME": "v13.6.3",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+			},
             "attachSimplePort": 9229,
             "console": "integratedTerminal",
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
-            },
-            "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno"
-            }
-        },
-        { // VALIDATE PREVIEW TAG
-            "name": "Validate Preview Tag",
-            "request": "launch",
-            "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/validate-tag.ts",
-            "cwd": "${workspaceFolder}",
-            "runtimeArgs": [
-                "run",
-                "--inspect-wait",
-                "--allow-all"
-            ],
-            "args": [
-				"KinsonDigital",
-				"PackageMonster",
-				"Preview",
-				"v1.2.3-preview.5",
-				"${ env:CICD_TOKEN }",
-			],
-            "attachSimplePort": 9229,
-            "console": "integratedTerminal",
-            "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
-            },
-            "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno"
-            }
-        },
-        { // VALIDATE PROD TAG
-            "name": "Validate Prod Tag",
-            "request": "launch",
-            "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/validate-tag.ts",
-            "cwd": "${workspaceFolder}",
-            "runtimeArgs": [
-                "run",
-                "--inspect-wait",
-                "--allow-all"
-            ],
-            "args": [
-				"KinsonDigital",
-				"PackageMonster",
-				"Production",
-				"v1.2.3",
-				"${ env:CICD_TOKEN }",
-			],
-            "attachSimplePort": 9229,
-            "console": "integratedTerminal",
-            "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -557,7 +537,7 @@
 			],
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -571,13 +551,16 @@
             "cwd": "${workspaceFolder}/cicd",
             "runtimeArgs": [
                 "run",
+				"-E",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": ["v1.2.3-preview.4", "preview"],
+			"env": {
+				"VERSION": "v1.2.3-preview.4",
+				"RELEASE_TYPE": "preview",
+			},
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
@@ -602,32 +585,30 @@
                 "<node_internals>/**"
             ],
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             },
 		},
-		{ // VALIDATE SDK SETUP
-            "name": "Validate SDK Setup",
+		{ // VALIDATE SDK Versions
+            "name": "Validate SDK Versions",
             "request": "launch",
             "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/validate-sdk-setup.ts",
+            "program": "${workspaceFolder}/cicd/scripts/validate-sdk-versions.ts",
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
+				"-ER",
                 "--inspect-wait",
-				"--allow-read",
-				"--allow-net"
             ],
-            "args": [
-				"KinsonDigital",
-				"Infrastructure",
-				"${env:CICD_TOKEN}",
-			],
+			"env": {
+				"BASE_SEARCH_DIR_PATH": "${workspaceFolder}",
+				"NET_SDK_VERSION": "7.0",
+			},
             "attachSimplePort": 9229,
             "windows": {
-                "runtimeExecutable": "${userHome}\\.deno\\bin\\deno.exe"
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
             },
             "linux": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"

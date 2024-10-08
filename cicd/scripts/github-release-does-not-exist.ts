@@ -1,52 +1,33 @@
 import { ReleaseClient } from "../../deps.ts";
+import getEnvVar from "../core/GetEnvVar.ts";
 import { Utils } from "../core/Utils.ts";
+import { validateOrgExists, validateRepoExists } from "../core/Validators.ts";
 
-const githubReleaseDoesNotExistExecutor = async () => {
-	if (Deno.args.length != 4) {
-		let errorMsg = `The cicd script must have 4 arguments but has ${Deno.args.length} argument(s).`;
-		errorMsg += "\nThe 1st arg is required and must be a the name of the repository owner.";
-		errorMsg += "\nThe 2nd arg is required and must be a the name of the repository.";
-		errorMsg += "\nThe 3rd arg is required and must be the name of the tag for the release.";
-		errorMsg += "\nThe 4th arg is required and must be a GitHub PAT (Personal Access Token).";
+const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
-		Utils.printAsGitHubError(errorMsg);
-		Deno.exit(1);
-	}
+const ownerName = getEnvVar("OWNER_NAME", scriptFileName);
+const repoName = getEnvVar("REPO_NAME", scriptFileName);
+const tagName = getEnvVar("TAG_NAME", scriptFileName);
+const githubToken = getEnvVar("GITHUB_TOKEN", scriptFileName);
 
-	const ownerName = Deno.args[0].trim();
-	const repoName = Deno.args[1].trim();
-	const tagName = Deno.args[2].trim();
-	const githubToken = Deno.args[3].trim();
+// Validate the tag
+if (Utils.isNotValidProdVersion(tagName) && Utils.isNotValidPreviewVersion(tagName)) {
+	const errorMsg = `The tag name '${tagName}' is not a valid tag name.  The tag name must be a valid production or preview version.`;
+	Utils.printAsGitHubError(errorMsg);
+	Deno.exit(1);
+}
 
-	// Print out all of the arguments
-	Utils.printInGroup("Script Arguments", [
-		`Repo Owner (Required): ${repoName}`,
-		`Repository Name (Required): ${repoName}`,
-		`Tag Name (Required): ${tagName}`,
-		`GitHub Token (Required): ${githubToken}`,
-	]);
+await validateOrgExists(scriptFileName);
+await validateRepoExists(scriptFileName);
 
-	// Validate the tag
-	if (Utils.isNotValidProdVersion(tagName) && Utils.isNotValidPreviewVersion(tagName)) {
-		Utils.printAsGitHubError(
-			`The tag name '${tagName}' is not a valid tag name.  The tag name must be a valid production or preview version.`,
-		);
-		Deno.exit(1);
-	}
+const releaseClient: ReleaseClient = new ReleaseClient(ownerName, repoName, githubToken);
 
-	const releaseClient: ReleaseClient = new ReleaseClient(ownerName, repoName, githubToken);
+const releaseExists = await releaseClient.releaseExists(tagName);
 
-	const releaseExists = await releaseClient.releaseExists(tagName);
+if (releaseExists) {
+	const errorMsg = `A release for the tag '${tagName}' already exists.` + 
+		"\nIs the tag provided the incorrect tag?";
 
-	if (releaseExists) {
-		let errorMsg = `A release for the tag '${tagName}' already exists.`;
-		errorMsg += "\nIs the tag provided the incorrect tag?";
-
-		Utils.printAsGitHubError(errorMsg);
-		Deno.exit(1);
-	}
-};
-
-githubReleaseDoesNotExistExecutor();
-
-export default githubReleaseDoesNotExistExecutor;
+	Utils.printAsGitHubError(errorMsg);
+	Deno.exit(1);
+}

@@ -1,4 +1,8 @@
 {
+	"window.title": "🦕${activeRepositoryName} - [${activeRepositoryBranchName}]",
+	"workbench.colorCustomizations": {
+		"titleBar.activeBackground": "#21351f"
+	},
     "cSpell.words": [
 		"cicd",
 		"Creds",

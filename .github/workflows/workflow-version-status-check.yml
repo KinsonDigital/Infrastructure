@@ -27,11 +27,9 @@ jobs:
           deno-version: ${{ vars.DENO_VERSION }}
 
       - name: Run Status Check Script
-        run: |
-          $scriptPath = "${{ github.workspace }}/.github/internal-cicd/scripts/workflow-version-status-check.ts";
-
-          deno run `
-            --allow-read --allow-net `
-            $scriptPath `
-            "${{ github.workspace }}/.github/workflows" `
-            "${{ secrets.CICD_TOKEN }}";
+        env:
+          OWNER_NAME: "${{ vars.ORGANIZATION_NAME }}"
+          REPO_NAME: "${{ vars.PROJECT_NAME }}"
+          BASE_DIR_PATH: "${{ github.workspace }}/.github/workflows"
+          GITHUB_TOKEN: "${{ secrets.CICD_TOKEN }}"
+        run: deno run -ERN "${{ github.workspace }}/.github/internal-cicd/scripts/workflow-version-status-check.ts";

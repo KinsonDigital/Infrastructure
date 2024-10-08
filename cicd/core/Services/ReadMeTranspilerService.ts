@@ -1,12 +1,12 @@
-import { Directory, File } from "../../../deps.ts";
-import { GitHubLogType } from "../../core/Enums.ts";
-import { Utils } from "../../core/Utils.ts";
-import { ScriptRunner } from "./ScriptRunner.ts";
+import { existsSync } from "@std/fs/exists";
+import { Utils } from "../Utils.ts";
+
+// TODO: replace File references
 
 /**
  * Transpiles the HTML content in a README.md file to markdown.
  */
-export class TranspileReadMeRunner extends ScriptRunner {
+export class ReadMeTranspilerService {
 	private readonly readmeFileName = "README.md";
 	private readonly divStartTagRegEx = /<div.*>/gm;
 	private readonly divEndTagRegEx = /<\/div\s*>/gm;
@@ -24,32 +24,19 @@ export class TranspileReadMeRunner extends ScriptRunner {
 	private readonly imgMarkdownDarkModeRegex = /!\[.+\]\(.+-dark-mode\.(svg|png|jpg|jpeg)#gh-dark-mode-only\)/gm;
 
 	/**
-	 * Initializes a new instance of the {@link TranspileReadMeRunner} class.
-	 * @param args The script arguments.
-	 * @param scriptName The name of the script executing the runner.
-	 */
-	constructor(args: string[]) {
-		super(args);
-	}
-
-	/**
 	 * Runs the transpile readme script.
 	 */
-	public async run(): Promise<void> {
-		await super.run();
-
-		const [dirPath] = this.args;
-
+	public transpile(dirPath: string): void {
 		const readmeFilePath = `${dirPath}/${this.readmeFileName}`;
 
-		if (File.DoesNotExist(readmeFilePath)) {
+		if (!existsSync(readmeFilePath)) {
 			let errorMsg = "Error with transpiling readme.";
 			errorMsg += `\nThe given path '${readmeFilePath}' is not a valid file path.`;
 			Utils.printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
-		let readmeFileContent = File.LoadFile(readmeFilePath);
+		let readmeFileContent = Deno.readTextFileSync(readmeFilePath);
 
 		// Remove start and end div tags
 		readmeFileContent = readmeFileContent.replace(this.divStartTagRegEx, "");
@@ -71,44 +58,7 @@ export class TranspileReadMeRunner extends ScriptRunner {
 		readmeFileContent = this.bumpMarkdownLinksToLeft(readmeFileContent);
 
 		// Overwrite the README.md file with the transpiled content
-		File.SaveFile(readmeFilePath, readmeFileContent);
-
-		Utils.printAsGitHubNotice("Successfully transpiled the README.md file.");
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	// deno-lint-ignore require-await
-	protected async validateArgs(args: string[]): Promise<void> {
-		if (args.length != 2) {
-			const mainMsg = `The cicd script must have 2 arguments but has ${args.length} argument(s).`;
-
-			const argDescriptions = [
-				"Required and must be a valid directory path to the 'README.md' file.",
-				"Required and must be a valid GitHub PAT (Personal Access Token).",
-			];
-
-			Utils.printAsGitHubError(mainMsg);
-			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.normal);
-			Deno.exit(1);
-		}
-
-		if (Directory.DoesNotExist(args[0])) {
-			Utils.printAsGitHubError(`The given path '${args[0]}' is not a valid directory path.`);
-			Deno.exit(1);
-		}
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	protected mutateArgs(args: string[]): string[] {
-		let [dirPath, token] = args;
-		dirPath = Utils.normalizePath(args[0]);
-		dirPath = Utils.trimAllEndingValue(dirPath, "/");
-
-		return [dirPath, token];
+		Deno.writeTextFileSync(readmeFilePath, readmeFileContent);
 	}
 
 	/**

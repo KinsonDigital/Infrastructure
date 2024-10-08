@@ -8,9 +8,6 @@ import { IssueModel, LabelModel, ProjectModel, PullRequestModel, UserModel } fro
 export class Utils {
 	private static readonly prodVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)$/;
 	private static readonly prevVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)-preview\.([1-9]\d*|0)$/;
-	private static readonly dotnetSDKVersionRegex = /([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)/gm;
-	private static readonly csprojTargetFrameworkVersionRegex = /net([1-9]\d*|0)(\.([1-9]\d*|0)|)(\.([1-9]\d*|0)|)/gm;
-	private static readonly targetFrameworkRegex = /<TargetFramework\s*>\s*net.+\s*<\/TargetFramework\s*>/gm;
 	private static readonly featureBranchRegex = /^feature\/[1-9][0-9]*-(?!-)[a-z-]+/gm;
 
 	/**
@@ -41,6 +38,8 @@ export class Utils {
 
 		console.log("::endgroup::");
 	}
+
+	// TODO: Move this function to a Guards class
 
 	/**
 	 * Checks if the value is null, undefined, or empty.
@@ -251,7 +250,7 @@ export class Utils {
 	 * @param version The version to check.
 	 * @returns True if the version is a valid production version, otherwise false.
 	 */
-	public static validProdVersion(version: string): boolean {
+	public static isValidProdVersion(version: string): boolean {
 		return this.prodVersionRegex.test(version.trim().toLowerCase());
 	}
 
@@ -261,7 +260,7 @@ export class Utils {
 	 * @returns True if the version is not a valid production version, otherwise false.
 	 */
 	public static isNotValidProdVersion(version: string): boolean {
-		return !Utils.validProdVersion(version);
+		return !Utils.isValidProdVersion(version);
 	}
 
 	/**
@@ -269,7 +268,7 @@ export class Utils {
 	 * @param version The version to check.
 	 * @returns True if the version is a valid preview version, otherwise false.
 	 */
-	public static validPreviewVersion(version: string): boolean {
+	public static isValidPreviewVersion(version: string): boolean {
 		return this.prevVersionRegex.test(version.trim().toLowerCase());
 	}
 
@@ -279,44 +278,7 @@ export class Utils {
 	 * @returns True if the version is not a valid preview version, otherwise false.
 	 */
 	public static isNotValidPreviewVersion(version: string): boolean {
-		return !Utils.validPreviewVersion(version);
-	}
-
-	/**
-	 * Returns a value indicating whether or not the given {@link version} is a valid version.
-	 * @param version The version to check.
-	 * @returns True if the version is a valid version, otherwise false.
-	 */
-	public static isValidDotnetSDKVersion(version: string): boolean {
-		return this.dotnetSDKVersionRegex.test(version.trim().toLowerCase());
-	}
-
-	/**
-	 * Returns a value indicating whether or not the given {@link csProjFileData} contains the target framework XML tag.
-	 * @param csProjFileData The csproj file data that might contain the target framework version.
-	 * @returns True if the target framework XML tag exists in the given {@link csProjFileData}, otherwise false.
-	 */
-	public static targetFrameworkXMLExists(csProjFileData: string): boolean {
-		return this.targetFrameworkRegex.test(csProjFileData);
-	}
-
-	/**
-	 * Gets the first occurrence of a dotnet target framework version found in the given {@link csProjFileData}.
-	 * @param csProjFileData The csproj file data that might contain the target framework version.
-	 * @returns The dotnet SDK version.
-	 */
-	public static getCSProjTargetFrameworkVersion(csProjFileData: string): string {
-		const tagMatches = csProjFileData.match(this.targetFrameworkRegex);
-
-		const targetFrameworkTags = tagMatches === null || tagMatches.length === 0 ? [] : [...tagMatches];
-
-		if (targetFrameworkTags.length === 0) {
-			throw new Error("Could not find any target framework XML tags in the given csproj file data.");
-		}
-
-		const matches: string[] = targetFrameworkTags[0].match(this.csprojTargetFrameworkVersionRegex) ?? [];
-
-		return matches.length > 0 ? matches[0] : "";
+		return !Utils.isValidPreviewVersion(version);
 	}
 
 	/**

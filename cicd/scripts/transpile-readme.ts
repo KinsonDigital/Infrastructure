@@ -1,6 +1,22 @@
-import { TranspileReadMeRunner } from "./runners/TranspileReadMeRunner.ts";
+import { existsSync } from "@std/fs/exists";
+import { Utils } from "../core/Utils.ts";
+import { ReadMeTranspilerService } from "../core/Services/ReadMeTranspilerService.ts";
+import getEnvVar from "../core/GetEnvVar.ts";
 
-const transpileReadMeExecutor: TranspileReadMeRunner = new TranspileReadMeRunner(Deno.args);
-await transpileReadMeExecutor.run();
+const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
-export default transpileReadMeExecutor;
+const baseDirPath = getEnvVar("BASE_DIR_PATH", scriptFileName);
+
+const readmeFilePath = `${baseDirPath}/README.md`;
+
+if (!existsSync(readmeFilePath)) {
+	const errorMsg = `\nThe given path '${readmeFilePath}' is not a valid file path.\n\t${scriptFileName}`;
+	Utils.printAsGitHubError(errorMsg);
+	Deno.exit(1);
+}
+
+const transpiler = new ReadMeTranspilerService();
+
+transpiler.transpile(baseDirPath);
+
+Utils.printAsGitHubNotice("Successfully transpiled the README.md file.");

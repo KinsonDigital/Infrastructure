@@ -58,6 +58,9 @@ jobs:
           deno-version: ${{ vars.DENO_VERSION }}
 
       - name: Package Does Not Exist
+        env:
+          NUGET_PKG_NAME: "${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}"
+          NUGET_PKG_VERSION: "${{ inputs.version }}"
         run: |
           # Construct the URL to the organizations CICD scripts
           $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
@@ -67,12 +70,4 @@ jobs:
 
           Write-Host "::notice::NuGet Package Check Script URL: $scriptUrl";
 
-          <# Deno Args:
-            1. Package name
-            2. Version
-          #>
-          deno run `
-            --allow-net --allow-read `
-            "$scriptUrl" `
-            "${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}" `
-            "${{ inputs.version }}";
+          deno run -ERN "$scriptUrl";
