@@ -401,13 +401,13 @@
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
+				"-EN",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"v11.22.33-preview.44",
-				"${env:CICD_TOKEN}",
-			],
+            "env": {
+				"VERSION": "v11.22.33-preview.44",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+			},
             "attachSimplePort": 9229,
             "windows": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"

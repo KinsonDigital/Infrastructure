@@ -1,10 +1,13 @@
 import { ReleaseType } from "../../../cicd/core/Enums.ts";
+import getEnvVar from "../../../cicd/core/GetEnvVar.ts";
 import { CSharpVersionService } from "../../../cicd/core/Services/CSharpVersionService.ts";
 
-const _version = Deno.args[0].trim();
-const _token = Deno.args[1].trim();
+const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
-const service = new CSharpVersionService("KinsonDigital", "Infrastructure", _token);
+const version = getEnvVar("VERSION", scriptFileName);
+const token = getEnvVar("GITHUB_TOKEN", scriptFileName);
 
-await service.updateVersion(_version, ReleaseType.preview);
+const service = new CSharpVersionService("KinsonDigital", "Infrastructure", token);
+
+await service.updateVersion(version, ReleaseType.preview);
 
