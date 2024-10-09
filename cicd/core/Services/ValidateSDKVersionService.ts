@@ -58,7 +58,8 @@ export class ValidateSDKVersionService {
 					continue;
 				}
 
-				const errorMsg = `The current target framework version '${currentSdkVersion}' in the csproj file '${csProjFile}' does not match the expected` +
+				const errorMsg =
+					`The current target framework version '${currentSdkVersion}' in the csproj file '${csProjFile}' does not match the expected` +
 					` version of '${expectedSdkVersion}'.  Please check the 'NET_SDK_VERSION' repository variable.`;
 				nonMatchingVersions.push([csProjFile, errorMsg]);
 			} else {

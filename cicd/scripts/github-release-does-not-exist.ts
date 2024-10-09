@@ -12,7 +12,8 @@ const githubToken = getEnvVar("GITHUB_TOKEN", scriptFileName);
 
 // Validate the tag
 if (Utils.isNotValidProdVersion(tagName) && Utils.isNotValidPreviewVersion(tagName)) {
-	const errorMsg = `The tag name '${tagName}' is not a valid tag name.  The tag name must be a valid production or preview version.`;
+	const errorMsg =
+		`The tag name '${tagName}' is not a valid tag name.  The tag name must be a valid production or preview version.`;
 	Utils.printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
@@ -25,7 +26,7 @@ const releaseClient: ReleaseClient = new ReleaseClient(ownerName, repoName, gith
 const releaseExists = await releaseClient.releaseExists(tagName);
 
 if (releaseExists) {
-	const errorMsg = `A release for the tag '${tagName}' already exists.` + 
+	const errorMsg = `A release for the tag '${tagName}' already exists.` +
 		"\nIs the tag provided the incorrect tag?";
 
 	Utils.printAsGitHubError(errorMsg);

@@ -29,7 +29,7 @@ const filteredResults = [...walkSync(baseDirPath, {
 	includeDirs: true,
 	includeFiles: true,
 	exts: [".csproj"],
-	match: [new RegExp(`.*${projName}\\..*`)]
+	match: [new RegExp(`.*${projName}\\..*`)],
 })].map((entry) => entry.path);
 
 if (filteredResults.length <= 0) {

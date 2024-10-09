@@ -49,18 +49,18 @@ type WorkflowToUpdate = {
 };
 
 // Search for workflow references with a version that has not been updated
-yamlFiles.forEach(yamlFile => {
+yamlFiles.forEach((yamlFile) => {
 	const workflowToUpdate: WorkflowToUpdate = {
 		filePath: yamlFile,
-		workflowRefs: []
+		workflowRefs: [],
 	};
 
 	const fileContent = Deno.readTextFileSync(yamlFile);
 
 	const possibleUpdates = fileContent.match(reusableWorkflowRegex)?.map((w) => w) ?? [];
 
-	// Check each reusable workflow reference version 
-	possibleUpdates.forEach(possibleUpdate => {
+	// Check each reusable workflow reference version
+	possibleUpdates.forEach((possibleUpdate) => {
 		const fullRef = possibleUpdate.split("uses:")[1].trim();
 		const workflowRefVersion = possibleUpdate.split("@")[1];
 
@@ -84,7 +84,7 @@ if (workflowsToUpdate.length === 0) {
 const errorMsgs: string[] = [];
 
 // Print out all of the workflows that need to be updated as an error
-workflowsToUpdate.forEach(workflowToUpdate => {
+workflowsToUpdate.forEach((workflowToUpdate) => {
 	const filePath = basename(workflowToUpdate.filePath);
 
 	const workflowErrors: string[] = workflowToUpdate.workflowRefs.map((workflowRef) => {

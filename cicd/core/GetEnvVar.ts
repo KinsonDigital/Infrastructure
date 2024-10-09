@@ -7,7 +7,7 @@ import { Utils } from "./Utils.ts";
  */
 const getEnvVar = (name: string, scriptFileName?: string, throwErrorIfMissing: boolean = true): string => {
 	const value = (Deno.env.get(name) ?? "").trim();
-	
+
 	if (Utils.isNothing(value) && throwErrorIfMissing) {
 		const fileName = Utils.isNothing(scriptFileName) ? "" : `\n\t${scriptFileName}`;
 		const errorMsg = `The '${name}' environment variable does not exist.${fileName}`;
@@ -16,6 +16,6 @@ const getEnvVar = (name: string, scriptFileName?: string, throwErrorIfMissing: b
 	}
 
 	return value;
-}
+};
 
 export default getEnvVar;
