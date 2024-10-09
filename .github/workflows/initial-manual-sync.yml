@@ -80,7 +80,7 @@ jobs:
 
       - name: Set Up Deno
         if: ${{ steps.skip-checking.outputs.skip == 'false' }}
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ vars.DENO_VERSION }}
 
