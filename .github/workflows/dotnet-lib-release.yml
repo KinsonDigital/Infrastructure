@@ -138,8 +138,6 @@ jobs:
         id: tag-check
         continue-on-error: true
         env:
-          OWNER_NAME: "${{ vars.ORGANIZATION_NAME }}"
-          REPO_NAME: "${{ inputs.project-name }}"
           RELEASE_TYPE: "${{ inputs.release-type }}"
           TAG_NAME: "${{ needs.validate_version.outputs.version }}"
           GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
@@ -186,8 +184,6 @@ jobs:
       - name: Validate Milestone
         id: milestone-check
         env:
-          OWNER_NAME: "${{ vars.ORGANIZATION_NAME }}"
-          REPO_NAME: "${{ inputs.project-name }}"
           MILESTONE_TITLE: "${{ needs.validate_version.outputs.version }}"
           GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
         continue-on-error: true
@@ -200,8 +196,6 @@ jobs:
         id: github-release-check
         continue-on-error: true
         env:
-          OWNER_NAME: "${{ vars.ORGANIZATION_NAME }}"
-          REPO_NAME: "${{ inputs.project-name }}"
           TAG_NAME: "${{ needs.validate_version.outputs.version }}"
           GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
         run: |
