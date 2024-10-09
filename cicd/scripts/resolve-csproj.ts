@@ -1,4 +1,4 @@
-import { walkSync } from "@std/fs";
+import { walkSync } from "jsr:@std/fs@^1.0.4";
 
 import { Utils } from "../core/Utils.ts";
 

@@ -1,7 +1,5 @@
-import { existsSync } from "@std/fs/exists";
+import { existsSync } from "jsr:@std/fs@^1.0.4";
 import { Utils } from "../Utils.ts";
-
-// TODO: replace File references
 
 /**
  * Transpiles the HTML content in a README.md file to markdown.

@@ -21,8 +21,13 @@ if (!versionRegex.test(version)) {
 }
 
 try {
-	Deno.writeTextFileSync(githubOutputFilePath, `version=${version}\n\t`, { append: true });
+	Deno.writeTextFileSync(githubOutputFilePath, `version=${version}\n`, { append: true });
 } catch (error) {
-	Utils.printAsGitHubError(`${error.message}\n${scriptFileName}`);
+	if (error instanceof Error) {
+		Utils.printAsGitHubError(`${error.message}\n${scriptFileName}`);
+	} else {
+		Utils.printAsGitHubError(`An unknown error occurred.\n${scriptFileName}`);
+	}
+
 	Deno.exit(1);
 }

@@ -1,6 +1,6 @@
-import { walkSync } from "@std/fs/walk";
-import { exists } from "@std/fs/exists";
-import { basename } from "@std/path/basename";
+import { walkSync } from "jsr:@std/fs@^1.0.4";
+import { exists } from "jsr:@std/fs@^1.0.4";
+import { basename } from "jsr:@std/path@^1.0.6";
 import { TagClient } from "../../deps.ts";
 import { Utils } from "../../cicd/core/Utils.ts";
 import getEnvVar from "../../cicd/core/GetEnvVar.ts";
