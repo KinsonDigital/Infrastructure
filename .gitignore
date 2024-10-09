@@ -1,3 +1,6 @@
 **/obj
 **/cicd/**/bin
 *.sln
+
+# Ignore file used for testing the GitHub environment output file
+/github_output.txt
