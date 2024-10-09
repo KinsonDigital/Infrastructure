@@ -233,32 +233,6 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-		{ // PREPARE RELEASE
-            "name": "Prepare Release",
-            "request": "launch",
-            "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/prepare-release.ts",
-            "cwd": "${workspaceFolder}/cicd",
-            "runtimeArgs": [
-                "run",
-                "--inspect-wait",
-                "--allow-all"
-            ],
-            "args": [
-				"KinsonDigital",
-				"Infrastructure",
-				"preview",
-				"v1.2.3-preview.4",
-				"${env:CICD_TOKEN}",
-			],
-            "attachSimplePort": 9229,
-            "windows": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
-            },
-            "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno"
-            }
-        },
 		{ // SEND RELEASE TWEET
             "name": "Send Release Tweet",
             "request": "launch",
