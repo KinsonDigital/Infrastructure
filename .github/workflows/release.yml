@@ -1,0 +1,265 @@
+name: 🚀Release
+run-name: 🚀${{ inputs.release-type }} Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
+
+
+defaults:
+  run:
+    shell: pwsh
+
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-type:
+        required: true
+        description: The type of release to validate.  Either 'Preview' or 'Production'.
+        type: choice
+        options: [Production, Preview]
+      dry-run:
+        required: false
+        description: If true, the release will not be created.
+        default: false
+        type: boolean
+
+
+env:
+  OWNER_NAME: "${{ vars.ORGANIZATION_NAME }}"
+  REPO_NAME: "${{ vars.PROJECT_NAME }}"
+
+
+jobs:
+  get_validate_version:
+    name: Get & Validate Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Up Deno (${{ vars.DENO_VERSION }})
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ vars.DENO_VERSION }}
+
+      - name: Get & Validate Version
+        id: get-version
+        run: deno -ERW ".github/internal-cicd/scripts/get-validate-version.ts";
+
+
+  run_prerelease_validation:
+    name: Run Pre-Release Validation
+    needs: [get_validate_version]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ vars.DENO_VERSION }}
+
+      - name: Build Script Base URL
+        id: build-script-base-url
+        run: |
+          # Construct the URL to the organizations CICD scripts
+          $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
+          $scriptUrl = $scriptUrl.Replace("\", "/").Replace("//", "/");
+          $scriptUrl = $scriptUrl.EndsWith("/") ? $scriptUrl.Substring(0, $scriptUrl.Length - 1) : $scriptUrl;
+
+          Write-Host "::notice::Script Base URL: $scriptUrl";
+
+          "url=$scriptUrl" >> $env:GITHUB_OUTPUT;
+
+      - name: Branch Check
+        id: branch-check
+        continue-on-error: true
+        run: |
+          if ("${{ github.ref_name }}" -ne "main") {
+            Write-Host "::error::The branch '$branch' is invalid.  Please only run on the 'main' branch.";
+            exit 1;
+          }
+
+      - name: Milestone Exists
+        id: milestone-exists-check
+        continue-on-error: true
+        env:
+          MILESTONE_TITLE: "${{ needs.get_validate_version.outputs.version }}"
+          GITHUB_TOKEN: ${{ secrets.CICD_TOKEN }}
+        run: |
+          $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/milestone-exists.ts";
+
+          deno run -ERNS "$scriptUrl";
+
+      - name: Validate Milestone
+        id: milestone-check
+        env:
+          MILESTONE_TITLE: "${{ needs.get_validate_version.outputs.version }}"
+          GITHUB_TOKEN: "${{ secrets.CICD_TOKEN }}"
+        continue-on-error: true
+        run: |
+          $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/milestone-items-all-closed.ts";
+
+          deno run -ERN "$scriptUrl";
+
+      - name: Release Notes Does Not Exist 
+        id: release-notes-check
+        continue-on-error: true
+        env:
+          RELEASE_NOTES_DIR_PATH: "${{ github.workspace }}/ReleaseNotes/${{ inputs.release-type }}Releases"
+          VERSION: "${{ needs.get_validate_version.outputs.version }}"
+        run: |
+          $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/release-notes-do-not-exist.ts";
+
+          Write-Host "::notice::Validate Release Notes Exist Script URL: $scriptUrl";
+
+          deno run -ER "$scriptUrl";
+
+      - name: GitHub Release Does Not Exist 
+        id: github-release-check
+        continue-on-error: true
+        env:
+          TAG_NAME: "${{ needs.get_validate_version.outputs.version }}"
+          GITHUB_TOKEN: "${{ secrets.CICD_TOKEN }}"          
+        run: |
+          $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/github-release-does-not-exist.ts";
+
+          Write-Host "::notice::Validate GitHub Release Version Script URL: $scriptUrl";
+
+          deno run -ERN "$scriptUrl";
+    
+      - name: Check Reusable Workflow Versions
+        id: workflow-versions-check
+        continue-on-error: true
+        env:
+          BASE_DIR_PATH: "${{ github.workspace }}/.github/workflows"
+          GITHUB_TOKEN: "${{ secrets.CICD_TOKEN }}"
+        run: deno run -ERN "${{ steps.build-script-base-url.outputs.url }}/check-workflow-versions.ts";
+
+      - name: Should Fail Job
+        run: |
+          $branchCheckFailed = "${{ steps.branch-check.outcome == 'failure' }}";
+          $milestoneExistsCheckFailed = "${{ steps.milestone-exists-check.outcome == 'failure' }}";
+          $milestoneCheckFailed = "${{ steps.milestone-check.outcome == 'failure' }}";
+          $releaseNotesCheckFailed = "${{ steps.release-notes-check.outcome == 'failure' }}";
+          $githubReleaseCheckFailed = "${{ steps.github-release-check.outcome == 'failure' }}";
+          $workflowVersionsCheckCheckFailed = "${{ steps.workflow-versions-check.outcome == 'failure' }}";
+
+          if ($branchCheckFailed -eq "true") {
+            Write-Host "::error::The branch is invalid.  Check the 'run-branch' workflow input.";
+          }
+
+          if ($milestoneExistsCheckFailed -eq "true") {
+            Write-Host "::error::The milestone '${{ needs.get_validate_version.outputs.version }}' does not exist.";
+          }
+
+          if ($milestoneCheckFailed -eq "true") {
+            Write-Host "::error::The milestone '${{ needs.get_validate_version.outputs.version }}' has one or more issues that are not closed.";
+          }
+
+          if ($releaseNotesCheckFailed -eq "true") {
+            Write-Host "::error::The release notes do not exist.";
+          }
+
+          if ($githubReleaseCheckFailed -eq "true") {
+            Write-Host "::error::The GitHub release already exists.";
+          }
+
+          if ($workflowVersionsCheckCheckFailed -eq "true") {
+            Write-Host "::error::The one or more reusable workflow versions haver not been updated.";
+          }
+
+          if ($branchCheckFailed -eq "true" `
+              -or $milestoneExistsCheckFailed -eq "true" `
+              -or $milestoneCheckFailed -eq "true" `
+              -or $releaseNotesCheckFailed -eq "true" `
+              -or $githubReleaseCheckFailed -eq "true" `
+              -or $workflowVersionsCheckCheckFailed -eq "true") {
+            exit 1;
+          }
+
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Deno (${{ vars.DENO_VERSION }})
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ vars.DENO_VERSION }}
+
+      - name: Build
+        run: deno check ./**/*.ts;
+
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Deno (${{ vars.DENO_VERSION }})
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ vars.DENO_VERSION }}
+
+      - name: Lint
+        run: |
+          $tsFiles = Get-ChildItem -Path ${{ github.workspace }} -Recurse -Filter *.ts | ForEach-Object { $_.FullName };
+          $tsFiles -join "`n";
+
+          deno lint "./**/*.ts";
+
+
+  perform_release:
+    name: Perform ${{ inputs.release-type }} Release
+    runs-on: ubuntu-latest
+    needs: [get_validate_version, run_prerelease_validation, build, lint]
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Set Up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ vars.DENO_VERSION }}
+
+      - name: Create Script URL
+        id: script-url
+        run: |
+          # Construct the URL to the organizations CICD scripts
+          $url = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
+          $url = $url.Replace("\", "/").Replace("//", "/");
+          $url = $url.EndsWith("/") ? $url.Substring(0, $url.Length - 1) : $url;
+          
+          Write-Host "::notice::DotNet Lib Release Script URL: $url";
+          "url=$url" >> "$env:GITHUB_OUTPUT";
+
+      - name: Create GitHub Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
+        if: ${{ inputs.dry-run == false }}
+        uses: ncipollo/release-action@v1
+        with:
+          name: "🚀${{ inputs.release-type }} - ${{ needs.get_validate_version.outputs.version }}"
+          tag: ${{ needs.get_validate_version.outputs.version }}
+          owner: ${{ env.OWNER_NAME }}
+          repo: ${{ env.REPO_NAME }}
+          bodyFile: "${{ github.workspace }}/ReleaseNotes/${{ inputs.release-type }}Releases/Release-Notes-${{ needs.get_validate_version.outputs.version }}.md"
+          artifacts: "${{ github.workspace }}/ReleaseNotes/${{ inputs.release-type }}Releases/Release-Notes-${{ needs.get_validate_version.outputs.version }}.md"
+          prerelease: ${{ inputs.release-type }} == 'Preview'
+
+      - name: Close Milestone ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
+        env:
+          MILESTONE_NAME: "${{ needs.get_validate_version.outputs.version }}"
+          GITHUB_TOKEN: "${{ secrets.CICD_TOKEN }}"
+        run: |
+          if ("${{ inputs.dry-run == true }}" -eq "true") {
+            Write-Host "::notice::Dry Run: Closing milestone...";
+            exit 0;
+          }
+        
+          deno run -ERN "${{ steps.script-url.outputs.url }}/close-milestone.ts";

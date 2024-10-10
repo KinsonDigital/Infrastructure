@@ -47,27 +47,6 @@
 					"${workspaceFolder}/.github/internal-cicd/scripts/update-workflow-versions.ts",
 				]
 			}
-		},
-		{ // BUILD (DENO CHECK)
-			"label": "Build (Deno Check)",
-			"detail": "Builds the project using deno check.",
-			"command": "deno",
-			"dependsOn": ["clear-terminal"],
-			"type": "shell",
-			"args": [
-				"run",
-				"--allow-read",
-				"--allow-run",
-				"--allow-sys",
-				"${workspaceFolder}/.github/internal-cicd/scripts/deno-check.ts"
-			],
-			"problemMatcher": [
-				"$tsc"
-			],
-			"presentation": {
-				"reveal": "always"
-			},
-			"group": "build"
 		}
     ]
 }

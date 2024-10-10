@@ -1,4 +1,4 @@
-import { walkSync } from "@std/fs";
+import { walkSync } from "jsr:@std/fs@^1.0.4";
 
 import { Utils } from "../core/Utils.ts";
 
@@ -29,7 +29,7 @@ const filteredResults = [...walkSync(baseDirPath, {
 	includeDirs: true,
 	includeFiles: true,
 	exts: [".csproj"],
-	match: [new RegExp(`.*${projName}\\..*`)]
+	match: [new RegExp(`.*${projName}\\..*`)],
 })].map((entry) => entry.path);
 
 if (filteredResults.length <= 0) {

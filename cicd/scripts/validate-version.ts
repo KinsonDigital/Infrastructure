@@ -8,7 +8,7 @@ const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 let version: string = getEnvVar("VERSION", scriptFileName).toLowerCase();
 version = version.startsWith("v") ? version : `v${version}`;
 
-const releaseType: ReleaseType = <ReleaseType>getEnvVar("RELEASE_TYPE", scriptFileName).toLowerCase();
+const releaseType: ReleaseType = <ReleaseType> getEnvVar("RELEASE_TYPE", scriptFileName).toLowerCase();
 
 const releaseTypeInvalid = releaseType != "production" && releaseType != "preview";
 

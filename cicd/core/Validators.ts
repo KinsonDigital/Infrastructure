@@ -9,7 +9,7 @@ import { Utils } from "./Utils.ts";
  */
 const validateOrgExists = async (scriptFileName?: string): Promise<void> => {
 	const ownerName = getEnvVar("OWNER_NAME", scriptFileName);
-	const token = getEnvVar("GITHUB_TOKEN", scriptFileName)
+	const token = getEnvVar("GITHUB_TOKEN", scriptFileName);
 
 	const orgClient = new OrgClient(ownerName, token);
 
@@ -21,7 +21,7 @@ const validateOrgExists = async (scriptFileName?: string): Promise<void> => {
 		Utils.printAsGitHubError(errorMsg);
 		Deno.exit(1);
 	}
-}
+};
 
 /**
  * Validates that a GitHub organization exists.
@@ -31,7 +31,7 @@ const validateOrgExists = async (scriptFileName?: string): Promise<void> => {
 const validateRepoExists = async (scriptFileName?: string): Promise<void> => {
 	const ownerName = getEnvVar("OWNER_NAME", scriptFileName);
 	const repoName = getEnvVar("REPO_NAME", scriptFileName);
-	const token = getEnvVar("GITHUB_TOKEN", scriptFileName)
+	const token = getEnvVar("GITHUB_TOKEN", scriptFileName);
 
 	const repoClient = new RepoClient(ownerName, repoName, token);
 
@@ -42,7 +42,7 @@ const validateRepoExists = async (scriptFileName?: string): Promise<void> => {
 		Utils.printAsGitHubError(errorMsg);
 		Deno.exit(1);
 	}
-}
+};
 
 /**
  * Validates that a GitHub milestone exists.
@@ -53,7 +53,7 @@ const validateRepoExists = async (scriptFileName?: string): Promise<void> => {
 const validateMilestoneExists = async (milestoneTitle: string, scriptFileName?: string): Promise<void> => {
 	const ownerName = getEnvVar("OWNER_NAME", scriptFileName);
 	const repoName = getEnvVar("REPO_NAME", scriptFileName);
-	const token = getEnvVar("GITHUB_TOKEN", scriptFileName)
+	const token = getEnvVar("GITHUB_TOKEN", scriptFileName);
 
 	const milestoneClient = new MilestoneClient(ownerName, repoName, token);
 
@@ -64,6 +64,6 @@ const validateMilestoneExists = async (milestoneTitle: string, scriptFileName?: 
 		Utils.printAsGitHubError(errorMsg);
 		Deno.exit(1);
 	}
-}
+};
 
-export { validateOrgExists, validateRepoExists, validateMilestoneExists };
+export { validateMilestoneExists, validateOrgExists, validateRepoExists };

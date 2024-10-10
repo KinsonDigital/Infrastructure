@@ -540,32 +540,7 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
             }
         },
-		{ // BUILD (DENO CHECK)
-            "name": "Build (Deno Check)",
-            "request": "launch",
-            "type": "node",
-            "program": "${workspaceFolder}/.github/internal-cicd/scripts/deno-check.ts",
-			"cwd": "${workspaceFolder}",
-            "runtimeArgs": [
-                "run",
-                "--inspect-wait",
-				"--allow-read",
-				"--allow-run",
-            ],
-            "attachSimplePort": 9229,
-            "runtimeExecutable": "npm",
-			"outputCapture": "std",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "windows": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
-            },
-            "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno"
-            },
-		},
-		{ // VALIDATE SDK Versions
+		{ // VALIDATE SDK VERSIONS
             "name": "Validate SDK Versions",
             "request": "launch",
             "type": "node",
@@ -579,6 +554,53 @@
 			"env": {
 				"BASE_SEARCH_DIR_PATH": "${workspaceFolder}",
 				"NET_SDK_VERSION": "7.0",
+			},
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+			}
+        },
+		{ // GET VALIDATE VERSION
+            "name": "Get Validate Version",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/.github/internal-cicd/scripts/get-validate-version.ts",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": [
+                "run",
+				"-ERW",
+                "--inspect-wait",
+            ],
+			"env": {
+				"GITHUB_OUTPUT": "${workspaceFolder}/github_output.txt",
+			},
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+			}
+        },
+		{ // CHECK WORKFLOW VERSIONS
+            "name": "Check Workflow Versions",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/cicd/scripts/check-workflow-versions.ts",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": [
+                "run",
+				"-ERN",
+                "--inspect-wait",
+            ],
+			"env": {
+				"OWNER_NAME": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
+				"BASE_DIR_PATH": "${workspaceFolder}/.github/workflows",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
 			},
             "attachSimplePort": 9229,
             "windows": {

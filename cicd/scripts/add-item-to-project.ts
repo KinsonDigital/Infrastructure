@@ -1,4 +1,4 @@
-import { ProjectClient, IssueClient, PullRequestClient } from "../../deps.ts";
+import { IssueClient, ProjectClient, PullRequestClient } from "../../deps.ts";
 import getEnvVar from "../core/GetEnvVar.ts";
 import { Utils } from "../core/Utils.ts";
 

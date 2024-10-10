@@ -10,4 +10,3 @@ const token = getEnvVar("GITHUB_TOKEN", scriptFileName);
 const service = new CSharpVersionService("KinsonDigital", "Infrastructure", token);
 
 await service.updateVersion(version, ReleaseType.preview);
-

@@ -9,7 +9,7 @@ const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
 const ownerName: string = getEnvVar("OWNER_NAME", scriptFileName);
 const repoName: string = getEnvVar("REPO_NAME", scriptFileName);
-const releaseType = <ReleaseType>getEnvVar("RELEASE_TYPE", scriptFileName).toLowerCase();
+const releaseType = <ReleaseType> getEnvVar("RELEASE_TYPE", scriptFileName).toLowerCase();
 let tag: string = getEnvVar("TAG_NAME", scriptFileName);
 tag = tag.startsWith("v") ? tag : `v${tag}`;
 const token = getEnvVar("GITHUB_TOKEN", scriptFileName);
@@ -22,9 +22,7 @@ if (releaseTypeInvalid) {
 	Deno.exit(1);
 }
 
-const tagIsInvalid = releaseType === "production"
-	? Utils.isNotValidProdVersion(tag)
-	: Utils.isNotValidPreviewVersion(tag);
+const tagIsInvalid = releaseType === "production" ? Utils.isNotValidProdVersion(tag) : Utils.isNotValidPreviewVersion(tag);
 
 if (tagIsInvalid) {
 	const tagTypeStr = releaseType === "production" || releaseType === "preview" ? releaseType : "production or preview";

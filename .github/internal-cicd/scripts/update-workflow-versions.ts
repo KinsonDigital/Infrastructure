@@ -1,6 +1,4 @@
-import {
-	TagClient, RepoClient, Directory, Input
-} from "../../../deps.ts";
+import { Directory, Input, RepoClient, TagClient } from "../../../deps.ts";
 import chalk from "../../../deps.ts";
 import { File } from "../../../cicd/core/File.ts";
 import { Utils } from "../../../cicd/core/Utils.ts";
@@ -34,7 +32,7 @@ const newVersion = await Input.prompt({
 		value = value.trim().toLowerCase();
 
 		return value.startsWith("v") ? value : `v${value}`;
-	}
+	},
 });
 
 const ownerName = "KinsonDigital";
@@ -58,15 +56,15 @@ const updateMsgs: string[] = [];
 let noFilesUpdated = true;
 
 // Search for workflow references with a version that has not been updated
-yamlFiles.forEach(yamlFile => {
+yamlFiles.forEach((yamlFile) => {
 	let fileContent = File.LoadFile(yamlFile);
 
 	const possibleUpdates = fileContent.match(reusableWorkflowRegex)?.map((w) => w) ?? [];
 
 	let fileUpdated = false;
 
-	// Check each reusable workflow reference version 
-	possibleUpdates.forEach(oldRef => {
+	// Check each reusable workflow reference version
+	possibleUpdates.forEach((oldRef) => {
 		const refPathSection = oldRef.split("uses:")[1].trim().split("@")[0];
 		const workflowRefVersion = oldRef.split("@")[1];
 
@@ -79,7 +77,8 @@ yamlFiles.forEach(yamlFile => {
 			// Update the reusable workflow reference version
 			fileContent = fileContent.replaceAll(oldRef, newRef);
 
-			const noticeMsg = `Updated reusable workflow reference '${refPathSection}' from version '${workflowRefVersion}' to '${newVersion}'.`;
+			const noticeMsg =
+				`Updated reusable workflow reference '${refPathSection}' from version '${workflowRefVersion}' to '${newVersion}'.`;
 			updateMsgs.push(noticeMsg);
 		}
 	});
@@ -96,7 +95,7 @@ if (noFilesUpdated) {
 	console.log(chalk.cyan("No files needed updating."));
 } else {
 	updateMsgs.sort();
-	updateMsgs.forEach(updateMsg => {
+	updateMsgs.forEach((updateMsg) => {
 		console.log(chalk.cyan(updateMsg));
 	});
 }
@@ -113,4 +112,6 @@ const scriptVersionVar = (await repoClient.getVariables()).find((v) => v.name ==
 
 await repoClient.updateVariable(repoVarName, newVersion);
 
-console.log(chalk.cyan(`Updated repository variable '${repoVarName}' from version '${scriptVersionVar?.value}' to '${newVersion}'.`));
+console.log(
+	chalk.cyan(`Updated repository variable '${repoVarName}' from version '${scriptVersionVar?.value}' to '${newVersion}'.`),
+);
