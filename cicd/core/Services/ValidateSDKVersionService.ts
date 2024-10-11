@@ -19,7 +19,17 @@ export class ValidateSDKVersionService {
 	public validate(searchBaseDirPath: string, expectedSdkVersion: string): void {
 		Guard.isNothing(expectedSdkVersion, "validate");
 
+		expectedSdkVersion = expectedSdkVersion.trim().toLowerCase();
 		expectedSdkVersion = expectedSdkVersion.startsWith("v") ? expectedSdkVersion.substring(1) : expectedSdkVersion;
+
+		let sections = expectedSdkVersion.split(".");
+
+		if (sections.length >= 3) {
+			sections = [sections[0], sections[1]];
+		}
+
+		// Remove any x's from the version string
+		expectedSdkVersion = sections.filter((s) => s != "x").join(".");
 
 		if (!this.dotnetSDKVersionRegex.test(expectedSdkVersion.trim().toLowerCase())) {
 			Utils.printAsGitHubError(`The NET_SDK_VERSION variable is not a valid dotnet version: ${expectedSdkVersion}`);

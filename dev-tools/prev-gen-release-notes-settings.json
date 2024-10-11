@@ -23,7 +23,11 @@
         "Enhancements 💎": "💎enhancement",
         "Bug Fixes 🐛": "🐛bug",
         "Breaking Changes 🧨": "🧨breaking-changes",
-        "Dependency Updates 📦": "📦dependency-update"
+        "Dependency Updates 📦": "📦dependency-update",
+        "Technical Debt 🧽": "tech-debt",
+        "CICD ⚙️": "cicd",
+        "Configuration 🛠️": "⚙️config",
+        "Security 🛡️": "🛡️security"
     },
     "prCategoryLabelMappings": {
         "Dependency Updates 📦": "📦dependency-update"
@@ -42,7 +46,7 @@
         "Upgrade": "Upgraded",
         "Create": "Created",
         "Refactor": "Refactored",
-        "Removed": "Removed",
+        "Remove": "Removed",
         "Implement": "Implemented",
         "Move": "Moved",
         "Change": "Changed",
