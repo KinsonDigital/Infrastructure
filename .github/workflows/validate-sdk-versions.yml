@@ -46,8 +46,8 @@ jobs:
 
       - name: Validate SDK Versions
         env:
-          BASE_SEARCH_DIR_PATHL: "${{ github.workspace }}"
-          NET_SDK_VERSIONL: "${{ vars.NET_SDK_VERSION }}"
+          BASE_SEARCH_DIR_PATH: "${{ github.workspace }}"
+          NET_SDK_VERSION: "${{ vars.NET_SDK_VERSION }}"
         run: |
           # Construct the URL to the organizations CICD scripts
           $scriptUrl = "${{ vars.SCRIPT_BASE_URL }}/${{ vars.CICD_SCRIPTS_VERSION }}/${{ vars.SCRIPT_RELATIVE_DIR_PATH }}";
