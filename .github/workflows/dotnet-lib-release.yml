@@ -152,7 +152,7 @@ jobs:
         id: sdk-check
         continue-on-error: true
         env:
-          BASE_SEARCH_DIR_PATHL: "${{ github.workspace }}"
+          BASE_SEARCH_DIR_PATH: "${{ github.workspace }}"
           NET_SDK_VERSIONL: "${{ vars.NET_SDK_VERSION }}"
         run: |
           $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/validate-sdk-versions.ts";
