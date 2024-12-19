@@ -159,6 +159,22 @@ jobs:
 
           deno run -ER "$scriptUrl";
 
+      - name: Release Notes Exist
+        id: release-notes-check
+        continue-on-error: true
+        env:
+          TAG_NAME: "${{ needs.validate_version.outputs.version }}"
+          RELEASE_TYPE: "${{ inputs.release-type }}"
+        run: |
+          $baseDirPath = "${{ github.workspace }}";
+          $scriptDirPath = ".github/cicd-scripts";
+          $scriptFileName = "release-notes-exist.ts";
+          $scriptFilePath = "$baseDirPath/$scriptDirPath/$scriptFileName";
+
+          Write-Host "::notice::Release Notes Exist Script File Path: $scriptFilePath";
+
+          deno run -ER $scriptFilePath;
+
       - name: Package Does Not Exist
         id: package-check
         continue-on-error: true
@@ -210,6 +226,7 @@ jobs:
           $branchCheckFailed = "${{ steps.branch-check.outcome == 'failure' }}";
           $tagCheckFailed = "${{ steps.tag-check.outcome == 'failure' }}";
           $sdkCheckFailed = "${{ steps.sdk-check.outcome == 'failure' }}";
+          $notesFileCheckFailed = "${{ steps.release-notes-check.outcome == 'failure' }}";
           $packageCheckFailed = "${{ steps.package-check.outcome == 'failure' }}";
           $milestoneExistsCheckFailed = "${{ steps.milestone-exists-check.outcome == 'failure' }}";
           $milestoneCheckFailed = "${{ steps.milestone-check.outcome == 'failure' }}";
@@ -225,6 +242,10 @@ jobs:
 
           if ($sdkCheckFailed -eq "true") {
             Write-Host "::error::One or more of the SDK versions are invalid. Check each '.csproj' file.";
+          }
+
+          if ($notesFileCheckFailed -eq "true") {
+            Write-Host "::error::The release notes for version '${{ needs.validate_version.outputs.version }}' do not exist.";
           }
 
           if ($packageCheckFailed -eq "true") {
@@ -246,6 +267,7 @@ jobs:
           if ($branchCheckFailed -eq "true" `
               -or $tagCheckFailed -eq "true" `
               -or $sdkCheckFailed -eq "true" `
+              -or $notesFileCheckFailed -eq "true" `
               -or $packageCheckFailed -eq "true" `
               -or $milestoneExistsCheckFailed -eq "true" `
               -or $milestoneCheckFailed -eq "true" `

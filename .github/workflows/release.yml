@@ -103,11 +103,17 @@ jobs:
 
           deno run -ERN "$scriptUrl";
 
+      - name: Lowercase Release Type
+        id: release-type
+        run: |
+          $releaseType = "${{ inputs.release-type }}".ToLower();
+          "release-type=$releaseType" > "$env:GITHUB_OUTPUT";
+
       - name: Release Notes Does Not Exist 
         id: release-notes-check
         continue-on-error: true
         env:
-          RELEASE_NOTES_DIR_PATH: "${{ github.workspace }}/ReleaseNotes/${{ inputs.release-type }}Releases"
+          RELEASE_NOTES_DIR_PATH: "${{ github.workspace }}/release-notes/${{ steps.release-type.outputs.release-type }}-releases"
           VERSION: "${{ needs.get_validate_version.outputs.version }}"
         run: |
           $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/release-notes-do-not-exist.ts";
@@ -240,6 +246,12 @@ jobs:
           Write-Host "::notice::DotNet Lib Release Script URL: $url";
           "url=$url" >> "$env:GITHUB_OUTPUT";
 
+      - name: Lowercase Release Type
+        id: release-type
+        run: |
+          $releaseType = "${{ inputs.release-type }}".ToLower();
+          "release-type=$releaseType" > "$env:GITHUB_OUTPUT";
+
       - name: Create GitHub Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: ${{ inputs.dry-run == false }}
         uses: ncipollo/release-action@v1
@@ -248,8 +260,8 @@ jobs:
           tag: ${{ needs.get_validate_version.outputs.version }}
           owner: ${{ env.OWNER_NAME }}
           repo: ${{ env.REPO_NAME }}
-          bodyFile: "${{ github.workspace }}/ReleaseNotes/${{ inputs.release-type }}Releases/Release-Notes-${{ needs.get_validate_version.outputs.version }}.md"
-          artifacts: "${{ github.workspace }}/ReleaseNotes/${{ inputs.release-type }}Releases/Release-Notes-${{ needs.get_validate_version.outputs.version }}.md"
+          bodyFile: "${{ github.workspace }}/release-notes/${{ steps.release-type.outputs.release-type }}-releases/Release-Notes-${{ needs.get_validate_version.outputs.version }}.md"
+          artifacts: "${{ github.workspace }}/release-notes/${{ steps.release-type.outputs.release-type }}-releases/Release-Notes-${{ needs.get_validate_version.outputs.version }}.md"
           prerelease: ${{ inputs.release-type }} == 'Preview'
 
       - name: Close Milestone ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
