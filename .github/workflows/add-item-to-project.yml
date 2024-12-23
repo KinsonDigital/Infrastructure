@@ -82,4 +82,4 @@ jobs:
 
           Write-Host "::notice::NuGet Package Check Script URL: $scriptUrl";
 
-          deno run --allow-net --allow-read "$scriptUrl";
+          deno run -ERN "$scriptUrl";
