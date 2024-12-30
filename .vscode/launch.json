@@ -35,16 +35,16 @@
             "cwd": "${workspaceFolder}/cicd",
             "runtimeArgs": [
                 "run",
+				"-EN",
                 "--inspect-wait",
-                "--allow-all"
             ],
-            "args": [
-				"Infrastructure",
-				"24",
-				"pr",
-				"KD-Team",
-				"${env:CICD_TOKEN}",
-			],
+            "env": {
+				"REPO_OWNER": "KinsonDigital",
+				"REPO_NAME": "Velaptor",
+				"PROJECT_NAME": "KD-Team",
+				"ISSUE_OR_PR_NUMBER": "1063",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+			},
             "attachSimplePort": 9229,
             "windows": {
                 "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"

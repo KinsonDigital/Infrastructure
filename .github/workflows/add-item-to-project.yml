@@ -69,8 +69,8 @@ jobs:
       - name: Add To Project
         env:
           REPO_OWNER: "${{ inputs.org-name }}"
-          REPO_NAME: "${{ inputs.org-project-name }}"
-          PROJECT_NAME: "${{ inputs.repo-name }}"
+          REPO_NAME: "${{ inputs.repo-name }}"
+          PROJECT_NAME: "${{ inputs.org-project-name }}"
           ISSUE_OR_PR_NUMBER: "${{ inputs.item-number }}"
           GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
         run: |
@@ -82,4 +82,4 @@ jobs:
 
           Write-Host "::notice::NuGet Package Check Script URL: $scriptUrl";
 
-          deno run --allow-net --allow-read "$scriptUrl";
+          deno run -ERN "$scriptUrl";

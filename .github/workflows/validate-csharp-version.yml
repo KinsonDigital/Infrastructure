@@ -92,6 +92,6 @@ jobs:
           Write-Host "::notice::Validate DotNet Version Script URL: $scriptUrl";
 
           # Set the output of this step
-          "version=$releaseVersion" >> $env:GITHUB_OUTPUT;
+          "version=${{ steps.get-version.outputs.version }}" >> $env:GITHUB_OUTPUT;
 
           deno run -E "$scriptUrl";
