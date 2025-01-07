@@ -93,7 +93,7 @@ env:
 jobs:
   validate_version:
     name: Validate Version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v14.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v14.1.0
     with:
       project-name: "${{ inputs.project-name }}"
       release-type: "${{ inputs.release-type }}"
@@ -106,6 +106,9 @@ jobs:
     needs: [validate_version]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Set Up Deno
         uses: denoland/setup-deno@v2
         with:
@@ -139,7 +142,7 @@ jobs:
         continue-on-error: true
         env:
           RELEASE_TYPE: "${{ inputs.release-type }}"
-          TAG_NAME: "${{ needs.validate_version.outputs.version }}"
+          TAG_NAME: "v${{ needs.validate_version.outputs.version }}"
           GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
         run: |
           $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/validate-tag.ts";
@@ -163,17 +166,12 @@ jobs:
         id: release-notes-check
         continue-on-error: true
         env:
-          TAG_NAME: "${{ needs.validate_version.outputs.version }}"
+          TAG_NAME: "v${{ needs.validate_version.outputs.version }}"
           RELEASE_TYPE: "${{ inputs.release-type }}"
         run: |
-          $baseDirPath = "${{ github.workspace }}";
-          $scriptDirPath = ".github/cicd-scripts";
-          $scriptFileName = "release-notes-exist.ts";
-          $scriptFilePath = "$baseDirPath/$scriptDirPath/$scriptFileName";
+          $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/release-notes-exist.ts";
 
-          Write-Host "::notice::Release Notes Exist Script File Path: $scriptFilePath";
-
-          deno run -ER $scriptFilePath;
+          deno run -ER "$scriptUrl";
 
       - name: Package Does Not Exist
         id: package-check
@@ -190,29 +188,29 @@ jobs:
         id: milestone-exists-check
         continue-on-error: true
         env:
-          MILESTONE_TITLE: "${{ needs.validate_version.outputs.version }}"
+          MILESTONE_TITLE: "v${{ needs.validate_version.outputs.version }}"
           GITHUB_TOKEN: ${{ secrets.cicd-pat }}
         run: |
-          $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/nuget-pkg-does-not-exist.ts";
+          $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/milestone-exists.ts";
 
           deno run -ERNS "$scriptUrl";
 
       - name: Validate Milestone
         id: milestone-check
         env:
-          MILESTONE_TITLE: "${{ needs.validate_version.outputs.version }}"
+          MILESTONE_TITLE: "v${{ needs.validate_version.outputs.version }}"
           GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
         continue-on-error: true
         run: |
           $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/milestone-items-all-closed.ts";
 
-          deno run -EN "$scriptUrl";
+          deno run -ERN "$scriptUrl";
 
       - name: GitHub Release Does Not Exist 
         id: github-release-check
         continue-on-error: true
         env:
-          TAG_NAME: "${{ needs.validate_version.outputs.version }}"
+          TAG_NAME: "v${{ needs.validate_version.outputs.version }}"
           GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
         run: |
           $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/github-release-does-not-exist.ts";
@@ -279,7 +277,7 @@ jobs:
   build_project:
     name: Build Main Project
     needs: [run_prerelease_validation]
-    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v14.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v14.1.0
     with:
       project-name: "${{ inputs.project-name }}"
       runs-on: "${{ inputs.runs-on }}"
@@ -292,7 +290,7 @@ jobs:
   run_tests:
     name: Run Tests
     needs: [run_prerelease_validation]
-    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v14.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v14.1.0
     with:
       project-name: "${{ inputs.project-name }}Tests"
       runs-on: "${{ inputs.runs-on }}"
@@ -359,12 +357,6 @@ jobs:
           # Push the nuget package
           dotnet nuget push `
             "${{ github.workspace }}/${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}.$version.nupkg" `
-            --api-key ${{ secrets.nuget-org-api-key }} `
-            --source https://api.nuget.org/v3/index.json;
-
-          # Push the symbol package
-          dotnet nuget push `
-            "${{ github.workspace }}/${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}.$version.snupkg" `
             --api-key ${{ secrets.nuget-org-api-key }} `
             --source https://api.nuget.org/v3/index.json;
 
