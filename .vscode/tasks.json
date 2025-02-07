@@ -43,7 +43,7 @@
 				},
 				"args": [
 					"run",
-					"-ERWN",
+					"-ERWNS",
 					"${workspaceFolder}/.github/internal-cicd/scripts/update-workflow-versions.ts",
 				]
 			}
