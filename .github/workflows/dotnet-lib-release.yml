@@ -367,35 +367,17 @@ jobs:
 
       - name: Create GitHub Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: ${{ inputs.dry-run == false }}
-        env:
-          GH_TOKEN: ${{ secrets.CICD_TOKEN }}
-        run: |
-          $ownerRepoName = "${{ github.repository }}";
-
-          $tag = "${{ needs.validate_version.outputs.version }}".ToLower().Trim();
-          $tag = $tag.StartsWith("v") ? $tag : "v$tag";
-
-          $releaseType = "${{ inputs.release-type }}";
-          $version = "${{ needs.validate_version.outputs.version }}";
-
-          $title = $version;
-
-          $releaseDirPrefix = $releaseType.ToLower();
-          $releaseTypeDir = "$releaseDirPrefix-releases";
-          $fullReleaseNotesPath = "${{ github.workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md";
-
-          $isPreRelease = $releaseType -eq "Preview" ? "--prerelease" : "";
-
-          Write-Host "::notice::Release Notes File Path: $fullReleaseNotesPath";
-
-          gh release create $tag `
-            -R $ownerRepoName `
-            --target ${{ github.ref_name }} `
-            -t $title `
-            -F $fullReleaseNotesPath `
-            $isPreRelease `
-            $fullReleaseNotesPath;
-
+        uses: ncipollo/release-action@v1
+        with:
+          name: "🚀${{ inputs.release-type }} - ${{ needs.validate_version.outputs.version }}"
+          tag: ${{ needs.validate_version.outputs.version }}
+          owner: ${{ vars.ORGANIZATION_NAME }}
+          repo: ${{ inputs.project-name }}
+          bodyFile: "${{ github.workspace }}/ReleaseNotes/${{ inputs.release-type }}Releases/Release-Notes-${{ needs.validate_version.outputs.version }}.md"
+          artifacts: "${{ github.workspace }}/ReleaseNotes/${{ inputs.release-type }}Releases/Release-Notes-${{ needs.validate_version.outputs.version }}.md"
+          prerelease: ${{ inputs.release-type }} == 'Preview'
+          token: ${{ secrets.EA_CICD_TOKEN }}
+          
       - name: Close Milestone
         if: ${{ inputs.dry-run == false }}
         env:
