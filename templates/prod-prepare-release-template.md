@@ -7,6 +7,7 @@
 - [ ] All unit tests have been executed locally and have passed. _(Check out the appropriate release branch before running tests)_.
 - [ ] Auto-generated release notes have been reviewed and updated if necessary.
 - [ ] Manual QA Testing completed _(if applicable)_.
+- [ ] All reusable workflow versions have been updated to the this releases's version.
 - [ ] Release to **_production_** completed. _(The release is performed by running the `🚀Release` workflow)_.
 ```
 

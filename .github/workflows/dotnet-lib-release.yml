@@ -93,7 +93,7 @@ env:
 jobs:
   validate_version:
     name: Validate Version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v14.1.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v14.1.1
     with:
       project-name: "${{ inputs.project-name }}"
       release-type: "${{ inputs.release-type }}"
@@ -142,7 +142,7 @@ jobs:
         continue-on-error: true
         env:
           RELEASE_TYPE: "${{ inputs.release-type }}"
-          TAG_NAME: "v${{ needs.validate_version.outputs.version }}"
+          TAG_NAME: "${{ needs.validate_version.outputs.version }}"
           GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
         run: |
           $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/validate-tag.ts";
@@ -166,7 +166,7 @@ jobs:
         id: release-notes-check
         continue-on-error: true
         env:
-          TAG_NAME: "v${{ needs.validate_version.outputs.version }}"
+          TAG_NAME: "${{ needs.validate_version.outputs.version }}"
           RELEASE_TYPE: "${{ inputs.release-type }}"
         run: |
           $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/release-notes-exist.ts";
@@ -188,7 +188,7 @@ jobs:
         id: milestone-exists-check
         continue-on-error: true
         env:
-          MILESTONE_TITLE: "v${{ needs.validate_version.outputs.version }}"
+          MILESTONE_TITLE: "${{ needs.validate_version.outputs.version }}"
           GITHUB_TOKEN: ${{ secrets.cicd-pat }}
         run: |
           $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/milestone-exists.ts";
@@ -198,7 +198,7 @@ jobs:
       - name: Validate Milestone
         id: milestone-check
         env:
-          MILESTONE_TITLE: "v${{ needs.validate_version.outputs.version }}"
+          MILESTONE_TITLE: "${{ needs.validate_version.outputs.version }}"
           GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
         continue-on-error: true
         run: |
@@ -210,7 +210,7 @@ jobs:
         id: github-release-check
         continue-on-error: true
         env:
-          TAG_NAME: "v${{ needs.validate_version.outputs.version }}"
+          TAG_NAME: "${{ needs.validate_version.outputs.version }}"
           GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
         run: |
           $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/github-release-does-not-exist.ts";
@@ -277,7 +277,7 @@ jobs:
   build_project:
     name: Build Main Project
     needs: [run_prerelease_validation]
-    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v14.1.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v14.1.1
     with:
       project-name: "${{ inputs.project-name }}"
       runs-on: "${{ inputs.runs-on }}"
@@ -290,7 +290,7 @@ jobs:
   run_tests:
     name: Run Tests
     needs: [run_prerelease_validation]
-    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v14.1.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v14.1.1
     with:
       project-name: "${{ inputs.project-name }}Tests"
       runs-on: "${{ inputs.runs-on }}"
