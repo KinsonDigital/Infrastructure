@@ -238,7 +238,7 @@ jobs:
             exit 0;
           }
 
-          deno run -EN "${{ github.workspace }}/.github/internal-cicd/scripts/update-workflow-versions.ts";
+          deno run -ERWN "${{ github.workspace }}/.github/internal-cicd/scripts/update-workflow-versions.ts";
 
           $releaseType = "${{ inputs.release-type }}";
 
