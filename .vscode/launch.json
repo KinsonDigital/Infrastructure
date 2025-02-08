@@ -610,5 +610,31 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
 			}
         },
+		{ // UPDATE CICD SCRIPT VERSION
+            "name": "Update CICD Script Version",
+            "request": "launch",
+            "type": "node",
+            "program": "${workspaceFolder}/.github/internal-cicd/scripts/update-cicd-script-version.ts",
+            "cwd": "${workspaceFolder}",
+            "runtimeArgs": [
+                "run",
+				"-EN",
+                "--inspect-wait",
+            ],
+			"env": {
+				"OWNER_NAME": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
+				"CICD_SCRIPTS_VERSION_REPO_VAR_NAME": "CICD_SCRIPTS_VERSION",
+				"VERSION": "v1.2.3",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+			},
+            "attachSimplePort": 9229,
+            "windows": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
+            },
+            "linux": {
+                "runtimeExecutable": "${userHome}/.deno/bin/deno"
+			}
+        },
     ]
 }
