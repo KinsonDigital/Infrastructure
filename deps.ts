@@ -30,9 +30,6 @@ import {
 	UserModel,
 } from "https://deno.land/x/kd_clients@v1.0.0-preview.8/core/Models/mod.ts";
 
-// CLIFFY
-import { Input } from "https://deno.land/x/cliffy@v1.0.0-rc.3/prompt/input.ts";
-
 // NPM PACKAGES
 import chalk from "npm:chalk@5.3.0";
 
@@ -63,9 +60,6 @@ export {
 	XClient,
 };
 export type { GitHubVarModel, IssueModel, LabelModel, MilestoneModel, ProjectModel, PullRequestModel, UserModel };
-
-// CLIFFY
-export { Input };
 
 // NPM PACKAGES
 export default chalk;
