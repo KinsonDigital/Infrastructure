@@ -150,7 +150,7 @@ jobs:
           }
 
           if ($workflowVersionsCheckCheckFailed -eq "true") {
-            Write-Host "::error::The one or more reusable workflow versions haver not been updated.";
+            Write-Host "::error::The one or more reusable workflow versions have not been updated.";
           }
 
           if ($milestoneExistsCheckFailed -eq "true" `
