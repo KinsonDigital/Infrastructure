@@ -134,7 +134,7 @@ jobs:
 
           # Verify that the build config is only 'Debug' or 'Release'
           if ($buildConfig -ne "Debug" -and $buildConfig -ne "Release") {
-            Write-Host "::error::The build configuration '$buildConfig' is invalid.  Expsting a value of 'Debug' or 'Release'.";
+            Write-Host "::error::The build configuration '$buildConfig' is invalid.  Expecting a value of 'Debug' or 'Release'.";
             exit 1;
           }
 
@@ -183,8 +183,7 @@ jobs:
     uses: KinsonDigital/Infrastructure/.github/workflows/validate-sdk-versions.yml@v14.2.0
     with:
       repo-name: "${{ inputs.project-name }}"
-    secrets:
-      cicd-pat: "${{ secrets.cicd-pat }}"
+
 
   validate_release_notes_exist:
     name: Validate Release Notes Exist
@@ -198,7 +197,7 @@ jobs:
         run: |
           $relativeDirPath = "${{ inputs.relative-release-notes-dir-path }}";
         
-          # Remove all leading forwaard slashes until none are left
+          # Remove all leading forward slashes until none are left
           $relativeDirPath = $relativeDirPath.Replace("\", "/");
           $relativeDirPath = $relativeDirPath.TrimStart("/").TrimEnd("/");
 
