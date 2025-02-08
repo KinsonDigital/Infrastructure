@@ -1,55 +1,36 @@
-import { Directory, Input, RepoClient, TagClient } from "../../../deps.ts";
-import chalk from "../../../deps.ts";
-import { File } from "../../../cicd/core/File.ts";
-import { Utils } from "../../../cicd/core/Utils.ts";
+import { existsSync, walkSync } from "jsr:@std/fs@1.0.11";
+import { Input } from "jsr:@cliffy/prompt@1.0.0-rc.7";
+import { RepoClient, TagClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.14";
 import getEnvVar from "../../../cicd/core/GetEnvVar.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
-let baseDirPath = getEnvVar("BASE_DIR_PATH", scriptFileName);
+const ownerName = getEnvVar("OWNER_NAME", scriptFileName);
+const repoName = getEnvVar("REPO_NAME", scriptFileName);
+const baseDirPath = getEnvVar("BASE_DIR_PATH", scriptFileName);
 const token = getEnvVar("GITHUB_TOKEN", scriptFileName);
+const newVersion = getEnvVar("NEW_VERSION", scriptFileName);
 
-baseDirPath = Utils.normalizePath(baseDirPath.trim());
-
-if (!Directory.Exists(baseDirPath)) {
-	console.log(chalk.red(`Directory '${baseDirPath}' does not exist.`));
+if (!existsSync(baseDirPath)) {
+	console.log(`%cDirectory '${baseDirPath}' does not exist.`, "color: red");
 	Deno.exit(0);
 }
-
-// Clear the console so the token is not visible from the tasks.json file
-console.clear();
 
 const tagRegex = /v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)(-preview\.([1-9]\d*))?/gm;
 
-const newVersion = await Input.prompt({
-	message: chalk.blue("Enter version to upgrade workflows to:"),
-	hint: "Use a tag with the syntax 'v#.#.#'.",
-	minLength: 5,
-	validate: (value) => {
-		return tagRegex.test(value.trim().toLowerCase());
-	},
-	transform: (value) => {
-		value = value.trim().toLowerCase();
-
-		return value.startsWith("v") ? value : `v${value}`;
-	},
-});
-
-const ownerName = "KinsonDigital";
-const repoName = "Infrastructure";
-const allFiles = Directory.getFiles(baseDirPath, true);
-
-const yamlFiles = allFiles.filter((file) => file.toLowerCase().endsWith(".yaml") || file.toLowerCase().endsWith(".yml"));
-const tagClient: TagClient = new TagClient(ownerName, repoName, token);
-
-const allTags = (await tagClient.getAllTags()).map((t) => t.name);
-
-// If the new tag already exists, throw an error
-if (allTags.includes(newVersion)) {
-	console.log(chalk.red(`Tag '${newVersion}' already exists.`));
+if (!tagRegex.test(newVersion)) {
+	console.log(`%cThe version '${newVersion}' is not a valid version number.`, "color: red");
 	Deno.exit(0);
 }
 
+
+const walkResult = walkSync(baseDirPath, {
+	includeDirs: false,
+	includeFiles: true,
+	exts: [".yml", ".yaml"],
+});
+
+const yamlFiles = Array.from(walkResult).map((e) => e.path);
 const reusableWorkflowRegex = /uses: .+.(yml|yaml)@v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)(-preview\.([1-9]\d*))?/gm;
 
 const updateMsgs: string[] = [];
@@ -57,7 +38,7 @@ let noFilesUpdated = true;
 
 // Search for workflow references with a version that has not been updated
 yamlFiles.forEach((yamlFile) => {
-	let fileContent = File.LoadFile(yamlFile);
+	let fileContent = Deno.readTextFileSync(yamlFile);
 
 	const possibleUpdates = fileContent.match(reusableWorkflowRegex)?.map((w) => w) ?? [];
 
@@ -86,25 +67,25 @@ yamlFiles.forEach((yamlFile) => {
 	// If anything has been updated, save the file
 	if (fileUpdated) {
 		// Save the changes to the file
-		File.SaveFile(yamlFile, fileContent);
+		Deno.writeTextFileSync(yamlFile, fileContent);
 	}
 });
 
 // If no files were updated
 if (noFilesUpdated) {
-	console.log(chalk.cyan("No files needed updating."));
+	console.log("%cNo files needed updating.", "color: cyan");
 } else {
 	updateMsgs.sort();
 	updateMsgs.forEach((updateMsg) => {
-		console.log(chalk.cyan(updateMsg));
+		console.log(`%c${updateMsg}`, "color: cyan");
 	});
 }
 
 const repoVarName = "CICD_SCRIPTS_VERSION";
 const repoClient = new RepoClient(ownerName, repoName, token);
 
-if (!(await repoClient.repoVariableExists(repoVarName))) {
-	console.log(chalk.red(`The repository variable '${repoVarName}' does not exist.`));
+if (!(await repoClient.variableExists(repoVarName))) {
+	console.log(`%cThe repository variable '${repoVarName}' does not exist.`, "color: red");
 	Deno.exit(0);
 }
 
@@ -112,6 +93,5 @@ const scriptVersionVar = (await repoClient.getVariables()).find((v) => v.name ==
 
 await repoClient.updateVariable(repoVarName, newVersion);
 
-console.log(
-	chalk.cyan(`Updated repository variable '${repoVarName}' from version '${scriptVersionVar?.value}' to '${newVersion}'.`),
-);
+const msg = `%cUpdated repository variable '${repoVarName}' from version '${scriptVersionVar?.value}' to '${newVersion}'.`;
+console.log(msg, "color: cyan");
