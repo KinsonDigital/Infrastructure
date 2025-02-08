@@ -402,7 +402,10 @@
                 "--inspect-wait",
             ],
             "env": {
+				"OWNER_NAME": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
 				"BASE_DIR_PATH": "${workspaceFolder}/.github/workflows",
+				"NEW_VERSION": "v1.2.3",
 				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
 			},
             "attachSimplePort": 9229,
