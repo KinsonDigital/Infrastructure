@@ -398,7 +398,7 @@
             "cwd": "${workspaceFolder}",
             "runtimeArgs": [
                 "run",
-				"-ENRWS",
+				"-ERWN",
                 "--inspect-wait",
             ],
             "env": {
