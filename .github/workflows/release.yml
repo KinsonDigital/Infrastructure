@@ -275,3 +275,16 @@ jobs:
           }
         
           deno run -ERN "${{ steps.script-url.outputs.url }}/close-milestone.ts";
+
+      - name: Update CICD Script Version Repo Var ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
+        env:
+          CICD_SCRIPTS_VERSION_REPO_VAR_NAME: "CICD_SCRIPTS_VERSION"
+          VERSION: "${{ needs.get_validate_version.outputs.version }}"
+          GITHUB_TOKEN: "${{ secrets.CICD_TOKEN }}"
+        run: |
+          if ("${{ inputs.dry-run == true }}" -eq "true") {
+            Write-Host "::notice::Updating 'CICD_SCRIPTS_VERSION' repository variable ...";
+            exit 0;
+          }
+        
+          deno run -EN "${{ github.workspace }}/.github/internal-cicd/scripts/update-cicd-script-version.ts";
