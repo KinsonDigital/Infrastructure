@@ -116,7 +116,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup Node (v${{ inputs.node-version }})
+    - name: Set Up Node (v${{ inputs.node-version }})
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
@@ -124,13 +124,13 @@ jobs:
     - name: Setup YARN
       run: npm install --global yarn
 
-    - name: Setup Docusaurus
+    - name: Set Up Docusaurus
       run: yarn install
 
     - name: Build Site
       run: yarn build
 
-    - name: Setup Pages
+    - name: Set Up Pages
       uses: actions/configure-pages@v5
 
     - name: Upload Artifact

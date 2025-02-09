@@ -168,7 +168,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Deno (${{ vars.DENO_VERSION }})
+      - name: Set Up Deno (${{ vars.DENO_VERSION }})
         uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ vars.DENO_VERSION }}
@@ -184,7 +184,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Deno (${{ vars.DENO_VERSION }})
+      - name: Set Up Deno (${{ vars.DENO_VERSION }})
         uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ vars.DENO_VERSION }}

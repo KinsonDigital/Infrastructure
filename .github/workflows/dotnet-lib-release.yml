@@ -309,12 +309,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup .NET SDK
+      - name: Set Up .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "${{ inputs.net-sdk-version }}"
 
-      - name: Setup Nuget
+      - name: Set Up Nuget
         uses: NuGet/setup-nuget@v2
 
       - name: Set Up Deno (${{ vars.DENO_VERSION }})
