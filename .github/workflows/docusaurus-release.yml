@@ -121,14 +121,16 @@ jobs:
       with:
         node-version: ${{ inputs.node-version }}
 
-    - name: Setup YARN
-      run: npm install --global yarn
+    - name: Setup PNPM (${{ vars.PNPM_VERSION }})
+      uses: pnpm/action-setup@v4
+      with:
+        version: ${{ vars.PNPM_VERSION }}
 
     - name: Set Up Docusaurus
-      run: yarn install
+      run: pnpm install
 
     - name: Build Site
-      run: yarn build
+      run: pnpm exec docusaurus build
 
     - name: Set Up Pages
       uses: actions/configure-pages@v5
