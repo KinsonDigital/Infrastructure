@@ -588,31 +588,6 @@
                 "runtimeExecutable": "${userHome}/.deno/bin/deno"
 			}
         },
-		{ // CHECK WORKFLOW VERSIONS
-            "name": "Check Workflow Versions",
-            "request": "launch",
-            "type": "node",
-            "program": "${workspaceFolder}/cicd/scripts/check-workflow-versions.ts",
-            "cwd": "${workspaceFolder}",
-            "runtimeArgs": [
-                "run",
-				"-ERN",
-                "--inspect-wait",
-            ],
-			"env": {
-				"OWNER_NAME": "KinsonDigital",
-				"REPO_NAME": "Infrastructure",
-				"BASE_DIR_PATH": "${workspaceFolder}/.github/workflows",
-				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
-			},
-            "attachSimplePort": 9229,
-            "windows": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
-            },
-            "linux": {
-                "runtimeExecutable": "${userHome}/.deno/bin/deno"
-			}
-        },
 		{ // UPDATE CICD SCRIPT VERSION
             "name": "Update CICD Script Version",
             "request": "launch",
