@@ -77,7 +77,7 @@ jobs:
     name: Validate Tag
     runs-on: ubuntu-latest
     steps:
-      - name: Set Up Deno
+      - name: Set Up Deno (${{ vars.DENO_VERSION }})
         uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ vars.DENO_VERSION }}

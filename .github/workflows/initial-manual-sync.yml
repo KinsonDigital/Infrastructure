@@ -78,7 +78,7 @@ jobs:
 
           "$stepOutput" >> $env:GITHUB_OUTPUT;
 
-      - name: Set Up Deno
+      - name: Set Up Deno (${{ vars.DENO_VERSION }})
         if: ${{ steps.skip-checking.outputs.skip == 'false' }}
         uses: denoland/setup-deno@v2
         with:

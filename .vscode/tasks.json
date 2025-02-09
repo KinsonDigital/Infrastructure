@@ -28,25 +28,5 @@
 				"${workspaceFolder}/.github/cicd",
 			]
 		},
-		{ // UPDATE WORKFLOW VERSIONS
-			"label": "Update Workflow Versions",
-			"detail": "Updates all of the reusuable workflow versions.",
-			"type": "shell",
-			"dependsOn": ["clear-terminal"],
-			"windows": {
-				"command": "deno",
-				"options": {
-					"env": {
-						"BASE_DIR_PATH": "${workspaceFolder}/.github/workflows",
-						"GITHUB_TOKEN": "${env:CICD_TOKEN}",
-					}
-				},
-				"args": [
-					"run",
-					"-ERWNS",
-					"${workspaceFolder}/.github/internal-cicd/scripts/update-workflow-versions.ts",
-				]
-			}
-		}
     ]
 }

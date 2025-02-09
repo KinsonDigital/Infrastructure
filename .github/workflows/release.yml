@@ -55,7 +55,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set Up Deno
+      - name: Set Up Deno (${{ vars.DENO_VERSION }})
         uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ vars.DENO_VERSION }}
@@ -71,15 +71,6 @@ jobs:
           Write-Host "::notice::Script Base URL: $scriptUrl";
 
           "url=$scriptUrl" >> $env:GITHUB_OUTPUT;
-
-      - name: Branch Check
-        id: branch-check
-        continue-on-error: true
-        run: |
-          if ("${{ github.ref_name }}" -ne "main") {
-            Write-Host "::error::The branch '$branch' is invalid.  Please only run on the 'main' branch.";
-            exit 1;
-          }
 
       - name: Milestone Exists
         id: milestone-exists-check
@@ -135,26 +126,12 @@ jobs:
 
           deno run -ERN "$scriptUrl";
     
-      - name: Check Reusable Workflow Versions
-        id: workflow-versions-check
-        continue-on-error: true
-        env:
-          BASE_DIR_PATH: "${{ github.workspace }}/.github/workflows"
-          GITHUB_TOKEN: "${{ secrets.CICD_TOKEN }}"
-        run: deno run -ERN "${{ steps.build-script-base-url.outputs.url }}/check-workflow-versions.ts";
-
       - name: Should Fail Job
         run: |
-          $branchCheckFailed = "${{ steps.branch-check.outcome == 'failure' }}";
           $milestoneExistsCheckFailed = "${{ steps.milestone-exists-check.outcome == 'failure' }}";
           $milestoneCheckFailed = "${{ steps.milestone-check.outcome == 'failure' }}";
           $releaseNotesCheckFailed = "${{ steps.release-notes-check.outcome == 'failure' }}";
           $githubReleaseCheckFailed = "${{ steps.github-release-check.outcome == 'failure' }}";
-          $workflowVersionsCheckCheckFailed = "${{ steps.workflow-versions-check.outcome == 'failure' }}";
-
-          if ($branchCheckFailed -eq "true") {
-            Write-Host "::error::The branch is invalid.  Check the 'run-branch' workflow input.";
-          }
 
           if ($milestoneExistsCheckFailed -eq "true") {
             Write-Host "::error::The milestone '${{ needs.get_validate_version.outputs.version }}' does not exist.";
@@ -173,15 +150,13 @@ jobs:
           }
 
           if ($workflowVersionsCheckCheckFailed -eq "true") {
-            Write-Host "::error::The one or more reusable workflow versions haver not been updated.";
+            Write-Host "::error::The one or more reusable workflow versions have not been updated.";
           }
 
-          if ($branchCheckFailed -eq "true" `
-              -or $milestoneExistsCheckFailed -eq "true" `
+          if ($milestoneExistsCheckFailed -eq "true" `
               -or $milestoneCheckFailed -eq "true" `
               -or $releaseNotesCheckFailed -eq "true" `
-              -or $githubReleaseCheckFailed -eq "true" `
-              -or $workflowVersionsCheckCheckFailed -eq "true") {
+              -or $githubReleaseCheckFailed -eq "true") {
             exit 1;
           }
 
@@ -193,7 +168,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Deno (${{ vars.DENO_VERSION }})
+      - name: Set Up Deno (${{ vars.DENO_VERSION }})
         uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ vars.DENO_VERSION }}
@@ -209,7 +184,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Deno (${{ vars.DENO_VERSION }})
+      - name: Set Up Deno (${{ vars.DENO_VERSION }})
         uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ vars.DENO_VERSION }}
@@ -226,11 +201,15 @@ jobs:
     name: Perform ${{ inputs.release-type }} Release
     runs-on: ubuntu-latest
     needs: [get_validate_version, run_prerelease_validation, build, lint]
+    permissions:
+      contents: write
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.CICD_TOKEN }}
 
-      - name: Set Up Deno
+      - name: Set Up Deno (${{ vars.DENO_VERSION }})
         uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ vars.DENO_VERSION }}
@@ -251,6 +230,28 @@ jobs:
         run: |
           $releaseType = "${{ inputs.release-type }}".ToLower();
           "release-type=$releaseType" > "$env:GITHUB_OUTPUT";
+
+      - name: Update Reusable Workflow Versions ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
+        env:
+          BASE_DIR_PATH: "${{ github.workspace }}/.github/workflows"
+          NEW_VERSION: "${{ needs.get_validate_version.outputs.version }}"
+          GITHUB_TOKEN: "${{ secrets.CICD_TOKEN }}"
+        run: |
+          if ("${{ inputs.dry-run == true }}" -eq "true") {
+            Write-Host "::notice::Updating 'CICD_SCRIPTS_VERSION' repository variable ...";
+            exit 0;
+          }
+
+          deno run -ERWN "${{ github.workspace }}/.github/internal-cicd/scripts/update-workflow-versions.ts";
+
+          $releaseType = "${{ inputs.release-type }}";
+
+          git config --global user.email "${{ vars.GIT_CONFIG_EMAIL }}";
+          git config --global user.name "CICD Release Script - (On behalf of Calvin Wilkinson)"; 
+
+          git add -A;
+          git commit -m "🚀$releaseType (${{ needs.get_validate_version.outputs.version }}) - Update reusable workflow versions";
+          git push;
 
       - name: Create GitHub Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: ${{ inputs.dry-run == false }}
@@ -275,3 +276,16 @@ jobs:
           }
         
           deno run -ERN "${{ steps.script-url.outputs.url }}/close-milestone.ts";
+
+      - name: Update CICD Script Version Repo Var ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
+        env:
+          CICD_SCRIPTS_VERSION_REPO_VAR_NAME: "CICD_SCRIPTS_VERSION"
+          VERSION: "${{ needs.get_validate_version.outputs.version }}"
+          GITHUB_TOKEN: "${{ secrets.CICD_TOKEN }}"
+        run: |
+          if ("${{ inputs.dry-run == true }}" -eq "true") {
+            Write-Host "::notice::Updating 'CICD_SCRIPTS_VERSION' repository variable ...";
+            exit 0;
+          }
+
+          deno run -EN "${{ github.workspace }}/.github/internal-cicd/scripts/update-cicd-script-version.ts";

@@ -110,7 +110,7 @@ jobs:
           repository: ${{ inputs.checkout-repository }}
           ref: ${{ inputs.checkout-ref }}
 
-      - uses: actions/setup-dotnet@v3
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ inputs.net-sdk-version }}
 
