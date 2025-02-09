@@ -109,7 +109,7 @@ jobs:
           ref: ${{ inputs.checkout-ref }}
 
       - name: Setup .NET SDK ${{ inputs.net-sdk-version }}
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ inputs.net-sdk-version }}
 

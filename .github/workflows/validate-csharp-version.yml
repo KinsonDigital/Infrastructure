@@ -62,7 +62,7 @@ jobs:
     steps:
       - name: Get Version From Project File
         id: get-version
-        uses: KinsonDigital/VersionMiner@v1.0.0-preview.5
+        uses: KinsonDigital/VersionMiner@v1.0.0
         with:
           repo-owner: ${{ vars.ORGANIZATION_NAME }}
           repo-name: ${{ inputs.project-name }}
