@@ -1,5 +1,5 @@
 {
-    "version": "v14.2.0",
+    "version": "v14.3.0",
     "tasks": {
         "check": "deno check ./**/*.ts",
         "lint": "deno lint ./**/*.ts",
