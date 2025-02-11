@@ -8,19 +8,14 @@
         "reload-cache": "deno cache ./**/*.ts"
     },
     "lint": {
-        "include": [
-            "cicd/"
-        ],
         "exclude": [
             "**/playground.ts"
         ]
     },
     "fmt": {
-        "include": [
-            "cicd/"
-        ],
         "exclude": [
-            "**/*.md"
+            "**/*.md",
+            "**/playground.ts"
         ],
         "useTabs": true,
         "lineWidth": 130,
