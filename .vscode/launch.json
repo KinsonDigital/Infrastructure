@@ -614,5 +614,27 @@
 				"runtimeExecutable": "${userHome}/.deno/bin/deno"
 			}
 		},
-    ]
+		{ // UPDATE COPYRIGHT
+			"name": "Update Copyright",
+			"request": "launch",
+			"type": "node",
+			"program": "${workspaceFolder}/cicd/scripts/update-copyright.ts",
+			"cwd": "${workspaceFolder}",
+			"runtimeArgs": [
+				"run",
+				"-ERW",
+				"--inspect-wait",
+			],
+			"env": {
+				"CS_PROJ_FILE_NAME": "csharp.csproj"
+			},
+			"attachSimplePort": 9229,
+			"windows": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
+			},
+			"linux": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno"
+			}
+		},
+	]
 }
