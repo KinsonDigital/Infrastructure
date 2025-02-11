@@ -8,19 +8,14 @@
         "reload-cache": "deno cache ./**/*.ts"
     },
     "lint": {
-        "include": [
-            "cicd/"
-        ],
         "exclude": [
             "**/playground.ts"
         ]
     },
     "fmt": {
-        "include": [
-            "cicd/"
-        ],
         "exclude": [
-            "**/*.md"
+            "**/*.md",
+            "**/playground.ts"
         ],
         "useTabs": true,
         "lineWidth": 130,
@@ -29,7 +24,7 @@
         "singleQuote": false
     },
     "imports": {
-        "@std/fs": "jsr:@std/fs@^1.0.4",
-        "@std/path": "jsr:@std/path@^1.0.6"
+        "@std/fs": "jsr:@std/fs@^1.0.11",
+        "@std/path": "jsr:@std/path@^1.0.8"
     }
 }

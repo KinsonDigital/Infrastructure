@@ -339,6 +339,9 @@ jobs:
           BASE_DIR_PATH: "${{ github.workspace }}" 
         run: deno run -ERW "${{ steps.script-url.outputs.url }}/transpile-readme.ts";
 
+      - name: Update Copyright
+        run: deno run -ERW "${{ steps.script-url.outputs.url }}/update-copyright.ts";
+
       - name: Create Nuget Package
         run: |
           dotnet pack `
