@@ -1,4 +1,4 @@
-import { existsSync, walkSync } from "@std/fs";
+import { existsSync, walkSync } from "jsr:@std/fs@1.0.19";
 import getEnvVar from "../core/GetEnvVar.ts";
 import { Utils } from "../core/Utils.ts";
 

@@ -16,7 +16,7 @@ import {
 	RepoClient,
 	TagClient,
 	UsersClient,
-} from "https://deno.land/x/kd_clients@v1.0.0-preview.8/GitHubClients/mod.ts";
+} from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
 import { XClient } from "https://deno.land/x/kd_clients@v1.0.0-preview.8/OtherClients/mod.ts";
 import { NuGetClient } from "https://deno.land/x/kd_clients@v1.0.0-preview.8/PackageClients/mod.ts";
 
