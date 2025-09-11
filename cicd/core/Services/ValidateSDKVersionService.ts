@@ -61,7 +61,7 @@ export class ValidateSDKVersionService {
 				} catch (error) {
 					const errMsg = error instanceof Error
 						? error.message
-						: "An error occurred getting the csproj target framework version.";
+						: `Failed to get target framework version for file '${csProjFile}': ${String(error)}`;
 					nonMatchingVersions.push([csProjFile, errMsg]);
 				}
 
