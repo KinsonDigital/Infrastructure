@@ -22,7 +22,6 @@ if (!tagRegex.test(newVersion)) {
 	Deno.exit(0);
 }
 
-
 const walkResult = walkSync(baseDirPath, {
 	includeDirs: false,
 	includeFiles: true,

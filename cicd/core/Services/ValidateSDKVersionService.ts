@@ -59,7 +59,9 @@ export class ValidateSDKVersionService {
 				try {
 					currentSdkVersion = this.getCSProjTargetFrameworkVersion(fileData).replace("net", "");
 				} catch (error) {
-					const errMsg = error instanceof Error ? error.message : "An error occurred getting the csproj target framework version.";
+					const errMsg = error instanceof Error
+						? error.message
+						: "An error occurred getting the csproj target framework version.";
 					nonMatchingVersions.push([csProjFile, errMsg]);
 				}
 

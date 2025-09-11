@@ -29,5 +29,5 @@ try {
 		console.error(error);
 	}
 
-	Deno.exit(1);	
+	Deno.exit(1);
 }
