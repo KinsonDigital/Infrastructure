@@ -4,10 +4,13 @@ import { Utils } from "../../cicd/core/Utils.ts";
 
 const scriptName = import.meta.url.split("/").pop();
 
-const tagName = getEnvVar("TAG_NAME", scriptName);
-const releaseType = getEnvVar("RELEASE_TYPE", scriptName);
+let relativeNotesDirPath = getEnvVar("RELATIVE_RELEASE_NOTES_DIR_PATH", scriptName);
+relativeNotesDirPath = Utils.trimPathBothEnds(relativeNotesDirPath);
 
-const releaseNotesFilePath = `./ReleaseNotes/${releaseType}Releases/Release-Notes-${tagName}.md`;
+const releaseType = getEnvVar("RELEASE_TYPE", scriptName);
+const tagName = getEnvVar("TAG_NAME", scriptName);
+
+const releaseNotesFilePath = `./${relativeNotesDirPath}/${releaseType}Releases/Release-Notes-${tagName}.md`;
 
 if (!existsSync(releaseNotesFilePath)) {
 	const errorMsg = `The release notes file for version '${tagName}' does not exist.` +

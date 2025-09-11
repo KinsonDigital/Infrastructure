@@ -166,8 +166,9 @@ jobs:
         id: release-notes-check
         continue-on-error: true
         env:
-          TAG_NAME: "${{ needs.validate_version.outputs.version }}"
+          RELATIVE_RELEASE_NOTES_DIR_PATH: "${{ inputs.relative-release-notes-dir-path }}"
           RELEASE_TYPE: "${{ inputs.release-type }}"
+          TAG_NAME: "${{ needs.validate_version.outputs.version }}"
         run: |
           $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/release-notes-exist.ts";
 

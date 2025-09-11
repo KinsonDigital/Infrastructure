@@ -604,4 +604,39 @@ export class Utils {
 
 		return this.splitBy(value, ",");
 	}
+
+	/**
+	 * Trims the given path by removing any leading or trailing slashes or periods.
+	 * @param value The path to trim.
+	 * @returns The trimmed path.
+	 */
+	public static trimPathBothEnds(value: string) {
+		const startWithDotRegex = /^\.+/gm;
+		const startWithForwardSlashRegex = /^[\/\\]+/gm;
+		const startWithBackSlashRegex = /^[\\]+/gm;
+		const endsWithForwardSlashRegex = /[\/\\]+$/gm;
+		const endsWithBackSlashRegex = /[\\]+$/gm;
+
+		while (startWithDotRegex.test(value)) {
+			value = value.replace(startWithDotRegex, "");
+		}
+
+		while (startWithForwardSlashRegex.test(value)) {
+			value = value.replace(startWithForwardSlashRegex, "");
+		}
+
+		while (startWithBackSlashRegex.test(value)) {
+			value = value.replace(startWithBackSlashRegex, "");
+		}
+
+		while (endsWithForwardSlashRegex.test(value)) {
+			value = value.replace(endsWithForwardSlashRegex, "");
+		}
+
+		while (endsWithBackSlashRegex.test(value)) {
+			value = value.replace(endsWithBackSlashRegex, "");
+		}
+
+		return value;
+	}
 }
