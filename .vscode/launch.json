@@ -233,8 +233,8 @@
 				"runtimeExecutable": "${userHome}/.deno/bin/deno"
 			}
 		},
-		{ // SEND RELEASE TWEET
-			"name": "Send Release Tweet",
+		{ // SEND RELEASE POST
+			"name": "Send Release Post",
 			"request": "launch",
 			"type": "node",
 			"program": "${workspaceFolder}/cicd/scripts/send-release-x-post.ts",
@@ -251,7 +251,7 @@
 				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
 				"RELEASE_X_POST_TEMPLATE_REPO_NAME": "Infrastructure",
 				"RELEASE_X_POST_TEMPLATE_BRANCH_NAME": "main",
-				"RELATIVE_RELEASE_X_POST_TEMPLATE_FILE_PATH": "cicd/templates/release-tweet-template.txt",
+				"RELATIVE_RELEASE_X_POST_TEMPLATE_FILE_PATH": "cicd/templates/release-x-post-template.txt",
 				"DISCORD_INVITE_CODE": "qewu6fNgv7",
 				"X_BROADCAST_ENABLED": "true",
 				"X_ACCESS_TOKEN_KEY": "${env:X_ACCESS_TOKEN_KEY}",
