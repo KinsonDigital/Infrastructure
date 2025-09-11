@@ -374,11 +374,11 @@ jobs:
           RELEASE_TWEET_TEMPLATE_BRANCH_NAME: "${{ vars.RELEASE_TWEET_TEMPLATE_BRANCH_NAME }}"
           RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH: "${{ vars.RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH }}"
           DISCORD_INVITE_CODE: "${{ vars.DISCORD_INVITE_CODE }}"
-          TWITTER_BROADCAST_ENABLED: "${{ vars.X_BROADCAST_ENABLED }}"
-          TWITTER_ACCESS_TOKEN_KEY: "${{ secrets.x-access-token-key }}"
-          TWITTER_ACCESS_TOKEN_SECRET: "${{ secrets.x-access-token-secret }}"
-          TWITTER_CONSUMER_API_KEY: "${{ secrets.x-consumer-api-key }}"
-          TWITTER_CONSUMER_API_SECRET: "${{ secrets.x-consumer-api-secret }}"
+          X_BROADCAST_ENABLED: "${{ vars.X_BROADCAST_ENABLED }}"
+          X_ACCESS_TOKEN_KEY: "${{ secrets.x-access-token-key }}"
+          X_ACCESS_TOKEN_SECRET: "${{ secrets.x-access-token-secret }}"
+          X_CONSUMER_API_KEY: "${{ secrets.x-consumer-api-key }}"
+          X_CONSUMER_API_SECRET: "${{ secrets.x-consumer-api-secret }}"
         run: deno run -ERN "${{ steps.script-url.outputs.url }}/send-release-tweet.ts";
 
       - name: Get GitHub Workspace
