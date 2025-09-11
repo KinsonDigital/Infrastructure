@@ -70,7 +70,7 @@ export class Utils {
 	 * @returns The issues from the given list of issues or pull requests.
 	 */
 	public static filterIssues(issuesOrPrs: (IssueModel | PullRequestModel)[]): IssueModel[] {
-		return <IssueModel[]> issuesOrPrs.filter((item) => this.isIssue(item));
+		return <IssueModel[]>issuesOrPrs.filter((item) => this.isIssue(item));
 	}
 
 	/**
@@ -79,7 +79,7 @@ export class Utils {
 	 * @returns The pull requests from the given list of issues or pull requests.
 	 */
 	public static filterPullRequests(issuesOrPrs: (IssueModel | PullRequestModel)[]): PullRequestModel[] {
-		return <PullRequestModel[]> issuesOrPrs.filter((item) => this.isPr(item));
+		return <PullRequestModel[]>issuesOrPrs.filter((item) => this.isPr(item));
 	}
 
 	/**
