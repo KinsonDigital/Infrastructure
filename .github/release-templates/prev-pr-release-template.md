@@ -1,6 +1,5 @@
 ### Pre-Release ToDo List
 
-```[tasklist]
 ### Complete the following items to perform a release.
 - [ ] All of the issues in the assigned milestone are closed.
 - [ ] All issue tasks are checked/marked as complete.
@@ -13,14 +12,11 @@
 - [ ] The pull request has been approved and merged into the _**preview**_ branch before performing the release. _(Releases are performed on the preview branch)_.
 - [ ] The preview release has been completed. _(The release is performed by running the `🚀Release` workflow)_.
 - [ ] Reusable workflow versions updated to match release version.
-```
 
 ### Post-Release ToDo List
 
-```[tasklist]
 ### Verify that release went smoothly.
 - [ ] The GitHub release has been created and is correct.
-```
 
 ### Additional Information:
 
