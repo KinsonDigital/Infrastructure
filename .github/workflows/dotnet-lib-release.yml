@@ -382,11 +382,6 @@ jobs:
           X_CONSUMER_API_SECRET: "${{ secrets.x-consumer-api-secret }}"
         run: deno run -ERN "${{ steps.script-url.outputs.url }}/send-release-tweet.ts";
 
-      - name: Get GitHub Workspace
-        id: base-dir-path
-        run: |
-          "github-workspace=${{ github.workspace }}" >> $env:GITHUB_OUTPUT;
-
       - name: Create GitHub Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: ${{ inputs.dry-run == false }}
         uses: ncipollo/release-action@v1
