@@ -1,5 +1,5 @@
 import { XClient } from "@kd-clients/social";
-import { ReleaseXPostBuilder } from "../core/ReleaseTweetBuilder.ts";
+import { ReleaseXPostBuilder } from "../core/ReleaseXPostBuilder.ts";
 import { GitHubVariableService } from "../core/Services/GitHubVariableService.ts";
 import {
 	isNothing,
