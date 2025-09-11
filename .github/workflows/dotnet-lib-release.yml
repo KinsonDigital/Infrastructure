@@ -71,16 +71,16 @@ on:
       nuget-org-api-key:
         required: true
         description: The NuGet.org API key.
-      twitter-consumer-api-key:
+      x-consumer-api-key:
         required: false
         description: The X consumer API key.
-      twitter-consumer-api-secret:
+      x-consumer-api-secret:
         required: false
         description: The X consumer API secret.
-      twitter-access-token:
+      x-access-token-key:
         required: false
         description: The X access token key.
-      twitter-access-token-secret:
+      x-access-token-secret:
         required: false
         description: The X access token secret.
 
@@ -374,11 +374,11 @@ jobs:
           RELEASE_TWEET_TEMPLATE_BRANCH_NAME: "${{ vars.RELEASE_TWEET_TEMPLATE_BRANCH_NAME }}"
           RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH: "${{ vars.RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH }}"
           DISCORD_INVITE_CODE: "${{ vars.DISCORD_INVITE_CODE }}"
-          TWITTER_BROADCAST_ENABLED: "${{ vars.TWITTER_BROADCAST_ENABLED }}"
-          TWITTER_ACCESS_TOKEN_KEY: "${{ secrets.twitter-access-token }}"
-          TWITTER_ACCESS_TOKEN_SECRET: "${{ secrets.twitter-access-token-secret }}"
-          TWITTER_CONSUMER_API_KEY: "${{ secrets.twitter-consumer-api-key }}"
-          TWITTER_CONSUMER_API_SECRET: "${{ secrets.twitter-consumer-api-secret }}"
+          TWITTER_BROADCAST_ENABLED: "${{ vars.X_BROADCAST_ENABLED }}"
+          TWITTER_ACCESS_TOKEN_KEY: "${{ secrets.x-access-token-key }}"
+          TWITTER_ACCESS_TOKEN_SECRET: "${{ secrets.x-access-token-secret }}"
+          TWITTER_CONSUMER_API_KEY: "${{ secrets.x-consumer-api-key }}"
+          TWITTER_CONSUMER_API_SECRET: "${{ secrets.x-consumer-api-secret }}"
         run: deno run -ERN "${{ steps.script-url.outputs.url }}/send-release-tweet.ts";
 
       - name: Get GitHub Workspace
