@@ -12,14 +12,14 @@ version = version.startsWith("v") ? version.substring(1) : version;
 
 const client: NuGetClient = new NuGetClient();
 
-const packageDoestNotExist = !(await client.packageExists(packageName));
+const packageDoestNotExist = !(await client.exists(packageName));
 
 if (packageDoestNotExist) {
 	Utils.printAsGitHubError(`The NuGet package '${packageName}' does not exist.`);
 	Deno.exit(1);
 }
 
-const packageVersionExists: boolean = await client.packageWithVersionExists(packageName, version);
+const packageVersionExists: boolean = await client.exists(packageName, version);
 
 if (packageVersionExists) {
 	Utils.printAsGitHubError(`The NuGet package '${packageName}' with version '${version}' already exists.`);
