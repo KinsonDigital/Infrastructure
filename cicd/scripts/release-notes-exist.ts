@@ -1,11 +1,11 @@
 import { existsSync } from "@std/fs";
 import getEnvVar from "../../cicd/core/GetEnvVar.ts";
-import { Utils } from "../../cicd/core/Utils.ts";
+import { printAsGitHubError, printAsGitHubNotice, trimPathBothEnds } from "../../cicd/core/Utils.ts";
 
 const scriptName = import.meta.url.split("/").pop();
 
 let relativeNotesDirPath = getEnvVar("RELATIVE_RELEASE_NOTES_DIR_PATH", scriptName);
-relativeNotesDirPath = Utils.trimPathBothEnds(relativeNotesDirPath);
+relativeNotesDirPath = trimPathBothEnds(relativeNotesDirPath);
 
 const releaseType = getEnvVar("RELEASE_TYPE", scriptName);
 const tagName = getEnvVar("TAG_NAME", scriptName);
@@ -15,8 +15,8 @@ const releaseNotesFilePath = `./${relativeNotesDirPath}/${releaseType}Releases/R
 if (!existsSync(releaseNotesFilePath)) {
 	const errorMsg = `The release notes file for version '${tagName}' does not exist.` +
 		`\n\tError Location: ${scriptName}`;
-	Utils.printAsGitHubError(errorMsg);
+	printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 
-Utils.printAsGitHubNotice(`The release notes file '${releaseNotesFilePath}' exists for version '${tagName}'.`);
+printAsGitHubNotice(`The release notes file '${releaseNotesFilePath}' exists for version '${tagName}'.`);

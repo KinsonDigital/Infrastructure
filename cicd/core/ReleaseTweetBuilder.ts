@@ -1,6 +1,6 @@
 import { RepoClient } from "@kd-clients/github";
 import { isNothing } from "./ParamGuards.ts";
-import { Utils } from "./Utils.ts";
+import { printAsGitHubError } from "./Utils.ts";
 
 /**
  * Creates a release tweet based on a template.
@@ -51,7 +51,7 @@ export class ReleaseTweetBuilder {
 		const templateDoesNotExist = !(await this.repoClient.fileExists(branchName, relativeFilePath));
 
 		if (templateDoesNotExist) {
-			Utils.printAsGitHubError(`The release tweet template file '${relativeFilePath}' could not be found.`);
+			printAsGitHubError(`The release tweet template file '${relativeFilePath}' could not be found.`);
 			Deno.exit(1);
 		}
 

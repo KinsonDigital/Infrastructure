@@ -1,6 +1,6 @@
 import { IssueClient, ProjectClient, PullRequestClient } from "@kd-clients/github";
 import getEnvVar from "../core/GetEnvVar.ts";
-import { Utils } from "../core/Utils.ts";
+import { printAsGitHubError, printAsGitHubNotice } from "../core/Utils.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
@@ -25,10 +25,10 @@ if (isIssueNumber && !isPRNumber) {
 	await projectClient.addPullRequestToProject(issueOrPrNumber, projectName);
 } else {
 	const errorMsg = `Could not distinguish between the issue or pull request number '${issueOrPrNumber}'.`;
-	Utils.printAsGitHubError(errorMsg);
+	printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 
 const itemType = isIssueNumber && !isPRNumber ? "issue" : "pull request";
 
-Utils.printAsGitHubNotice(`The ${itemType} has been added to the ${projectName} project.`);
+printAsGitHubNotice(`The ${itemType} has been added to the ${projectName} project.`);

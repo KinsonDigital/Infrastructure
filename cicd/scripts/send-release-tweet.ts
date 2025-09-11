@@ -1,7 +1,13 @@
 import { XClient } from "@kd-clients/social";
 import { ReleaseTweetBuilder } from "../core/ReleaseTweetBuilder.ts";
 import { GitHubVariableService } from "../core/Services/GitHubVariableService.ts";
-import { Utils } from "../core/Utils.ts";
+import {
+	isNothing,
+	isNotValidPreviewVersion,
+	isNotValidProdVersion,
+	printAsGitHubError,
+	printAsGitHubNotice,
+} from "../core/Utils.ts";
 import getEnvVar from "../core/GetEnvVar.ts";
 import { validateOrgExists, validateRepoExists } from "../core/Validators.ts";
 
@@ -52,21 +58,21 @@ version = version.startsWith("v") ? version : `v${version}`;
 await validateOrgExists(scriptFileName);
 await validateRepoExists(scriptFileName);
 
-if (Utils.isNotValidPreviewVersion(version) && Utils.isNotValidProdVersion(version)) {
+if (isNotValidPreviewVersion(version) && isNotValidProdVersion(version)) {
 	let errorMsg = `The version '${version}' is not a valid preview or production version.`;
 	errorMsg += "\nRequired Syntax: v#.#.# or v#.#.#-preview.#";
-	Utils.printAsGitHubError(errorMsg);
+	printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 
 const githubVarService = new GitHubVariableService(ownerName, repoName, githubToken);
 githubVarService.setOrgAndRepo(ownerName, repoName);
 
-if (Utils.isNothing(xBroadcastEnabled) || xBroadcastEnabled === "false") {
+if (isNothing(xBroadcastEnabled) || xBroadcastEnabled === "false") {
 	const noticeMsg = `No tweet broadcast will be performed.` +
 		`\nTo enable tweet broadcasting, set the '${X_BROADCAST_ENABLED}' variable to 'true'.` +
 		"\nIf the variable is missing, empty, or set to 'false', no tweet broadcast will be performed.";
-	Utils.printAsGitHubNotice(noticeMsg);
+	printAsGitHubNotice(noticeMsg);
 	Deno.exit(0);
 }
 
@@ -90,4 +96,4 @@ const tweet = await tweetBuilder.buildTweet(
 const xClient: XClient = new XClient(authValues);
 await xClient.tweet(tweet);
 
-Utils.printAsGitHubNotice(`A release tweet was successfully broadcasted for the '${repoName}' project for version '${version}'.`);
+printAsGitHubNotice(`A release tweet was successfully broadcasted for the '${repoName}' project for version '${version}'.`);

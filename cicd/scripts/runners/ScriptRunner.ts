@@ -1,4 +1,4 @@
-import { Utils } from "../../core/Utils.ts";
+import { isNotValidPreviewVersion, isNotValidProdVersion, printAsGitHubError } from "../../core/Utils.ts";
 
 /**
  * Provides a base class for processing script arguments and running scripts.
@@ -21,7 +21,7 @@ export abstract class ScriptRunner {
 
 		if (hasFineGrainedToken === false && hasClassicToken === false) {
 			const errorMsg = "The arguments must contain a GitHub PAT(Personal Access Token) and must be the last argument.";
-			Utils.printAsGitHubError(errorMsg);
+			printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
@@ -63,22 +63,22 @@ export abstract class ScriptRunner {
 		version = version.startsWith("v") ? version : `v${version}`;
 
 		if (releaseType != "production" && releaseType != "preview") {
-			Utils.printAsGitHubError(`The release type must be either 'production' or 'preview'.`);
+			printAsGitHubError(`The release type must be either 'production' or 'preview'.`);
 			Deno.exit(1);
 		}
 
 		if (releaseType === "production") {
-			if (Utils.isNotValidProdVersion(version)) {
+			if (isNotValidProdVersion(version)) {
 				let errorMsg = `The production version '${version}' is not valid.`;
 				errorMsg += "\nRequired Syntax: v#.#.#";
-				Utils.printAsGitHubError(errorMsg);
+				printAsGitHubError(errorMsg);
 				Deno.exit(1);
 			}
 		} else {
-			if (Utils.isNotValidPreviewVersion(version)) {
+			if (isNotValidPreviewVersion(version)) {
 				let errorMsg = `The preview version '${version}' is not valid.`;
 				errorMsg += "\nRequired Syntax: v#.#.#-preview.#";
-				Utils.printAsGitHubError(errorMsg);
+				printAsGitHubError(errorMsg);
 				Deno.exit(1);
 			}
 		}

@@ -1,6 +1,6 @@
 import { ReleaseClient } from "@kd-clients/github";
 import getEnvVar from "../core/GetEnvVar.ts";
-import { Utils } from "../core/Utils.ts";
+import { isNotValidPreviewVersion, isNotValidProdVersion, printAsGitHubError } from "../core/Utils.ts";
 import { validateOrgExists, validateRepoExists } from "../core/Validators.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
@@ -11,10 +11,10 @@ const tagName = getEnvVar("TAG_NAME", scriptFileName);
 const githubToken = getEnvVar("GITHUB_TOKEN", scriptFileName);
 
 // Validate the tag
-if (Utils.isNotValidProdVersion(tagName) && Utils.isNotValidPreviewVersion(tagName)) {
+if (isNotValidProdVersion(tagName) && isNotValidPreviewVersion(tagName)) {
 	const errorMsg =
 		`The tag name '${tagName}' is not a valid tag name.  The tag name must be a valid production or preview version.`;
-	Utils.printAsGitHubError(errorMsg);
+	printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 
@@ -29,6 +29,6 @@ if (releaseExists) {
 	const errorMsg = `A release for the tag '${tagName}' already exists.` +
 		"\nIs the tag provided the incorrect tag?";
 
-	Utils.printAsGitHubError(errorMsg);
+	printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }

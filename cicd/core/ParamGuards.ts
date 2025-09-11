@@ -1,4 +1,4 @@
-import { Utils } from "./Utils.ts";
+import { printAsGitHubError } from "./Utils.ts";
 
 /**
  * Checks if the value is null, undefined, or empty.
@@ -39,7 +39,7 @@ export function isNothing<T>(
 		errorMsg += `\nParam Name: ${paramName}`;
 	}
 
-	Utils.printAsGitHubError(errorMsg);
+	printAsGitHubError(errorMsg);
 
 	Deno.exit(1);
 }
@@ -53,7 +53,7 @@ export function isNothing<T>(
 export function isLessThanOne(value: undefined | null | number, funcName = "", paramName = ""): void {
 	const isNullOrUndefined = value === undefined || value === null;
 	if (isNullOrUndefined || isNaN(value) || !isFinite(value)) {
-		Utils.printAsGitHubError("The value is undefined, null, NaN, Infinite, -Infinity.");
+		printAsGitHubError("The value is undefined, null, NaN, Infinite, -Infinity.");
 
 		if (funcName != "") {
 			console.log(`Function Name: ${funcName}`);
@@ -67,7 +67,7 @@ export function isLessThanOne(value: undefined | null | number, funcName = "", p
 	}
 
 	if (value < 0) {
-		Utils.printAsGitHubError("The value is less than or equal to zero.");
+		printAsGitHubError("The value is less than or equal to zero.");
 
 		if (funcName != "") {
 			console.log(`Function Name: ${funcName}`);

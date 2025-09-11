@@ -1,5 +1,5 @@
-import { isNothing } from "../ParamGuards.ts";
-import { Utils } from "../Utils.ts";
+import { isNothing as isNothingGuard } from "../ParamGuards.ts";
+import { isNothing, printAsGitHubError } from "../Utils.ts";
 
 /**
  * Provides HTML related services.
@@ -20,23 +20,23 @@ export class HTMLService {
 		isCentered?: boolean,
 		onSeparateLines?: boolean,
 	): string {
-		isNothing(text, "createHeader", "text");
+		isNothingGuard(text, "createHeader", "text");
 
 		if (level < 1 || level > 6) {
-			Utils.printAsGitHubError(`The header level '${level}' is not valid. It must be between 1 and 6.`);
+			printAsGitHubError(`The header level '${level}' is not valid. It must be between 1 and 6.`);
 			Deno.exit(1);
 		}
 
 		let style = "";
 
-		if (!Utils.isNothing(color) || !Utils.isNothing(isBold)) {
+		if (!isNothing(color) || !isNothing(isBold)) {
 			style = `style="`;
 
-			if (!Utils.isNothing(color)) {
+			if (!isNothing(color)) {
 				style += `color: ${color};`;
 			}
 
-			if (!Utils.isNothing(isBold) && isBold) {
+			if (!isNothing(isBold) && isBold) {
 				style += "font-weight: bold;";
 			}
 
@@ -45,7 +45,7 @@ export class HTMLService {
 
 		const centeredAttr = isCentered ? this.createCenteredAttr() : "";
 
-		if (Utils.isNothing(onSeparateLines) || !onSeparateLines) {
+		if (isNothing(onSeparateLines) || !onSeparateLines) {
 			return `<h${level} ${centeredAttr} ${style}>${text}</h${level}>`;
 		} else {
 			return `<h${level} ${centeredAttr} ${style}>\n${text}\n</h${level}>`;
@@ -59,7 +59,7 @@ export class HTMLService {
 	 * @returns The HTML div.
 	 */
 	public createCenteredDiv(text: string, onSeparateLines?: boolean): string {
-		isNothing(text, "createCenteredDiv", "text");
+		isNothingGuard(text, "createCenteredDiv", "text");
 
 		if (onSeparateLines) {
 			return `<div ${this.createCenteredAttr()}>\n${text}\n</div>`;

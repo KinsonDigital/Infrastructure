@@ -1,5 +1,5 @@
 import { existsSync } from "@std/fs";
-import { Utils } from "../core/Utils.ts";
+import { printAsGitHubError, printAsGitHubNotice } from "../core/Utils.ts";
 import { ReadMeTranspilerService } from "../core/Services/ReadMeTranspilerService.ts";
 import getEnvVar from "../core/GetEnvVar.ts";
 
@@ -11,7 +11,7 @@ const readmeFilePath = `${baseDirPath}/README.md`;
 
 if (!existsSync(readmeFilePath)) {
 	const errorMsg = `\nThe given path '${readmeFilePath}' is not a valid file path.\n\t${scriptFileName}`;
-	Utils.printAsGitHubError(errorMsg);
+	printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 
@@ -19,4 +19,4 @@ const transpiler = new ReadMeTranspilerService();
 
 transpiler.transpile(baseDirPath);
 
-Utils.printAsGitHubNotice("Successfully transpiled the README.md file.");
+printAsGitHubNotice("Successfully transpiled the README.md file.");

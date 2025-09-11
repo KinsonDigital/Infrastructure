@@ -1,4 +1,4 @@
-import { Utils } from "./Utils.ts";
+import { isNothing, printAsGitHubError } from "./Utils.ts";
 
 /**
  * Get the value of an environment variable after checking if it exists.
@@ -8,10 +8,10 @@ import { Utils } from "./Utils.ts";
 const getEnvVar = (name: string, scriptFileName?: string, throwErrorIfMissing: boolean = true): string => {
 	const value = (Deno.env.get(name) ?? "").trim();
 
-	if (Utils.isNothing(value) && throwErrorIfMissing) {
-		const fileName = Utils.isNothing(scriptFileName) ? "" : `\n\t${scriptFileName}`;
+	if (isNothing(value) && throwErrorIfMissing) {
+		const fileName = isNothing(scriptFileName) ? "" : `\n\t${scriptFileName}`;
 		const errorMsg = `The '${name}' environment variable does not exist.${fileName}`;
-		Utils.printAsGitHubError(errorMsg);
+		printAsGitHubError(errorMsg);
 		Deno.exit(1);
 	}
 

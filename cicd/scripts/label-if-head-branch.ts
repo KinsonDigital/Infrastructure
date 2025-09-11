@@ -1,6 +1,6 @@
 import { LabelClient, PullRequestClient, RepoClient } from "@kd-clients/github";
 import getEnvVar from "../core/GetEnvVar.ts";
-import { Utils } from "../core/Utils.ts";
+import { isNumeric, printAsGitHubError } from "../core/Utils.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
@@ -10,10 +10,10 @@ const prNumberStr = getEnvVar("PR_NUMBER", scriptFileName);
 
 let prNumber = 0;
 
-if (Utils.isNumeric(prNumberStr)) {
+if (isNumeric(prNumberStr)) {
 	prNumber = parseInt(prNumberStr);
 } else {
-	Utils.printAsGitHubError(`The pull request number '${prNumber}' is not a valid number.`);
+	printAsGitHubError(`The pull request number '${prNumber}' is not a valid number.`);
 	Deno.exit(1);
 }
 
@@ -26,7 +26,7 @@ const repoClient: RepoClient = new RepoClient(ownerName, repoName, token);
 const repoDoesNotExist = !(await repoClient.exists());
 
 if (repoDoesNotExist) {
-	Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
+	printAsGitHubError(`The repository '${repoName}' does not exist.`);
 	Deno.exit(1);
 }
 
@@ -40,7 +40,7 @@ const labelClient: LabelClient = new LabelClient(ownerName, repoName, token);
 const labelDoesNotExist = !(await labelClient.exists(label));
 
 if (labelDoesNotExist) {
-	Utils.printAsGitHubError(`The label '${label}' does not exist in the '${repoName}' repo.`);
+	printAsGitHubError(`The label '${label}' does not exist in the '${repoName}' repo.`);
 	Deno.exit(1);
 }
 

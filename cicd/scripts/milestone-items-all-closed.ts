@@ -1,7 +1,7 @@
 import { MilestoneClient, RepoClient } from "@kd-clients/github";
 import { IssueModel, PullRequestModel } from "@kd-clients/github-models";
 import getEnvVar from "../core/GetEnvVar.ts";
-import { Utils } from "../core/Utils.ts";
+import { filterIssues, filterPullRequests, printAsGitHubError, printProblemList } from "../core/Utils.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
@@ -14,15 +14,15 @@ const repoClient: RepoClient = new RepoClient(ownerName, repoName, token);
 const repoDoesNotExist = !(await repoClient.exists());
 
 if (repoDoesNotExist) {
-	Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
+	printAsGitHubError(`The repository '${repoName}' does not exist.`);
 	Deno.exit(1);
 }
 
 const milestoneClient: MilestoneClient = new MilestoneClient(ownerName, repoName, token);
 const milestoneItems = await milestoneClient.getIssuesAndPullRequests(milestoneTitle);
 
-const issues: IssueModel[] = Utils.filterIssues(milestoneItems);
-const prs: PullRequestModel[] = Utils.filterPullRequests(milestoneItems);
+const issues: IssueModel[] = filterIssues(milestoneItems);
+const prs: PullRequestModel[] = filterPullRequests(milestoneItems);
 
 const problemsFound: string[] = [];
 
@@ -52,7 +52,7 @@ successMsg += " closed and no pull requests are in draft.✅";
 
 const failureMsg = `❌Something went wrong with closing all of the issues for milestone '${milestoneTitle}'.❌`;
 
-Utils.printProblemList(problemsFound, successMsg, failureMsg);
+printProblemList(problemsFound, successMsg, failureMsg);
 
 if (problemsFound.length > 0) {
 	Deno.exit(1);

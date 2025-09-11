@@ -1,6 +1,23 @@
 import { IssueClient, OrgClient, ProjectClient, PullRequestClient, RepoClient } from "@kd-clients/github";
 import { IssueModel, ProjectModel, PullRequestModel } from "@kd-clients/github-models";
-import { Utils } from "../../core/Utils.ts";
+import {
+	assigneesMatch,
+	buildIssueUrl,
+	buildPullRequestUrl,
+	isFeatureBranch,
+	isNotFeatureBranch,
+	isNothing,
+	isNumeric,
+	labelsMatch,
+	orgProjectsMatch,
+	printAsGitHubError,
+	printAsGitHubNotice,
+	printAsGitHubWarning,
+	printAsNumberedList,
+	printEmptyLine,
+	printProblemList,
+	splitByComma,
+} from "../../core/Utils.ts";
 import { ScriptRunner } from "./ScriptRunner.ts";
 import { EventType, GitHubLogType, IssueState } from "../../core/Enums.ts";
 import { IIssueOrPRRequestData } from "../../core/IIssueOrPRRequestData.ts";
@@ -69,9 +86,9 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 				if (prLinkMetaData === null) {
 					let noticeMsg = `The issue '${issueNumber}' does not contain any pull request metadata.`;
 					noticeMsg += "\n\nThe expected metadata should come in the form of '<!--closed-by-pr:[0-9]+-->'";
-					noticeMsg += `Issue: ${Utils.buildIssueUrl(ownerName, repoName, issueNumber)}`;
+					noticeMsg += `Issue: ${buildIssueUrl(ownerName, repoName, issueNumber)}`;
 
-					Utils.printAsGitHubNotice(noticeMsg);
+					printAsGitHubNotice(noticeMsg);
 					Deno.exit(0);
 				} else {
 					prNumber = Number.parseInt((<RegExpMatchArray> prLinkMetaData[0].match(/[0-9]+/gm))[0]);
@@ -84,14 +101,14 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 				problemsFound.push(`The pull request '${prNumber}' does not exist.`);
 			} else {
 				const headBranch = (await this.getPullRequest(prNumber)).head.ref;
-				const headBranchNotValid = Utils.isNotFeatureBranch(headBranch);
+				const headBranchNotValid = isNotFeatureBranch(headBranch);
 
 				// If the head branch is not a preview branch, no sync check is required. Just exit.
 				if (headBranchNotValid) {
 					let noticeMsg = `The head branch '${headBranch}' is not a feature branch.`;
 					noticeMsg += "\nSync checks and processing ignored.";
 
-					Utils.printAsGitHubNotice(noticeMsg);
+					printAsGitHubNotice(noticeMsg);
 					Deno.exit(0);
 				} else {
 					issueNumber = Number.parseInt((<RegExpMatchArray> headBranch.match(/[0-9]+/gm))[0]);
@@ -107,9 +124,9 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			let syncDisabledMsg = `Syncing for pull request '${prNumber}' is disabled.`;
 			syncDisabledMsg += "\nMake sure that the pull request description contains a valid PR sync template";
 			syncDisabledMsg += "\n and make sure that syncing is enabled by checking the 'Sync with the issue' checkbox.";
-			syncDisabledMsg += `\nPR: ${Utils.buildPullRequestUrl(ownerName, repoName, prNumber)}`;
+			syncDisabledMsg += `\nPR: ${buildPullRequestUrl(ownerName, repoName, prNumber)}`;
 
-			Utils.printAsGitHubNotice(syncDisabledMsg);
+			printAsGitHubNotice(syncDisabledMsg);
 			Deno.exit(0);
 		}
 
@@ -119,8 +136,8 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			problemsFound.push(...await this.runAsStatusCheck(issueNumber, prNumber));
 		}
 
-		const prUrl = `\nIssue: ${Utils.buildIssueUrl(ownerName, repoName, issueNumber)}`;
-		const issueUrl = `\nPull Request: ${Utils.buildPullRequestUrl(ownerName, repoName, prNumber)}`;
+		const prUrl = `\nIssue: ${buildIssueUrl(ownerName, repoName, issueNumber)}`;
+		const issueUrl = `\nPull Request: ${buildPullRequestUrl(ownerName, repoName, prNumber)}`;
 
 		let successMsg = `✅No problems found. Issue '${issueNumber}' synced with pull request '${prNumber}'.`;
 		successMsg += prUrl;
@@ -130,8 +147,8 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		failureMsg += prUrl;
 		failureMsg += issueUrl;
 
-		Utils.printEmptyLine();
-		Utils.printProblemList(problemsFound, successMsg, failureMsg);
+		printEmptyLine();
+		printProblemList(problemsFound, successMsg, failureMsg);
 
 		if (problemsFound.length > 0) {
 			Deno.exit(1);
@@ -153,8 +170,8 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 				"Required and must be a GitHub PAT (Personal Access Token).",
 			];
 
-			Utils.printAsGitHubError(mainMsg);
-			Utils.printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.normal);
+			printAsGitHubError(mainMsg);
+			printAsNumberedList(" Arg: ", argDescriptions, GitHubLogType.normal);
 			Deno.exit(1);
 		}
 
@@ -162,8 +179,8 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 
 		let [ownerName, repoName, issueOrPRNumberStr, eventType] = args;
 
-		if (!Utils.isNumeric(issueOrPRNumberStr)) {
-			Utils.printAsGitHubError(`The ${eventType} number '${issueOrPRNumberStr}' is not a valid number.`);
+		if (!isNumeric(issueOrPRNumberStr)) {
+			printAsGitHubError(`The ${eventType} number '${issueOrPRNumberStr}' is not a valid number.`);
 			Deno.exit(1);
 		}
 
@@ -171,7 +188,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			let errorMsg = `The event type '${eventType}' is not valid.`;
 			errorMsg += `\nThe event type must be either 'issue' or 'pr' case-insensitive value.`;
 
-			Utils.printAsGitHubError(errorMsg);
+			printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
@@ -180,7 +197,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 
 		// If the org does not exist
 		if (!(await orgClient.exists())) {
-			Utils.printAsGitHubError(`The organization '${ownerName}' does not exist.`);
+			printAsGitHubError(`The organization '${ownerName}' does not exist.`);
 			Deno.exit(1);
 		}
 
@@ -189,7 +206,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 
 		// If the repo does not exist
 		if (!(await repoClient.exists())) {
-			Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
+			printAsGitHubError(`The repository '${repoName}' does not exist.`);
 			Deno.exit(1);
 		}
 	}
@@ -247,7 +264,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 			prBaseBranch,
 		));
 
-		Utils.printAsGitHubNotice(`✅The issue '${issueNumber}' and pull request '${prNumber}' sync status has been updated✅.`);
+		printAsGitHubNotice(`✅The issue '${issueNumber}' and pull request '${prNumber}' sync status has been updated✅.`);
 
 		return problemsFound;
 	}
@@ -278,16 +295,16 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 
 		const allowedPRBaseBranches = await this.getAllowedPRBaseBranches();
 
-		const headBranchIsValid = Utils.isFeatureBranch(prHeadBranch);
+		const headBranchIsValid = isFeatureBranch(prHeadBranch);
 		const baseBranchIsValid = allowedPRBaseBranches.some((branch) => branch === prBaseBranch);
 
 		const titleInSync = prTitle?.trim() === issueTitle?.trim();
 
-		const assigneesInSync = Utils.assigneesMatch(issueAssignees, prAssignees);
-		const labelsInSync = Utils.labelsMatch(issueLabels, prLabels);
+		const assigneesInSync = assigneesMatch(issueAssignees, prAssignees);
+		const labelsInSync = labelsMatch(issueLabels, prLabels);
 
 		const milestoneInSync = issueMilestone?.number === prMilestone?.number;
-		const projectsInSync = Utils.orgProjectsMatch(issueProjects, prProjects);
+		const projectsInSync = orgProjectsMatch(issueProjects, prProjects);
 
 		const templateSettings: IPRTemplateSettings = {
 			issueNumber: issueNumber,
@@ -344,15 +361,15 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 
 		const prSyncBranchesStr = await this.githubVarService.getValue(prSyncBaseBranchesVarName, false);
 
-		if (Utils.isNothing(prSyncBranchesStr)) {
+		if (isNothing(prSyncBranchesStr)) {
 			let warningMsg = "The optional variable 'PR_SYNC_BASE_BRANCHES' does not exist or contains no value.";
 			warningMsg += `\nUsing the default branches: ${defaultBranches.join(", ")}.`;
-			Utils.printAsGitHubWarning(warningMsg);
+			printAsGitHubWarning(warningMsg);
 
 			return defaultBranches;
 		}
 
-		const prSyncBaseBranches = Utils.splitByComma(prSyncBranchesStr);
+		const prSyncBaseBranches = splitByComma(prSyncBranchesStr);
 
 		return prSyncBaseBranches.length > 0 ? prSyncBaseBranches : defaultBranches;
 	}

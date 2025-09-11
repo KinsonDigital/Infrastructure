@@ -1,6 +1,6 @@
 import { IPRTemplateSettings } from "./IPRTemplateSettings.ts";
 import { MarkdownService } from "./Services/MarkdownService.ts";
-import { Utils } from "./Utils.ts";
+import { isNothing, splitBy } from "./Utils.ts";
 
 /**
  * Manages the pull request template.
@@ -42,11 +42,11 @@ export class PRTemplateManager {
 	 * @returns True if syncing is disabled, false otherwise.
 	 */
 	public syncingDisabled(template: string): boolean {
-		if (Utils.isNothing(template)) {
+		if (isNothing(template)) {
 			return true;
 		}
 
-		const fileDataLines: string[] = Utils.splitBy(template, "\n");
+		const fileDataLines: string[] = splitBy(template, "\n");
 
 		for (let i = 0; i < fileDataLines.length; i++) {
 			const line = fileDataLines[i];
