@@ -1,4 +1,4 @@
-import { existsSync } from "jsr:@std/fs@1.0.4/exists";
+import { existsSync } from "@std/fs";
 import getEnvVar from "../core/GetEnvVar.ts";
 import { Utils } from "../core/Utils.ts";
 

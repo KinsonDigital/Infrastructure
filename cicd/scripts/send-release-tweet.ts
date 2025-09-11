@@ -1,10 +1,32 @@
-import { XAuthValues } from "https://deno.land/x/kd_clients@v1.0.0-preview.8/OtherClients/XAuthValue.ts";
-import { XClient } from "../../deps.ts";
+import { XClient } from "@kd-clients/social";
 import { ReleaseTweetBuilder } from "../core/ReleaseTweetBuilder.ts";
 import { GitHubVariableService } from "../core/Services/GitHubVariableService.ts";
 import { Utils } from "../core/Utils.ts";
 import getEnvVar from "../core/GetEnvVar.ts";
 import { validateOrgExists, validateRepoExists } from "../core/Validators.ts";
+
+// TODO: Need to import this from kd-clients library once it is available
+export interface XAuthValues {
+	/**
+	 * Gets or sets the consumer key.
+	 */
+	consumer_api_key: string;
+
+	/**
+	 * Gets or sets the consumer secret.
+	 */
+	consumer_api_secret: string;
+
+	/**
+	 * Gets or sets the access token key.
+	 */
+	access_token_key: string;
+
+	/**
+	 * Gets or sets the access token secret.
+	 */
+	access_token_secret: string;
+}
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 

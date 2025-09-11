@@ -1,4 +1,4 @@
-import { RepoClient } from "../../deps.ts";
+import { RepoClient } from "@kd-clients/github";
 import { Guard } from "./Guard.ts";
 import { Utils } from "./Utils.ts";
 

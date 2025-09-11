@@ -1,5 +1,4 @@
-import { extname, resolve } from "../../deps.ts";
-import { File } from "./File.ts";
+import { extname, resolve } from "@std/path";
 import { Utils } from "./Utils.ts";
 
 /**
@@ -43,7 +42,7 @@ export class ScriptDescriptions {
 		if (filePath === "") {
 			return "";
 		} else {
-			const fileData: string = File.LoadFile(filePath);
+			const fileData: string = Deno.readTextFileSync(filePath);
 
 			return fileData;
 		}

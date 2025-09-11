@@ -1,4 +1,4 @@
-import { RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
+import { RepoClient } from "@kd-clients/github";
 import getEnvVar from "../../../cicd/core/GetEnvVar.ts";
 import { Utils } from "../../../cicd/core/Utils.ts";
 

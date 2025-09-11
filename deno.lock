@@ -2,7 +2,9 @@
   "version": "5",
   "specifiers": {
     "jsr:@kinsondigital/kd-clients@1.0.0-preview.15": "1.0.0-preview.15",
+    "jsr:@nexterias/twitter-api-fetch@3.0.1": "3.0.1",
     "jsr:@std/encoding@1.0.5": "1.0.5",
+    "jsr:@std/encoding@~0.219.1": "0.219.1",
     "jsr:@std/fs@1.0.19": "1.0.19",
     "jsr:@std/fs@1.0.4": "1.0.4",
     "jsr:@std/fs@1.0.5": "1.0.5",
@@ -11,6 +13,7 @@
     "jsr:@std/internal@^1.0.10": "1.0.10",
     "jsr:@std/internal@^1.0.9": "1.0.10",
     "jsr:@std/path@1.0.7": "1.0.7",
+    "jsr:@std/path@1.0.8": "1.0.8",
     "jsr:@std/path@^1.0.7": "1.1.2",
     "jsr:@std/path@^1.1.1": "1.1.2",
     "npm:chalk@4.1.1": "4.1.1",
@@ -21,10 +24,20 @@
     "@kinsondigital/kd-clients@1.0.0-preview.15": {
       "integrity": "c06ccf539262b5cfa66f64c2c3359b2d3acdbfb268db5c7d5d51461bfc40372b",
       "dependencies": [
-        "jsr:@std/encoding",
+        "jsr:@nexterias/twitter-api-fetch",
+        "jsr:@std/encoding@1.0.5",
         "jsr:@std/fs@1.0.5",
         "jsr:@std/path@1.0.7"
       ]
+    },
+    "@nexterias/twitter-api-fetch@3.0.1": {
+      "integrity": "9fb5a6770ce659b46df02c3b93ed4ab13ce7b3dd9a84232e0bc921fe7bdd1dad",
+      "dependencies": [
+        "jsr:@std/encoding@~0.219.1"
+      ]
+    },
+    "@std/encoding@0.219.1": {
+      "integrity": "77b30e481a596cfb2a8f2f38c3165e6035a4f76a7259bf89b6a622ceaf57d575"
     },
     "@std/encoding@1.0.5": {
       "integrity": "ecf363d4fc25bd85bd915ff6733a7e79b67e0e7806334af15f4645c569fefc04"
@@ -53,6 +66,9 @@
     },
     "@std/path@1.0.7": {
       "integrity": "76a689e07f0e15dcc6002ec39d0866797e7156629212b28f27179b8a5c3b33a1"
+    },
+    "@std/path@1.0.8": {
+      "integrity": "548fa456bb6a04d3c1a1e7477986b6cffbce95102d0bb447c67c4ee70e0364be"
     },
     "@std/path@1.1.2": {
       "integrity": "c0b13b97dfe06546d5e16bf3966b1cadf92e1cc83e56ba5476ad8b498d9e3038",
@@ -321,8 +337,9 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@std/fs@^1.0.11",
-      "jsr:@std/path@^1.0.8"
+      "jsr:@kinsondigital/kd-clients@1.0.0-preview.15",
+      "jsr:@std/fs@1.0.19",
+      "jsr:@std/path@1.0.8"
     ]
   }
 }

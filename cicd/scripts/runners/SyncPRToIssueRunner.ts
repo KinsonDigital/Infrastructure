@@ -1,7 +1,7 @@
-import { IssueClient, OrgClient, ProjectClient, PullRequestClient, RepoClient, UsersClient } from "../../../deps.ts";
+import { IssueClient, OrgClient, ProjectClient, PullRequestClient, RepoClient, UsersClient } from "@kd-clients/github";
 import { Utils } from "../../core/Utils.ts";
 import { ScriptRunner } from "./ScriptRunner.ts";
-import { IssueModel, ProjectModel, PullRequestModel } from "../../../deps.ts";
+import { IssueModel, ProjectModel, PullRequestModel } from "@kd-clients/github-models";
 import { PRTemplateManager } from "../../core/PRTemplateManager.ts";
 import { GitHubVariableService } from "../../core/Services/GitHubVariableService.ts";
 import { IIssueOrPRRequestData } from "../../core/IIssueOrPRRequestData.ts";

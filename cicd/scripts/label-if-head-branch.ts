@@ -1,4 +1,4 @@
-import { LabelClient, PullRequestClient, RepoClient } from "../../deps.ts";
+import { LabelClient, PullRequestClient, RepoClient } from "@kd-clients/github";
 import getEnvVar from "../core/GetEnvVar.ts";
 import { Utils } from "../core/Utils.ts";
 

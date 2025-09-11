@@ -1,6 +1,6 @@
 import { GitHubHttpStatusCodes, GitHubLogType } from "./Enums.ts";
 import { Guard } from "./Guard.ts";
-import { IssueModel, LabelModel, ProjectModel, PullRequestModel, UserModel } from "../../deps.ts";
+import { IssueModel, LabelModel, ProjectModel, PullRequestModel, UserModel } from "@kd-clients/github-models";
 
 /**
  * Provides utility functions.
