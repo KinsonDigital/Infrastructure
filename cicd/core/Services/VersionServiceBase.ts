@@ -1,4 +1,4 @@
-import { RepoClient } from "../../../deps.ts";
+import { RepoClient } from "@kd-clients/github";
 import { ReleaseType } from "../Enums.ts";
 import { Utils } from "../Utils.ts";
 import { GitHubVariableService } from "./GitHubVariableService.ts";

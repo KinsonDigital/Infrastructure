@@ -1,4 +1,4 @@
-import { ReleaseClient } from "../../deps.ts";
+import { ReleaseClient } from "@kd-clients/github";
 import getEnvVar from "../core/GetEnvVar.ts";
 import { Utils } from "../core/Utils.ts";
 import { validateOrgExists, validateRepoExists } from "../core/Validators.ts";

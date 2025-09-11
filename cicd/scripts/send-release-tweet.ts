@@ -1,5 +1,4 @@
-import { XAuthValues } from "https://deno.land/x/kd_clients@v1.0.0-preview.8/OtherClients/XAuthValue.ts";
-import { XClient } from "../../deps.ts";
+import { XClient } from "@kd-clients/social";
 import { ReleaseTweetBuilder } from "../core/ReleaseTweetBuilder.ts";
 import { GitHubVariableService } from "../core/Services/GitHubVariableService.ts";
 import { Utils } from "../core/Utils.ts";

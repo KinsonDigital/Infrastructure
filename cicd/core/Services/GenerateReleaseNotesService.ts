@@ -1,5 +1,5 @@
 import { ReleaseType } from "../Enums.ts";
-import { IssueModel, PullRequestModel } from "../../../deps.ts";
+import { IssueModel, PullRequestModel } from "@kd-clients/github-models";
 import { HTMLService } from "./HTMLService.ts";
 import { MarkdownService } from "./MarkdownService.ts";
 import { Utils } from "../Utils.ts";

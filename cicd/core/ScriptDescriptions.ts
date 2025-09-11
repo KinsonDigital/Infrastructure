@@ -1,5 +1,4 @@
-import { extname, resolve } from "../../deps.ts";
-import { File } from "./File.ts";
+import { extname, resolve } from "@std/path";
 import { Utils } from "./Utils.ts";
 
 /**

@@ -1,5 +1,4 @@
-import { walkSync } from "jsr:@std/fs@^1.0.4";
-
+import { walkSync } from "@std/fs";
 import { Utils } from "../core/Utils.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();

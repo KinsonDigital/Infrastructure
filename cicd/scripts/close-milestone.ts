@@ -1,5 +1,5 @@
-import { MilestoneClient, RepoClient } from "../../deps.ts";
-import { MilestoneModel } from "../../deps.ts";
+import { MilestoneClient, RepoClient } from "@kd-clients/github";
+import { MilestoneModel } from "@kd-clients/github-models";
 import getEnvVar from "../core/GetEnvVar.ts";
 import { Utils } from "../core/Utils.ts";
 import { validateOrgExists, validateRepoExists } from "../core/Validators.ts";

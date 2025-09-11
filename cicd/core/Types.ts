@@ -1,4 +1,4 @@
-import { IssueModel, PullRequestModel } from "../../deps.ts";
+import { IssueModel, PullRequestModel } from "@kd-clients/github-models";
 
 /**
  * Represents a GitHub issue or pull request.

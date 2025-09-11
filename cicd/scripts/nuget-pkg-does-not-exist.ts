@@ -1,4 +1,4 @@
-import { NuGetClient } from "../../deps.ts";
+import { NuGetClient } from "@kd-clients/packaging";
 import getEnvVar from "../core/GetEnvVar.ts";
 import { Utils } from "../core/Utils.ts";
 

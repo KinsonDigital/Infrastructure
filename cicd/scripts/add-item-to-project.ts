@@ -1,4 +1,4 @@
-import { IssueClient, ProjectClient, PullRequestClient } from "../../deps.ts";
+import { IssueClient, ProjectClient, PullRequestClient } from "@kd-clients/github";
 import getEnvVar from "../core/GetEnvVar.ts";
 import { Utils } from "../core/Utils.ts";
 

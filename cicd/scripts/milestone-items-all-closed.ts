@@ -1,5 +1,5 @@
-import { MilestoneClient, RepoClient } from "../../deps.ts";
-import { IssueModel, PullRequestModel } from "../../deps.ts";
+import { MilestoneClient, RepoClient } from "@kd-clients/github";
+import { IssueModel, PullRequestModel } from "@kd-clients/github-models";
 import getEnvVar from "../core/GetEnvVar.ts";
 import { Utils } from "../core/Utils.ts";
 

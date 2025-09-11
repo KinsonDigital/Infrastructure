@@ -1,4 +1,4 @@
-import { existsSync } from "jsr:@std/fs@^1.0.4";
+import { existsSync } from "@std/fs";
 import { Utils } from "../Utils.ts";
 
 /**

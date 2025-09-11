@@ -1,4 +1,4 @@
-import { MilestoneClient, OrgClient, RepoClient } from "../../deps.ts";
+import { MilestoneClient, OrgClient, RepoClient } from "@kd-clients/github";
 import getEnvVar from "./GetEnvVar.ts";
 import { Utils } from "./Utils.ts";
 
