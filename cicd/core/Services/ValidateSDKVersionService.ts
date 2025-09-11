@@ -1,5 +1,5 @@
 import { walkSync } from "@std/fs";
-import { Guard } from "../Guard.ts";
+import { isNothing } from "../ParamGuards.ts";
 import { Utils } from "../Utils.ts";
 
 /**
@@ -17,7 +17,7 @@ export class ValidateSDKVersionService {
 	 * @remarks If any of the csproj file SDK version do not match, the workflow will fail.
 	 */
 	public validate(searchBaseDirPath: string, expectedSdkVersion: string): void {
-		Guard.isNothing(expectedSdkVersion, "validate");
+		isNothing(expectedSdkVersion, "validate");
 
 		expectedSdkVersion = expectedSdkVersion.trim().toLowerCase();
 		expectedSdkVersion = expectedSdkVersion.startsWith("v") ? expectedSdkVersion.substring(1) : expectedSdkVersion;

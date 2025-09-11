@@ -1,4 +1,4 @@
-import { Guard } from "../Guard.ts";
+import { isLessThanOne, isNothing } from "../ParamGuards.ts";
 
 /**
  * Provides markdown related services.
@@ -12,8 +12,8 @@ export class MarkdownService {
 	 */
 	public createMarkdownLink(text: string, url: string): string {
 		const funcName = "createMarkdownLink";
-		Guard.isNothing(text, funcName, "text");
-		Guard.isNothing(url, funcName, "url");
+		isNothing(text, funcName, "text");
+		isNothing(url, funcName, "url");
 
 		return `[${text}](${url})`;
 	}
@@ -27,8 +27,8 @@ export class MarkdownService {
 	 */
 	public createHeader(text: string, level: number, isBold = false): string {
 		const funcName = "createHeader";
-		Guard.isNothing(text, funcName, "text");
-		Guard.isLessThanOne(level, funcName, "level");
+		isNothing(text, funcName, "text");
+		isLessThanOne(level, funcName, "level");
 
 		level = level < 1 ? 1 : level;
 		level = level > 6 ? 6 : level;

@@ -1,4 +1,4 @@
-import { Guard } from "../Guard.ts";
+import { isNothing } from "../ParamGuards.ts";
 import { Utils } from "../Utils.ts";
 
 /**
@@ -20,7 +20,7 @@ export class HTMLService {
 		isCentered?: boolean,
 		onSeparateLines?: boolean,
 	): string {
-		Guard.isNothing(text, "createHeader", "text");
+		isNothing(text, "createHeader", "text");
 
 		if (level < 1 || level > 6) {
 			Utils.printAsGitHubError(`The header level '${level}' is not valid. It must be between 1 and 6.`);
@@ -59,7 +59,7 @@ export class HTMLService {
 	 * @returns The HTML div.
 	 */
 	public createCenteredDiv(text: string, onSeparateLines?: boolean): string {
-		Guard.isNothing(text, "createCenteredDiv", "text");
+		isNothing(text, "createCenteredDiv", "text");
 
 		if (onSeparateLines) {
 			return `<div ${this.createCenteredAttr()}>\n${text}\n</div>`;

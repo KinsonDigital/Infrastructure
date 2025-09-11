@@ -1,5 +1,5 @@
 import { RepoClient } from "@kd-clients/github";
-import { Guard } from "./Guard.ts";
+import { isNothing } from "./ParamGuards.ts";
 import { Utils } from "./Utils.ts";
 
 /**
@@ -39,11 +39,11 @@ export class ReleaseTweetBuilder {
 		discordInviteCode: string,
 	): Promise<string> {
 		const funcName = "buildTweet";
-		Guard.isNothing(branchName, funcName, "branchName");
-		Guard.isNothing(relativeFilePath, funcName, "relativeFilePath");
-		Guard.isNothing(projectName, funcName, "projectName");
-		Guard.isNothing(version, funcName, "version");
-		Guard.isNothing(discordInviteCode, funcName, "discordInviteCode");
+		isNothing(branchName, funcName, "branchName");
+		isNothing(relativeFilePath, funcName, "relativeFilePath");
+		isNothing(projectName, funcName, "projectName");
+		isNothing(version, funcName, "version");
+		isNothing(discordInviteCode, funcName, "discordInviteCode");
 
 		version = version.startsWith("v") ? version : `v${version}`;
 

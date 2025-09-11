@@ -1,4 +1,4 @@
-import { Guard } from "../Guard.ts";
+import { isNothing } from "../ParamGuards.ts";
 import { VersionServiceBase } from "./VersionServiceBase.ts";
 import { Utils } from "../Utils.ts";
 import { ReleaseType } from "../Enums.ts";
@@ -24,7 +24,7 @@ export class CSharpVersionService extends VersionServiceBase {
 	 * Updates the version values of a C# project file to the given {@link version}.
 	 */
 	public async updateVersion(version: string, releaseType: ReleaseType): Promise<void> {
-		Guard.isNothing(version, "updateVersion", "version");
+		isNothing(version, "updateVersion", "version");
 
 		version = version.trim().toLowerCase();
 

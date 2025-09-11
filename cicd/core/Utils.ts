@@ -1,5 +1,5 @@
 import { GitHubHttpStatusCodes, GitHubLogType } from "./Enums.ts";
-import { Guard } from "./Guard.ts";
+import { isLessThanOne, isNothing } from "./ParamGuards.ts";
 import { IssueModel, LabelModel, ProjectModel, PullRequestModel, UserModel } from "@kd-clients/github-models";
 
 /**
@@ -302,9 +302,9 @@ export class Utils {
 	 */
 	public static buildIssueUrl(repoOwner: string, repoName: string, issueNumber: number): string {
 		const funcName = "buildIssueUrl";
-		Guard.isNothing(repoOwner, funcName, "repoOwner");
-		Guard.isNothing(repoName, funcName, "repoName");
-		Guard.isLessThanOne(issueNumber, funcName, "issueNumber");
+		isNothing(repoOwner, funcName, "repoOwner");
+		isNothing(repoName, funcName, "repoName");
+		isLessThanOne(issueNumber, funcName, "issueNumber");
 
 		return `https://github.com/${repoOwner}/${repoName}/issues/${issueNumber}`;
 	}
@@ -319,9 +319,9 @@ export class Utils {
 	 */
 	public static buildPullRequestUrl(repoOwner: string, repoName: string, prNumber: number): string {
 		const funcName = "buildPullRequestUrl";
-		Guard.isNothing(repoOwner, funcName, "repoOwner");
-		Guard.isNothing(repoName, funcName, "repoName");
-		Guard.isLessThanOne(prNumber, funcName, "prNumber");
+		isNothing(repoOwner, funcName, "repoOwner");
+		isNothing(repoName, funcName, "repoName");
+		isLessThanOne(prNumber, funcName, "prNumber");
 
 		return `https://github.com/${repoOwner}/${repoName}/pull/${prNumber}`;
 	}
@@ -335,8 +335,8 @@ export class Utils {
 	 */
 	public static buildLabelsUrl(repoOwner: string, repoName: string): string {
 		const funcName = "buildLabelsUrl";
-		Guard.isNothing(repoOwner, funcName, "repoOwner");
-		Guard.isNothing(repoName, funcName, "repoName");
+		isNothing(repoOwner, funcName, "repoOwner");
+		isNothing(repoName, funcName, "repoName");
 
 		return `https://github.com/${repoOwner}/${repoName}/labels`;
 	}
