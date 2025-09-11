@@ -48,9 +48,9 @@ const githubToken = getEnvVar("GITHUB_TOKEN", scriptFileName);
 // TODO: update workflows to use these environment variables
 const X_BROADCAST_ENABLED = "X_BROADCAST_ENABLED";
 const xBroadcastEnabled = getEnvVar(X_BROADCAST_ENABLED, scriptFileName, false).toLowerCase();
-const templateRepoName = getEnvVar("RELEASE_TWEET_TEMPLATE_REPO_NAME", scriptFileName);
-const templateBranchName = getEnvVar("RELEASE_TWEET_TEMPLATE_BRANCH_NAME", scriptFileName);
-const relativeTemplateFilePath = getEnvVar("RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH", scriptFileName);
+const templateRepoName = getEnvVar("RELEASE_X_POST_TEMPLATE_REPO_NAME", scriptFileName);
+const templateBranchName = getEnvVar("RELEASE_X_POST_TEMPLATE_BRANCH_NAME", scriptFileName);
+const relativeTemplateFilePath = getEnvVar("RELATIVE_RELEASE_X_POST_TEMPLATE_FILE_PATH", scriptFileName);
 const discordInviteCode = getEnvVar("DISCORD_INVITE_CODE", scriptFileName);
 
 version = version.startsWith("v") ? version : `v${version}`;
