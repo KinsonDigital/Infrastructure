@@ -1,5 +1,5 @@
 import { existsSync, walkSync } from "jsr:@std/fs@1.0.11";
-import { RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.14";
+import { RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
 import getEnvVar from "../../../cicd/core/GetEnvVar.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();

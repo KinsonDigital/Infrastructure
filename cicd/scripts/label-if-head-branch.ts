@@ -37,7 +37,7 @@ if (headBranch != expectedBranch) {
 }
 
 const labelClient: LabelClient = new LabelClient(ownerName, repoName, token);
-const labelDoesNotExist = !(await labelClient.labelExists(label));
+const labelDoesNotExist = !(await labelClient.exists(label));
 
 if (labelDoesNotExist) {
 	Utils.printAsGitHubError(`The label '${label}' does not exist in the '${repoName}' repo.`);
