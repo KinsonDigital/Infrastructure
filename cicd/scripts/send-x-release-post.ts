@@ -69,9 +69,9 @@ const githubVarService = new GitHubVariableService(ownerName, repoName, githubTo
 githubVarService.setOrgAndRepo(ownerName, repoName);
 
 if (isNothing(xBroadcastEnabled) || xBroadcastEnabled === "false") {
-	const noticeMsg = `No tweet broadcast will be performed.` +
-		`\nTo enable tweet broadcasting, set the '${X_BROADCAST_ENABLED}' variable to 'true'.` +
-		"\nIf the variable is missing, empty, or set to 'false', no tweet broadcast will be performed.";
+	const noticeMsg = `No X post broadcast will be performed.` +
+		`\nTo enable X post broadcasting, set the '${X_BROADCAST_ENABLED}' variable to 'true'.` +
+		"\nIf the variable is missing, empty, or set to 'false', no X post broadcast will be performed.";
 	printAsGitHubNotice(noticeMsg);
 	Deno.exit(0);
 }
@@ -83,9 +83,9 @@ const authValues: XAuthValues = {
 	access_token_secret: accessTokenSecret,
 };
 
-const tweetBuilder: ReleaseXPostBuilder = new ReleaseXPostBuilder(ownerName, templateRepoName, githubToken);
+const postBuilder: ReleaseXPostBuilder = new ReleaseXPostBuilder(ownerName, templateRepoName, githubToken);
 
-const tweet = await tweetBuilder.buildPost(
+const post = await postBuilder.buildPost(
 	templateBranchName,
 	relativeTemplateFilePath,
 	repoName,
@@ -94,6 +94,6 @@ const tweet = await tweetBuilder.buildPost(
 );
 
 const xClient: XClient = new XClient(authValues);
-await xClient.tweet(tweet);
+await xClient.tweet(post);
 
-printAsGitHubNotice(`A release tweet was successfully broadcasted for the '${repoName}' project for version '${version}'.`);
+printAsGitHubNotice(`A release X post was successfully broadcasted for the '${repoName}' project for version '${version}'.`);
