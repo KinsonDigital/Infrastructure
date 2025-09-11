@@ -380,7 +380,7 @@ jobs:
           X_ACCESS_TOKEN_SECRET: "${{ secrets.x-access-token-secret }}"
           X_CONSUMER_API_KEY: "${{ secrets.x-consumer-api-key }}"
           X_CONSUMER_API_SECRET: "${{ secrets.x-consumer-api-secret }}"
-        run: deno run -ERN "${{ steps.script-url.outputs.url }}/send-release-tweet.ts";
+        run: deno run -ERN "${{ steps.script-url.outputs.url }}/send-x-release-post.ts";
 
       - name: Create GitHub Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: ${{ inputs.dry-run == false }}
