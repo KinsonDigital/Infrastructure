@@ -18,7 +18,7 @@ export class GitHubVariableService {
 	 * @param token The GitHub personal access token.
 	 */
 	constructor(ownerName: string, repoName: string, token: string) {
-		const funcName = "setOrgAndRepo";
+		const funcName = "ctor";
 		Guard.isNothing(token, funcName, "token");
 
 		this.orgClient = new OrgClient(ownerName, token);
