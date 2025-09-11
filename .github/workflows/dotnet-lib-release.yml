@@ -56,7 +56,7 @@ on:
         type: boolean
       send-release-tweet:
         required: false
-        description: If true, sends a tweet about the release to twitter.
+        description: If true, sends a tweet about the release to X.
         default: false
         type: boolean
       dry-run:
@@ -73,16 +73,16 @@ on:
         description: The NuGet.org API key.
       twitter-consumer-api-key:
         required: false
-        description: The Twitter consumer API key.
+        description: The X consumer API key.
       twitter-consumer-api-secret:
         required: false
-        description: The Twitter consumer API secret.
+        description: The X consumer API secret.
       twitter-access-token:
         required: false
-        description: The Twitter access token.
+        description: The X access token key.
       twitter-access-token-secret:
         required: false
-        description: The Twitter access token secret.
+        description: The X access token secret.
 
 
 env:
@@ -365,7 +365,7 @@ jobs:
             --api-key ${{ secrets.nuget-org-api-key }} `
             --source https://api.nuget.org/v3/index.json;
 
-      - name: Send Twitter Announcement
+      - name: Send X Announcement
         if: ${{ inputs.send-release-tweet == true && inputs.dry-run == false }}
         env:
           VERSION: "${{ needs.validate_version.outputs.version }}"
