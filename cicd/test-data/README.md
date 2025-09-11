@@ -44,10 +44,8 @@ Please contribute!!
 
 <h2 style="font-weight:bold;" align="center">🔧 Maintainers 🔧</h2>
 
-[![twitter-logo](https://raw.githubusercontent.com/KinsonDigital/.github/master/Images/twitter-logo-16x16.svg)Calvin Wilkinson](https://twitter.com/KDCoder) (KinsonDigital GitHub Organization - Owner)
+[![x-logo](https://raw.githubusercontent.com/KinsonDigital/.github/master/Images/x-logo-16x16.svg)Calvin Wilkinson](https://x.com/KDCoder) (KinsonDigital GitHub Organization - Owner)
   
-[![twitter-logo](https://raw.githubusercontent.com/KinsonDigital/.github/master/Images/twitter-logo-16x16.svg)Kristen Wilkinson](https://twitter.com/kswilky) (KinsonDigital GitHub Organization - Project Management, Documentation, Tester)
-
 <br/>
 
 <h2 style="font-weight:bold;" align="center">🚔 Licensing and Governance 🚔</h2>

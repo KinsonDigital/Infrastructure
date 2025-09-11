@@ -12,7 +12,7 @@
 ### Post-Release ToDo List
 - [ ] The GitHub release has been created and is correct.
 - [ ] The NuGet package has been successfully deployed to [nuget.org](https://www.nuget.org/) _(if applicable)_.
-- [ ] Announcement of release on [Twitter](https://twitter.com/KDCoder) verified. _(if applicable)_.
+- [ ] Announcement of release on [X](https://x.com/KDCoder) verified. _(if applicable)_.
 - [ ] An announcement has been pushed to the [Discord](https://discord.gg/qewu6fNgv7) channel. _(if applicable)_
 - [ ] Documentation website released with updated or added tutorials. _(if applicable)_
 - [ ] The documentation website has been released with updated API changes. _(if applicable)_
