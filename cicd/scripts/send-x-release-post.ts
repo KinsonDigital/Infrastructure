@@ -1,5 +1,5 @@
 import { XClient } from "@kd-clients/social";
-import { ReleaseTweetBuilder } from "../core/ReleaseTweetBuilder.ts";
+import { ReleaseXPostBuilder } from "../core/ReleaseTweetBuilder.ts";
 import { GitHubVariableService } from "../core/Services/GitHubVariableService.ts";
 import {
 	isNothing,
@@ -83,9 +83,9 @@ const authValues: XAuthValues = {
 	access_token_secret: accessTokenSecret,
 };
 
-const tweetBuilder: ReleaseTweetBuilder = new ReleaseTweetBuilder(ownerName, templateRepoName, githubToken);
+const tweetBuilder: ReleaseXPostBuilder = new ReleaseXPostBuilder(ownerName, templateRepoName, githubToken);
 
-const tweet = await tweetBuilder.buildTweet(
+const tweet = await tweetBuilder.buildPost(
 	templateBranchName,
 	relativeTemplateFilePath,
 	repoName,
