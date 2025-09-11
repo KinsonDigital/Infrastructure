@@ -1,7 +1,5 @@
 import { Utils } from "./Utils.ts";
 
-// TODO: Rename this class to 'ParamGuards'
-
 /**
  * A class that contains functions to check if values are invalid.
  */
@@ -12,23 +10,42 @@ export class Guard {
 	 * @returns True if the value is null, undefined, or empty, otherwise false.
 	 */
 	public static isNothing<T>(
-		value: undefined | null | string | T[] | object,
+		value: undefined | null | string | number | boolean | T[] | (() => T) | object,
 		funcName = "",
 		paramName = "",
 	): void {
-		if (Utils.isNothing(value)) {
-			let errorMsg = "The value is null, undefined, or empty.";
+		let type: string | undefined = undefined;
+		let errorMsg = `The {{TYPE}} value is null, undefined, or empty.`;
 
-			if (funcName != "") {
-				errorMsg += `\nFunction Name: ${funcName}`;
-			}
-
-			if (paramName != "") {
-				errorMsg += `\nParam Name: ${paramName}`;
-			}
-
-			throw new Error(errorMsg);
+		if (value === undefined || value === null) {
+			type = "value";
 		}
+
+		if (typeof value === "string") {
+			type = "string";
+		}
+
+		if (Array.isArray(value)) {
+			type = "array";
+		}
+
+		if (type === undefined) {
+			return;
+		}
+
+		errorMsg = errorMsg.replace("{{TYPE}}", type);
+
+		if (funcName !== "") {
+			errorMsg += `\nFunction Name: ${funcName}`;
+		}
+
+		if (paramName !== "") {
+			errorMsg += `\nParam Name: ${paramName}`;
+		}
+
+		Utils.printAsGitHubError(errorMsg);
+
+		throw new Error(errorMsg);
 	}
 
 	/**
