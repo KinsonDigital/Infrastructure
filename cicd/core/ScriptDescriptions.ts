@@ -42,7 +42,7 @@ export class ScriptDescriptions {
 		if (filePath === "") {
 			return "";
 		} else {
-			const fileData: string = File.LoadFile(filePath);
+			const fileData: string = Deno.readTextFileSync(filePath);
 
 			return fileData;
 		}
