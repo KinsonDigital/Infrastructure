@@ -36,7 +36,7 @@ await validateRepoExists(scriptFileName);
 
 const tagClient: TagClient = new TagClient(ownerName, repoName, token);
 
-const tagExists = await tagClient.tagExists(tag);
+const tagExists = await tagClient.exists(tag);
 
 if (tagExists) {
 	Utils.printAsGitHubError(`The tag '${tag}' already exists.`);

@@ -16,8 +16,8 @@ const prClient = new PullRequestClient(ownerName, repoName, token);
 
 const issueOrPrNumber = parseInt(issueOrPrNumberStr);
 
-const isIssueNumber = await issueClient.issueExists(issueOrPrNumber);
-const isPRNumber = await prClient.pullRequestExists(issueOrPrNumber);
+const isIssueNumber = await issueClient.exists(issueOrPrNumber);
+const isPRNumber = await prClient.exists(issueOrPrNumber);
 
 if (isIssueNumber && !isPRNumber) {
 	await projectClient.addIssueToProject(issueOrPrNumber, projectName);

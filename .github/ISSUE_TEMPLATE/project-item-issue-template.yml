@@ -22,10 +22,8 @@ body:
     label: Acceptance Criteria
     description: The items to complete to satisfy the Definition of Done.
     value: |
-      ```[tasklist]
       ### The items to complete to satisfy the Definition of Done.
       - [ ] All the unit tests have been executed and passed locally after PR work is complete. _(Why? Refer to 'Additional Information' below.)_
-      ```
   validations:
     required: true
     render: markdown
@@ -35,12 +33,10 @@ body:
     label: ToDo Items
     description: Complete the following items before requesting a PR review.
     value: |
-      ```[tasklist]
       ### The items to complete to satisfy the Definition of Done.
       - [ ] Add a change type label to the issue. Refer to the _**Change Type Labels**_ section below.
       - [ ] Add a priority label to the issue. Refer to the _**Priority Type Labels**_ section below.
       - [ ] Link the issue to the correct milestone _(if applicable)_.
-      ```
 
 - type: textarea
   attributes:

@@ -59,7 +59,10 @@ export class ValidateSDKVersionService {
 				try {
 					currentSdkVersion = this.getCSProjTargetFrameworkVersion(fileData).replace("net", "");
 				} catch (error) {
-					nonMatchingVersions.push([csProjFile, error.message]);
+					const errMsg = error instanceof Error
+						? error.message
+						: `Failed to get target framework version for file '${csProjFile}': ${String(error)}`;
+					nonMatchingVersions.push([csProjFile, errMsg]);
 				}
 
 				const versionsMatch = expectedSdkVersion === currentSdkVersion;

@@ -42,7 +42,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 	/**
 	 * Runs the sync status check script.
 	 */
-	public async run(): Promise<void> {
+	public override async run(): Promise<void> {
 		await super.run();
 
 		const [ownerName, repoName, issueOrPrNumber, eventTypeStr] = this.args;
@@ -58,7 +58,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		if (eventType === EventType.issue) {
 			issueNumber = Number.parseInt(issueOrPrNumber);
 
-			if (!(await this.issueClient.openIssueExists(issueNumber))) {
+			if (!(await this.issueClient.openExists(issueNumber))) {
 				problemsFound.push(`The issue '${issueNumber}' does not exist.`);
 			} else {
 				// Get the pull request number by parsing the pr metadata in the issue description
@@ -80,7 +80,7 @@ export class SyncBotStatusCheckRunner extends ScriptRunner {
 		} else { // Run as a status check
 			prNumber = Number.parseInt(issueOrPrNumber);
 
-			if (!(await this.prClient.pullRequestExists(prNumber))) {
+			if (!(await this.prClient.exists(prNumber))) {
 				problemsFound.push(`The pull request '${prNumber}' does not exist.`);
 			} else {
 				const headBranch = (await this.getPullRequest(prNumber)).head.ref;

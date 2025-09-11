@@ -19,7 +19,7 @@ This pull request closes #123456
 2. The associated issue is the issue number that is embedded in the pull request head branch.
 3. The list above will be automatically updated as the pull request's various settings match or do not match the associated issue.
 4. To manually sync the pull request to the issue, create a comment with the `[run-sync]` command.
-    > **Note** You must be an admin member of the organization to use this command.
+    > [!Note] You must be an admin member of the organization to use this command.
 
 ---
 

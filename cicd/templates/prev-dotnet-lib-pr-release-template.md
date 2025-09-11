@@ -1,4 +1,3 @@
-```[tasklist]
 ### Pre-Release ToDo List
 - [ ] All issues in the assigned milestone are closed and all issue tasks are complete.
 - [ ] Add _**`🚀Preview Release`**_ label to this pull request.
@@ -9,9 +8,7 @@
 - [ ] Auto-generated release notes have been reviewed and updated if necessary.
 - [ ] Manual QA Testing completed _(if applicable)_.
 - [ ] Release to **_preview_** completed. _(The release is performed by running the `🚀Release` workflow)_.
-```
 
-```[tasklist]
 ### Post-Release ToDo List
 - [ ] The GitHub release has been created and is correct.
 - [ ] The NuGet package has been successfully deployed to [nuget.org](https://www.nuget.org/) _(if applicable)_.
@@ -19,7 +16,6 @@
 - [ ] An announcement has been pushed to the [Discord](https://discord.gg/qewu6fNgv7) channel. _(if applicable)_
 - [ ] Documentation website released with updated or added tutorials. _(if applicable)_
 - [ ] The documentation website has been released with updated API changes. _(if applicable)_
-```
 
 ### Additional Information:
 

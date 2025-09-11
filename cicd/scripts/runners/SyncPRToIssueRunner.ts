@@ -31,7 +31,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 	/**
 	 * Runs the sync issue to pr script.
 	 */
-	public async run(): Promise<void> {
+	public override async run(): Promise<void> {
 		await super.run();
 
 		const [ownerName, repoName, , prNumberStr] = this.args;
@@ -169,7 +169,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 			Deno.exit(1);
 		}
 
-		const prDoesNotExist = !(await prClient.pullRequestExists(prNumber));
+		const prDoesNotExist = !(await prClient.exists(prNumber));
 		if (prDoesNotExist) {
 			Utils.printAsGitHubError(`A pull request with the number '${prNumber}' does not exist.`);
 			Deno.exit(1);
@@ -254,7 +254,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 				pr = await prClient.getPullRequest(prNumber);
 				issueNumber = this.getIssueFromFeatureBranch(pr.head.ref);
 
-				if (!(await issueClient.issueExists(issueNumber))) {
+				if (!(await issueClient.exists(issueNumber))) {
 					let warningMsg = `The issue '${issueNumber}' does not exist.`;
 					warningMsg += " The pull request was not synced to an issue.";
 					Utils.printAsGitHubWarning(warningMsg);
@@ -288,11 +288,11 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 		const issueClient = new IssueClient(ownerName, repoName, this.token);
 		const prClient = new PullRequestClient(ownerName, repoName, this.token);
 
-		if (await prClient.pullRequestExists(issueOrPullRequestNumber)) {
+		if (await prClient.exists(issueOrPullRequestNumber)) {
 			return IssueOrPullRequest.pullRequest;
 		}
 
-		if (await issueClient.issueExists(issueOrPullRequestNumber)) {
+		if (await issueClient.exists(issueOrPullRequestNumber)) {
 			return IssueOrPullRequest.issue;
 		}
 

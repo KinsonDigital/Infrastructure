@@ -11,8 +11,8 @@ if (Utils.isNothing(DenoConfig.version)) {
 
 const githubOutputFilePath = getEnvVar("GITHUB_OUTPUT", scriptFileName);
 
-const version = (DenoConfig.version.startsWith("v") 
-	? DenoConfig.version.trim().toLocaleLowerCase()
+const version = (DenoConfig.version.startsWith("v")
+	? DenoConfig.version
 	: `v${DenoConfig.version}`).trim().toLocaleLowerCase();
 
 const versionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)(-preview\.([1-9]\d*))?$/gm;

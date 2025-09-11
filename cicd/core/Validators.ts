@@ -57,7 +57,7 @@ const validateMilestoneExists = async (milestoneTitle: string, scriptFileName?: 
 
 	const milestoneClient = new MilestoneClient(ownerName, repoName, token);
 
-	if (!(await milestoneClient.milestoneExists(milestoneTitle))) {
+	if (!(await milestoneClient.exists(milestoneTitle))) {
 		const errorMsg = `The milestone '${milestoneTitle}' for repo '${repoName}' does not exist.` +
 			(Utils.isNothing(scriptFileName) ? "" : `\n\t${scriptFileName}`);
 
