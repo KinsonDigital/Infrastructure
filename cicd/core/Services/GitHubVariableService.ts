@@ -1,5 +1,5 @@
 import { OrgClient, RepoClient } from "@kd-clients/github";
-import { Guard } from "../Guard.ts";
+import { isNothing } from "../ParamGuards.ts";
 import { GitHubVarModel } from "@kd-clients/github-models";
 
 /**
@@ -18,8 +18,8 @@ export class GitHubVariableService {
 	 * @param token The GitHub personal access token.
 	 */
 	constructor(ownerName: string, repoName: string, token: string) {
-		const funcName = "setOrgAndRepo";
-		Guard.isNothing(token, funcName, "token");
+		const funcName = "ctor";
+		isNothing(token, funcName, "token");
 
 		this.orgClient = new OrgClient(ownerName, token);
 		this.repoClient = new RepoClient(ownerName, repoName, token);
@@ -32,8 +32,8 @@ export class GitHubVariableService {
 	 */
 	public setOrgAndRepo(ownerName: string, repoName: string): void {
 		const funcName = "setOrgAndRepo";
-		Guard.isNothing(ownerName, funcName, "ownerName");
-		Guard.isNothing(repoName, funcName, "repoName");
+		isNothing(ownerName, funcName, "ownerName");
+		isNothing(repoName, funcName, "repoName");
 	}
 
 	/**
@@ -98,7 +98,7 @@ export class GitHubVariableService {
 	 * @remarks The variables are cached to reduce requests to GitHub.
 	 */
 	private async getVar(name: string): Promise<GitHubVarModel | undefined> {
-		Guard.isNothing(name, "getVar", "name");
+		isNothing(name, "getVar", "name");
 
 		if (this.cachedVars.length === 0) {
 			const orgVars = await this.orgClient.getVariables();

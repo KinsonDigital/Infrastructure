@@ -1,5 +1,21 @@
 import { IssueClient, OrgClient, ProjectClient, PullRequestClient, RepoClient, UsersClient } from "@kd-clients/github";
-import { Utils } from "../../core/Utils.ts";
+import {
+	assigneesMatch,
+	isFeatureBranch,
+	isNotFeatureBranch,
+	isNothing,
+	isNumeric,
+	labelsMatch,
+	orgProjectsMatch,
+	printAsGitHubError,
+	printAsGitHubErrors,
+	printAsGitHubNotice,
+	printAsGitHubWarning,
+	printInGroup,
+	splitBy,
+	splitByComma,
+	trimAll,
+} from "../../core/Utils.ts";
 import { ScriptRunner } from "./ScriptRunner.ts";
 import { IssueModel, ProjectModel, PullRequestModel } from "@kd-clients/github-models";
 import { PRTemplateManager } from "../../core/PRTemplateManager.ts";
@@ -60,7 +76,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 			}
 
 			await projectClient.addPullRequestToProject(pr.number, proj.title);
-			Utils.printAsGitHubNotice(`Pull request '${prNumber}' has been added to project '${proj.title}'.`);
+			printAsGitHubNotice(`Pull request '${prNumber}' has been added to project '${proj.title}'.`);
 		}
 
 		await this.addPullRequestMetaData(ownerName, repoName, issue, prNumber);
@@ -69,7 +85,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 
 		let reviewerMsg = `The reviewer '${defaultReviewer}' has been requested as a reviewer `;
 		reviewerMsg += `for the pull request ${prNumber}.`;
-		Utils.printAsGitHubNotice(reviewerMsg);
+		printAsGitHubNotice(reviewerMsg);
 
 		const issueLabels = issue.labels?.map((label) => label.name) ?? [];
 		const prData: IIssueOrPRRequestData = {
@@ -100,7 +116,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 			errorMsg += "\nThe 4th arg is required and must be a valid issue or pull request number.";
 			errorMsg += "\nThe 5th arg is required and must be a valid GitHub PAT (Personal Access Token).";
 
-			Utils.printAsGitHubError(errorMsg);
+			printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
@@ -115,8 +131,8 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 		const prClient = new PullRequestClient(ownerName, repoName, this.token);
 		const usersClient = new UsersClient(ownerName, repoName, this.token);
 
-		if (!Utils.isNumeric(issueOrPRNumberStr)) {
-			Utils.printAsGitHubError(`The given issue or pull request number '${issueOrPRNumberStr}' is not a valid number.`);
+		if (!isNumeric(issueOrPRNumberStr)) {
+			printAsGitHubError(`The given issue or pull request number '${issueOrPRNumberStr}' is not a valid number.`);
 			Deno.exit(1);
 		}
 
@@ -138,7 +154,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 				missingVarErrors.push(`The required org/repo variable '${missingVarName}' is missing.`);
 			}
 
-			Utils.printAsGitHubErrors(missingVarErrors);
+			printAsGitHubErrors(missingVarErrors);
 			Deno.exit(1);
 		}
 
@@ -152,26 +168,26 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 			if (userIsNotOrgMember) {
 				let errorMsg = `The user '${requestByUser}' is not member of the`;
 				errorMsg += ` organization '${ownerName}' with the admin role.`;
-				Utils.printAsGitHubError(errorMsg);
+				printAsGitHubError(errorMsg);
 				Deno.exit(1);
 			}
 		} else {
 			const requestedByUserDoesNotExist = !(await usersClient.userExists(requestByUser));
 			if (requestedByUserDoesNotExist) {
-				Utils.printAsGitHubError(`The requested by user '${requestByUser}' does not exist.`);
+				printAsGitHubError(`The requested by user '${requestByUser}' does not exist.`);
 				Deno.exit(1);
 			}
 		}
 
 		const repoDoesNotExist = !(await repoClient.exists());
 		if (repoDoesNotExist) {
-			Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
+			printAsGitHubError(`The repository '${repoName}' does not exist.`);
 			Deno.exit(1);
 		}
 
 		const prDoesNotExist = !(await prClient.exists(prNumber));
 		if (prDoesNotExist) {
-			Utils.printAsGitHubError(`A pull request with the number '${prNumber}' does not exist.`);
+			printAsGitHubError(`A pull request with the number '${prNumber}' does not exist.`);
 			Deno.exit(1);
 		}
 
@@ -181,8 +197,8 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 
 		// If the branch is not a feature branch, exit
 		// We do not want to sync a pull request for a branch that is not a feature branch
-		if (Utils.isNotFeatureBranch(headBranch)) {
-			Utils.printAsGitHubError(`The head branch '${headBranch}' is not a feature branch.`);
+		if (isNotFeatureBranch(headBranch)) {
+			printAsGitHubError(`The head branch '${headBranch}' is not a feature branch.`);
 			Deno.exit(1);
 		}
 
@@ -194,7 +210,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 			errorMsg +=
 				`\nVerify that the value of the '${SyncPRToIssueRunner.DEFAULT_PR_REVIEWER}' or/repo variable is correct.`;
 
-			Utils.printAsGitHubError(errorMsg);
+			printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 	}
@@ -203,7 +219,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 	 * @inheritdoc
 	 */
 	protected mutateArgs(args: string[]): string[] {
-		return Utils.trimAll(args);
+		return trimAll(args);
 	}
 
 	/**
@@ -231,7 +247,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 		) {
 			let errorMsg = `The given issue or pull request number '${issueOrPrNumber}' `;
 			errorMsg += "is not a valid issue or pull request number.";
-			Utils.printAsGitHubError(errorMsg);
+			printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
@@ -244,7 +260,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 				if (prNumber === 0) {
 					let warningMsg = `The issue '${issueNumber}' does not contain any valid pull request number meta-data.`;
 					warningMsg += " The pull request was not synced to an issue.";
-					Utils.printAsGitHubWarning(warningMsg);
+					printAsGitHubWarning(warningMsg);
 					Deno.exit(0);
 				}
 
@@ -257,7 +273,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 				if (!(await issueClient.exists(issueNumber))) {
 					let warningMsg = `The issue '${issueNumber}' does not exist.`;
 					warningMsg += " The pull request was not synced to an issue.";
-					Utils.printAsGitHubWarning(warningMsg);
+					printAsGitHubWarning(warningMsg);
 					Deno.exit(0);
 				}
 
@@ -265,7 +281,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 			case IssueOrPullRequest.neither: {
 				let warningMsg = `The number '${issueOrPrNumber}' is not an issue or pull request number.`;
 				warningMsg += " The pull request was not synced to an issue.";
-				Utils.printAsGitHubWarning(warningMsg);
+				printAsGitHubWarning(warningMsg);
 				Deno.exit(0);
 			}
 		}
@@ -320,7 +336,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 			: issue.body + `\n\n${prMetaData}`;
 
 		const subText = prMetaDataExists ? "updated in" : "added to";
-		Utils.printAsGitHubNotice(`PR link metadata ${subText} the description of issue '${issue.number}'.`);
+		printAsGitHubNotice(`PR link metadata ${subText} the description of issue '${issue.number}'.`);
 
 		// Update the description of the issue to include metadata about the pr number
 		const issueData: IIssueOrPRRequestData = {
@@ -337,7 +353,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 	 * @returns The pull request number.
 	 */
 	private getPRNumberFromIssueBody(issueBody: string): number {
-		if (Utils.isNothing(issueBody)) {
+		if (isNothing(issueBody)) {
 			return 0;
 		}
 
@@ -384,13 +400,13 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 
 		const syncSettings: IPRTemplateSettings = {
 			issueNumber: issueNumber,
-			headBranchValid: Utils.isFeatureBranch(pr.head.ref),
+			headBranchValid: isFeatureBranch(pr.head.ref),
 			baseBranchValid: prBaseBranchValid,
 			issueNumValid: true,
 			titleInSync: pr?.title === issue?.title,
-			assigneesInSync: Utils.assigneesMatch(issue.assignees, pr.assignees),
-			labelsInSync: Utils.labelsMatch(issue.labels, pr.labels),
-			projectsInSync: Utils.orgProjectsMatch(issueProjects, prProjects),
+			assigneesInSync: assigneesMatch(issue.assignees, pr.assignees),
+			labelsInSync: labelsMatch(issue.labels, pr.labels),
+			projectsInSync: orgProjectsMatch(issueProjects, prProjects),
 			milestoneInSync: pr.milestone?.number === issue.milestone?.number,
 		};
 
@@ -408,12 +424,12 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 	 * @returns The issue number parsed from the feature branch.
 	 */
 	private getIssueFromFeatureBranch(featureBranch: string): number {
-		if (!Utils.isFeatureBranch(featureBranch)) {
-			Utils.printAsGitHubError(`The given branch '${featureBranch}' is not a feature branch.`);
+		if (!isFeatureBranch(featureBranch)) {
+			printAsGitHubError(`The given branch '${featureBranch}' is not a feature branch.`);
 			Deno.exit(1);
 		}
 
-		return parseInt(Utils.splitBy(featureBranch.replace("feature/", ""), "-")[0]);
+		return parseInt(splitBy(featureBranch.replace("feature/", ""), "-")[0]);
 	}
 
 	/**
@@ -425,16 +441,16 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 
 		const prSyncBranchesStr = await this.githubVarService.getValue(SyncPRToIssueRunner.PR_SYNC_BASE_BRANCHES, false);
 
-		if (Utils.isNothing(prSyncBranchesStr)) {
+		if (isNothing(prSyncBranchesStr)) {
 			let noticeMsg =
 				`The optional variable '${SyncPRToIssueRunner.PR_SYNC_BASE_BRANCHES}' does not exist or contains no value.`;
 			noticeMsg += `\nUsing the default branches: ${defaultBranches.join(", ")}.`;
-			Utils.printAsGitHubNotice(noticeMsg);
+			printAsGitHubNotice(noticeMsg);
 
 			return defaultBranches;
 		}
 
-		const prSyncBaseBranches = Utils.splitByComma(prSyncBranchesStr);
+		const prSyncBaseBranches = splitByComma(prSyncBranchesStr);
 
 		return prSyncBaseBranches.length > 0 ? prSyncBaseBranches : defaultBranches;
 	}
@@ -443,7 +459,7 @@ export class SyncPRToIssueRunner extends ScriptRunner {
 	 * Prints the required org or repo variables for the runner.
 	 */
 	private printOrgRepoVarsUsed(): void {
-		Utils.printInGroup("Required Org Or Repo Variables", this.getRequiredVars());
+		printInGroup("Required Org Or Repo Variables", this.getRequiredVars());
 	}
 
 	/* Gets the list of required vars.

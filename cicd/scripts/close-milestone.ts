@@ -1,7 +1,7 @@
 import { MilestoneClient, RepoClient } from "@kd-clients/github";
 import { MilestoneModel } from "@kd-clients/github-models";
 import getEnvVar from "../core/GetEnvVar.ts";
-import { Utils } from "../core/Utils.ts";
+import { printAsGitHubError } from "../core/Utils.ts";
 import { validateOrgExists, validateRepoExists } from "../core/Validators.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
@@ -15,7 +15,7 @@ const repoClient: RepoClient = new RepoClient(ownerName, repoName, token);
 const repoDoesNotExist = !(await repoClient.exists());
 
 if (repoDoesNotExist) {
-	Utils.printAsGitHubError(`The repository '${repoName}' does not exist.`);
+	printAsGitHubError(`The repository '${repoName}' does not exist.`);
 	Deno.exit(1);
 }
 

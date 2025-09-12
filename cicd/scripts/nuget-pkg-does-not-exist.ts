@@ -1,6 +1,6 @@
 import { NuGetClient } from "@kd-clients/packaging";
 import getEnvVar from "../core/GetEnvVar.ts";
-import { Utils } from "../core/Utils.ts";
+import { printAsGitHubError } from "../core/Utils.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
@@ -15,13 +15,13 @@ const client: NuGetClient = new NuGetClient();
 const packageDoestNotExist = !(await client.exists(packageName));
 
 if (packageDoestNotExist) {
-	Utils.printAsGitHubError(`The NuGet package '${packageName}' does not exist.`);
+	printAsGitHubError(`The NuGet package '${packageName}' does not exist.`);
 	Deno.exit(1);
 }
 
 const packageVersionExists: boolean = await client.exists(packageName, version);
 
 if (packageVersionExists) {
-	Utils.printAsGitHubError(`The NuGet package '${packageName}' with version '${version}' already exists.`);
+	printAsGitHubError(`The NuGet package '${packageName}' with version '${version}' already exists.`);
 	Deno.exit(1);
 }

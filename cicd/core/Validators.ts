@@ -1,6 +1,6 @@
 import { MilestoneClient, OrgClient, RepoClient } from "@kd-clients/github";
 import getEnvVar from "./GetEnvVar.ts";
-import { Utils } from "./Utils.ts";
+import { isNothing, printAsGitHubError } from "./Utils.ts";
 
 /**
  * Validates that a GitHub organization exists.
@@ -16,9 +16,9 @@ const validateOrgExists = async (scriptFileName?: string): Promise<void> => {
 	// If the org does not exist
 	if (!(await orgClient.exists())) {
 		const errorMsg = `The organization '${ownerName}' does not exist.` +
-			(Utils.isNothing(scriptFileName) ? "" : `\n\t${scriptFileName}`);
+			(isNothing(scriptFileName) ? "" : `\n\t${scriptFileName}`);
 
-		Utils.printAsGitHubError(errorMsg);
+		printAsGitHubError(errorMsg);
 		Deno.exit(1);
 	}
 };
@@ -37,9 +37,9 @@ const validateRepoExists = async (scriptFileName?: string): Promise<void> => {
 
 	if (!(await repoClient.exists())) {
 		const errorMsg = `The repository '${repoName}' does not exist.` +
-			(Utils.isNothing(scriptFileName) ? "" : `\n\t${scriptFileName}`);
+			(isNothing(scriptFileName) ? "" : `\n\t${scriptFileName}`);
 
-		Utils.printAsGitHubError(errorMsg);
+		printAsGitHubError(errorMsg);
 		Deno.exit(1);
 	}
 };
@@ -59,9 +59,9 @@ const validateMilestoneExists = async (milestoneTitle: string, scriptFileName?: 
 
 	if (!(await milestoneClient.exists(milestoneTitle))) {
 		const errorMsg = `The milestone '${milestoneTitle}' for repo '${repoName}' does not exist.` +
-			(Utils.isNothing(scriptFileName) ? "" : `\n\t${scriptFileName}`);
+			(isNothing(scriptFileName) ? "" : `\n\t${scriptFileName}`);
 
-		Utils.printAsGitHubError(errorMsg);
+		printAsGitHubError(errorMsg);
 		Deno.exit(1);
 	}
 };

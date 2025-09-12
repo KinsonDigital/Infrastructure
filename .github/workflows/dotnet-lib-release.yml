@@ -54,9 +54,9 @@ on:
         description: If true, transpiles the README.md file HTML to markdown.
         default: false
         type: boolean
-      send-release-tweet:
+      send-x-release-post:
         required: false
-        description: If true, sends a tweet about the release to twitter.
+        description: If true, sends a post about the release to X.
         default: false
         type: boolean
       dry-run:
@@ -71,18 +71,18 @@ on:
       nuget-org-api-key:
         required: true
         description: The NuGet.org API key.
-      twitter-consumer-api-key:
+      x-consumer-api-key:
         required: false
-        description: The Twitter consumer API key.
-      twitter-consumer-api-secret:
+        description: The X consumer API key.
+      x-consumer-api-secret:
         required: false
-        description: The Twitter consumer API secret.
-      twitter-access-token:
+        description: The X consumer API secret.
+      x-access-token-key:
         required: false
-        description: The Twitter access token.
-      twitter-access-token-secret:
+        description: The X access token key.
+      x-access-token-secret:
         required: false
-        description: The Twitter access token secret.
+        description: The X access token secret.
 
 
 env:
@@ -166,8 +166,9 @@ jobs:
         id: release-notes-check
         continue-on-error: true
         env:
-          TAG_NAME: "${{ needs.validate_version.outputs.version }}"
+          RELATIVE_RELEASE_NOTES_DIR_PATH: "${{ inputs.relative-release-notes-dir-path }}"
           RELEASE_TYPE: "${{ inputs.release-type }}"
+          TAG_NAME: "${{ needs.validate_version.outputs.version }}"
         run: |
           $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/release-notes-exist.ts";
 
@@ -365,26 +366,21 @@ jobs:
             --api-key ${{ secrets.nuget-org-api-key }} `
             --source https://api.nuget.org/v3/index.json;
 
-      - name: Send Twitter Announcement
-        if: ${{ inputs.send-release-tweet == true && inputs.dry-run == false }}
+      - name: Send X Announcement
+        if: ${{ inputs.send-x-release-post == true && inputs.dry-run == false }}
         env:
           VERSION: "${{ needs.validate_version.outputs.version }}"
           GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
-          RELEASE_TWEET_TEMPLATE_REPO_NAME: "${{ vars.RELEASE_TWEET_TEMPLATE_REPO_NAME }}"
-          RELEASE_TWEET_TEMPLATE_BRANCH_NAME: "${{ vars.RELEASE_TWEET_TEMPLATE_BRANCH_NAME }}"
-          RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH: "${{ vars.RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH }}"
+          RELEASE_X_POST_TEMPLATE_REPO_NAME: "${{ vars.RELEASE_X_POST_TEMPLATE_REPO_NAME }}"
+          RELEASE_X_POST_TEMPLATE_BRANCH_NAME: "${{ vars.RELEASE_X_POST_TEMPLATE_BRANCH_NAME }}"
+          RELATIVE_RELEASE_X_POST_TEMPLATE_FILE_PATH: "${{ vars.RELATIVE_RELEASE_X_POST_TEMPLATE_FILE_PATH }}"
           DISCORD_INVITE_CODE: "${{ vars.DISCORD_INVITE_CODE }}"
-          TWITTER_BROADCAST_ENABLED: "${{ vars.TWITTER_BROADCAST_ENABLED }}"
-          TWITTER_ACCESS_TOKEN_KEY: "${{ secrets.twitter-access-token }}"
-          TWITTER_ACCESS_TOKEN_SECRET: "${{ secrets.twitter-access-token-secret }}"
-          TWITTER_CONSUMER_API_KEY: "${{ secrets.twitter-consumer-api-key }}"
-          TWITTER_CONSUMER_API_SECRET: "${{ secrets.twitter-consumer-api-secret }}"
-        run: deno run -ERN "${{ steps.script-url.outputs.url }}/send-release-tweet.ts";
-
-      - name: Get GitHub Workspace
-        id: base-dir-path
-        run: |
-          "github-workspace=${{ github.workspace }}" >> $env:GITHUB_OUTPUT;
+          X_BROADCAST_ENABLED: "${{ vars.X_BROADCAST_ENABLED }}"
+          X_ACCESS_TOKEN_KEY: "${{ secrets.x-access-token-key }}"
+          X_ACCESS_TOKEN_SECRET: "${{ secrets.x-access-token-secret }}"
+          X_CONSUMER_API_KEY: "${{ secrets.x-consumer-api-key }}"
+          X_CONSUMER_API_SECRET: "${{ secrets.x-consumer-api-secret }}"
+        run: deno run -ERN "${{ steps.script-url.outputs.url }}/send-x-release-post.ts";
 
       - name: Create GitHub Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: ${{ inputs.dry-run == false }}

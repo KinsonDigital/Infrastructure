@@ -1,5 +1,5 @@
 import getEnvVar from "../core/GetEnvVar.ts";
-import { Utils } from "../core/Utils.ts";
+import { isNotValidPreviewVersion, isNotValidProdVersion, printAsGitHubError, printAsGitHubNotice } from "../core/Utils.ts";
 
 type ReleaseType = "production" | "preview";
 
@@ -14,13 +14,11 @@ const releaseTypeInvalid = releaseType != "production" && releaseType != "previe
 
 if (releaseTypeInvalid) {
 	const errorMsg = `The version type argument '${releaseType}' is invalid.  Valid values are 'production' or 'preview'.`;
-	Utils.printAsGitHubError(errorMsg);
+	printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 
-const versionIsInvalid = releaseType === "production"
-	? Utils.isNotValidProdVersion(version)
-	: Utils.isNotValidPreviewVersion(version);
+const versionIsInvalid = releaseType === "production" ? isNotValidProdVersion(version) : isNotValidPreviewVersion(version);
 
 if (versionIsInvalid) {
 	const releaseTypeStr = releaseType === "production" || releaseType === "preview" ? releaseType : "production or preview";
@@ -28,8 +26,8 @@ if (versionIsInvalid) {
 		"\n\tThe production version syntax is as follows: v<major>.<minor>.<patch>" +
 		"\n\tThe preview version syntax is as follows: v<major>.<minor>.<patch>-preview.<preview number>";
 
-	Utils.printAsGitHubError(errorMsg);
+	printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 
-Utils.printAsGitHubNotice(`✅The ${releaseType} version '${version}' is valid!!✅`);
+printAsGitHubNotice(`✅The ${releaseType} version '${version}' is valid!!✅`);

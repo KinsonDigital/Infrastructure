@@ -42,22 +42,22 @@ jobs:
       - name: Validate Workflow Inputs
         run: |
           if ("${{ inputs.org-name }}" -eq "") {
-            Write-Host ":error::The 'org-name' workflow input cannot be empty.";
+            Write-Host "::error::The 'org-name' workflow input cannot be empty.";
             exit 1;
           }
 
           if ("${{ inputs.org-project-name }}" -eq "") {
-            Write-Host ":error::The 'org-project-name' workflow input cannot be empty.";
+            Write-Host "::error::The 'org-project-name' workflow input cannot be empty.";
             exit 1;
           }
 
           if ("${{ inputs.repo-name }}" -eq "") {
-            Write-Host ":error::The 'repo-name' workflow input cannot be empty.";
+            Write-Host "::error::The 'repo-name' workflow input cannot be empty.";
             exit 1;
           }
 
           if ("${{ inputs.item-number }}" -eq "") {
-            Write-Host ":error::The 'item-number' workflow input cannot be empty.";
+            Write-Host "::error::The 'item-number' workflow input cannot be empty.";
             exit 1;
           }
 

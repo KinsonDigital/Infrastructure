@@ -1,6 +1,6 @@
 import { RepoClient } from "@kd-clients/github";
 import getEnvVar from "../../../cicd/core/GetEnvVar.ts";
-import { Utils } from "../../../cicd/core/Utils.ts";
+import { printAsGitHubNotice } from "../../../cicd/core/Utils.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 const ownerName = getEnvVar("OWNER_NAME", scriptFileName);
@@ -20,7 +20,7 @@ try {
 
 	await client.updateVariable(cicdScriptVersionRepoVarName, newVersion);
 
-	Utils.printAsGitHubNotice(`Updated the repository variable '${cicdScriptVersionRepoVarName}' value to '${newVersion}'.`);
+	printAsGitHubNotice(`Updated the repository variable '${cicdScriptVersionRepoVarName}' value to '${newVersion}'.`);
 } catch (error) {
 	if (error instanceof Error) {
 		console.error(error.message);

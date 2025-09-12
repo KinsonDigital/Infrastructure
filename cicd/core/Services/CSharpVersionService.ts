@@ -1,6 +1,6 @@
-import { Guard } from "../Guard.ts";
+import { isNothing } from "../ParamGuards.ts";
 import { VersionServiceBase } from "./VersionServiceBase.ts";
-import { Utils } from "../Utils.ts";
+import { isValidPreviewVersion, isValidProdVersion, printAsGitHubError } from "../Utils.ts";
 import { ReleaseType } from "../Enums.ts";
 
 /**
@@ -24,7 +24,7 @@ export class CSharpVersionService extends VersionServiceBase {
 	 * Updates the version values of a C# project file to the given {@link version}.
 	 */
 	public async updateVersion(version: string, releaseType: ReleaseType): Promise<void> {
-		Guard.isNothing(version, "updateVersion", "version");
+		isNothing(version, "updateVersion", "version");
 
 		version = version.trim().toLowerCase();
 
@@ -34,7 +34,7 @@ export class CSharpVersionService extends VersionServiceBase {
 		if (!this.versionIsValid(version)) {
 			let errorMsg = `The version '${version}' is not a valid preview or production version.`;
 			errorMsg += "\nRequired Syntax: #.#.# or v#.#.#-preview.#";
-			Utils.printAsGitHubError(errorMsg);
+			printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
@@ -44,7 +44,7 @@ export class CSharpVersionService extends VersionServiceBase {
 		if (!this.fileContainsVersionSchema(csprojFileData)) {
 			let errorMsg = `The file '${csprojFileName}' does not contain a '<Version/>' tag.`;
 			errorMsg += "\nPlease add a version tag with the following syntax: <Version></Version>";
-			Utils.printAsGitHubError(errorMsg);
+			printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
@@ -52,7 +52,7 @@ export class CSharpVersionService extends VersionServiceBase {
 			const errorMsg = `The version '${version}' is already set for the '<Version/>' and/or '<FileVersion/>' tags in the` +
 				` file '${csprojFileName}'.` +
 				"\nPlease use a different version.";
-			Utils.printAsGitHubError(errorMsg);
+			printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
@@ -70,7 +70,7 @@ export class CSharpVersionService extends VersionServiceBase {
 	 * @inheritdoc
 	 */
 	public versionIsValid(version: string): boolean {
-		return Utils.isValidPreviewVersion(version) && Utils.isValidProdVersion(version);
+		return isValidPreviewVersion(version) && isValidProdVersion(version);
 	}
 
 	/**

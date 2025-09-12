@@ -1,5 +1,5 @@
 import { existsSync } from "@std/fs";
-import { Utils } from "../Utils.ts";
+import { normalizeLineEndings, printAsGitHubError, splitBy, trimAllStartingWhiteSpace } from "../Utils.ts";
 
 /**
  * Transpiles the HTML content in a README.md file to markdown.
@@ -30,7 +30,7 @@ export class ReadMeTranspilerService {
 		if (!existsSync(readmeFilePath)) {
 			let errorMsg = "Error with transpiling readme.";
 			errorMsg += `\nThe given path '${readmeFilePath}' is not a valid file path.`;
-			Utils.printAsGitHubError(errorMsg);
+			printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
@@ -133,7 +133,7 @@ export class ReadMeTranspilerService {
 				errorMsg += "\nIf a dark mode image is being used, then a light mode image must also be used.";
 				errorMsg += "\nThis is to ensure that a light mode image is left behind for the README.md file for nuget.org.";
 				errorMsg += "\nThis is because nuget.org does not support the GitHub dark mode syntax.";
-				Utils.printAsGitHubError(errorMsg);
+				printAsGitHubError(errorMsg);
 				Deno.exit(1);
 			}
 
@@ -191,13 +191,13 @@ export class ReadMeTranspilerService {
 	 * @returns The mutated content.
 	 */
 	private bumpMarkdownLinksToLeft(content: string): string {
-		content = Utils.normalizeLineEndings(content);
+		content = normalizeLineEndings(content);
 
-		const lines = Utils.splitBy(content, "\n");
+		const lines = splitBy(content, "\n");
 
 		for (let i = 0; i < lines.length; i++) {
 			if (this.markdownStartingWithWhiteSpaceRegEx.test(lines[i])) {
-				lines[i] = Utils.trimAllStartingWhiteSpace(lines[i]);
+				lines[i] = trimAllStartingWhiteSpace(lines[i]);
 			}
 		}
 
@@ -215,7 +215,7 @@ export class ReadMeTranspilerService {
 		const headerStartTag = headerStartTags[0].toLowerCase();
 
 		// Split the start tag right after the '<h1' section
-		const sections = Utils.splitBy(headerStartTag, " ");
+		const sections = splitBy(headerStartTag, " ");
 		const startSection = sections[0];
 
 		const headerLevelStr = startSection.replace("<h", "");

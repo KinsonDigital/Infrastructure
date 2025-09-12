@@ -1,7 +1,13 @@
 import { XClient } from "@kd-clients/social";
-import { ReleaseTweetBuilder } from "../core/ReleaseTweetBuilder.ts";
+import { ReleaseXPostBuilder } from "../core/ReleaseXPostBuilder.ts";
 import { GitHubVariableService } from "../core/Services/GitHubVariableService.ts";
-import { Utils } from "../core/Utils.ts";
+import {
+	isNothing,
+	isNotValidPreviewVersion,
+	isNotValidProdVersion,
+	printAsGitHubError,
+	printAsGitHubNotice,
+} from "../core/Utils.ts";
 import getEnvVar from "../core/GetEnvVar.ts";
 import { validateOrgExists, validateRepoExists } from "../core/Validators.ts";
 
@@ -33,18 +39,18 @@ const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 const ownerName = getEnvVar("OWNER_NAME", scriptFileName);
 const repoName = getEnvVar("REPO_NAME", scriptFileName);
 let version = getEnvVar("VERSION", scriptFileName).toLowerCase();
-const consumerAPIKey = getEnvVar("TWITTER_CONSUMER_API_KEY", scriptFileName);
-const consumerAPISecret = getEnvVar("TWITTER_CONSUMER_API_SECRET", scriptFileName);
-const accessTokenKey = getEnvVar("TWITTER_ACCESS_TOKEN_KEY", scriptFileName);
-const accessTokenSecret = getEnvVar("TWITTER_ACCESS_TOKEN_SECRET", scriptFileName);
+const consumerAPIKey = getEnvVar("X_CONSUMER_API_KEY", scriptFileName);
+const consumerAPISecret = getEnvVar("X_CONSUMER_API_SECRET", scriptFileName);
+const accessTokenKey = getEnvVar("X_ACCESS_TOKEN_KEY", scriptFileName);
+const accessTokenSecret = getEnvVar("X_ACCESS_TOKEN_SECRET", scriptFileName);
 const githubToken = getEnvVar("GITHUB_TOKEN", scriptFileName);
 
 // TODO: update workflows to use these environment variables
-const TWITTER_BROADCAST_ENABLED = "TWITTER_BROADCAST_ENABLED";
-const twitterBroadcastEnabled = getEnvVar(TWITTER_BROADCAST_ENABLED, scriptFileName, false).toLowerCase();
-const templateRepoName = getEnvVar("RELEASE_TWEET_TEMPLATE_REPO_NAME", scriptFileName);
-const templateBranchName = getEnvVar("RELEASE_TWEET_TEMPLATE_BRANCH_NAME", scriptFileName);
-const relativeTemplateFilePath = getEnvVar("RELATIVE_RELEASE_TWEET_TEMPLATE_FILE_PATH", scriptFileName);
+const X_BROADCAST_ENABLED = "X_BROADCAST_ENABLED";
+const xBroadcastEnabled = getEnvVar(X_BROADCAST_ENABLED, scriptFileName, false).toLowerCase();
+const templateRepoName = getEnvVar("RELEASE_X_POST_TEMPLATE_REPO_NAME", scriptFileName);
+const templateBranchName = getEnvVar("RELEASE_X_POST_TEMPLATE_BRANCH_NAME", scriptFileName);
+const relativeTemplateFilePath = getEnvVar("RELATIVE_RELEASE_X_POST_TEMPLATE_FILE_PATH", scriptFileName);
 const discordInviteCode = getEnvVar("DISCORD_INVITE_CODE", scriptFileName);
 
 version = version.startsWith("v") ? version : `v${version}`;
@@ -52,21 +58,21 @@ version = version.startsWith("v") ? version : `v${version}`;
 await validateOrgExists(scriptFileName);
 await validateRepoExists(scriptFileName);
 
-if (Utils.isNotValidPreviewVersion(version) && Utils.isNotValidProdVersion(version)) {
+if (isNotValidPreviewVersion(version) && isNotValidProdVersion(version)) {
 	let errorMsg = `The version '${version}' is not a valid preview or production version.`;
 	errorMsg += "\nRequired Syntax: v#.#.# or v#.#.#-preview.#";
-	Utils.printAsGitHubError(errorMsg);
+	printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 
 const githubVarService = new GitHubVariableService(ownerName, repoName, githubToken);
 githubVarService.setOrgAndRepo(ownerName, repoName);
 
-if (Utils.isNothing(twitterBroadcastEnabled) || twitterBroadcastEnabled === "false") {
-	const noticeMsg = `No tweet broadcast will be performed.` +
-		`\nTo enable tweet broadcasting, set the '${TWITTER_BROADCAST_ENABLED}' variable to 'true'.` +
-		"\nIf the variable is missing, empty, or set to 'false', no tweet broadcast will be performed.";
-	Utils.printAsGitHubNotice(noticeMsg);
+if (isNothing(xBroadcastEnabled) || xBroadcastEnabled === "false") {
+	const noticeMsg = `No X post broadcast will be performed.` +
+		`\nTo enable X post broadcasting, set the '${X_BROADCAST_ENABLED}' variable to 'true'.` +
+		"\nIf the variable is missing, empty, or set to 'false', no X post broadcast will be performed.";
+	printAsGitHubNotice(noticeMsg);
 	Deno.exit(0);
 }
 
@@ -77,9 +83,9 @@ const authValues: XAuthValues = {
 	access_token_secret: accessTokenSecret,
 };
 
-const tweetBuilder: ReleaseTweetBuilder = new ReleaseTweetBuilder(ownerName, templateRepoName, githubToken);
+const postBuilder: ReleaseXPostBuilder = new ReleaseXPostBuilder(ownerName, templateRepoName, githubToken);
 
-const tweet = await tweetBuilder.buildTweet(
+const post = await postBuilder.buildPost(
 	templateBranchName,
 	relativeTemplateFilePath,
 	repoName,
@@ -87,7 +93,7 @@ const tweet = await tweetBuilder.buildTweet(
 	discordInviteCode,
 );
 
-const twitterClient: XClient = new XClient(authValues);
-await twitterClient.tweet(tweet);
+const xClient: XClient = new XClient(authValues);
+await xClient.tweet(post);
 
-Utils.printAsGitHubNotice(`A release tweet was successfully broadcasted for the '${repoName}' project for version '${version}'.`);
+printAsGitHubNotice(`A release X post was successfully broadcasted for the '${repoName}' project for version '${version}'.`);

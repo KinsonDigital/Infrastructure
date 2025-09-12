@@ -2,7 +2,7 @@ import { ReleaseType } from "../Enums.ts";
 import { IssueModel, PullRequestModel } from "@kd-clients/github-models";
 import { HTMLService } from "./HTMLService.ts";
 import { MarkdownService } from "./MarkdownService.ts";
-import { Utils } from "../Utils.ts";
+import { firstLetterToUpper, isNothing } from "../Utils.ts";
 
 /**
  * Generates preview or production release notes.
@@ -47,7 +47,7 @@ export class GenerateReleaseNotesService {
 		const otherChangesHeader = this.htmlService.createHeader("Other 🪧", 2, this.noColor, true, true);
 
 		let releaseNotes = title;
-		releaseNotes += Utils.isNothing(quickReminder) ? "" : `\n${quickReminder}`;
+		releaseNotes += isNothing(quickReminder) ? "" : `\n${quickReminder}`;
 		releaseNotes += `\n\n${newFeaturesHeader}`;
 		releaseNotes += `\n\n${bugFixHeader}`;
 		releaseNotes += `\n\n${breakingChangeHeader}`;
@@ -95,11 +95,11 @@ export class GenerateReleaseNotesService {
 
 		let releaseNotes = title;
 		releaseNotes += "\n\n" + quickReminder;
-		releaseNotes += Utils.isNothing(newFeaturesSection) ? "" : "\n\n" + newFeaturesSection;
-		releaseNotes += Utils.isNothing(bugFixesSection) ? "" : "\n\n" + bugFixesSection;
-		releaseNotes += Utils.isNothing(breakingChangesSection) ? "" : "\n\n" + breakingChangesSection;
-		releaseNotes += Utils.isNothing(dependencyChangesSection) ? "" : "\n\n" + dependencyChangesSection;
-		releaseNotes += Utils.isNothing(otherChangesSection) ? "" : "\n\n" + otherChangesSection;
+		releaseNotes += isNothing(newFeaturesSection) ? "" : "\n\n" + newFeaturesSection;
+		releaseNotes += isNothing(bugFixesSection) ? "" : "\n\n" + bugFixesSection;
+		releaseNotes += isNothing(breakingChangesSection) ? "" : "\n\n" + breakingChangesSection;
+		releaseNotes += isNothing(dependencyChangesSection) ? "" : "\n\n" + dependencyChangesSection;
+		releaseNotes += isNothing(otherChangesSection) ? "" : "\n\n" + otherChangesSection;
 		releaseNotes += "\n";
 
 		return releaseNotes;
@@ -179,7 +179,7 @@ export class GenerateReleaseNotesService {
 	 * @returns The title for the release notes.
 	 */
 	private createTitle(projectName: string, releaseType: ReleaseType, version: string): string {
-		const releaseTypeStr = Utils.firstLetterToUpper(releaseType);
+		const releaseTypeStr = firstLetterToUpper(releaseType);
 		const headerText = `${projectName} ${releaseTypeStr} Release Notes - ${version}`;
 
 		return this.htmlService.createHeader(

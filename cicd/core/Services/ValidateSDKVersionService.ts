@@ -1,6 +1,6 @@
 import { walkSync } from "@std/fs";
-import { Guard } from "../Guard.ts";
-import { Utils } from "../Utils.ts";
+import { isNothing } from "../ParamGuards.ts";
+import { printAsGitHubError } from "../Utils.ts";
 
 /**
  * Validates that a dotnet SDK setup for al dotnet projects are correct.
@@ -17,7 +17,7 @@ export class ValidateSDKVersionService {
 	 * @remarks If any of the csproj file SDK version do not match, the workflow will fail.
 	 */
 	public validate(searchBaseDirPath: string, expectedSdkVersion: string): void {
-		Guard.isNothing(expectedSdkVersion, "validate");
+		isNothing(expectedSdkVersion, "validate");
 
 		expectedSdkVersion = expectedSdkVersion.trim().toLowerCase();
 		expectedSdkVersion = expectedSdkVersion.startsWith("v") ? expectedSdkVersion.substring(1) : expectedSdkVersion;
@@ -32,7 +32,7 @@ export class ValidateSDKVersionService {
 		expectedSdkVersion = sections.filter((s) => s != "x").join(".");
 
 		if (!this.dotnetSDKVersionRegex.test(expectedSdkVersion.trim().toLowerCase())) {
-			Utils.printAsGitHubError(`The NET_SDK_VERSION variable is not a valid dotnet version: ${expectedSdkVersion}`);
+			printAsGitHubError(`The NET_SDK_VERSION variable is not a valid dotnet version: ${expectedSdkVersion}`);
 			Deno.exit(1);
 		}
 
@@ -83,13 +83,13 @@ export class ValidateSDKVersionService {
 		// If there are any issues with any of the files, print them out.
 		if (filesWithoutTargetFramework.length > 0 || nonMatchingVersions.length > 0) {
 			filesWithoutTargetFramework.forEach((fileWithout) => {
-				Utils.printAsGitHubError(`The file '${fileWithout}' does not have a target framework defined.`);
+				printAsGitHubError(`The file '${fileWithout}' does not have a target framework defined.`);
 			});
 
 			nonMatchingVersions.forEach((nonMatchingVersion) => {
 				const errorMsg = `The file '${nonMatchingVersion[0]}' has a target framework version that does not ` +
 					`match the NET_SDK_VERSION variable.\n${nonMatchingVersion[1]}`;
-				Utils.printAsGitHubError(errorMsg);
+				printAsGitHubError(errorMsg);
 			});
 
 			Deno.exit(1);

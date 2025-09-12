@@ -1,6 +1,6 @@
 import { TagClient } from "@kd-clients/github";
 import getEnvVar from "../core/GetEnvVar.ts";
-import { Utils } from "../core/Utils.ts";
+import { isNotValidPreviewVersion, isNotValidProdVersion, printAsGitHubError } from "../core/Utils.ts";
 import { validateOrgExists, validateRepoExists } from "../core/Validators.ts";
 
 type ReleaseType = "production" | "preview";
@@ -18,16 +18,16 @@ const releaseTypeInvalid = releaseType != "production" && releaseType != "previe
 
 if (releaseTypeInvalid) {
 	const errorMsg = `The tag type argument '${releaseType}' is invalid.  Valid values are 'production', 'preview' or 'either'.`;
-	Utils.printAsGitHubError(errorMsg);
+	printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
 
-const tagIsInvalid = releaseType === "production" ? Utils.isNotValidProdVersion(tag) : Utils.isNotValidPreviewVersion(tag);
+const tagIsInvalid = releaseType === "production" ? isNotValidProdVersion(tag) : isNotValidPreviewVersion(tag);
 
 if (tagIsInvalid) {
 	const tagTypeStr = releaseType === "production" || releaseType === "preview" ? releaseType : "production or preview";
 
-	Utils.printAsGitHubError(`The tag is not in the correct ${tagTypeStr} version syntax.`);
+	printAsGitHubError(`The tag is not in the correct ${tagTypeStr} version syntax.`);
 	Deno.exit(1);
 }
 
@@ -39,6 +39,6 @@ const tagClient: TagClient = new TagClient(ownerName, repoName, token);
 const tagExists = await tagClient.exists(tag);
 
 if (tagExists) {
-	Utils.printAsGitHubError(`The tag '${tag}' already exists.`);
+	printAsGitHubError(`The tag '${tag}' already exists.`);
 	Deno.exit(1);
 }

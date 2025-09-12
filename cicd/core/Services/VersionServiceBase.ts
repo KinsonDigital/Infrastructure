@@ -1,6 +1,6 @@
 import { RepoClient } from "@kd-clients/github";
 import { ReleaseType } from "../Enums.ts";
-import { Utils } from "../Utils.ts";
+import { isNothing, normalizePath, printAsGitHubError, printAsGitHubErrors, trimAllStartingValue } from "../Utils.ts";
 import { GitHubVariableService } from "./GitHubVariableService.ts";
 
 /**
@@ -77,7 +77,7 @@ export abstract class VersionServiceBase {
 			let errorMsg = `The version file '${relativeProjFilePath}' does not exist on the branch '${branchName}' `;
 			errorMsg += "or the branch does not exist.";
 			errorMsg += "\nPlease make sure the branch and version file exist and try again.";
-			Utils.printAsGitHubError(errorMsg);
+			printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
@@ -110,12 +110,12 @@ export abstract class VersionServiceBase {
 	 */
 	protected async getVersionFilePath(): Promise<string> {
 		// If the value has not been pulled yet, cache it
-		if (Utils.isNothing(this.relativeProjFilePath)) {
+		if (isNothing(this.relativeProjFilePath)) {
 			let path = await this.githubVarService.getValue(VersionServiceBase.PREP_PROJ_RELATIVE_FILE_PATH, false);
 
 			path = path.trim();
-			path = Utils.normalizePath(path);
-			path = Utils.trimAllStartingValue(path, "/");
+			path = normalizePath(path);
+			path = trimAllStartingValue(path, "/");
 
 			this.relativeProjFilePath = path;
 		}
@@ -130,7 +130,7 @@ export abstract class VersionServiceBase {
 	 */
 	private async getHeadBranchName(releaseType: ReleaseType): Promise<string> {
 		// If the branch name has not been set yet, cache it
-		if (Utils.isNothing(this.branchName)) {
+		if (isNothing(this.branchName)) {
 			let branchVarName = "";
 
 			switch (releaseType) {
@@ -141,7 +141,7 @@ export abstract class VersionServiceBase {
 					branchVarName = VersionServiceBase.PROD_PREP_RELEASE_HEAD_BRANCH;
 					break;
 				default:
-					Utils.printAsGitHubError(`Unknown release type '${releaseType}'.`);
+					printAsGitHubError(`Unknown release type '${releaseType}'.`);
 					Deno.exit(1);
 			}
 
@@ -170,7 +170,7 @@ export abstract class VersionServiceBase {
 				missingVarErrors.push(`The required org/repo variable '${missingVarName}' is missing.`);
 			}
 
-			Utils.printAsGitHubErrors(missingVarErrors);
+			printAsGitHubErrors(missingVarErrors);
 			Deno.exit(1);
 		}
 	}
