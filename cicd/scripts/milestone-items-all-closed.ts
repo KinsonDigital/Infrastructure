@@ -1,5 +1,5 @@
-import { MilestoneClient, RepoClient } from "@kd-clients/github";
-import { IssueModel, PullRequestModel } from "@kd-clients/github-models";
+import { MilestoneClient, RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
+import { IssueModel, PullRequestModel } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github/models";
 import getEnvVar from "../core/GetEnvVar.ts";
 import { filterIssues, filterPullRequests, printAsGitHubError, printProblemList } from "../core/Utils.ts";
 

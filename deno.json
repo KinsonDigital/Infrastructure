@@ -10,7 +10,12 @@
     "lint": {
         "exclude": [
             "**/playground.ts"
-        ]
+        ],
+        "rules": {
+            "exclude": [
+                "no-import-prefix"
+            ]
+        }
     },
     "fmt": {
         "exclude": [
@@ -22,13 +27,5 @@
         "indentWidth": 4,
         "semiColons": true,
         "singleQuote": false
-    },
-    "imports": {
-        "@std/fs": "jsr:@std/fs@1.0.19",
-        "@std/path": "jsr:@std/path@1.0.8",
-        "@kd-clients/github": "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github",
-        "@kd-clients/github-models": "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github/models",
-        "@kd-clients/packaging": "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/packaging",
-        "@kd-clients/social": "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/social"
     }
 }

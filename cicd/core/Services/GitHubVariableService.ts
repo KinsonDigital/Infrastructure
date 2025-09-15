@@ -1,6 +1,6 @@
-import { OrgClient, RepoClient } from "@kd-clients/github";
+import { OrgClient, RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
 import { isNothing } from "../ParamGuards.ts";
-import { GitHubVarModel } from "@kd-clients/github-models";
+import { GitHubVarModel } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github/models";
 
 /**
  * Provides a service for interacting with GitHub organization or repository variables.

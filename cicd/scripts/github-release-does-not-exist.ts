@@ -1,4 +1,4 @@
-import { ReleaseClient } from "@kd-clients/github";
+import { ReleaseClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
 import getEnvVar from "../core/GetEnvVar.ts";
 import { isNotValidPreviewVersion, isNotValidProdVersion, printAsGitHubError } from "../core/Utils.ts";
 import { validateOrgExists, validateRepoExists } from "../core/Validators.ts";

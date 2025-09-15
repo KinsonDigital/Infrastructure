@@ -9,11 +9,9 @@
     "jsr:@std/fs@1.0.4": "1.0.4",
     "jsr:@std/fs@1.0.5": "1.0.5",
     "jsr:@std/fs@1.0.8": "1.0.8",
-    "jsr:@std/fs@^1.0.4": "1.0.19",
     "jsr:@std/internal@^1.0.10": "1.0.10",
     "jsr:@std/internal@^1.0.9": "1.0.10",
     "jsr:@std/path@1.0.7": "1.0.7",
-    "jsr:@std/path@1.0.8": "1.0.8",
     "jsr:@std/path@^1.0.7": "1.1.2",
     "jsr:@std/path@^1.1.1": "1.1.2",
     "npm:chalk@4.1.1": "4.1.1",
@@ -66,9 +64,6 @@
     },
     "@std/path@1.0.7": {
       "integrity": "76a689e07f0e15dcc6002ec39d0866797e7156629212b28f27179b8a5c3b33a1"
-    },
-    "@std/path@1.0.8": {
-      "integrity": "548fa456bb6a04d3c1a1e7477986b6cffbce95102d0bb447c67c4ee70e0364be"
     },
     "@std/path@1.1.2": {
       "integrity": "c0b13b97dfe06546d5e16bf3966b1cadf92e1cc83e56ba5476ad8b498d9e3038",
@@ -334,12 +329,5 @@
     "https://deno.land/x/kd_clients@v1.0.0-preview.8/core/Utils.ts": "aee538b5263f055a57827bc168067c98e02a98081767843182505415ed39e1f1",
     "https://deno.land/x/kd_clients@v1.0.0-preview.8/core/WebApiClient.ts": "ad9f538a96c06da7087cd91d4141298dba3f70a5ff7e48748416342db6ee01e7",
     "https://deno.land/x/kd_clients@v1.0.0-preview.8/deps.ts": "da70fd766668d0c177407dea89912b2d4e154605fe242533d603fb6af6e2305c"
-  },
-  "workspace": {
-    "dependencies": [
-      "jsr:@kinsondigital/kd-clients@1.0.0-preview.15",
-      "jsr:@std/fs@1.0.19",
-      "jsr:@std/path@1.0.8"
-    ]
   }
 }

@@ -1,4 +1,4 @@
-import { walkSync } from "@std/fs";
+import { walkSync } from "jsr:@std/fs@1.0.19";
 import { isNothing } from "../ParamGuards.ts";
 import { printAsGitHubError } from "../Utils.ts";
 

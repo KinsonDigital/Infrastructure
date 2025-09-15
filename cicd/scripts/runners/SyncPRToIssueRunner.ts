@@ -1,4 +1,11 @@
-import { IssueClient, OrgClient, ProjectClient, PullRequestClient, RepoClient, UsersClient } from "@kd-clients/github";
+import {
+	IssueClient,
+	OrgClient,
+	ProjectClient,
+	PullRequestClient,
+	RepoClient,
+	UsersClient,
+} from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
 import {
 	assigneesMatch,
 	isFeatureBranch,
@@ -17,7 +24,7 @@ import {
 	trimAll,
 } from "../../core/Utils.ts";
 import { ScriptRunner } from "./ScriptRunner.ts";
-import { IssueModel, ProjectModel, PullRequestModel } from "@kd-clients/github-models";
+import { IssueModel, ProjectModel, PullRequestModel } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github/models";
 import { PRTemplateManager } from "../../core/PRTemplateManager.ts";
 import { GitHubVariableService } from "../../core/Services/GitHubVariableService.ts";
 import { IIssueOrPRRequestData } from "../../core/IIssueOrPRRequestData.ts";

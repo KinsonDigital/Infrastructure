@@ -11,7 +11,6 @@ export function isNothing<T>(
 	paramName = "",
 ): void {
 	let type: string | undefined = undefined;
-	let errorMsg = `The {{TYPE}} value is null, undefined, or empty.`;
 
 	if (value === undefined || value === null) {
 		type = "value";
@@ -29,19 +28,31 @@ export function isNothing<T>(
 		return;
 	}
 
-	errorMsg = errorMsg.replace("{{TYPE}}", type);
+	let valueIsNothing = false;
 
-	if (funcName !== "") {
-		errorMsg += `\nFunction Name: ${funcName}`;
+	if (typeof value === "string") {
+		valueIsNothing = value.trim() === "";
+	} else if (Array.isArray(value)) {
+		valueIsNothing = value.length === 0;
+	} else {
+		valueIsNothing = value === undefined || value === null;
 	}
 
-	if (paramName !== "") {
-		errorMsg += `\nParam Name: ${paramName}`;
+	if (valueIsNothing) {
+		let errorMsg = `The ${type} value is null, undefined, or empty.`;
+
+		if (funcName !== "") {
+			errorMsg += `\nFunction Name: ${funcName}`;
+		}
+
+		if (paramName !== "") {
+			errorMsg += `\nParam Name: ${paramName}`;
+		}
+
+		printAsGitHubError(errorMsg);
+
+		Deno.exit(1);
 	}
-
-	printAsGitHubError(errorMsg);
-
-	Deno.exit(1);
 }
 
 /**

@@ -1,5 +1,11 @@
-import { IssueClient, OrgClient, ProjectClient, PullRequestClient, RepoClient } from "@kd-clients/github";
-import { IssueModel, ProjectModel, PullRequestModel } from "@kd-clients/github-models";
+import {
+	IssueClient,
+	OrgClient,
+	ProjectClient,
+	PullRequestClient,
+	RepoClient,
+} from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
+import { IssueModel, ProjectModel, PullRequestModel } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github/models";
 import {
 	assigneesMatch,
 	buildIssueUrl,

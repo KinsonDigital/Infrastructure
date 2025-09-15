@@ -1,4 +1,4 @@
-import { NuGetClient } from "@kd-clients/packaging";
+import { NuGetClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/packaging";
 import getEnvVar from "../core/GetEnvVar.ts";
 import { printAsGitHubError } from "../core/Utils.ts";
 

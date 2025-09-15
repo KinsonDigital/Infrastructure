@@ -1,6 +1,12 @@
 import { GitHubHttpStatusCodes, GitHubLogType } from "./Enums.ts";
 import { isLessThanOne, isNothing as isNothingGuard } from "./ParamGuards.ts";
-import { IssueModel, LabelModel, ProjectModel, PullRequestModel, UserModel } from "@kd-clients/github-models";
+import {
+	IssueModel,
+	LabelModel,
+	ProjectModel,
+	PullRequestModel,
+	UserModel,
+} from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github/models";
 
 const prodVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)$/;
 const prevVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)-preview\.([1-9]\d*|0)$/;

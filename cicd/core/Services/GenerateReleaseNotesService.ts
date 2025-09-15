@@ -1,5 +1,5 @@
 import { ReleaseType } from "../Enums.ts";
-import { IssueModel, PullRequestModel } from "@kd-clients/github-models";
+import { IssueModel, PullRequestModel } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github/models";
 import { HTMLService } from "./HTMLService.ts";
 import { MarkdownService } from "./MarkdownService.ts";
 import { firstLetterToUpper, isNothing } from "../Utils.ts";

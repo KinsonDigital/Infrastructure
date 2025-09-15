@@ -1,4 +1,4 @@
-import { LabelClient, PullRequestClient, RepoClient } from "@kd-clients/github";
+import { LabelClient, PullRequestClient, RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
 import getEnvVar from "../core/GetEnvVar.ts";
 import { isNumeric, printAsGitHubError } from "../core/Utils.ts";
 

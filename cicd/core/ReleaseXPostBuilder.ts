@@ -1,4 +1,4 @@
-import { RepoClient } from "@kd-clients/github";
+import { RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
 import { isNothing } from "./ParamGuards.ts";
 import { printAsGitHubError } from "./Utils.ts";
 

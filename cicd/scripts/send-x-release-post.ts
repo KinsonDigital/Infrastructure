@@ -1,4 +1,4 @@
-import { XClient } from "@kd-clients/social";
+import { XClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/social";
 import { ReleaseXPostBuilder } from "../core/ReleaseXPostBuilder.ts";
 import { GitHubVariableService } from "../core/Services/GitHubVariableService.ts";
 import {
