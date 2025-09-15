@@ -25,8 +25,8 @@ Infrastructure Production Release Notes - v15.0.0
      - `twitter-access-token` renamed to `x-access-token-key`
      - `twitter-access-token-secret` renamed to `x-access-token-secret`
    - Replaced the following environment variables:
-     - `X_BROADCAST_ENABLED` replaced by `TWITTER_BROADCAST_ENABLED`
-     - `X_ACCESS_TOKEN_KEY` replaced by `TWITTER_ACCESS_TOKEN_KEY`
-     - `X_ACCESS_TOKEN_SECRET` replaced by `TWITTER_ACCESS_TOKEN_SECRET`
-     - `X_CONSUMER_API_KEY` replaced by `TWITTER_CONSUMER_API_KEY`
-     - `X_CONSUMER_API_SECRET` replaced by `TWITTER_CONSUMER_API_SECRET`
+     - `TWITTER_BROADCAST_ENABLED` replaced by `X_BROADCAST_ENABLED`
+     - `TWITTER_ACCESS_TOKEN_KEY` replaced by `X_ACCESS_TOKEN_KEY`
+     - `TWITTER_ACCESS_TOKEN_SECRET` replaced by `X_ACCESS_TOKEN_SECRET`
+     - `TWITTER_CONSUMER_API_KEY` replaced by `X_CONSUMER_API_KEY`
+     - `TWITTER_CONSUMER_API_SECRET` replaced by `X_CONSUMER_API_SECRET`
