@@ -16,6 +16,8 @@
 				"--allow-all"
 			],
 			"env": {
+				"OWNER_NAME": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
 				"ROOT_REPO_DIR_PATH": "${workspaceFolder}",
 				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
 			},
