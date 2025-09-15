@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/KinsonDigital/kd-admin/preview/schemas/prepare-release-schema.json",
+    "$schema": "https://raw.githubusercontent.com/KinsonDigital/kd-admin/refs/tags/v1.0.0-preview.8/schemas/prepare-release-schema.json",
     "ownerName": "KinsonDigital",
     "repoName": "Infrastructure",
     "orgProjectName": "KD-Team",
@@ -34,5 +34,7 @@
         }
     ],
     "githubTokenEnvVarName": "CICD_TOKEN",
-    "versionFilePath": "./deno.json"
+    "versionFilePath": "./deno.json",
+    "versionJSONKeyPath": "version",
+    "releaseNotesFilePrefix": "Release-Notes-"
 }
