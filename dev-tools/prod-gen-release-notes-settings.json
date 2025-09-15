@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/KinsonDigital/kd-admin/preview/schemas/gen-release-notes-schema.json",
+    "$schema": "https://raw.githubusercontent.com/KinsonDigital/kd-admin/refs/tags/v1.0.0-preview.8/schemas/gen-release-notes-schema.json",
     "ownerName": "KinsonDigital",
     "repoName": "Infrastructure",
     "githubTokenEnvVarName": "CICD_TOKEN",
@@ -14,16 +14,19 @@
         "🧪",
         "🔬"
     ],
+    "issueCategoryIssueTypeMappings": {
+        "CICD": "CICD ⚙️",
+        "Bug": "Bug Fixes 🐛",
+        "Enhancement": "Enhancements 💎",
+        "Feature": "New Features ✨",
+        "Project-Config": "Configuration 🛠️",
+        "Research": "Research 🔬",
+        "QA-Testing": "Testing 🧪",
+        "Tech-Debt": "Tech Debt 📉"
+    },
     "issueCategoryLabelMappings": {
-        "New Features ✨": "✨new-feature",
-        "Enhancements 💎": "💎enhancement",
-        "Bug Fixes 🐛": "🐛bug",
         "Breaking Changes 🧨": "🧨breaking-changes",
-        "Dependency Updates 📦": "📦dependency-update",
-        "Technical Debt 🧽": "tech-debt",
-        "CICD ⚙️": "cicd",
-        "Configuration 🛠️": "⚙️config",
-        "Security 🛡️": "🛡️security"
+        "Dependency Updates 📦": "📦dependency-update"
     },
     "prCategoryLabelMappings": {
         "Dependency Updates 📦": "📦dependency-update"
@@ -55,6 +58,5 @@
         "Integrate": "Integrated"
     },
     "boldedVersions": true,
-    "italicVersions": true,
-    "otherCategoryName": "Other 🪧"
+    "italicVersions": true
 }
