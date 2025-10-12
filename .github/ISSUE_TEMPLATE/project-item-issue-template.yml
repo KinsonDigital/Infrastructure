@@ -1,6 +1,5 @@
 name: 🚧 Project Item
 description: Create an issue for the project (Project maintainers only).
-title: "🚧"
 projects: ["KinsonDigital/11"]
 body:
 - type: checkboxes
