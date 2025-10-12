@@ -165,7 +165,7 @@ export async function branchExistsLocally(branchName: string): Promise<boolean> 
 		const result = new TextDecoder().decode(stdout);
 
 		const localBranches = result.split("\n")
-			.map((b) => b.replace("*", "").trim())
+			.map((b) => b.replace(/^\*/gm, "").trim())
 			.filter((b) => b.length > 0);
 
 		return localBranches.includes(branchName);

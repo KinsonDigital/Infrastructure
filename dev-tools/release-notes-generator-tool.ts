@@ -23,7 +23,7 @@ if (settingFilePaths.length <= 0) {
 		printStatusUpdate("Creating an empty settings file");
 		const settings: GeneratorSettings & { $schema: string } = {
 			$schema:
-				"https://raw.githubusercontent.com/EngagedAgility/Infrastructure/preview/dev-tools/release-notes-settings-schema.json",
+				"https://raw.githubusercontent.com/KinsonDigital/Infrastructure/preview/dev-tools/release-notes-settings-schema.json",
 			ownerName: "",
 			repoName: "",
 			githubTokenEnvVarName: "",
@@ -141,7 +141,7 @@ try {
 	const fullPath = `${dirPath}/${fileName}`;
 
 	Deno.writeTextFileSync(fullPath, releaseNotes);
-	printStep(`The release notes have been generated and written to '${settingFilePaths[0]}'.`);
+	printStep(`The release notes have been generated and written to '${fullPath}'.`);
 } catch (error) {
 	const errMsg = error instanceof Error ? error.message : String(error);
 	printError(errMsg);

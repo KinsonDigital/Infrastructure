@@ -23,11 +23,11 @@ if (token === undefined || token === null || token === "") {
 	Deno.exit(1);
 }
 
-const gitDirPath = "./.git";
-const gitConfigFilePath = "./.git/config";
+const GET_DIR_PATH = "./.git";
+const GIT_CONFIG_FILE_PATH = "./.git/config";
 
 // If the git dir path or git config file path do not exist, notify the user and stop the process
-if (!existsSync(gitDirPath, { isDirectory: true }) || !existsSync(gitConfigFilePath, { isFile: true })) {
+if (!existsSync(GET_DIR_PATH, { isDirectory: true }) || !existsSync(GIT_CONFIG_FILE_PATH, { isFile: true })) {
 	printError("Not a valid git repository");
 
 	Deno.exit(1);
@@ -39,7 +39,7 @@ let repoName = "";
 try {
 	printStep("Validating repository");
 	printStatusUpdate("Validating repository");
-	const gitConfigFileData = Deno.readTextFileSync(gitConfigFilePath);
+	const gitConfigFileData = Deno.readTextFileSync(GIT_CONFIG_FILE_PATH);
 	const remoteOriginMatch = gitConfigFileData.match(/\[remote "origin"\][\s\S]*?url = (.+)/m) ?? "";
 
 	if (remoteOriginMatch === null) {
@@ -95,7 +95,7 @@ const issueNumberResult = await Input.prompt({
 		}
 
 		if (value.includes(".")) {
-			return "The issue number must be whole number.";
+			return "The issue number must be a whole number.";
 		}
 
 		if (Number(value) <= 0) {

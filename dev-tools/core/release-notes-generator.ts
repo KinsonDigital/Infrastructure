@@ -169,7 +169,7 @@ export class ReleaseNotesGenerator {
 			}
 		}
 
-		//If there are any invalid labels, throw an error
+		// If there are any invalid labels, throw an error
 		if (results.some((i) => i === false)) {
 			const errorMsg = `The following '${labelSettingType}' label(s) do not exist:\n   ${invalidLabels.join(", ")}`;
 			throw new Error(errorMsg);
