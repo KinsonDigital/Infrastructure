@@ -1,0 +1,60 @@
+{
+    "$schema": "https://raw.githubusercontent.com/KinsonDigital/Infrastructure/refs/tags/v15.1.0/dev-tools/release-notes-settings-schema.json",
+    "ownerName": "KinsonDigital",
+    "repoName": "Infrastructure",
+    "githubTokenEnvVarName": "CICD_TOKEN",
+    "milestoneName": "${VERSION}",
+    "headerText": "${REPONAME} ${RELEASETYPE} Release Notes - ${VERSION}",
+    "chosenReleaseType": "",
+    "releaseTypeNames": ["Preview", "Production"],
+    "relativeReleaseNotesDirPath": "release-notes",
+    "emojisToRemoveFromTitle": ["🚧", "🐛", "✨", "🚀", "🧪", "🔬"],
+    "issueCategoryIssueTypeMappings": {
+        "CICD": "CICD ⚙️",
+        "Bug": "Bug Fixes 🐛",
+        "Enhancement": "Enhancements 💎",
+        "Feature": "New Features ✨",
+        "Project-Config": "Configuration 🛠️",
+        "Research": "Research 🔬",
+        "QA-Testing": "Testing 🧪",
+        "Tech-Debt": "Tech Debt 📉",
+        "Dependency-Update": "Dependency Updates 📦"
+    },
+    "prCategoryLabelMappings": {
+        "Dependency Updates 📦": "📦dependency-update"
+    },
+    "ignoreLabels": ["🚀production-release"],
+    "wordReplacements": {
+		"chore(deps): ": ""
+	},
+	"firstWordReplacements": {
+		"Add": "Added",
+		"Improve": "Improved",
+		"Fix": "Fixed",
+		"Update": "Updated",
+		"Upgrade": "Upgraded",
+		"Create": "Created",
+		"Refactor": "Refactored",
+		"Remove": "Removed",
+		"Implement": "Implemented",
+		"Move": "Moved",
+		"Change": "Changed",
+		"Increase": "Increased",
+		"Prevent": "Prevented",
+		"Introduce": "Introduced",
+		"Adjust": "Adjusted",
+		"Replace": "Replaced",
+		"Deprecate": "Deprecated",
+		"Integrate": "Integrated",
+        "Revamp": "Revamped",
+        "Research": "Researched",
+        "Convert": "Converted",
+        "Rename": "Renamed",
+        "Make": "Made",
+        "bump": "Updated",
+        "Perform": "Performed",
+        "Process": "Processed"
+	},
+    "boldedVersions": true,
+    "italicVersions": true
+}

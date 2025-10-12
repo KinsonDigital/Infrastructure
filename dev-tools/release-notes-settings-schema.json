@@ -1,0 +1,163 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "ownerName": {
+            "type": "string",
+            "description": "The owner name of the GitHub repository. This is the username or organization name that owns the repository."
+        },
+        "repoName": {
+            "type": "string",
+            "description": "The name of the GitHub repository. This should be the exact repository name as it appears on GitHub."
+        },
+        "githubTokenEnvVarName": {
+            "type": "string",
+            "description": "The name of the environment variable that contains the GitHub token. This token is used to authenticate API requests to GitHub."
+        },
+        "milestoneName": {
+            "type": "string",
+            "description": "The name of the milestone to generate release notes for. Can use placeholders like '${VERSION}' which will be replaced at runtime."
+        },
+        "headerText": {
+            "type": "string",
+            "description": "The header text that appears at the top of the release notes. Can use placeholders like '${REPONAME}', '${RELEASETYPE}', and '${VERSION}'."
+        },
+        "version": {
+            "type": "string",
+            "description": "The version number for the release (Ex: \"v1.0.0\", \"v1.0.0-preview.1\"). This is provided at runtime when the tool is executed."
+        },
+        "relativeReleaseNotesDirPath": {
+            "type": "string",
+            "description": "The relative path from the working directory where tool is executed. The tool will create a sub folder based on the release type within this path. Ex: If the relative dir path is 'release-notes/', and the release type is 'Preview', the final path will be 'release-notes/preview-releases'."
+        },
+        "wordReplacements": {
+            "type": "object",
+            "description": "A mapping of words or phrases to replace in issue and PR titles. The key is the text to find and the value is the replacement text.",
+            "minProperties": 1,
+            "patternProperties": {
+                ".+": {
+                    "type": "string"
+                }
+            }
+        },
+        "chosenReleaseType": {
+            "type": "string",
+            "description": "The type of release being generated (Ex: \"Preview\", \"Production\"). This value is selected from the 'releaseTypeNames' array during tool execution."
+        },
+        "releaseTypeNames": {
+            "type": "array",
+            "description": "An array of possible release type names that can be selected. These are presented as options when running the release notes generator tool.",
+            "minItems": 1,
+            "items": {
+                "type": "string"
+            }
+        },
+        "extraInfo": {
+            "type": "object",
+            "description": "Extra information to include at the top of the release notes. Contains a title and text that will be displayed below the main header.",
+            "required": ["title", "text"],
+            "minProperties": 2,
+            "maxProperties": 2,
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "description": "The title of the extra info section."
+                },
+                "text": {
+                    "type": "string",
+                    "description": "The text of the extra info section."
+                }
+            }
+        },
+        "emojisToRemoveFromTitle": {
+            "type": "array",
+            "description": "An array of emoji characters to remove from issue and PR titles.",
+            "minItems": 1,
+            "items": {
+                "type": "string"
+            }
+        },
+        "issueCategoryIssueTypeMappings": {
+            "type": "object",
+            "description": "A mapping of categories based on issue types for organizing content. Used to group issues by their type (Ex: \"Bug Fixes\", \"New Features\").",
+            "minProperties": 1,
+            "patternProperties": {
+                ".+": {
+                    "type": "string"
+                }
+            }
+        },
+        "issueCategoryLabelMappings": {
+            "type": "object",
+            "description": "A mapping of categories based on issue labels for organizing content. Issues with matching labels will be grouped under the specified category.",
+            "minProperties": 1,
+            "patternProperties": {
+                ".+": {
+                    "type": "string"
+                }
+            }
+        },
+        "prCategoryLabelMappings": {
+            "type": "object",
+            "description": "A mapping of categories based on pull request labels for organizing content. Pull requests with matching labels will be grouped under the specified category.",
+            "minProperties": 1,
+            "patternProperties": {
+                ".+": {
+                    "type": "string"
+                }
+            }
+        },
+        "ignoreLabels": {
+            "type": "array",
+            "description": "An array of GitHub label names to ignore when generating release notes. Issues and PRs with these labels will be excluded from the generated notes.",
+            "minItems": 1,
+            "items": {
+                "type": "string"
+            }
+        },
+        "firstWordReplacements": {
+            "type": "object",
+            "description": "A mapping of words to replace in issue titles. Used to standardize the beginning of issue and PR titles (Ex: \"Add\" -> \"Added\").",
+            "minProperties": 1,
+            "patternProperties": {
+                ".+": {
+                    "type": "string"
+                }
+            }
+        },
+        "styleWordsList": {
+            "type": "object",
+            "description": "A mapping of words to apply specific styling or formatting. Used for consistent styling of certain terms throughout the release notes.",
+            "minProperties": 1,
+            "patternProperties": {
+                ".+": {
+                    "type": "string",
+                    "enum": ["bold", "italic"]
+                }
+            }
+        },
+        "boldedVersions": {
+            "type": "boolean",
+            "description": "Whether to format version numbers in bold in the release notes. When true, version numbers will be wrapped in markdown bold formatting."
+        },
+        "italicVersions": {
+            "type": "boolean",
+            "description": "Whether to format version numbers in italics in the release notes. When true, version numbers will be wrapped in markdown italic formatting."
+        },
+        "otherCategoryName": {
+            "type": "string",
+            "description": "The name of the category for issues and PRs that don't match any other category. If undefined, uncategorized items will not be included in the release notes."
+        }
+    },
+    "required": [
+        "ownerName",
+        "repoName",
+        "githubTokenEnvVarName",
+        "milestoneName",
+        "headerText",
+        "wordReplacements",
+        "chosenReleaseType",
+        "releaseTypeNames",
+        "relativeReleaseNotesDirPath"
+    ]
+}
