@@ -351,9 +351,11 @@ jobs:
 
       - name: Transpile README
         if: inputs.transpile-readme == true
-        env:
-          BASE_DIR_PATH: "${{ github.workspace }}" 
-        run: deno run -ERW "${{ steps.script-url.outputs.url }}/transpile-readme.ts";
+        uses: KinsonDigital/Infrastructure/actions/transpile-readme@feature/269-create-custom-actions
+        with:
+          base-dir-path: "${{ github.workspace }}"
+          deno-version: "${{ vars.DENO_VERSION }}"
+          action-version: "${{ vars.CICD_SCRIPTS_VERSION }}"
 
       - name: Update Copyright
         env:
