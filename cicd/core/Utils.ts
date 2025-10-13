@@ -42,8 +42,6 @@ export function printInGroup(title: string, lineOrLines: string | string[]): voi
 	console.log("::endgroup::");
 }
 
-// TODO: Move this function to a Guards class
-
 /**
  * Checks if the value is null, undefined, or empty.
  * @param value The value to check.
@@ -182,20 +180,6 @@ export function printAsNumberedList(prefix: string, items: string[], logType: Gi
 				break;
 		}
 	});
-}
-
-/**
- * Checks if the response contains status codes other than in the 200 range.
- * If it does, it will print the error message and exit the process.
- * @param response The response from a request.
- */
-export function throwIfErrors(response: Response): void {
-	if (response.status < GitHubHttpStatusCodes.OK) {
-		const errorMsg = `There was a problem with the request. Error: ${response.status}(${response.statusText}).`;
-
-		printAsGitHubError(errorMsg);
-		Deno.exit(1);
-	}
 }
 
 /**
