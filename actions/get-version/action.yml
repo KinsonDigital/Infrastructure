@@ -1,0 +1,44 @@
+name: "Get Version"
+description: "Gets a version from a 'csproj' or 'json' file."
+inputs:
+  version-file-path:
+    description: "The path to the file containing the version value."
+    required: true
+  json-prop-path:
+    description: "The JSON property path to the version value. Uses dot notation for nested properties."
+    required: false
+  deno-version:
+    description: "The version of Deno to use."
+    required: true
+  action-version:
+    description: "The version of this action to use."
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v5
+
+    - name: Setup Deno (${{ inputs.deno-version }})
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: ${{ inputs.deno-version }}
+
+    - name: Run Script
+      id: run-script
+      shell: pwsh
+      env:
+        VERSION_FILE_PATH: "${{ inputs.version-file-path }}"
+        JSON_PROP_PATH: "${{ inputs.json-prop-path }}"
+      run: |
+        $baseUrl = "https://raw.githubusercontent.com";
+        $version = "${{ inputs.action-version }}";
+        $fileName = "get-version.ts";
+        $path = "EngagedAgility/Infrastructure/refs/tags/$version/actions/get-version/$fileName";
+        $scriptUrl = "$baseUrl/$path";
+
+        deno run -ERW $scriptUrl;
+outputs:
+  version:
+    description: "The extracted version."
+    value: ${{ steps.run-script.outputs.version }}
