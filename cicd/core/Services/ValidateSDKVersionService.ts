@@ -1,5 +1,5 @@
 import { walkSync } from "jsr:@std/fs@1.0.19";
-import { isNothing } from "../ParamGuards.ts";
+import { isNothing } from "../guards.ts";
 import { printAsGitHubError } from "../github.ts";
 
 /**
@@ -17,7 +17,15 @@ export class ValidateSDKVersionService {
 	 * @remarks If any of the csproj file SDK version do not match, the workflow will fail.
 	 */
 	public validate(searchBaseDirPath: string, expectedSdkVersion: string): void {
-		isNothing(expectedSdkVersion, "validate");
+		if (isNothing(searchBaseDirPath)) {
+			printAsGitHubError("The searchBaseDirPath parameter cannot be null, undefined, or empty.");
+			Deno.exit(1);
+		}
+
+		if (isNothing(expectedSdkVersion)) {
+			printAsGitHubError("The expectedSdkVersion parameter cannot be null, undefined, or empty.");
+			Deno.exit(1);
+		}
 
 		expectedSdkVersion = expectedSdkVersion.trim().toLowerCase();
 		expectedSdkVersion = expectedSdkVersion.startsWith("v") ? expectedSdkVersion.substring(1) : expectedSdkVersion;

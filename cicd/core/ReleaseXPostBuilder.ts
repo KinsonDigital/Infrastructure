@@ -38,12 +38,21 @@ export class ReleaseXPostBuilder {
 		version: string,
 		discordInviteCode: string,
 	): Promise<string> {
-		const funcName = "buildPost";
-		isNothing(branchName, funcName, "branchName");
-		isNothing(relativeFilePath, funcName, "relativeFilePath");
-		isNothing(projectName, funcName, "projectName");
-		isNothing(version, funcName, "version");
-		isNothing(discordInviteCode, funcName, "discordInviteCode");
+		if (isNothing(branchName)) {
+			throw new Error("branchName parameter cannot be null, undefined, or empty.");
+		}
+		if (isNothing(relativeFilePath)) {
+			throw new Error("relativeFilePath parameter cannot be null, undefined, or empty.");
+		}
+		if (isNothing(projectName)) {
+			throw new Error("projectName parameter cannot be null, undefined, or empty.");
+		}
+		if (isNothing(version)) {
+			throw new Error("version parameter cannot be null, undefined, or empty.");
+		}
+		if (isNothing(discordInviteCode)) {
+			throw new Error("discordInviteCode parameter cannot be null, undefined, or empty.");
+		}
 
 		version = version.startsWith("v") ? version : `v${version}`;
 

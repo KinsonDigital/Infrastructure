@@ -1,4 +1,4 @@
-import { isNothing } from "../ParamGuards.ts";
+import { isNothing } from "../guards.ts";
 import { VersionServiceBase } from "./VersionServiceBase.ts";
 import { isValidPreviewVersion, isValidProdVersion } from "../Utils.ts";
 import { printAsGitHubError } from "../github.ts";
@@ -25,7 +25,10 @@ export class CSharpVersionService extends VersionServiceBase {
 	 * Updates the version values of a C# project file to the given {@link version}.
 	 */
 	public async updateVersion(version: string, releaseType: ReleaseType): Promise<void> {
-		isNothing(version, "updateVersion", "version");
+		if (isNothing(version)) {
+			printAsGitHubError("The version parameter cannot be null, undefined, or empty.");
+			Deno.exit(1);
+		}
 
 		version = version.trim().toLowerCase();
 
