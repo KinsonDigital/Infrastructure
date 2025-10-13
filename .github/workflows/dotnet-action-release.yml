@@ -154,25 +154,39 @@ jobs:
           }
 
 
-  validate_version:
-    name: Validate Version
-    needs: [print_validate_workflow, validate_branch]
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v15.0.0
-    with:
-      project-name: "${{ inputs.project-name }}"
-      release-type: "${{ inputs.release-type }}"
-    secrets:
-      cicd-pat: "${{ secrets.cicd-pat }}"
+  get_and_validate_version:
+    name: Get And Validate Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.validate-version.outputs.version }}
+    steps:
+      - name: Get Version
+        id: get-version
+        uses: KinsonDigital/Infrastructure/actions/get-version@feature/269-create-custom-actions
+        with:
+          version-file-path: "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj"
+          github-token: "${{ secrets.cicd-pat }}"
+          deno-version: "${{ vars.DENO_VERSION }}"
+          action-version: "${{ vars.CICD_SCRIPTS_VERSION }}"
+
+      - name: Validate Version
+        id: validate-version
+        uses: KinsonDigital/Infrastructure/actions/validate-version@feature/269-create-custom-actions
+        with:
+          version: "${{ steps.get-version.outputs.version}}"
+          release-type: "${{ inputs.release-type }}"
+          deno-version: "${{ vars.DENO_VERSION }}"
+          action-version: "${{ vars.CICD_SCRIPTS_VERSION }}"
 
 
   validate_tag:
     name: Validate Tag
-    needs: validate_version
+    needs: get_and_validate_version
     uses: KinsonDigital/Infrastructure/.github/workflows/validate-tag.yml@v15.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       release-type: "${{ inputs.release-type }}"
-      tag-name: "${{ needs.validate_version.outputs.version }}"
+      tag-name: "${{ needs.get_and_validate_version.outputs.version }}"
     secrets:
       cicd-pat: "${{ secrets.cicd-pat }}"
 
@@ -187,7 +201,7 @@ jobs:
 
   validate_release_notes_exist:
     name: Validate Release Notes Exist
-    needs: validate_version
+    needs: get_and_validate_version
     runs-on: ubuntu-latest
     steps:
       - name:  Checkout Repo
@@ -202,7 +216,7 @@ jobs:
           $relativeDirPath = $relativeDirPath.TrimStart("/").TrimEnd("/");
 
           $dirPath = "$env:GITHUB_WORKSPACE/$relativeDirPath";
-          $version = "${{ needs.validate_version.outputs.version }}";
+          $version = "${{ needs.get_and_validate_version.outputs.version }}";
           $fileName = "${{ inputs.release-notes-file-name-prefix }}$version.md";
           $filePath = "$dirPath/$fileName";
 
@@ -214,11 +228,11 @@ jobs:
 
   validate_github_release:
     name: GitHub Release Does Not Exist
-    needs: validate_version
+    needs: get_and_validate_version
     uses: KinsonDigital/Infrastructure/.github/workflows/validate-github-release.yml@v15.0.0
     with:
       project-name: "${{ inputs.project-name }}"
-      version: "${{ needs.validate_version.outputs.version }}"
+      version: "${{ needs.get_and_validate_version.outputs.version }}"
     secrets:
       cicd-pat: "${{ secrets.cicd-pat }}"
 
@@ -254,7 +268,7 @@ jobs:
     needs: [
       print_validate_workflow,
       validate_branch,
-      validate_version,
+      get_and_validate_version,
       validate_tag,
       validate_sdk_setup,
       validate_release_notes_exist,
@@ -278,17 +292,17 @@ jobs:
       run: |
         $ownerRepoName = "${{ github.repository }}";
 
-        $tag = "${{ needs.validate_version.outputs.version }}".ToLower().Trim();
+        $tag = "${{ needs.get_and_validate_version.outputs.version }}".ToLower().Trim();
         $tag = $tag.StartsWith("v") ? $tag : "v$tag";
 
         $releaseType = "${{ inputs.release-type }}";
-        $version = "${{ needs.validate_version.outputs.version }}";
+        $version = "${{ needs.get_and_validate_version.outputs.version }}";
 
         $title = $version;
 
         $releaseDirPrefix = $releaseType.ToLower();
         $releaseTypeDir = "$releaseDirPrefix-releases";
-        $fullReleaseNotesPath = "${{ github.workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.validate_version.outputs.version }}.md";
+        $fullReleaseNotesPath = "${{ github.workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.get_and_validate_version.outputs.version }}.md";
 
         $isPreRelease = $releaseType -eq "Preview" ? "--prerelease" : "";
 
