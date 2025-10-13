@@ -396,8 +396,11 @@ jobs:
           token: ${{ secrets.CICD_TOKEN }}
           
       - name: Close Milestone
-        if: ${{ inputs.dry-run == false }}
-        env:
-          MILESTONE_NAME: "${{ needs.validate_version.outputs.version }}"
-          GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
-        run: deno run -ERN "${{ steps.script-url.outputs.url }}/close-milestone.ts";
+        uses: KinsonDigital/Infrastructure/actions/close-milestone@main
+        with:
+          repo_owner: "${{ vars.ORGANIZATION_NAME }}"
+          repo_name: "${{ inputs.project-name }}"
+          github-token: "${{ secrets.cicd-pat }}"
+          milestone_title: "${{ needs.validate_version.outputs.version }}"
+          deno-version: "${{ vars.DENO_VERSION }}"
+          action-version: "${{ vars.CICD_SCRIPTS_VERSION }}"

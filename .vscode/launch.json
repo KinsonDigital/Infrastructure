@@ -86,8 +86,8 @@
 			"name": "Close Milestone",
 			"request": "launch",
 			"type": "node",
-			"program": "${workspaceFolder}/cicd/scripts/close-milestone.ts",
-			"cwd": "${workspaceFolder}/cicd",
+			"program": "${workspaceFolder}/actions/close-milestone/close-milestone.ts",
+			"cwd": "${workspaceFolder}",
 			"runtimeArgs": [
 				"run",
 				"-ENR",
