@@ -351,8 +351,8 @@
 			"name": "Transpile README",
 			"request": "launch",
 			"type": "node",
-			"program": "${workspaceFolder}/cicd/core/services/transpile-readme.ts",
-			"cwd": "${workspaceFolder}/cicd",
+			"program": "${workspaceFolder}/actions/transpile-readme/transpile-readme.ts",
+			"cwd": "${workspaceFolder}",
 			"runtimeArgs": [
 				"run",
 				"-ERW",

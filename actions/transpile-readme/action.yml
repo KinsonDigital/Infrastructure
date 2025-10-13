@@ -1,0 +1,36 @@
+name: "Transpile README"
+description: "Transpiles HTML in a README.md file to markdown."
+inputs:
+  base-dir-path:
+    description: "The base directory path to use."
+    required: true
+  deno-version:
+    description: "The version of Deno to use."
+    required: true
+  action-version:
+    description: "The version of this action to use."
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v5
+
+    - name: Setup Deno (${{ inputs.deno-version }})
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: ${{ inputs.deno-version }}
+
+    - name: Run Script
+      shell: pwsh
+      env:
+        BASE_DIR_PATH: "${{ inputs.base-dir-path }}"
+        JSON_PROP_PATH: "${{ inputs.json-prop-path }}"
+      run: |
+        $baseUrl = "https://raw.githubusercontent.com";
+        $version = "${{ inputs.action-version }}";
+        $fileName = "transpile-readme.ts";
+        $path = "EngagedAgility/Infrastructure/refs/tags/$version/actions/transpile-readme/$fileName";
+        $scriptUrl = "$baseUrl/$path";
+
+        deno run -ERW $scriptUrl;
