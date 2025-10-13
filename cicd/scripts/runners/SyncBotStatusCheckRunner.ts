@@ -16,9 +16,6 @@ import {
 	isNumeric,
 	labelsMatch,
 	orgProjectsMatch,
-	printAsGitHubError,
-	printAsGitHubNotice,
-	printAsGitHubWarning,
 	printAsNumberedList,
 	printEmptyLine,
 	printProblemList,
@@ -30,6 +27,7 @@ import { IIssueOrPRRequestData } from "../../core/IIssueOrPRRequestData.ts";
 import { IPRTemplateSettings } from "../../core/IPRTemplateSettings.ts";
 import { PRTemplateManager } from "../../core/PRTemplateManager.ts";
 import { GitHubVariableService } from "../../core/Services/GitHubVariableService.ts";
+import { printAsGitHubNotice, printAsGitHubError, printAsGitHubWarning } from "../../core/github.ts";
 
 /**
  * Runs as a sync bot and a pull request status check.

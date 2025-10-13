@@ -1,4 +1,5 @@
-import { isNotValidPreviewVersion, isNotValidProdVersion, printAsGitHubError } from "../../core/Utils.ts";
+import { printAsGitHubError } from "../../core/github.ts";
+import { isNotValidPreviewVersion, isNotValidProdVersion } from "../../core/Utils.ts";
 
 /**
  * Provides a base class for processing script arguments and running scripts.

@@ -5,11 +5,10 @@ import {
 	isNothing,
 	isNotValidPreviewVersion,
 	isNotValidProdVersion,
-	printAsGitHubError,
-	printAsGitHubNotice,
 } from "../core/Utils.ts";
 import getEnvVar from "../core/GetEnvVar.ts";
 import { validateOrgExists, validateRepoExists } from "../core/Validators.ts";
+import { printAsGitHubError, printAsGitHubNotice } from "../core/github.ts";
 
 // TODO: Need to import this from kd-clients library once it is available
 export interface XAuthValues {

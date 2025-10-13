@@ -1,5 +1,6 @@
 import { isNothing as isNothingGuard } from "../ParamGuards.ts";
-import { isNothing, printAsGitHubError } from "../Utils.ts";
+import { isNothing } from "../Utils.ts";
+import { printAsGitHubError } from "../github.ts";
 
 /**
  * Provides HTML related services.

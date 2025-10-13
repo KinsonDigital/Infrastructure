@@ -1,5 +1,6 @@
 import { walkSync } from "jsr:@std/fs@1.0.19";
-import { isNothing, printAsGitHubError, printAsGitHubNotice } from "../core/Utils.ts";
+import { isNothing } from "../core/Utils.ts";
+import { printAsGitHubError, printAsGitHubNotice } from "../core/github.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 

@@ -1,5 +1,6 @@
 import getEnvVar from "../core/GetEnvVar.ts";
-import { isNotValidPreviewVersion, isNotValidProdVersion, printAsGitHubError, printAsGitHubNotice } from "../core/Utils.ts";
+import { printAsGitHubError, printAsGitHubNotice } from "../core/github.ts";
+import { isNotValidPreviewVersion, isNotValidProdVersion } from "../core/Utils.ts";
 
 type ReleaseType = "production" | "preview";
 

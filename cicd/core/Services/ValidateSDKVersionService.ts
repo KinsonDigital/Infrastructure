@@ -1,6 +1,6 @@
 import { walkSync } from "jsr:@std/fs@1.0.19";
 import { isNothing } from "../ParamGuards.ts";
-import { printAsGitHubError } from "../Utils.ts";
+import { printAsGitHubError } from "../github.ts";
 
 /**
  * Validates that a dotnet SDK setup for al dotnet projects are correct.

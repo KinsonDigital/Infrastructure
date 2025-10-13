@@ -1,6 +1,7 @@
 import { MilestoneClient, OrgClient, RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
 import getEnvVar from "./GetEnvVar.ts";
-import { isNothing, printAsGitHubError } from "./Utils.ts";
+import { isNothing } from "./Utils.ts";
+import { printAsGitHubError } from "./github.ts";
 
 /**
  * Validates that a GitHub organization exists.

@@ -14,10 +14,6 @@ import {
 	isNumeric,
 	labelsMatch,
 	orgProjectsMatch,
-	printAsGitHubError,
-	printAsGitHubErrors,
-	printAsGitHubNotice,
-	printAsGitHubWarning,
 	printInGroup,
 	splitBy,
 	splitByComma,
@@ -30,6 +26,7 @@ import { GitHubVariableService } from "../../core/Services/GitHubVariableService
 import { IIssueOrPRRequestData } from "../../core/IIssueOrPRRequestData.ts";
 import { IssueOrPullRequest, IssueState } from "../../core/Enums.ts";
 import { IPRTemplateSettings } from "../../core/IPRTemplateSettings.ts";
+import { printAsGitHubNotice, printAsGitHubError, printAsGitHubErrors, printAsGitHubWarning } from "../../core/github.ts";
 
 /**
  * Syncs a pull request to an issue.

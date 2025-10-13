@@ -1,6 +1,7 @@
 import { isNothing } from "../ParamGuards.ts";
 import { VersionServiceBase } from "./VersionServiceBase.ts";
-import { isValidPreviewVersion, isValidProdVersion, printAsGitHubError } from "../Utils.ts";
+import { isValidPreviewVersion, isValidProdVersion } from "../Utils.ts";
+import { printAsGitHubError } from "../github.ts";
 import { ReleaseType } from "../Enums.ts";
 
 /**

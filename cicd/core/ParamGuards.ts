@@ -1,4 +1,4 @@
-import { printAsGitHubError } from "./Utils.ts";
+import { printAsGitHubError } from "./github.ts";
 
 /**
  * Checks if the value is null, undefined, or empty.

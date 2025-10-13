@@ -1,5 +1,5 @@
-import getEnvVar from "../../../cicd/core/GetEnvVar.ts";
-import { isNothing, printAsGitHubError } from "../../../cicd/core/Utils.ts";
+import { printAsGitHubError } from "../../../cicd/core/github.ts";
+import { getEnvVar, isNothing } from "../../../cicd/core/Utils.ts";
 import DenoConfig from "../../../deno.json" with { type: "json" };
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();

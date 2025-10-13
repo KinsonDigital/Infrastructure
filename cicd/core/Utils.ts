@@ -1,4 +1,5 @@
-import { GitHubHttpStatusCodes, GitHubLogType } from "./Enums.ts";
+import { GitHubLogType } from "./Enums.ts";
+import { printAsGitHubError, printAsGitHubNotice, printAsGitHubWarning } from "./github.ts";
 import { isLessThanOne, isNothing as isNothingGuard } from "./ParamGuards.ts";
 import {
 	IssueModel,
@@ -100,56 +101,6 @@ export function isIssue(issueOrPr: IssueModel | PullRequestModel): issueOrPr is 
  */
 export function isPr(issueOrPr: PullRequestModel | IssueModel): issueOrPr is PullRequestModel {
 	return "pull_request" in issueOrPr;
-}
-
-/**
- * Prints the given {@link message} as a GitHub notice.
- * @param message The message to print.
- */
-export function printAsGitHubNotice(message: string): void {
-	printEmptyLine();
-	console.log(`::notice::${message}`);
-	printEmptyLine();
-}
-
-/**
- * Prints the given {@link messages} as GitHub notices.
- * @param messages The messages to print.
- */
-export function printAsGitHubNotices(messages: string[]): void {
-	messages.forEach((message) => {
-		printAsGitHubNotice(message);
-	});
-}
-
-/**
- * Prints the given {@link message} as a GitHub error.
- * @param message The message to print.
- */
-export function printAsGitHubError(message: string): void {
-	printEmptyLine();
-	console.log(`::error::${message}`);
-	printEmptyLine();
-}
-
-/**
- * Prints the given {@link messages} as GitHub errors.
- * @param messages The error messages.
- */
-export function printAsGitHubErrors(messages: string[]): void {
-	messages.forEach((message) => {
-		printAsGitHubError(message);
-	});
-}
-
-/**
- * Prints the given {@link message} as a GitHub warning.
- * @param message The message to print.
- */
-export function printAsGitHubWarning(message: string): void {
-	printEmptyLine();
-	console.log(`::warning::${message}`);
-	printEmptyLine();
 }
 
 /**

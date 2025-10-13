@@ -1,6 +1,6 @@
 import { RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
 import { isNothing } from "./ParamGuards.ts";
-import { printAsGitHubError } from "./Utils.ts";
+import { printAsGitHubError } from "./github.ts";
 
 /**
  * Creates a release post on the X platform based on a template.

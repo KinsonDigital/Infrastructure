@@ -1,5 +1,6 @@
 import { existsSync } from "jsr:@std/fs@1.0.19";
-import { normalizeLineEndings, printAsGitHubError, splitBy, trimAllStartingWhiteSpace } from "../Utils.ts";
+import { normalizeLineEndings, splitBy, trimAllStartingWhiteSpace } from "../Utils.ts";
+import { printAsGitHubError } from "../github.ts";
 
 /**
  * Transpiles the HTML content in a README.md file to markdown.
