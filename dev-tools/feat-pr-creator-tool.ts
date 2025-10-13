@@ -15,7 +15,7 @@ import {
 } from "../cicd/core/git.ts";
 import { printError, printStatusUpdate, printStep } from "./core/console-msgs.ts";
 
-const token = (Deno.env.get("EA_DEV_TOKEN") ?? "").trim();
+const token = (Deno.env.get("CICD_TOKEN") ?? "").trim();
 const prReviewer = "KinsonDigitalAdmin";
 
 if (token === undefined || token === null || token === "") {
@@ -213,8 +213,7 @@ try {
 	let prDescription = templateFound ? await Deno.readTextFile(prTemplateFilePath) : noTemplateFoundDescription;
 
 	// Replace issue number placeholder with actual issue number
-	prDescription = prDescription.replace("#${ISSUE_NUMBER}", `#${issue.number.toString()}`)
-		.replace("${ISSUE_NUMBER}", `#${issue.number.toString()}`);
+	prDescription = prDescription.replace("{ISSUE_NUMBER}", issue.number.toString());
 
 	// Create a pull request
 	const prClient = new PullRequestClient(repoOwnerName, repoName, token);
