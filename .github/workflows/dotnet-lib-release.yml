@@ -366,21 +366,23 @@ jobs:
             --api-key ${{ secrets.nuget-org-api-key }} `
             --source https://api.nuget.org/v3/index.json;
 
-      - name: Send X Announcement
-        if: ${{ inputs.send-x-release-post == true && inputs.dry-run == false }}
-        env:
-          VERSION: "${{ needs.validate_version.outputs.version }}"
-          GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
-          RELEASE_X_POST_TEMPLATE_REPO_NAME: "${{ vars.RELEASE_X_POST_TEMPLATE_REPO_NAME }}"
-          RELEASE_X_POST_TEMPLATE_BRANCH_NAME: "${{ vars.RELEASE_X_POST_TEMPLATE_BRANCH_NAME }}"
-          RELATIVE_RELEASE_X_POST_TEMPLATE_FILE_PATH: "${{ vars.RELATIVE_RELEASE_X_POST_TEMPLATE_FILE_PATH }}"
-          DISCORD_INVITE_CODE: "${{ vars.DISCORD_INVITE_CODE }}"
-          X_BROADCAST_ENABLED: "${{ vars.X_BROADCAST_ENABLED }}"
-          X_ACCESS_TOKEN_KEY: "${{ secrets.x-access-token-key }}"
-          X_ACCESS_TOKEN_SECRET: "${{ secrets.x-access-token-secret }}"
-          X_CONSUMER_API_KEY: "${{ secrets.x-consumer-api-key }}"
-          X_CONSUMER_API_SECRET: "${{ secrets.x-consumer-api-secret }}"
-        run: deno run -ERN "${{ steps.script-url.outputs.url }}/send-x-release-post.ts";
+      - name: Send X Release Announcement
+        uses: KinsonDigital/Infrastructure/actions/send-x-release-announcement@main
+        with:
+          repo_owner: "${{ vars.ORGANIZATION_NAME }}"
+          repo_name: "${{ inputs.project-name }}"
+          github-token: "${{ secrets.cicd-pat }}"
+          release-x-post-template-repo-name: "${{ vars.RELEASE_X_POST_TEMPLATE_REPO_NAME }}"
+          release-x-post-template-branch-name: "${{ vars.RELEASE_X_POST_TEMPLATE_BRANCH_NAME }}"
+          relative-release-x-post-template-file-path: "${{ vars.RELATIVE_RELEASE_X_POST_TEMPLATE_FILE_PATH }}"
+          discord-invite-code: "${{ vars.DISCORD_INVITE_CODE }}"
+          x-broadcast-enabled: "${{ vars.X_BROADCAST_ENABLED }}"
+          x-access-token-key: "${{ secrets.x-access-token-key }}"
+          x-access-token-secret: "${{ secrets.x-access-token-secret }}"
+          x-consumer-api-key: "${{ secrets.x-consumer-api-key }}"
+          x-consumer-api-secret: "${{ secrets.x-consumer-api-secret }}"          
+          deno-version: "${{ vars.DENO_VERSION }}"
+          action-version: "${{ vars.CICD_SCRIPTS_VERSION }}"
 
       - name: Create GitHub Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: ${{ inputs.dry-run == false }}
