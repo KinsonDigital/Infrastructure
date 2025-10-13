@@ -1,5 +1,5 @@
-import { printAsGitHubError, printAsGitHubNotice } from "../core/github.ts";
-import { getEnvVar, isNotValidPreviewVersion, isNotValidProdVersion } from "../core/Utils.ts";
+import { printAsGitHubError, printAsGitHubNotice } from "../../cicd/core/github.ts";
+import { getEnvVar, isNotValidProdVersion, isNotValidPreviewVersion } from "../../cicd/core/Utils.ts";
 
 type ReleaseType = "production" | "preview";
 
@@ -7,7 +7,6 @@ const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
 let version: string = getEnvVar("VERSION", scriptFileName).toLowerCase();
 version = version.startsWith("v") ? version : `v${version}`;
-
 const releaseType: ReleaseType = <ReleaseType> getEnvVar("RELEASE_TYPE", scriptFileName).toLowerCase();
 
 const releaseTypeInvalid = releaseType != "production" && releaseType != "preview";
@@ -30,4 +29,4 @@ if (versionIsInvalid) {
 	Deno.exit(1);
 }
 
-printAsGitHubNotice(`✅The ${releaseType} version '${version}' is valid!!✅`);
+printAsGitHubNotice(`The ${releaseType} version '${version}' is valid.`);
