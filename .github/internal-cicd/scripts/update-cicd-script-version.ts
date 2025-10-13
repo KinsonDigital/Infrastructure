@@ -1,6 +1,6 @@
 import { RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
-import getEnvVar from "../../../cicd/core/GetEnvVar.ts";
 import { printAsGitHubNotice } from "../../../cicd/core/github.ts";
+import { getEnvVar } from "../../../cicd/core/Utils.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 const ownerName = getEnvVar("OWNER_NAME", scriptFileName);

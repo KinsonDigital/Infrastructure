@@ -2,11 +2,11 @@ import { XClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/social";
 import { ReleaseXPostBuilder } from "../core/ReleaseXPostBuilder.ts";
 import { GitHubVariableService } from "../core/Services/GitHubVariableService.ts";
 import {
+getEnvVar,
 	isNothing,
 	isNotValidPreviewVersion,
 	isNotValidProdVersion,
 } from "../core/Utils.ts";
-import getEnvVar from "../core/GetEnvVar.ts";
 import { validateOrgExists, validateRepoExists } from "../core/Validators.ts";
 import { printAsGitHubError, printAsGitHubNotice } from "../core/github.ts";
 

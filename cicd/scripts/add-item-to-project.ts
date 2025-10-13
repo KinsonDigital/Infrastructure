@@ -1,6 +1,6 @@
 import { IssueClient, ProjectClient, PullRequestClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
-import getEnvVar from "../core/GetEnvVar.ts";
 import { printAsGitHubError, printAsGitHubNotice } from "../core/github.ts";
+import { getEnvVar } from "../core/Utils.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 

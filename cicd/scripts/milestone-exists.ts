@@ -1,4 +1,4 @@
-import getEnvVar from "../core/GetEnvVar.ts";
+import { getEnvVar } from "../core/Utils.ts";
 import { validateMilestoneExists, validateRepoExists } from "../core/Validators.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();

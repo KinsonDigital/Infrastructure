@@ -1,6 +1,6 @@
 import { ReleaseType } from "../../../cicd/core/Enums.ts";
-import getEnvVar from "../../../cicd/core/GetEnvVar.ts";
 import { CSharpVersionService } from "../../../cicd/core/Services/CSharpVersionService.ts";
+import { getEnvVar } from "../../../cicd/core/Utils.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 

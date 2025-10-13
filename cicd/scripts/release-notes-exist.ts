@@ -1,6 +1,5 @@
 import { existsSync } from "jsr:@std/fs@1.0.19";
-import getEnvVar from "../../cicd/core/GetEnvVar.ts";
-import { trimPathBothEnds } from "../../cicd/core/Utils.ts";
+import { getEnvVar, trimPathBothEnds } from "../../cicd/core/Utils.ts";
 import { printAsGitHubError, printAsGitHubNotice } from "../core/github.ts";
 
 const scriptName = import.meta.url.split("/").pop();

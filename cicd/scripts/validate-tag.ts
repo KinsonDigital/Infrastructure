@@ -1,6 +1,5 @@
 import { TagClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
-import getEnvVar from "../core/GetEnvVar.ts";
-import { isNotValidPreviewVersion, isNotValidProdVersion } from "../core/Utils.ts";
+import { getEnvVar, isNotValidPreviewVersion, isNotValidProdVersion } from "../core/Utils.ts";
 import { validateOrgExists, validateRepoExists } from "../core/Validators.ts";
 import { printAsGitHubError } from "../core/github.ts";
 

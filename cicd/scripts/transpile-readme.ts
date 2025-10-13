@@ -1,7 +1,7 @@
 import { existsSync } from "jsr:@std/fs@1.0.19";
 import { printAsGitHubError, printAsGitHubNotice } from "../core/github.ts";
 import { ReadMeTranspilerService } from "../core/Services/ReadMeTranspilerService.ts";
-import getEnvVar from "../core/GetEnvVar.ts";
+import { getEnvVar } from "../core/Utils.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 

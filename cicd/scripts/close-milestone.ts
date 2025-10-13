@@ -1,8 +1,8 @@
 import { MilestoneClient, RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
 import { MilestoneModel } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github/models";
-import getEnvVar from "../core/GetEnvVar.ts";
 import { printAsGitHubError } from "../core/github.ts";
 import { validateOrgExists, validateRepoExists } from "../core/Validators.ts";
+import { getEnvVar } from "../core/Utils.ts";
 
 // TODO: REMOVE ME.  I AM GETTING REPLACED BY THE CLOSE MILESTONE ACTION
 

@@ -1,6 +1,5 @@
 import { GitHubLogType } from "./Enums.ts";
 import { printAsGitHubError, printAsGitHubNotice, printAsGitHubWarning } from "./github.ts";
-import { isLessThanOne, isNothing as isNothingGuard } from "./ParamGuards.ts";
 import {
 	IssueModel,
 	LabelModel,
@@ -8,6 +7,7 @@ import {
 	PullRequestModel,
 	UserModel,
 } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github/models";
+import { isLessThanOne } from "./guards.ts";
 
 const prodVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)$/;
 const prevVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)-preview\.([1-9]\d*|0)$/;
@@ -71,7 +71,7 @@ export function isNothing<T>(
  * @returns The issues from the given list of issues or pull requests.
  */
 export function filterIssues(issuesOrPrs: (IssueModel | PullRequestModel)[]): IssueModel[] {
-	return <IssueModel[]> issuesOrPrs.filter((item) => isIssue(item));
+	return <IssueModel[]>issuesOrPrs.filter((item) => isIssue(item));
 }
 
 /**
@@ -80,7 +80,7 @@ export function filterIssues(issuesOrPrs: (IssueModel | PullRequestModel)[]): Is
  * @returns The pull requests from the given list of issues or pull requests.
  */
 export function filterPullRequests(issuesOrPrs: (IssueModel | PullRequestModel)[]): PullRequestModel[] {
-	return <PullRequestModel[]> issuesOrPrs.filter((item) => isPr(item));
+	return <PullRequestModel[]>issuesOrPrs.filter((item) => isPr(item));
 }
 
 /**
@@ -238,10 +238,17 @@ export function clamp(value: number, min: number, max: number): number {
  * @returns The URL to the issue.
  */
 export function buildIssueUrl(repoOwner: string, repoName: string, issueNumber: number): string {
-	const funcName = "buildIssueUrl";
-	isNothingGuard(repoOwner, funcName, "repoOwner");
-	isNothingGuard(repoName, funcName, "repoName");
-	isLessThanOne(issueNumber, funcName, "issueNumber");
+	if (isNothing(repoOwner)) {
+		throw new Error("repoOwner parameter cannot be null, undefined, or empty.");
+	}
+
+	if (isNothing(repoName)) {
+		throw new Error("repoName parameter cannot be null, undefined, or empty.");
+	}
+
+	if (isLessThanOne(issueNumber)) {
+		throw new Error("issueNumber parameter must be greater than 1.");
+	}
 
 	return `https://github.com/${repoOwner}/${repoName}/issues/${issueNumber}`;
 }
@@ -255,10 +262,16 @@ export function buildIssueUrl(repoOwner: string, repoName: string, issueNumber: 
  * @returns The URL to the issue.
  */
 export function buildPullRequestUrl(repoOwner: string, repoName: string, prNumber: number): string {
-	const funcName = "buildPullRequestUrl";
-	isNothingGuard(repoOwner, funcName, "repoOwner");
-	isNothingGuard(repoName, funcName, "repoName");
-	isLessThanOne(prNumber, funcName, "prNumber");
+	if (isNothing(repoOwner)) {
+		throw new Error("repoOwner parameter cannot be null, undefined, or empty.");
+	}
+	if (isNothing(repoName)) {
+		throw new Error("repoOwner parameter cannot be null, undefined, or empty.");
+	}
+
+	if (isLessThanOne(prNumber)) {
+		throw new Error("prNumber parameter must be greater than 1.");
+	}
 
 	return `https://github.com/${repoOwner}/${repoName}/pull/${prNumber}`;
 }
@@ -271,9 +284,12 @@ export function buildPullRequestUrl(repoOwner: string, repoName: string, prNumbe
  * @returns The URL to the repository labels page.
  */
 export function buildLabelsUrl(repoOwner: string, repoName: string): string {
-	const funcName = "buildLabelsUrl";
-	isNothingGuard(repoOwner, funcName, "repoOwner");
-	isNothingGuard(repoName, funcName, "repoName");
+	if (isNothing(repoOwner)) {
+		throw new Error("repoOwner parameter cannot be null, undefined, or empty.");
+	}
+	if (isNothing(repoName)) {
+		throw new Error("repoOwner parameter cannot be null, undefined, or empty.");
+	}
 
 	return `https://github.com/${repoOwner}/${repoName}/labels`;
 }
