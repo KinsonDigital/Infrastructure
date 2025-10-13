@@ -91,19 +91,34 @@ env:
 
 
 jobs:
-  validate_version:
-    name: Validate Version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-csharp-version.yml@v15.0.0
-    with:
-      project-name: "${{ inputs.project-name }}"
-      release-type: "${{ inputs.release-type }}"
-    secrets:
-      cicd-pat: "${{ secrets.cicd-pat }}"
+  get_and_validate_version:
+    name: Get And Validate Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.validate-version.outputs.version }}
+    steps:
+      - name: Get Version
+        id: get-version
+        uses: KinsonDigital/Infrastructure/actions/get-version@feature/269-create-custom-actions
+        with:
+          version-file-path: "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj"
+          github-token: "${{ secrets.cicd-pat }}"
+          deno-version: "${{ vars.DENO_VERSION }}"
+          action-version: "${{ vars.CICD_SCRIPTS_VERSION }}"
+
+      - name: Validate Version
+        id: validate-version
+        uses: KinsonDigital/Infrastructure/actions/validate-version@feature/269-create-custom-actions
+        with:
+          version: "${{ steps.get-version.outputs.version}}"
+          release-type: "${{ inputs.release-type }}"
+          deno-version: "${{ vars.DENO_VERSION }}"
+          action-version: "${{ vars.CICD_SCRIPTS_VERSION }}"
 
 
   run_prerelease_validation:
     name: Run Pre-Release Validation
-    needs: [validate_version]
+    needs: [get_and_validate_version]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -142,7 +157,7 @@ jobs:
         continue-on-error: true
         env:
           RELEASE_TYPE: "${{ inputs.release-type }}"
-          TAG_NAME: "${{ needs.validate_version.outputs.version }}"
+          TAG_NAME: "${{ needs.get_and_validate_version.outputs.version }}"
           GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
         run: |
           $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/validate-tag.ts";
@@ -168,7 +183,7 @@ jobs:
         env:
           RELATIVE_RELEASE_NOTES_DIR_PATH: "${{ inputs.relative-release-notes-dir-path }}"
           RELEASE_TYPE: "${{ inputs.release-type }}"
-          TAG_NAME: "${{ needs.validate_version.outputs.version }}"
+          TAG_NAME: "${{ needs.get_and_validate_version.outputs.version }}"
         run: |
           $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/release-notes-exist.ts";
 
@@ -179,7 +194,7 @@ jobs:
         continue-on-error: true
         env:
           NUGET_PKG_NAME: "${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}"
-          NUGET_PKG_VERSION: "${{ needs.validate_version.outputs.version }}"
+          NUGET_PKG_VERSION: "${{ needs.get_and_validate_version.outputs.version }}"
         run: |
           $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/nuget-pkg-does-not-exist.ts";
 
@@ -189,7 +204,7 @@ jobs:
         id: milestone-exists-check
         continue-on-error: true
         env:
-          MILESTONE_TITLE: "${{ needs.validate_version.outputs.version }}"
+          MILESTONE_TITLE: "${{ needs.get_and_validate_version.outputs.version }}"
           GITHUB_TOKEN: ${{ secrets.cicd-pat }}
         run: |
           $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/milestone-exists.ts";
@@ -199,7 +214,7 @@ jobs:
       - name: Validate Milestone
         id: milestone-check
         env:
-          MILESTONE_TITLE: "${{ needs.validate_version.outputs.version }}"
+          MILESTONE_TITLE: "${{ needs.get_and_validate_version.outputs.version }}"
           GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
         continue-on-error: true
         run: |
@@ -211,7 +226,7 @@ jobs:
         id: github-release-check
         continue-on-error: true
         env:
-          TAG_NAME: "${{ needs.validate_version.outputs.version }}"
+          TAG_NAME: "${{ needs.get_and_validate_version.outputs.version }}"
           GITHUB_TOKEN: "${{ secrets.cicd-pat }}"
         run: |
           $scriptUrl = "${{ steps.build-script-base-url.outputs.url }}/github-release-does-not-exist.ts";
@@ -244,7 +259,7 @@ jobs:
           }
 
           if ($notesFileCheckFailed -eq "true") {
-            Write-Host "::error::The release notes for version '${{ needs.validate_version.outputs.version }}' do not exist.";
+            Write-Host "::error::The release notes for version '${{ needs.get_and_validate_version.outputs.version }}' do not exist.";
           }
 
           if ($packageCheckFailed -eq "true") {
@@ -252,11 +267,11 @@ jobs:
           }
 
           if ($milestoneExistsCheckFailed -eq "true") {
-            Write-Host "::error::The milestone '${{ needs.validate_version.outputs.version }}' does not exist.";
+            Write-Host "::error::The milestone '${{ needs.get_and_validate_version.outputs.version }}' does not exist.";
           }
 
           if ($milestoneCheckFailed -eq "true") {
-            Write-Host "::error::The milestone '${{ needs.validate_version.outputs.version }}' has one or more issues that are not closed.";
+            Write-Host "::error::The milestone '${{ needs.get_and_validate_version.outputs.version }}' has one or more issues that are not closed.";
           }
 
           if ($githubReleaseCheckFailed -eq "true") {
@@ -304,7 +319,7 @@ jobs:
   perform_release:
     name: Perform ${{ inputs.release-type }} Release
     runs-on: ubuntu-latest
-    needs: [run_prerelease_validation, validate_version,
+    needs: [run_prerelease_validation, get_and_validate_version,
       build_project, run_tests]
     steps:
       - name: Checkout Repository
@@ -357,7 +372,7 @@ jobs:
       - name: Publish Nuget Package
         if: ${{ inputs.dry-run == false }}
         run: |
-          $version = "${{ needs.validate_version.outputs.version }}";
+          $version = "${{ needs.get_and_validate_version.outputs.version }}";
           $version = $version.StartsWith("v") ? $version.Substring(1) : $version;
 
           # Push the nuget package
@@ -388,12 +403,12 @@ jobs:
         if: ${{ inputs.dry-run == false }}
         uses: ncipollo/release-action@v1
         with:
-          name: "🚀${{ inputs.release-type }} - ${{ needs.validate_version.outputs.version }}"
-          tag: ${{ needs.validate_version.outputs.version }}
+          name: "🚀${{ inputs.release-type }} - ${{ needs.get_and_validate_version.outputs.version }}"
+          tag: ${{ needs.get_and_validate_version.outputs.version }}
           owner: ${{ vars.ORGANIZATION_NAME }}
           repo: ${{ inputs.project-name }}
-          bodyFile: "${{ github.workspace }}/ReleaseNotes/${{ inputs.release-type }}Releases/Release-Notes-${{ needs.validate_version.outputs.version }}.md"
-          artifacts: "${{ github.workspace }}/ReleaseNotes/${{ inputs.release-type }}Releases/Release-Notes-${{ needs.validate_version.outputs.version }}.md"
+          bodyFile: "${{ github.workspace }}/ReleaseNotes/${{ inputs.release-type }}Releases/Release-Notes-${{ needs.get_and_validate_version.outputs.version }}.md"
+          artifacts: "${{ github.workspace }}/ReleaseNotes/${{ inputs.release-type }}Releases/Release-Notes-${{ needs.get_and_validate_version.outputs.version }}.md"
           prerelease: ${{ inputs.release-type }} == 'Preview'
           token: ${{ secrets.CICD_TOKEN }}
           
@@ -403,6 +418,6 @@ jobs:
           repo_owner: "${{ vars.ORGANIZATION_NAME }}"
           repo_name: "${{ inputs.project-name }}"
           github-token: "${{ secrets.cicd-pat }}"
-          milestone_title: "${{ needs.validate_version.outputs.version }}"
+          milestone_title: "${{ needs.get_and_validate_version.outputs.version }}"
           deno-version: "${{ vars.DENO_VERSION }}"
           action-version: "${{ vars.CICD_SCRIPTS_VERSION }}"
