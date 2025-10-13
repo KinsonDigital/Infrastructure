@@ -590,6 +590,29 @@
 				"runtimeExecutable": "${userHome}/.deno/bin/deno"
 			}
 		},
+		{ // CREATE FEATURE PR TOOL
+			"name": "Create Feature PR Tool",
+			"request": "launch",
+			"type": "node",
+			"program": "${workspaceFolder}/dev-tools/feat-pr-creator-tool.ts",
+			"cwd": "${workspaceFolder}",
+			"runtimeArgs": [
+				"run",
+				"-A",
+				"--inspect-wait",
+			],
+			"env": {
+				"CICD_TOKEN": "${env:CICD_TOKEN}",
+			},
+			"console": "integratedTerminal",
+			"attachSimplePort": 9229,
+			"windows": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
+			},
+			"linux": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno"
+			}
+		},
 		{ // UPDATE CICD SCRIPT VERSION
 			"name": "Update CICD Script Version",
 			"request": "launch",
