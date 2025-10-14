@@ -1,13 +1,14 @@
 import { ReleaseClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
-import { getEnvVar, isNotValidPreviewVersion, isNotValidProdVersion } from "../core/Utils.ts";
-import { validateOrgExists, validateRepoExists } from "../core/Validators.ts";
-import { printAsGitHubError } from "../core/github.ts";
+import { printAsGitHubError, setGitHubOutput } from "../../cicd/core/github.ts";
+import { getEnvVar, isNotValidProdVersion, isNotValidPreviewVersion } from "../../cicd/core/Utils.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
+const outputName = "release-exists";
 const ownerName = getEnvVar("OWNER_NAME", scriptFileName);
 const repoName = getEnvVar("REPO_NAME", scriptFileName);
 const tagName = getEnvVar("TAG_NAME", scriptFileName);
+const failIfExists = getEnvVar("FAIL_IF_EXISTS", scriptFileName).toLowerCase() === "true";
 const githubToken = getEnvVar("GITHUB_TOKEN", scriptFileName);
 
 // Validate the tag
@@ -18,16 +19,15 @@ if (isNotValidProdVersion(tagName) && isNotValidPreviewVersion(tagName)) {
 	Deno.exit(1);
 }
 
-await validateOrgExists(scriptFileName);
-await validateRepoExists(scriptFileName);
-
 const releaseClient: ReleaseClient = new ReleaseClient(ownerName, repoName, githubToken);
 
 const releaseExists = await releaseClient.releaseExists(tagName);
 
-if (releaseExists) {
+setGitHubOutput(outputName, releaseExists ? "true" : "false");
+
+if (failIfExists && releaseExists) {
 	const errorMsg = `A release for the tag '${tagName}' already exists.` +
-		"\nIs the tag provided the incorrect tag?";
+		"\nIs the tag provided an incorrect tag?";
 
 	printAsGitHubError(errorMsg);
 	Deno.exit(1);

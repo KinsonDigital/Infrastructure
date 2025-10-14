@@ -111,8 +111,8 @@
 			"name": "GitHub Release Does Not Exist",
 			"request": "launch",
 			"type": "node",
-			"program": "${workspaceFolder}/cicd/scripts/github-release-does-not-exist.ts",
-			"cwd": "${workspaceFolder}/cicd/scripts",
+			"program": "${workspaceFolder}/actions/github-release-exists/github-release-exists.ts",
+			"cwd": "${workspaceFolder}",
 			"runtimeArgs": [
 				"run",
 				"-ERN",
