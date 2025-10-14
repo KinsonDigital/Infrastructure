@@ -165,17 +165,18 @@
 			"name": "Milestone Exists",
 			"request": "launch",
 			"type": "node",
-			"program": "${workspaceFolder}/cicd/scripts/milestone-exists.ts",
+			"program": "${workspaceFolder}/actions/milestone-exists/milestone-exists.ts",
 			"cwd": "${workspaceFolder}",
 			"runtimeArgs": [
 				"run",
-				"-ERNS",
+				"-ERN",
 				"--inspect-wait",
 			],
 			"env": {
 				"OWNER_NAME": "KinsonDigital",
 				"REPO_NAME": "Infrastructure",
-				"MILESTONE_TITLE": "v1.2.3-preview.4",
+				"MILESTONE_NAME": "v1.2.3-preview.4",
+				"FAIL_IF_EXISTS": "false",
 				"GITHUB_TOKEN": "${env:CICD_TOKEN}"
 			},
 			"attachSimplePort": 9229,
