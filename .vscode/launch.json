@@ -55,33 +55,6 @@
 				"runtimeExecutable": "${userHome}/.deno/bin/deno"
 			}
 		},
-		{ // ADD ITEM TO PROJECT
-			"name": "Add Item To Project",
-			"request": "launch",
-			"type": "node",
-			"program": "${workspaceFolder}/cicd/scripts/add-item-to-project.ts",
-			"cwd": "${workspaceFolder}",
-			"runtimeArgs": [
-				"run",
-				"--inspect-wait",
-				"--allow-all"
-			],
-			"args": [
-				"KinsonDigital",
-				"KD-Team",
-				"Velaptor",
-				"683",
-				"${env:CICD_TOKEN}",
-			],
-			"attachSimplePort": 9229,
-			"console": "integratedTerminal",
-			"windows": {
-				"runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
-			},
-			"linux": {
-				"runtimeExecutable": "${userHome}/.deno/bin/deno"
-			}
-		},
 		{ // CLOSE MILESTONE
 			"name": "Close Milestone",
 			"request": "launch",
