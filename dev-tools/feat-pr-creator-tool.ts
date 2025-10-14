@@ -220,7 +220,7 @@ try {
 
 	printStatusUpdate("Creating pull request");
 	const newPr = await prClient.createPullRequest(
-		issue.title ?? "WIP - Issue/pr sync system will set this",
+		issue.title ?? "WIP - Please update title",
 		featureBranch,
 		chosenBaseBranch,
 		prDescription,
