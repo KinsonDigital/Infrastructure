@@ -216,7 +216,7 @@
 			"name": "NuGet Package Exists",
 			"request": "launch",
 			"type": "node",
-			"program": "${workspaceFolder}/cicd/scripts/nuget-pkg-does-not-exist.ts",
+			"program": "${workspaceFolder}/actions/nuget-pkg-exists/nuget-pkg-exists.ts",
 			"cwd": "${workspaceFolder}",
 			"runtimeArgs": [
 				"run",

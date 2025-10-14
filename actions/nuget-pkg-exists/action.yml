@@ -1,0 +1,46 @@
+name: "Nuget Package Exists"
+description: "Checks if a NuGet package exists."
+inputs:
+  nuget-pkg-name:
+    description: "The name of the NuGet package to check."
+    required: true
+  nuget-pkg-version:
+    description: "The version of the NuGet package to check."
+    required: true
+  deno-version:
+    description: "The version of Deno to use."
+    required: true
+  action-version:
+    description: "The version of this action to use."
+    required: true
+  fail-if-exists:
+    description: "Fail if the NuGet package exists."
+    required: false
+    default: "true"
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Deno (${{ inputs.deno-version }})
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: ${{ inputs.deno-version }}
+
+    - name: Run Script
+      id: run-script
+      shell: pwsh
+      env:
+        NUGET_PKG_NAME: "${{ inputs.nuget-pkg-name }}"
+        NUGET_PKG_VERSION: "${{ inputs.nuget-pkg-version }}"
+        FAIL_IF_EXISTS: "${{ inputs.fail-if-exists }}"
+      run: |
+        $baseUrl = "https://raw.githubusercontent.com";
+        $version = "${{ inputs.action-version }}";
+        $fileName = "nuget-package-exists.ts";
+        $path = "EngagedAgility/Infrastructure/refs/tags/$version/actions/nuget-package-exists/$fileName";
+        $scriptUrl = "$baseUrl/$path";
+
+        deno run -ERN $scriptUrl;
+outputs:
+  package-exists:
+    description: "Whether the NuGet package exists."
+    value: ${{ steps.run-script.outputs.package-exists }}
