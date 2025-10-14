@@ -1,13 +1,14 @@
 import { MilestoneClient, RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
 import { IssueModel, PullRequestModel } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github/models";
-import { filterIssues, filterPullRequests, getEnvVar, printProblemList } from "../core/Utils.ts";
-import { printAsGitHubError } from "../core/github.ts";
+import { printAsGitHubError, setGitHubOutput } from "../../cicd/core/github.ts";
+import { getEnvVar, filterIssues, filterPullRequests, printProblemList } from "../../cicd/core/Utils.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
 const ownerName = getEnvVar("OWNER_NAME", scriptFileName);
 const repoName = getEnvVar("REPO_NAME", scriptFileName);
-const milestoneTitle = getEnvVar("MILESTONE_TITLE", scriptFileName);
+const milestoneName = getEnvVar("MILESTONE_NAME", scriptFileName);
+const failIfAllItemsNotClosed = getEnvVar("FAIL_IF_ALL_ITEMS_NOT_CLOSED", scriptFileName).toLowerCase() === "true";
 const token = getEnvVar("GITHUB_TOKEN", scriptFileName);
 
 const repoClient: RepoClient = new RepoClient(ownerName, repoName, token);
@@ -19,7 +20,7 @@ if (repoDoesNotExist) {
 }
 
 const milestoneClient: MilestoneClient = new MilestoneClient(ownerName, repoName, token);
-const milestoneItems = await milestoneClient.getIssuesAndPullRequests(milestoneTitle);
+const milestoneItems = await milestoneClient.getIssuesAndPullRequests(milestoneName);
 
 const issues: IssueModel[] = filterIssues(milestoneItems);
 const prs: PullRequestModel[] = filterPullRequests(milestoneItems);
@@ -47,13 +48,20 @@ prs.forEach((pr) => {
 	}
 });
 
-let successMsg = `✅All issues and pull requests in milestone '${milestoneTitle}' are`;
-successMsg += " closed and no pull requests are in draft.✅";
+const problemsExist = problemsFound.length > 0;
 
-const failureMsg = `❌Something went wrong with closing all of the issues for milestone '${milestoneTitle}'.❌`;
+// Set the output variable
+setGitHubOutput("all-items-closed", problemsExist ? "true" : "false");
 
-printProblemList(problemsFound, successMsg, failureMsg);
+if (failIfAllItemsNotClosed && problemsExist) {
+	let successMsg = `✅All issues and pull requests in milestone '${milestoneName}' are`;
+	successMsg += " closed and no pull requests are in draft.✅";
 
-if (problemsFound.length > 0) {
-	Deno.exit(1);
+	const failureMsg = `❌Something went wrong with closing all of the issues for milestone '${milestoneName}'.❌`;
+
+	printProblemList(problemsFound, successMsg, failureMsg);
+
+	if (problemsFound.length > 0) {
+		Deno.exit(1);
+	}
 }

@@ -192,7 +192,7 @@
 			"name": "Milestone Items All Closed",
 			"request": "launch",
 			"type": "node",
-			"program": "${workspaceFolder}/cicd/scripts/milestone-items-all-closed.ts",
+			"program": "${workspaceFolder}/actions/milestone-items-closed/milestone-items-closed.ts",
 			"cwd": "${workspaceFolder}/cicd",
 			"runtimeArgs": [
 				"run",
