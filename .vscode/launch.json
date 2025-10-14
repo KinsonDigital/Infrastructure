@@ -643,7 +643,7 @@
 			"name": "Update Copyright",
 			"request": "launch",
 			"type": "node",
-			"program": "${workspaceFolder}/cicd/scripts/update-copyright.ts",
+			"program": "${workspaceFolder}/actions/update-copyright/update-copyright.ts",
 			"cwd": "${workspaceFolder}",
 			"runtimeArgs": [
 				"run",

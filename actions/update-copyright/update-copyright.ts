@@ -1,6 +1,6 @@
 import { existsSync, walkSync } from "jsr:@std/fs@1.0.19";
-import { printAsGitHubError, printAsGitHubNotice, printAsGitHubWarning } from "../core/github.ts";
-import { getEnvVar } from "../core/Utils.ts";
+import { printAsGitHubError, printAsGitHubWarning, printAsGitHubNotice } from "../../cicd/core/github.ts";
+import { getEnvVar } from "../../cicd/core/Utils.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 const csProjFileName = getEnvVar("CS_PROJ_FILE_NAME", scriptFileName);

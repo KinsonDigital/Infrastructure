@@ -1,0 +1,32 @@
+name: "Update Copyright"
+description: "Updates the copyright information in a 'csproj' file."
+inputs:
+  cs-proj-file-name:
+    description: "The name of the 'csproj' file to update."
+    required: true
+  deno-version:
+    description: "The version of Deno to use."
+    required: true
+  action-version:
+    description: "The version of this action to use."
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Deno (${{ inputs.deno-version }})
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: ${{ inputs.deno-version }}
+
+    - name: Run Script
+      shell: pwsh
+      env:
+        CS_PROJ_FILE_NAME: "${{ inputs.cs-proj-file-name }}"
+      run: |
+        $baseUrl = "https://raw.githubusercontent.com";
+        $version = "${{ inputs.action-version }}";
+        $fileName = "update-copyright.ts";
+        $path = "EngagedAgility/Infrastructure/refs/tags/$version/actions/update-copyright/$fileName";
+        $scriptUrl = "$baseUrl/$path";
+
+        deno run -ERW $scriptUrl;
