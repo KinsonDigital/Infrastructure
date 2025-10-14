@@ -1,0 +1,46 @@
+name: "Release Notes Exist"
+description: "Checks if a release notes file exists."
+inputs:
+  release-notes-file-path:
+    description: "The fully qualified file path to the release notes file."
+    required: true
+  deno-version:
+    description: "The version of Deno to use."
+    required: true
+  action-version:
+    description: "The version of this action to use."
+    required: true
+  fail-if-does-not-exist:
+    description: "Fail if the release notes do not exist."
+    required: false
+    default: "true"
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v5
+
+    - name: Setup Deno (${{ inputs.deno-version }})
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: ${{ inputs.deno-version }}
+
+    - name: Run Script
+      id: run-script
+      shell: pwsh
+      env:
+        RELEASE_NOTES_FILE_PATH: "${{ inputs.release-notes-file-path }}"
+        FAIL_IF_DOES_NOT_EXIST: "${{ inputs.fail-if-does-not-exist }}"
+        GITHUB_TOKEN: "${{ inputs.github-token }}"
+      run: |
+        $baseUrl = "https://raw.githubusercontent.com";
+        $version = "${{ inputs.action-version }}";
+        $fileName = "release-notes-exist.ts";
+        $path = "EngagedAgility/Infrastructure/refs/tags/$version/actions/release-notes-exist/$fileName";
+        $scriptUrl = "$baseUrl/$path";
+
+        deno run -EN $scriptUrl;
+outputs:
+  release-notes-exist:
+    description: "Whether the release notes exist."
+    value: ${{ steps.run-script.outputs.release-notes-exist }}

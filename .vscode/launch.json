@@ -236,6 +236,29 @@
 				"runtimeExecutable": "${userHome}/.deno/bin/deno"
 			}
 		},
+		{ // RELEASE NOTES EXISTS
+			"name": "Release Notes Exist",
+			"request": "launch",
+			"type": "node",
+			"program": "${workspaceFolder}/actions/release-notes-exist/release-notes-exist.ts",
+			"cwd": "${workspaceFolder}",
+			"runtimeArgs": [
+				"run",
+				"-ER",
+				"--inspect-wait",
+			],
+			"env": {
+				"RELEASE_NOTES_FILE_PATH": "${workspaceFolder}/release-notes/production-releases/v1.0.0-preview.15.md",
+				"FAIL_IF_DOES_NOT_EXIST": "false",
+			},
+			"attachSimplePort": 9229,
+			"windows": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
+			},
+			"linux": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno"
+			}
+		},
 		{ // SEND RELEASE POST
 			"name": "Send Release Post",
 			"request": "launch",
