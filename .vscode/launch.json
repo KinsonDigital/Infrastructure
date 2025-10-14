@@ -573,7 +573,7 @@
 			"name": "Validate SDK Versions",
 			"request": "launch",
 			"type": "node",
-			"program": "${workspaceFolder}/cicd/scripts/validate-sdk-versions.ts",
+			"program": "${workspaceFolder}/actions/validate-sdk-versions/validate-sdk-versions.ts",
 			"cwd": "${workspaceFolder}",
 			"runtimeArgs": [
 				"run",
