@@ -48,8 +48,8 @@ const token = getEnvVar("GITHUB_TOKEN", scriptFileName);
 
 version = version.startsWith("v") ? version : `v${version}`;
 
-await validateOrgExists(scriptFileName);
-await validateRepoExists(scriptFileName);
+await validateOrgExists(ownerName, token);
+await validateRepoExists(ownerName, repoName, token);
 
 if (isNotValidPreviewVersion(version) && isNotValidProdVersion(version)) {
 	let errorMsg = `The version '${version}' is not a valid preview or production version.`;

@@ -31,8 +31,8 @@ if (tagIsInvalid) {
 	Deno.exit(1);
 }
 
-await validateOrgExists(scriptFileName);
-await validateRepoExists(scriptFileName);
+await validateOrgExists(ownerName, token);
+await validateRepoExists(ownerName, repoName, token);
 
 const tagClient: TagClient = new TagClient(ownerName, repoName, token);
 

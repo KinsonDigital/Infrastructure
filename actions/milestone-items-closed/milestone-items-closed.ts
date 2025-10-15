@@ -2,6 +2,7 @@ import { MilestoneClient, RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0
 import { IssueModel, PullRequestModel } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github/models";
 import { printAsGitHubError, setGitHubOutput } from "../../cicd/core/github.ts";
 import { getEnvVar, filterIssues, filterPullRequests, printProblemList } from "../../cicd/core/Utils.ts";
+import { validateOrgExists, validateRepoExists } from "../../cicd/core/Validators.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
@@ -10,6 +11,9 @@ const repoName = getEnvVar("REPO_NAME", scriptFileName);
 const milestoneName = getEnvVar("MILESTONE_NAME", scriptFileName);
 const failIfAllItemsNotClosed = getEnvVar("FAIL_IF_ALL_ITEMS_NOT_CLOSED", scriptFileName).toLowerCase() === "true";
 const token = getEnvVar("GITHUB_TOKEN", scriptFileName);
+
+await validateOrgExists(ownerName, token);
+await validateRepoExists(ownerName, repoName, token);
 
 const repoClient: RepoClient = new RepoClient(ownerName, repoName, token);
 const repoDoesNotExist = !(await repoClient.exists());
