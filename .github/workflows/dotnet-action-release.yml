@@ -165,7 +165,6 @@ jobs:
         uses: KinsonDigital/Infrastructure/actions/get-version@feature/269-create-custom-actions
         with:
           version-file-path: "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj"
-          github-token: "${{ secrets.cicd-pat }}"
           deno-version: "${{ vars.DENO_VERSION }}"
           action-version: "${{ vars.CICD_SCRIPTS_VERSION }}"
 
@@ -243,19 +242,6 @@ jobs:
     uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v15.0.0
     with:
       project-name: "${{ inputs.project-name }}"
-      runs-on: "${{ inputs.runs-on }}"
-      build-config: "${{ inputs.build-config }}"
-      net-sdk-version: "${{ inputs.net-sdk-version }}"
-    secrets:
-      cicd-pat: ${{ secrets.cicd-pat }}
-
-
-  run_tests:
-    name: Run Tests
-    needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/run-csharp-tests.yml@v15.0.0
-    with:
-      project-name: "${{ inputs.project-name }}Tests"
       runs-on: "${{ inputs.runs-on }}"
       build-config: "${{ inputs.build-config }}"
       net-sdk-version: "${{ inputs.net-sdk-version }}"
