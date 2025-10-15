@@ -19,9 +19,6 @@ inputs:
   deno-version:
     description: "The version of Deno to use."
     required: true
-  action-version:
-    description: "The version of this action to use."
-    required: true
   fail-if-invalid-syntax:
     description: |
       Fail if the tag has an invalid syntax.
@@ -50,13 +47,9 @@ runs:
         RELEASE_TYPE: "${{ inputs.release-type }}"
         GITHUB_TOKEN: "${{ inputs.github-token }}"
       run: |
-        $baseUrl = "https://raw.githubusercontent.com";
-        $version = "${{ inputs.action-version }}";
-        $fileName = "validate-tag.ts";
-        $path = "EngagedAgility/Infrastructure/refs/tags/$version/actions/validate-tag/$fileName";
-        $scriptUrl = "$baseUrl/$path";
+        $scriptFilePath = "${{ github.action_path }}/validate-tag.ts";
 
-        deno run -ERN $scriptUrl;
+        deno run -ERN $scriptFilePath;
 outputs:
   tag-is-valid:
     description: "Whether the tag is valid."

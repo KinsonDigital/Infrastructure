@@ -16,9 +16,6 @@ inputs:
   deno-version:
     description: "The version of Deno to use."
     required: true
-  action-version:
-    description: "The version of this action to use."
-    required: true
   fail-if-does-not-exist:
     description: "Fail if the milestone does not exist."
     required: false
@@ -41,13 +38,9 @@ runs:
         FAIL_IF_DOES_NOT_EXIST: "${{ inputs.fail-if-does-not-exist }}"
         GITHUB_TOKEN: "${{ inputs.github-token }}"
       run: |
-        $baseUrl = "https://raw.githubusercontent.com";
-        $version = "${{ inputs.action-version }}";
-        $fileName = "milestone-exists.ts";
-        $path = "EngagedAgility/Infrastructure/refs/tags/$version/actions/milestone-exists/$fileName";
-        $scriptUrl = "$baseUrl/$path";
+        $scriptFilePath = "${{ github.action_path }}/milestone-exists.ts";
 
-        deno run -EN $scriptUrl;
+        deno run -EN $scriptFilePath;
 outputs:
   milestone-exists:
     description: "Whether the milestone exists."

@@ -16,9 +16,6 @@ inputs:
   deno-version:
     description: "The version of Deno to use."
     required: true
-  action-version:
-    description: "The version of this action to use."
-    required: true
   fail-if-all-items-not-closed:
     description: "Fail if all items in the milestone are not closed."
     required: false
@@ -41,13 +38,9 @@ runs:
         FAIL_IF_ALL_ITEMS_NOT_CLOSED: "${{ inputs.fail-if-all-items-not-closed }}"
         GITHUB_TOKEN: "${{ inputs.github-token }}"
       run: |
-        $baseUrl = "https://raw.githubusercontent.com";
-        $version = "${{ inputs.action-version }}";
-        $fileName = "milestone-items-closed.ts";
-        $path = "EngagedAgility/Infrastructure/refs/tags/$version/actions/milestone-items-closed/$fileName";
-        $scriptUrl = "$baseUrl/$path";
+        $scriptFilePath = "${{ github.action_path }}/milestone-items-closed.ts";
 
-        deno run -EN $scriptUrl;
+        deno run -EN $scriptFilePath;
 outputs:
   all-items-closed:
     description: "Whether all items in the milestone are closed."

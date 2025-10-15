@@ -10,9 +10,6 @@ inputs:
   deno-version:
     description: "The version of Deno to use."
     required: true
-  action-version:
-    description: "The version of this action to use."
-    required: true
 runs:
   using: "composite"
   steps:
@@ -31,10 +28,6 @@ runs:
         BASE_SEARCH_DIR_PATH: "${{ inputs.base-search-dir-path }}"
         NET_SDK_VERSION: "${{ inputs.net-sdk-version }}"
       run: |
-        $baseUrl = "https://raw.githubusercontent.com";
-        $version = "${{ inputs.action-version }}";
-        $fileName = "validate-sdk-versions.ts";
-        $path = "EngagedAgility/Infrastructure/refs/tags/$version/actions/validate-sdk-versions/$fileName";
-        $scriptUrl = "$baseUrl/$path";
+        $scriptFilePath = "${{ github.action_path }}/validate-sdk-versions.ts";
 
-        deno run -ER $scriptUrl;
+        deno run -ER $scriptFilePath;

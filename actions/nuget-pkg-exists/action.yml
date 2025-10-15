@@ -10,9 +10,6 @@ inputs:
   deno-version:
     description: "The version of Deno to use."
     required: true
-  action-version:
-    description: "The version of this action to use."
-    required: true
   fail-if-exists:
     description: "Fail if the NuGet package exists."
     required: false
@@ -33,13 +30,9 @@ runs:
         NUGET_PKG_VERSION: "${{ inputs.nuget-pkg-version }}"
         FAIL_IF_EXISTS: "${{ inputs.fail-if-exists }}"
       run: |
-        $baseUrl = "https://raw.githubusercontent.com";
-        $version = "${{ inputs.action-version }}";
-        $fileName = "nuget-package-exists.ts";
-        $path = "EngagedAgility/Infrastructure/refs/tags/$version/actions/nuget-package-exists/$fileName";
-        $scriptUrl = "$baseUrl/$path";
+        $scriptFilePath = "${{ github.action_path }}/nuget-pkg-exists.ts";
 
-        deno run -ERN $scriptUrl;
+        deno run -ERN $scriptFilePath;
 outputs:
   package-exists:
     description: "Whether the NuGet package exists."

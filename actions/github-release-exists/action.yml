@@ -13,9 +13,6 @@ inputs:
   deno-version:
     description: "The version of Deno to use."
     required: true
-  action-version:
-    description: "The version of this action to use."
-    required: true
   fail-if-exists:
     description: "Fail if the GitHub release exists."
     required: false
@@ -37,13 +34,9 @@ runs:
         TAG_NAME: "${{ inputs.tag-name }}"
         FAIL_IF_EXISTS: "${{ inputs.fail-if-exists }}"
       run: |
-        $baseUrl = "https://raw.githubusercontent.com";
-        $version = "${{ inputs.action-version }}";
-        $fileName = "github-release-exists.ts";
-        $path = "EngagedAgility/Infrastructure/refs/tags/$version/actions/github-release-exists/$fileName";
-        $scriptUrl = "$baseUrl/$path";
+        $scriptFilePath = "${{ github.action_path }}/github-release-exists.ts";
 
-        deno run -ERN $scriptUrl;
+        deno run -ERN $scriptFilePath;
 outputs:
   release-exists:
     description: "Whether the GitHub release exists."

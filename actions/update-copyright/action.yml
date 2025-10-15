@@ -7,9 +7,6 @@ inputs:
   deno-version:
     description: "The version of Deno to use."
     required: true
-  action-version:
-    description: "The version of this action to use."
-    required: true
 runs:
   using: "composite"
   steps:
@@ -23,10 +20,6 @@ runs:
       env:
         CS_PROJ_FILE_NAME: "${{ inputs.cs-proj-file-name }}"
       run: |
-        $baseUrl = "https://raw.githubusercontent.com";
-        $version = "${{ inputs.action-version }}";
-        $fileName = "update-copyright.ts";
-        $path = "EngagedAgility/Infrastructure/refs/tags/$version/actions/update-copyright/$fileName";
-        $scriptUrl = "$baseUrl/$path";
+        $scriptFilePath = "${{ github.action_path }}/update-copyright.ts";
 
-        deno run -ERW $scriptUrl;
+        deno run -ERW $scriptFilePath;

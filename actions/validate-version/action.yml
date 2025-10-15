@@ -10,9 +10,6 @@ inputs:
   deno-version:
     description: "The version of Deno to use."
     required: true
-  action-version:
-    description: "The version of this action to use."
-    required: true
 runs:
   using: "composite"
   steps:
@@ -27,10 +24,6 @@ runs:
         VERSION: "${{ inputs.VERSION }}"
         RELEASE_TYPE: "${{ inputs.release-type }}"
       run: |
-        $baseUrl = "https://raw.githubusercontent.com";
-        $version = "${{ inputs.action-version }}";
-        $fileName = "validate-version.ts";
-        $path = "EngagedAgility/Infrastructure/refs/tags/$version/actions/validate-version/$fileName";
-        $scriptUrl = "$baseUrl/$path";
+        $scriptFilePath = "${{ github.action_path }}/validate-version.ts";
 
-        deno run -E $scriptUrl;
+        deno run -E $scriptFilePath;

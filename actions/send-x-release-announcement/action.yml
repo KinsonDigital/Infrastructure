@@ -40,9 +40,6 @@ inputs:
   deno-version:
     description: "The version of Deno to use."
     required: true
-  action-version:
-    description: "The version of this action to use."
-    required: true
 runs:
   using: "composite"
   steps:
@@ -68,10 +65,6 @@ runs:
         X_CONSUMER_API_KEY: "${{ secrets.x-consumer-api-key }}"
         X_CONSUMER_API_SECRET: "${{ secrets.x-consumer-api-secret }}"
       run: |
-        $baseUrl = "https://raw.githubusercontent.com";
-        $version = "${{ inputs.action-version }}";
-        $fileName = "send-x-release-announcement.ts";
-        $path = "EngagedAgility/Infrastructure/refs/tags/$version/actions/send-x-release-announcement/$fileName";
-        $scriptUrl = "$baseUrl/$path";
+        $scriptFilePath = "${{ github.action_path }}/send-x-release-announcement.ts";
 
-        deno run -EN $scriptUrl;
+        deno run -EN $scriptFilePath;

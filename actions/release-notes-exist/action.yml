@@ -7,9 +7,6 @@ inputs:
   deno-version:
     description: "The version of Deno to use."
     required: true
-  action-version:
-    description: "The version of this action to use."
-    required: true
   fail-if-does-not-exist:
     description: "Fail if the release notes do not exist."
     required: false
@@ -33,13 +30,9 @@ runs:
         FAIL_IF_DOES_NOT_EXIST: "${{ inputs.fail-if-does-not-exist }}"
         GITHUB_TOKEN: "${{ inputs.github-token }}"
       run: |
-        $baseUrl = "https://raw.githubusercontent.com";
-        $version = "${{ inputs.action-version }}";
-        $fileName = "release-notes-exist.ts";
-        $path = "EngagedAgility/Infrastructure/refs/tags/$version/actions/release-notes-exist/$fileName";
-        $scriptUrl = "$baseUrl/$path";
+        $scriptFilePath = "${{ github.action_path }}/release-notes-exist.ts";
 
-        deno run -EN $scriptUrl;
+        deno run -EN $scriptFilePath;
 outputs:
   release-notes-exist:
     description: "Whether the release notes exist."

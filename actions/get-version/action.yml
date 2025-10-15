@@ -10,9 +10,6 @@ inputs:
   deno-version:
     description: "The version of Deno to use."
     required: true
-  action-version:
-    description: "The version of this action to use."
-    required: true
 runs:
   using: "composite"
   steps:
@@ -31,13 +28,9 @@ runs:
         VERSION_FILE_PATH: "${{ inputs.version-file-path }}"
         JSON_PROP_PATH: "${{ inputs.json-prop-path }}"
       run: |
-        $baseUrl = "https://raw.githubusercontent.com";
-        $version = "${{ inputs.action-version }}";
-        $fileName = "get-version.ts";
-        $path = "EngagedAgility/Infrastructure/refs/tags/$version/actions/get-version/$fileName";
-        $scriptUrl = "$baseUrl/$path";
+        $scriptFilePath = "${{ github.action_path }}/get-version.ts";
 
-        deno run -ERW $scriptUrl;
+        deno run -ERW $scriptFilePath;
 outputs:
   version:
     description: "The extracted version."

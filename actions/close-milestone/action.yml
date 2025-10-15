@@ -16,9 +16,6 @@ inputs:
   deno-version:
     description: "The version of Deno to use."
     required: true
-  action-version:
-    description: "The version of this action to use."
-    required: true
 runs:
   using: "composite"
   steps:
@@ -36,10 +33,6 @@ runs:
         GITHUB_TOKEN: "${{ inputs.github-token }}"
         DENO_AUTH_TOKENS: "${{ inputs.github-token }}@raw.githubusercontent.com"
       run: |
-        $baseUrl = "https://raw.githubusercontent.com";
-        $version = "${{ inputs.action-version }}";
-        $fileName = "close-milestone.ts";
-        $path = "EngagedAgility/Infrastructure/refs/tags/$version/actions/close-milestone/$fileName";
-        $scriptUrl = "$baseUrl/$path";
+        $scriptFilePath = "${{ github.action_path }}/close-milestone.ts";
 
-        deno run -ERNS $scriptUrl;
+        deno run -ERN $scriptFilePath;
