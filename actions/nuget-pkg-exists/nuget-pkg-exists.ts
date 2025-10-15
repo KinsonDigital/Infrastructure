@@ -15,16 +15,9 @@ version = version.startsWith("v") ? version.substring(1) : version;
 const client: NuGetClient = new NuGetClient();
 
 const packageExists = await client.exists(packageName);
-
-if (failIfExists && packageExists) {
-	setGitHubOutput(outputName, "false");
-	printAsGitHubError(`The NuGet package '${packageName}' already exists.`);
-	Deno.exit(1);
-}
-
 const packageVersionExists: boolean = await client.exists(packageName, version);
 
-if (failIfExists && packageVersionExists) {
+if (failIfExists && packageExists && packageVersionExists) {
 	setGitHubOutput(outputName, "false");
 	printAsGitHubError(`The NuGet package '${packageName}' with version '${version}' already exists.`);
 	Deno.exit(1);

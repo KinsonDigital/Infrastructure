@@ -1,0 +1,44 @@
+name: "JSR Package Exists"
+description: "Checks if a JSR package exists."
+inputs:
+  scope:
+    description: "The scope of the JSR package."
+    required: true
+  pkg-name:
+    description: "The name of the JSR package to check."
+    required: true
+  version:
+    description: "The version of the JSR package to check."
+    required: true
+  deno-version:
+    description: "The version of Deno to use."
+    required: true
+  fail-if-exists:
+    description: "Fail if the JSR package exists."
+    required: false
+    default: "true"
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Deno (${{ inputs.deno-version }})
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: ${{ inputs.deno-version }}
+        cache: true
+
+    - name: Run Script
+      id: run-script
+      shell: pwsh
+      env:
+        SCOPE: "${{ inputs.scope }}"
+        PKG_NAME: "${{ inputs.pkg-name }}"
+        VERSION: "${{ inputs.version }}"
+        FAIL_IF_EXISTS: "${{ inputs.fail-if-exists }}"
+      run: |
+        $scriptFilePath = "${{ github.action_path }}/jsr-pkg-exists.ts";
+
+        deno run -ERWN $scriptFilePath;
+outputs:
+  package-exists:
+    description: "Whether the JSR package exists."
+    value: ${{ steps.run-script.outputs.package-exists }}

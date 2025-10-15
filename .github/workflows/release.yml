@@ -36,7 +36,7 @@ jobs:
     steps:
       - name: Get Version
         id: get-version
-        uses: KinsonDigital/Infrastructure/actions/get-version@main
+        uses: KinsonDigital/Infrastructure/actions/get-version@v16.0.0
         with:
           version-file-path: "${{ github.workspace }}/deno.json"
           deno-version: "${{ vars.DENO_VERSION }}"
@@ -44,7 +44,7 @@ jobs:
 
       - name: Validate Version
         id: validate-version
-        uses: KinsonDigital/Infrastructure/actions/validate-version@main
+        uses: KinsonDigital/Infrastructure/actions/validate-version@v16.0.0
         with:
           version: "${{ steps.get-version.outputs.version}}"
           release-type: "${{ inputs.release-type }}"
@@ -75,7 +75,7 @@ jobs:
 
       - name: Milestone Exists
         id: milestone-exists
-        uses: KinsonDigital/Infrastructure/actions/milestone-exists@main
+        uses: KinsonDigital/Infrastructure/actions/milestone-exists@v16.0.0
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ vars.PROJECT_NAME }}"
@@ -85,7 +85,7 @@ jobs:
 
       - name: Validate Milestone Items
         id: milestone-items-check
-        uses: KinsonDigital/Infrastructure/actions/milestone-items-closed@main
+        uses: KinsonDigital/Infrastructure/actions/milestone-items-closed@v16.0.0
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ vars.PROJECT_NAME }}"
@@ -103,7 +103,7 @@ jobs:
 
       - name: Release Notes Exist
         id: release-notes-check
-        uses: KinsonDigital/Infrastructure/actions/release-notes-exist@main
+        uses: KinsonDigital/Infrastructure/actions/release-notes-exist@v16.0.0
         with:
           release-notes-file-path: "${{ github.workspace }}/release-notes/${{ steps.release-type.outputs.release-type }}-releases/Release-Notes-${{ needs.get_and_validate_version.outputs.version }}.md"
           deno-version: "${{ vars.DENO_VERSION }}"
@@ -112,7 +112,7 @@ jobs:
 
       - name: GitHub Release Exists
         id: github-release-check
-        uses: KinsonDigital/Infrastructure/actions/github-release-exists@main
+        uses: KinsonDigital/Infrastructure/actions/github-release-exists@v16.0.0
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ vars.PROJECT_NAME }}"
@@ -151,7 +151,6 @@ jobs:
 
           if ($validBranch -eq "true" `
               -or $milestoneExists -eq "false" `
-              -or $milestoneCheckFailed -eq "true" `
               -or $milestoneItemsCheckFailed -eq "true" `
               -or $releaseNotesCheckFailed -eq "true" `
               -or $githubReleaseCheckFailed -eq "true") {
@@ -256,7 +255,7 @@ jobs:
 
       - name: Close Milestone ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: inputs.dry-run == false
-        uses: KinsonDigital/Infrastructure/actions/close-milestone@main
+        uses: KinsonDigital/Infrastructure/actions/close-milestone@v16.0.0
         with:
           repo-owner: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ vars.PROJECT_NAME }}"

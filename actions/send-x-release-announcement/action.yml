@@ -7,6 +7,9 @@ inputs:
   repo-name:
     description: "The name of the repository."
     required: true
+  version:
+    description: "The version of the release."
+    required: true
   github-token:
     description: "The GitHub token used to download the script for installation."
     required: true
@@ -56,15 +59,16 @@ runs:
         DENO_AUTH_TOKENS: "${{ inputs.github-token }}@raw.githubusercontent.com"
         REPO_OWNER: "${{ inputs.repo-owner }}"
         REPO_NAME: "${{ inputs.repo-name }}"
-        RELEASE_X_POST_TEMPLATE_REPO_NAME: "${{ vars.RELEASE_X_POST_TEMPLATE_REPO_NAME }}"
-        RELEASE_X_POST_TEMPLATE_BRANCH_NAME: "${{ vars.RELEASE_X_POST_TEMPLATE_BRANCH_NAME }}"
-        RELATIVE_RELEASE_X_POST_TEMPLATE_FILE_PATH: "${{ vars.RELATIVE_RELEASE_X_POST_TEMPLATE_FILE_PATH }}"
-        DISCORD_INVITE_CODE: "${{ vars.DISCORD_INVITE_CODE }}"
-        X_BROADCAST_ENABLED: "${{ vars.X_BROADCAST_ENABLED }}"
-        X_ACCESS_TOKEN_KEY: "${{ secrets.x-access-token-key }}"
-        X_ACCESS_TOKEN_SECRET: "${{ secrets.x-access-token-secret }}"
-        X_CONSUMER_API_KEY: "${{ secrets.x-consumer-api-key }}"
-        X_CONSUMER_API_SECRET: "${{ secrets.x-consumer-api-secret }}"
+        VERSION: "${{ inputs.version }}"
+        RELEASE_X_POST_TEMPLATE_REPO_NAME: "${{ inputs.release-x-post-template-repo-name }}"
+        RELEASE_X_POST_TEMPLATE_BRANCH_NAME: "${{ inputs.release-x-post-template-branch-name }}"
+        RELATIVE_RELEASE_X_POST_TEMPLATE_FILE_PATH: "${{ inputs.relative-release-x-post-template-file-path }}"
+        DISCORD_INVITE_CODE: "${{ inputs.discord-invite-code }}"
+        X_BROADCAST_ENABLED: "${{ inputs.x-broadcast-enabled }}"
+        X_ACCESS_TOKEN_KEY: "${{ inputs.x-access-token-key }}"
+        X_ACCESS_TOKEN_SECRET: "${{ inputs.x-access-token-secret }}"
+        X_CONSUMER_API_KEY: "${{ inputs.x-consumer-api-key }}"
+        X_CONSUMER_API_SECRET: "${{ inputs.x-consumer-api-secret }}"
       run: |
         $scriptFilePath = "${{ github.action_path }}/send-x-release-announcement.ts";
 

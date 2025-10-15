@@ -9,8 +9,10 @@ import {
 } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github/models";
 import { isLessThanOne } from "./guards.ts";
 
-const prodVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)$/;
-const prevVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)-preview\.([1-9]\d*|0)$/;
+const prodVersionWithVPrefixRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)$/;
+const prodVersionWithoutVPrefixRegex = /^([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)$/;
+const prevVersionWithVPrefixRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)-preview\.([1-9]\d*|0)$/;
+const prevVersionWithoutVPrefixRegex = /^([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)-preview\.([1-9]\d*|0)$/;
 const featureBranchRegex = /^feature\/[1-9][0-9]*-(?!-)[a-z-]+/gm;
 
 /**
@@ -185,37 +187,55 @@ export function printAsNumberedList(prefix: string, items: string[], logType: Gi
 /**
  * Checks if the given {@link version} is a valid production version.
  * @param version The version to check.
+ * @param stripVPrefix Whether to remove the 'v' from the version.
  * @returns True if the version is a valid production version, otherwise false.
  */
-export function isValidProdVersion(version: string): boolean {
-	return prodVersionRegex.test(version.trim().toLowerCase());
+export function isValidProdVersion(version: string, stripVPrefix = false): boolean {
+	version = version.trim().toLowerCase();
+	version = stripVPrefix && version.startsWith("v") ? version.substring(1) : version;
+
+	if (stripVPrefix) {
+		return prodVersionWithoutVPrefixRegex.test(version);
+	} else {
+		return prodVersionWithVPrefixRegex.test(version);
+	}
 }
 
 /**
  * Checks if the given {@link version} is not valid production version.
  * @param version The version to check.
+ * @param stripVPrefix Whether to remove the 'v' from the version.
  * @returns True if the version is not a valid production version, otherwise false.
  */
-export function isNotValidProdVersion(version: string): boolean {
-	return !isValidProdVersion(version);
+export function isNotValidProdVersion(version: string, stripVPrefix = false): boolean {
+	return !isValidProdVersion(version, stripVPrefix);
 }
 
 /**
  * Checks if the given {@link version} is a valid preview version.
  * @param version The version to check.
+ * @param stripVPrefix Whether to remove the 'v' from the version.
  * @returns True if the version is a valid preview version, otherwise false.
  */
-export function isValidPreviewVersion(version: string): boolean {
-	return prevVersionRegex.test(version.trim().toLowerCase());
+export function isValidPreviewVersion(version: string, stripVPrefix = false): boolean {
+	version = version.trim().toLowerCase();
+	version = stripVPrefix && version.startsWith("v") ? version.substring(1) : version;
+
+	if (stripVPrefix) {
+		return prevVersionWithoutVPrefixRegex.test(version);
+	} else {
+		return prevVersionWithVPrefixRegex.test(version);
+	}
 }
 
 /**
  * Checks if the given {@link version} is not a valid preview version.
  * @param version The version to check.
+ * @param stripVPrefix Whether to remove the 'v' from the version.
  * @returns True if the version is not a valid preview version, otherwise false.
  */
-export function isNotValidPreviewVersion(version: string): boolean {
-	return !isValidPreviewVersion(version);
+export function isNotValidPreviewVersion(version: string, stripVPrefix = false): boolean {
+	return !isValidPreviewVersion(version, stripVPrefix);
 }
 
 /**
