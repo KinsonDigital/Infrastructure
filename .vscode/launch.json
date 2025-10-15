@@ -470,11 +470,11 @@
 			"name": "Validate Tag",
 			"request": "launch",
 			"type": "node",
-			"program": "${workspaceFolder}/cicd/scripts/validate-tag.ts",
+			"program": "${workspaceFolder}/actions/validate-tag/validate-tag.ts",
 			"cwd": "${workspaceFolder}",
 			"runtimeArgs": [
 				"run",
-				"-ERNS",
+				"-ERN",
 				"--inspect-wait",
 			],
 			"env": {

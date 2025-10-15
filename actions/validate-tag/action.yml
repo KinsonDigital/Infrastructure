@@ -1,0 +1,69 @@
+name: "Validate Tag"
+description: "Validates a tag for a GitHub repository using semantic versioning and existence."
+inputs:
+  repo-owner:
+    description: "The owner of the repository."
+    required: true
+  repo-name:
+    description: "The name of the repository."
+    required: true
+  release-type:
+    description: "The type of release to validate. Only the non-case sensitive values of 'production' and 'preview' are valid."
+    required: true
+  tag-name:
+    description: "The name of the tag to validate."
+    required: true
+  github-token:
+    description: "The GitHub token used to download the script for installation."
+    required: true
+  deno-version:
+    description: "The version of Deno to use."
+    required: true
+  action-version:
+    description: "The version of this action to use."
+    required: true
+  fail-if-invalid-syntax:
+    description: |
+      Fail if the tag has an invalid syntax.
+      The tag must be a semantic version and in the format of 'v#.#.#' for production releases
+      and 'v#.#.#-preview.#' for preview releases.
+    required: false
+    default: "true"
+  fail-if-tag-exists:
+    description: "Fail if the tag exists."
+    required: false
+    default: "true"
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Deno (${{ inputs.deno-version }})
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: ${{ inputs.deno-version }}
+
+    - name: Run Script
+      shell: pwsh
+      env:
+        REPO_OWNER: "${{ inputs.repo-owner }}"
+        REPO_NAME: "${{ inputs.repo-name }}"
+        TAG_NAME: "${{ inputs.tag-name }}"
+        RELEASE_TYPE: "${{ inputs.release-type }}"
+        GITHUB_TOKEN: "${{ inputs.github-token }}"
+      run: |
+        $baseUrl = "https://raw.githubusercontent.com";
+        $version = "${{ inputs.action-version }}";
+        $fileName = "validate-tag.ts";
+        $path = "EngagedAgility/Infrastructure/refs/tags/$version/actions/validate-tag/$fileName";
+        $scriptUrl = "$baseUrl/$path";
+
+        deno run -ERN $scriptUrl;
+outputs:
+  tag-is-valid:
+    description: "Whether the tag is valid."
+    value: ${{ steps.run-script.outputs.tag-is-valid }}
+  tag-exists:
+    description: "Whether the tag exists."
+    value: ${{ steps.run-script.outputs.tag-exists }}
+  tag-syntax-is-valid:
+    description: "Whether the tag syntax is valid."
+    value: ${{ steps.run-script.outputs.tag-syntax-is-valid }}

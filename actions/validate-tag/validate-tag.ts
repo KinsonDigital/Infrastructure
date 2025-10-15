@@ -1,7 +1,7 @@
 import { TagClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
-import { getEnvVar, isNotValidPreviewVersion, isNotValidProdVersion } from "../core/Utils.ts";
-import { validateOrgExists, validateRepoExists } from "../core/Validators.ts";
-import { printAsGitHubError } from "../core/github.ts";
+import { printAsGitHubError, setGitHubOutput } from "../../cicd/core/github.ts";
+import { getEnvVar, isNotValidProdVersion, isNotValidPreviewVersion } from "../../cicd/core/Utils.ts";
+import { validateOrgExists, validateRepoExists } from "../../cicd/core/Validators.ts";
 
 type ReleaseType = "production" | "preview";
 
@@ -12,6 +12,8 @@ const repoName: string = getEnvVar("REPO_NAME", scriptFileName);
 const releaseType = <ReleaseType> getEnvVar("RELEASE_TYPE", scriptFileName).toLowerCase();
 let tag: string = getEnvVar("TAG_NAME", scriptFileName);
 tag = tag.startsWith("v") ? tag : `v${tag}`;
+const failIfInvalidSyntax = getEnvVar("FAIL_IF_INVALID_SYNTAX", scriptFileName, false).toLowerCase() === "true";
+const failIfExists = getEnvVar("FAIL_IF_EXISTS", scriptFileName, false).toLowerCase() === "true";
 const token = getEnvVar("GITHUB_TOKEN", scriptFileName);
 
 const releaseTypeInvalid = releaseType != "production" && releaseType != "preview";
@@ -24,21 +26,24 @@ if (releaseTypeInvalid) {
 
 const tagIsInvalid = releaseType === "production" ? isNotValidProdVersion(tag) : isNotValidPreviewVersion(tag);
 
-if (tagIsInvalid) {
+await validateOrgExists(ownerName, token);
+await validateRepoExists(ownerName, repoName, token);
+
+const tagClient: TagClient = new TagClient(ownerName, repoName, token);
+const tagExists = await tagClient.exists(tag);
+
+setGitHubOutput("tag-is-valid", (!tagIsInvalid && tagExists) ? "true" : "false");
+setGitHubOutput("tag-exists", tagExists.toString());
+setGitHubOutput("tag-syntax-is-valid", (!tagIsInvalid).toString());
+
+if (failIfInvalidSyntax && tagIsInvalid) {
 	const tagTypeStr = releaseType === "production" || releaseType === "preview" ? releaseType : "production or preview";
 
 	printAsGitHubError(`The tag is not in the correct ${tagTypeStr} version syntax.`);
 	Deno.exit(1);
 }
 
-await validateOrgExists(ownerName, token);
-await validateRepoExists(ownerName, repoName, token);
-
-const tagClient: TagClient = new TagClient(ownerName, repoName, token);
-
-const tagExists = await tagClient.exists(tag);
-
-if (tagExists) {
+if (failIfExists && tagExists) {
 	printAsGitHubError(`The tag '${tag}' already exists.`);
 	Deno.exit(1);
 }
