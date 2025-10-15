@@ -103,13 +103,13 @@ jobs:
     needs: resolve_proj_file_path
     runs-on: ${{ inputs.runs-on }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: ${{ inputs.checkout-repository }}
           ref: ${{ inputs.checkout-ref }}
 
       - name: Set Up .NET SDK (${{ inputs.net-sdk-version }})
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ inputs.net-sdk-version }}
 
