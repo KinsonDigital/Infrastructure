@@ -32,18 +32,19 @@ jobs:
     name: Get And Validate Version
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.validate-version.outputs.version }}
+      version: ${{ steps.get-version.outputs.version }}
     steps:
       - name: Get Version
         id: get-version
-        uses: KinsonDigital/Infrastructure/actions/get-version@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/get-version@main
         with:
-          version-file-path: "${{ github.workspace }}/${{ vars.PROJECT_NAME }}/${{ vars.PROJECT_NAME }}.csproj"
+          version-file-path: "${{ github.workspace }}/deno.json"
           deno-version: "${{ vars.DENO_VERSION }}"
+          json-prop-path: "version"
 
       - name: Validate Version
         id: validate-version
-        uses: KinsonDigital/Infrastructure/actions/validate-version@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/validate-version@main
         with:
           version: "${{ steps.get-version.outputs.version}}"
           release-type: "${{ inputs.release-type }}"
@@ -55,6 +56,14 @@ jobs:
     needs: [get_and_validate_version]
     runs-on: ubuntu-latest
     steps:
+      - name: Check Branch
+        id: check-branch
+        continue-on-error: true
+        run: |
+          if ("${{ github.ref_name }}" -ne "main") {
+            exit 1;
+          }
+
       - name: Checkout Repository
         uses: actions/checkout@v5
 
@@ -66,7 +75,7 @@ jobs:
 
       - name: Milestone Exists
         id: milestone-exists
-        uses: KinsonDigital/Infrastructure/actions/milestone-exists@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/milestone-exists@main
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ vars.PROJECT_NAME }}"
@@ -76,7 +85,7 @@ jobs:
 
       - name: Validate Milestone Items
         id: milestone-items-check
-        uses: KinsonDigital/Infrastructure/actions/milestone-items-closed@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/milestone-items-closed@main
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ vars.PROJECT_NAME }}"
@@ -94,7 +103,7 @@ jobs:
 
       - name: Release Notes Exist
         id: release-notes-check
-        uses: KinsonDigital/Infrastructure/actions/release-notes-exist@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/release-notes-exist@main
         with:
           release-notes-file-path: "${{ github.workspace }}/release-notes/${{ steps.release-type.outputs.release-type }}-releases/Release-Notes-${{ needs.get_and_validate_version.outputs.version }}.md"
           deno-version: "${{ vars.DENO_VERSION }}"
@@ -103,22 +112,28 @@ jobs:
 
       - name: GitHub Release Exists
         id: github-release-check
-        uses: KinsonDigital/Infrastructure/actions/github-release-exists@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/github-release-exists@main
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ vars.PROJECT_NAME }}"
           tag-name: "${{ needs.get_and_validate_version.outputs.version }}"
           deno-version: "${{ vars.DENO_VERSION }}"
+          github-token: "${{ secrets.CICD_TOKEN }}"
         continue-on-error: true
     
       - name: Should Fail Job
         run: |
+          $validBranch = "${{ steps.check-branch.outcome == 'failure' }}";
           $milestoneExists = "${{ steps.milestone-exists.outputs.milestone-exists }}";
           $milestoneItemsCheckFailed = "${{ steps.milestone-items-check.outcome == 'failure' }}";
           $releaseNotesCheckFailed = "${{ steps.release-notes-check.outcome == 'failure' }}";
           $githubReleaseCheckFailed = "${{ steps.github-release-check.outcome == 'failure' }}";
 
-          if ($milestoneExists -eq "true") {
+          if ($validBranch -eq "true") {
+            Write-Host "::error::The branch '${{ github.ref_name }}' is invalid.  Must run on the 'main' branch.";
+          }
+
+          if ($milestoneExists -eq "false") {
             Write-Host "::error::The milestone '${{ needs.get_and_validate_version.outputs.version }}' does not exist.";
           }
 
@@ -134,7 +149,8 @@ jobs:
             Write-Host "::error::The GitHub release already exists.";
           }
 
-          if ($milestoneExists -eq "true" `
+          if ($validBranch -eq "true" `
+              -or $milestoneExists -eq "false" `
               -or $milestoneCheckFailed -eq "true" `
               -or $milestoneItemsCheckFailed -eq "true" `
               -or $releaseNotesCheckFailed -eq "true" `
@@ -176,11 +192,7 @@ jobs:
           cache: true
 
       - name: Lint
-        run: |
-          $tsFiles = Get-ChildItem -Path ${{ github.workspace }} -Recurse -Filter *.ts | ForEach-Object { $_.FullName };
-          $tsFiles -join "`n";
-
-          deno lint "./**/*.ts";
+        run: deno lint "./**/*.ts";
 
 
   perform_release:
@@ -242,9 +254,9 @@ jobs:
           artifacts: "${{ github.workspace }}/release-notes/${{ steps.release-type.outputs.release-type }}-releases/Release-Notes-${{ needs.get_and_validate_version.outputs.version }}.md"
           prerelease: ${{ inputs.release-type }} == 'Preview'
 
-      - name: Close Milestone
+      - name: Close Milestone ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: inputs.dry-run == false
-        uses: KinsonDigital/Infrastructure/actions/close-milestone@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/close-milestone@main
         with:
           repo-owner: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ vars.PROJECT_NAME }}"

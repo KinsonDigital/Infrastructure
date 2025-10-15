@@ -1,8 +1,8 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
-    "version": "2.0.0",
-    "tasks": [
+	// See https://go.microsoft.com/fwlink/?LinkId=733558
+	// for the documentation about the tasks.json format
+	"version": "2.0.0",
+	"tasks": [
 		{ // CLEAR TERMINAL
 			"label": "clear-terminal",
 			"detail": "Clears the terminal.",
@@ -21,12 +21,41 @@
 			"options": {
 				"cwd": "${workspaceFolder}/.github/cicd"
 			},
-			"dependsOn": ["clear-terminal"],
+			"dependsOn": [
+				"clear-terminal"
+			],
 			"command": "deno",
 			"args": [
 				"fmt",
 				"${workspaceFolder}/.github/cicd",
 			]
 		},
-    ]
+		{
+			"label": "Generate Output File",
+			"type": "shell",
+			"command": "deno",
+			"args": [
+				"run",
+				"--allow-all",
+				"${workspaceFolder}/dev-scripts/generate-output-file.ts",
+				"${workspaceFolder}/github_output.txt"
+			],
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"windows": {
+				"command": "${userHome}/.deno/bin/deno.exe"
+			},
+			"linux": {
+				"command": "${userHome}/.deno/bin/deno"
+			}
+		}
+	]
 }

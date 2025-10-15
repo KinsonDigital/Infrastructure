@@ -1,12 +1,11 @@
 import { existsSync } from "jsr:@std/fs@1.0.19";
-import { getEnvVar, trimPathBothEnds } from "../../cicd/core/Utils.ts";
+import { getEnvVar } from "../../cicd/core/Utils.ts";
 import { printAsGitHubError, printAsGitHubNotice, setGitHubOutput } from "../../cicd/core/github.ts";
 
 const scriptName = import.meta.url.split("/").pop();
 
 const outputName = "release-notes-exist";
-let releaseNotesFilePath = getEnvVar("RELEASE_NOTES_FILE_PATH", scriptName);
-releaseNotesFilePath = trimPathBothEnds(releaseNotesFilePath);
+const releaseNotesFilePath = getEnvVar("RELEASE_NOTES_FILE_PATH", scriptName);
 const failIfDoesNotExist = getEnvVar("FAIL_IF_DOES_NOT_EXIST", scriptName).toLowerCase() === "true";
 
 const fileExists = existsSync(releaseNotesFilePath);

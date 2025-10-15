@@ -86,6 +86,7 @@
 			"type": "node",
 			"program": "${workspaceFolder}/actions/github-release-exists/github-release-exists.ts",
 			"cwd": "${workspaceFolder}",
+			"preLaunchTask": "Generate Output File",
 			"runtimeArgs": [
 				"run",
 				"-ERN",
@@ -111,6 +112,7 @@
 			"type": "node",
 			"program": "${workspaceFolder}/actions/milestone-exists/milestone-exists.ts",
 			"cwd": "${workspaceFolder}",
+			"preLaunchTask": "Generate Output File",
 			"runtimeArgs": [
 				"run",
 				"-ERN",
@@ -138,6 +140,7 @@
 			"type": "node",
 			"program": "${workspaceFolder}/actions/milestone-items-closed/milestone-items-closed.ts",
 			"cwd": "${workspaceFolder}/cicd",
+			"preLaunchTask": "Generate Output File",
 			"runtimeArgs": [
 				"run",
 				"-EN",
@@ -163,6 +166,7 @@
 			"type": "node",
 			"program": "${workspaceFolder}/actions/nuget-pkg-exists/nuget-pkg-exists.ts",
 			"cwd": "${workspaceFolder}",
+			"preLaunchTask": "Generate Output File",
 			"runtimeArgs": [
 				"run",
 				"-ERN",
@@ -186,14 +190,16 @@
 			"type": "node",
 			"program": "${workspaceFolder}/actions/release-notes-exist/release-notes-exist.ts",
 			"cwd": "${workspaceFolder}",
+			"preLaunchTask": "Generate Output File",
 			"runtimeArgs": [
 				"run",
-				"-ER",
+				"-ERWN",
 				"--inspect-wait",
 			],
 			"env": {
-				"RELEASE_NOTES_FILE_PATH": "${workspaceFolder}/release-notes/production-releases/v1.0.0-preview.15.md",
-				"FAIL_IF_DOES_NOT_EXIST": "false",
+				"RELEASE_NOTES_FILE_PATH": "${workspaceFolder}/release-notes/production-releases/Release-Notes-v16.0.0.md",
+				"FAIL_IF_DOES_NOT_EXIST": "true",
+				"GITHUB_OUTPUT": "${workspaceFolder}/github_output.txt"
 			},
 			"attachSimplePort": 9229,
 			"windows": {
@@ -340,6 +346,7 @@
 			"type": "node",
 			"program": "${workspaceFolder}/actions/validate-tag/validate-tag.ts",
 			"cwd": "${workspaceFolder}",
+			"preLaunchTask": "Generate Output File",
 			"runtimeArgs": [
 				"run",
 				"-ERN",

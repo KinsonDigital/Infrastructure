@@ -50,7 +50,7 @@ runs:
       run: |
         $scriptFilePath = "${{ github.action_path }}/validate-tag.ts";
 
-        deno run -ERN $scriptFilePath;
+        deno run -ERWN $scriptFilePath;
 outputs:
   tag-is-valid:
     description: "Whether the tag is valid."

@@ -33,7 +33,7 @@ runs:
       run: |
         $scriptFilePath = "${{ github.action_path }}/nuget-pkg-exists.ts";
 
-        deno run -ERN $scriptFilePath;
+        deno run -ERWN $scriptFilePath;
 outputs:
   package-exists:
     description: "Whether the NuGet package exists."

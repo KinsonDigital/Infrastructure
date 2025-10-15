@@ -41,7 +41,7 @@ runs:
       run: |
         $scriptFilePath = "${{ github.action_path }}/milestone-exists.ts";
 
-        deno run -EN $scriptFilePath;
+        deno run -ERWN $scriptFilePath;
 outputs:
   milestone-exists:
     description: "Whether the milestone exists."

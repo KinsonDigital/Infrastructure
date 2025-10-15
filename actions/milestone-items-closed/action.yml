@@ -41,7 +41,7 @@ runs:
       run: |
         $scriptFilePath = "${{ github.action_path }}/milestone-items-closed.ts";
 
-        deno run -EN $scriptFilePath;
+        deno run -ERWN $scriptFilePath;
 outputs:
   all-items-closed:
     description: "Whether all items in the milestone are closed."

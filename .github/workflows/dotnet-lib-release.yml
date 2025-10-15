@@ -93,18 +93,18 @@ jobs:
     name: Get And Validate Version
     runs-on: "${{ inputs.runs-on }}"
     outputs:
-      version: ${{ steps.validate-version.outputs.version }}
+      version: ${{ steps.get-version.outputs.version }}
     steps:
       - name: Get Version
         id: get-version
-        uses: KinsonDigital/Infrastructure/actions/get-version@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/get-version@main
         with:
           version-file-path: "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj"
           deno-version: "${{ inputs.deno-version }}"
 
       - name: Validate Version
         id: validate-version
-        uses: KinsonDigital/Infrastructure/actions/validate-version@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/validate-version@main
         with:
           version: "${{ steps.get-version.outputs.version}}"
           release-type: "${{ inputs.release-type }}"
@@ -127,7 +127,7 @@ jobs:
 
       - name: Validate Tag
         id: tag-check
-        uses: KinsonDigital/Infrastructure/actions/validate-tag@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/validate-tag@main
         with:
           repo-owner: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
@@ -139,7 +139,7 @@ jobs:
 
       - name: Validate SDK Versions
         id: sdk-check
-        uses: KinsonDigital/Infrastructure/actions/validate-sdk-versions@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/validate-sdk-versions@main
         with:
           base-search-dir-path: "${{ github.workspace }}"
           net-sdk-version: "${{ vars.NET_SDK_VERSION }}"
@@ -148,7 +148,7 @@ jobs:
 
       - name: Release Notes Exist
         id: release-notes-check
-        uses: KinsonDigital/Infrastructure/actions/release-notes-exist@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/release-notes-exist@main
         with:
           release-notes-file-path: "${{ inputs.release-notes-file-path }}"
           deno-version: "${{ inputs.deno-version }}"
@@ -156,7 +156,7 @@ jobs:
         continue-on-error: true
         
       - name: Nuget Package Does Not Exist
-        uses: KinsonDigital/Infrastructure/actions/nuget-pkg-exists@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/nuget-pkg-exists@main
         id: package-check
         with:
           nuget-pkg-name: "${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}"
@@ -166,7 +166,7 @@ jobs:
 
       - name: Milestone Exists
         id: milestone-exists
-        uses: KinsonDigital/Infrastructure/actions/milestone-exists@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/milestone-exists@main
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
@@ -177,7 +177,7 @@ jobs:
 
       - name: Validate Milestone Items
         id: milestone-items-check
-        uses: KinsonDigital/Infrastructure/actions/milestone-items-closed@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/milestone-items-closed@main
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
@@ -189,12 +189,13 @@ jobs:
 
       - name: GitHub Release Exists
         id: github-release-check
-        uses: KinsonDigital/Infrastructure/actions/github-release-exists@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/github-release-exists@main
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
           tag-name: "${{ needs.get_and_validate_version.outputs.version }}"
           deno-version: "${{ inputs.deno-version }}"
+          github-token: "${{ secrets.CICD_TOKEN }}"
         continue-on-error: true
 
       - name: Should Fail Job
@@ -288,13 +289,13 @@ jobs:
 
       - name: Transpile README
         if: inputs.transpile-readme == true
-        uses: KinsonDigital/Infrastructure/actions/transpile-readme@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/transpile-readme@main
         with:
           base-dir-path: "${{ github.workspace }}"
           deno-version: "${{ inputs.deno-version }}"
 
       - name: Update Copyright
-        uses: KinsonDigital/Infrastructure/actions/update-copyright@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/update-copyright@main
         with:
           cs-proj-file-name: "${{ inputs.project-name }}.csproj"
           deno-version: "${{ inputs.deno-version }}"
@@ -308,7 +309,7 @@ jobs:
             -p:IncludeSymbols=true `
             -p:SymbolPackageFormat=snupkg;
 
-      - name: Publish Nuget Package
+      - name: Publish Nuget Package ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: inputs.dry-run == false
         run: |
           $version = "${{ needs.get_and_validate_version.outputs.version }}";
@@ -320,9 +321,9 @@ jobs:
             --api-key ${{ secrets.nuget-org-api-key }} `
             --source https://api.nuget.org/v3/index.json;
 
-      - name: Send X Release Announcement
+      - name: Send X Release Announcement ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: inputs.dry-run == false && inputs.send-x-release-post == true
-        uses: KinsonDigital/Infrastructure/actions/send-x-release-announcement@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/send-x-release-announcement@main
         with:
           repo-owner: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
@@ -351,9 +352,9 @@ jobs:
           prerelease: ${{ inputs.release-type }} == 'Preview'
           token: ${{ secrets.CICD_TOKEN }}
 
-      - name: Close Milestone
+      - name: Close Milestone ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: inputs.dry-run == false
-        uses: KinsonDigital/Infrastructure/actions/close-milestone@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/close-milestone@main
         with:
           repo-owner: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"

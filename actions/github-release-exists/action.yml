@@ -10,6 +10,9 @@ inputs:
   tag-name:
     description: "The git tag associated with the GitHub release."
     required: true
+  github-token:
+    description: "The GitHub token to use."
+    required: true
   deno-version:
     description: "The version of Deno to use."
     required: true
@@ -34,10 +37,11 @@ runs:
         REPO_NAME: "${{ inputs.repo-name }}"
         TAG_NAME: "${{ inputs.tag-name }}"
         FAIL_IF_EXISTS: "${{ inputs.fail-if-exists }}"
+        GITHUB_TOKEN: "${{ inputs.github-token }}"
       run: |
         $scriptFilePath = "${{ github.action_path }}/github-release-exists.ts";
 
-        deno run -ERN $scriptFilePath;
+        deno run -ERWN $scriptFilePath;
 outputs:
   release-exists:
     description: "Whether the GitHub release exists."
