@@ -111,7 +111,7 @@ export function isPr(issueOrPr: PullRequestModel | IssueModel): issueOrPr is Pul
 export function printProblemList(problems: string[], successMsg: string, failureMsg: string): void {
 	const errorList: string[] = [];
 
-	// Display all of the issues that have been found as errors
+	// Create a numbered list of the problems
 	for (let i = 0; i < problems.length; i++) {
 		const errorFound = problems[i];
 
