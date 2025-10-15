@@ -31,10 +31,6 @@ on:
         description: The build configuration to use. This is either 'Debug' or 'Release'.
         default: Debug
         type: string
-      infrastructure-version:
-        required: true
-        description: The version of Infrastructure to use.
-        type: string
       deno-version:
         required: true
         description: The version of Deno to use.  The deno platform is used in all of the composite actions used in this workflow.
@@ -46,14 +42,11 @@ on:
         type: boolean
       runs-on:
         required: false
-        description: The type of machine to run the job on.
+        description: |
+          The type of machine to run the job on.
+          Reference: https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job#standard-github-hosted-runners-for-public-repositories
         type: string
         default: ubuntu-latest
-      pr-include-notes-label:
-        required: false
-        description: The label on a pull request that forces its inclusion in the release notes.
-        type: string
-        default: ""
       transpile-readme:
         required: false
         description: If true, transpiles the README.md file HTML to markdown.
@@ -98,7 +91,7 @@ env:
 jobs:
   get_and_validate_version:
     name: Get And Validate Version
-    runs-on: ubuntu-latest
+    runs-on: "${{ inputs.runs-on }}"
     outputs:
       version: ${{ steps.validate-version.outputs.version }}
     steps:
@@ -121,10 +114,10 @@ jobs:
   run_prerelease_validation:
     name: Run Pre-Release Validation
     needs: [get_and_validate_version]
-    runs-on: ubuntu-latest
+    runs-on: "${{ inputs.runs-on }}"
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set Up Deno (${{ inputs.deno-version }})
         uses: denoland/setup-deno@v2
@@ -159,7 +152,7 @@ jobs:
         with:
           release-notes-file-path: "${{ inputs.release-notes-file-path }}"
           deno-version: "${{ inputs.deno-version }}"
-          fail-if-does-not-exist: "true"
+          fail-if-does-not-exist: true
         continue-on-error: true
         
       - name: Nuget Package Does Not Exist
@@ -169,10 +162,10 @@ jobs:
           nuget-pkg-name: "${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}"
           nuget-pkg-version: "${{ needs.get_and_validate_version.outputs.version }}"
           deno-version: "${{ inputs.deno-version }}"
-        continue-on-error: false
+        continue-on-error: true
 
       - name: Milestone Exists
-        id: milestone-exists-check
+        id: milestone-exists
         uses: KinsonDigital/Infrastructure/actions/milestone-exists@feature/269-create-custom-actions
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
@@ -180,9 +173,10 @@ jobs:
           milestone-name: "${{ needs.get_and_validate_version.outputs.version }}"
           github-token: "${{ secrets.cicd-pat }}"
           deno-version: "${{ inputs.deno-version }}"
+        continue-on-error: true
 
       - name: Validate Milestone Items
-        id: milestone-check
+        id: milestone-items-check
         uses: KinsonDigital/Infrastructure/actions/milestone-items-closed@feature/269-create-custom-actions
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
@@ -191,7 +185,7 @@ jobs:
           github-token: "${{ secrets.cicd-pat }}"
           deno-version: "${{ inputs.deno-version }}"
           fail-if-all-items-not-closed: true
-        continue-on-error: false
+        continue-on-error: true
 
       - name: GitHub Release Exists
         id: github-release-check
@@ -209,8 +203,8 @@ jobs:
           $sdkCheckFailed = "${{ steps.sdk-check.outcome == 'failure' }}";
           $notesFileCheckFailed = "${{ steps.release-notes-check.outcome == 'failure' }}";
           $packageCheckFailed = "${{ steps.package-check.outcome == 'failure' }}";
-          $milestoneExists = "${{ steps.milestone-exists-check.outputs.milestone-exists }}";
-          $milestoneCheckFailed = "${{ steps.milestone-check.outcome == 'failure' }}";
+          $milestoneExists = "${{ steps.milestone-exists.outputs.milestone-exists }}";
+          $milestoneItemsCheckFailed = "${{ steps.milestone-items-check.outcome == 'failure' }}";
           $githubReleaseCheckFailed = "${{ steps.github-release-check.outcome == 'failure' }}";
 
           if ($tagCheckFailed -eq "true") {
@@ -233,7 +227,7 @@ jobs:
             Write-Host "::error::The milestone '${{ needs.get_and_validate_version.outputs.version }}' does not exist.";
           }
 
-          if ($milestoneCheckFailed -eq "true") {
+          if ($milestoneItemsCheckFailed -eq "true") {
             Write-Host "::error::The milestone '${{ needs.get_and_validate_version.outputs.version }}' has one or more issues that are not closed or prs that are in draft.";
           }
 
@@ -246,7 +240,7 @@ jobs:
               -or $notesFileCheckFailed -eq "true" `
               -or $packageCheckFailed -eq "true" `
               -or $milestoneExists -eq "false" `
-              -or $milestoneCheckFailed -eq "true" `
+              -or $milestoneItemsCheckFailed -eq "true" `
               -or $githubReleaseCheckFailed -eq "true") {
             exit 1;
           }
@@ -267,19 +261,19 @@ jobs:
 
   perform_release:
     name: Perform ${{ inputs.release-type }} Release
-    runs-on: ubuntu-latest
+    runs-on: "${{ inputs.runs-on }}"
     needs:
       [
-        run_prerelease_validation,
         get_and_validate_version,
+        run_prerelease_validation,
         build_project,
       ]
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set Up .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "${{ inputs.net-sdk-version }}"
 
@@ -315,7 +309,7 @@ jobs:
             -p:SymbolPackageFormat=snupkg;
 
       - name: Publish Nuget Package
-        if: ${{ inputs.dry-run == false }}
+        if: inputs.dry-run == false
         run: |
           $version = "${{ needs.get_and_validate_version.outputs.version }}";
           $version = $version.StartsWith("v") ? $version.Substring(1) : $version;
@@ -327,6 +321,7 @@ jobs:
             --source https://api.nuget.org/v3/index.json;
 
       - name: Send X Release Announcement
+        if: inputs.dry-run == false && inputs.send-x-release-post == true
         uses: KinsonDigital/Infrastructure/actions/send-x-release-announcement@feature/269-create-custom-actions
         with:
           repo-owner: "${{ vars.ORGANIZATION_NAME }}"
@@ -344,7 +339,7 @@ jobs:
           deno-version: "${{ inputs.deno-version }}"
 
       - name: Create GitHub Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
-        if: ${{ inputs.dry-run == false }}
+        if: inputs.dry-run == false
         uses: ncipollo/release-action@v1
         with:
           name: "🚀${{ inputs.release-type }} - ${{ needs.get_and_validate_version.outputs.version }}"
@@ -357,6 +352,7 @@ jobs:
           token: ${{ secrets.CICD_TOKEN }}
 
       - name: Close Milestone
+        if: inputs.dry-run == false
         uses: KinsonDigital/Infrastructure/actions/close-milestone@feature/269-create-custom-actions
         with:
           repo-owner: "${{ vars.ORGANIZATION_NAME }}"

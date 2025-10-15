@@ -18,37 +18,35 @@ on:
         required: true
         description: The type of release to validate.  Either 'Preview' or 'Production'.
         type: string
-      run-branch:
-        required: true
-        description: The name of the branch to run the workflow.
-        type: string
       net-sdk-version:
         required: true
         description: The version of the .NET SDK to use.
         type: string
-      relative-release-notes-dir-path:
+      release-notes-file-path:
         required: true
-        description: The relative directory path to the release notes.
+        description: The file path to the release notes file to check for existence.
         type: string
       build-config:
         required: true
         description: The build configuration to use. This is either 'Debug' or 'Release'.
         default: Debug
         type: string
-      release-notes-file-name-prefix:
-        required: false
-        description: The prefix of the release notes file name.  This is what is prefixed before the version number.
+      deno-version:
+        required: true
+        description: The version of Deno to use.  The deno platform is used in all of the composite actions used in this workflow.
         type: string
+      enable-deno-cache:
+        required: false
+        description: If true, enables caching of the Deno modules.
+        default: true
+        type: boolean
       runs-on:
         required: false
-        description: The type of machine to run the job on.
+        description: |
+          The type of machine to run the job on.
+          Reference: https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job#standard-github-hosted-runners-for-public-repositories
         type: string
         default: ubuntu-latest
-      pr-include-notes-label:
-        required: false
-        description: The label on a pull request that forces its inclusion in the release notes.
-        type: string
-        default: ""
       dry-run:
         required: false
         description: If true, the release will not be created.
@@ -61,102 +59,144 @@ on:
 
 
 jobs:
-  print_validate_workflow:
-    name: Print & Validate DotNet Action Release Workflow
-    runs-on: ubuntu-latest
+  run_prerelease_validation:
+    name: Run Pre-Release Validation
+    needs: [get_and_validate_version]
+    runs-on: "${{ inputs.runs-on }}"
     steps:
-      - name: Print Environment Variables
-        run: Get-ChildItem -Path Env:* | Sort-Object Name
+      - name: Checkout Repository
+        uses: actions/checkout@v5
 
-      - name: Validate Workflow Inputs
+      - name: Set Up Deno (${{ inputs.deno-version }})
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ inputs.deno-version }}
+          cache: ${{ inputs.enable-deno-cache }}
+
+      - name: Validate Tag
+        id: tag-check
+        uses: KinsonDigital/Infrastructure/actions/validate-tag@feature/269-create-custom-actions
+        with:
+          repo-owner: "${{ vars.ORGANIZATION_NAME }}"
+          repo-name: "${{ inputs.project-name }}"
+          release-type: "${{ inputs.release-type }}"
+          tag-name: "${{ needs.get_and_validate_version.outputs.version }}"
+          github-token: "${{ secrets.cicd-pat }}"
+          deno-version: "${{ inputs.deno-version }}"
+        continue-on-error: true
+
+      - name: Validate SDK Versions
+        id: sdk-check
+        uses: KinsonDigital/Infrastructure/actions/validate-sdk-versions@feature/269-create-custom-actions
+        with:
+          base-search-dir-path: "${{ github.workspace }}"
+          net-sdk-version: "${{ vars.NET_SDK_VERSION }}"
+          deno-version: "${{ inputs.deno-version }}"
+        continue-on-error: true
+
+      - name: Release Notes Exist
+        id: release-notes-check
+        uses: KinsonDigital/Infrastructure/actions/release-notes-exist@feature/269-create-custom-actions
+        with:
+          release-notes-file-path: "${{ inputs.release-notes-file-path }}"
+          deno-version: "${{ inputs.deno-version }}"
+          fail-if-does-not-exist: true
+        continue-on-error: true
+        
+      - name: Nuget Package Does Not Exist
+        uses: KinsonDigital/Infrastructure/actions/nuget-pkg-exists@feature/269-create-custom-actions
+        id: package-check
+        with:
+          nuget-pkg-name: "${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}"
+          nuget-pkg-version: "${{ needs.get_and_validate_version.outputs.version }}"
+          deno-version: "${{ inputs.deno-version }}"
+        continue-on-error: true
+
+      - name: Milestone Exists
+        id: milestone-exists
+        uses: KinsonDigital/Infrastructure/actions/milestone-exists@feature/269-create-custom-actions
+        with:
+          owner-name: "${{ vars.ORGANIZATION_NAME }}"
+          repo-name: "${{ inputs.project-name }}"
+          milestone-name: "${{ needs.get_and_validate_version.outputs.version }}"
+          github-token: "${{ secrets.cicd-pat }}"
+          deno-version: "${{ inputs.deno-version }}"
+        continue-on-error: true
+
+      - name: Validate Milestone Items
+        id: milestone-items-check
+        uses: KinsonDigital/Infrastructure/actions/milestone-items-closed@feature/269-create-custom-actions
+        with:
+          owner-name: "${{ vars.ORGANIZATION_NAME }}"
+          repo-name: "${{ inputs.project-name }}"
+          milestone-name: "${{ needs.get_and_validate_version.outputs.version }}"
+          github-token: "${{ secrets.cicd-pat }}"
+          deno-version: "${{ inputs.deno-version }}"
+          fail-if-all-items-not-closed: true
+        continue-on-error: true
+
+      - name: GitHub Release Exists
+        id: github-release-check
+        uses: KinsonDigital/Infrastructure/actions/github-release-exists@feature/269-create-custom-actions
+        with:
+          owner-name: "${{ vars.ORGANIZATION_NAME }}"
+          repo-name: "${{ inputs.project-name }}"
+          tag-name: "${{ needs.get_and_validate_version.outputs.version }}"
+          deno-version: "${{ inputs.deno-version }}"
+        continue-on-error: true
+
+      - name: Should Fail Job
         run: |
-          # Verify that the project name workflow input is not empty
-          if ("${{ inputs.project-name }}".Trim().ToLower() -eq "") {
-            Write-Host "::error::The 'project-name' workflow input cannot be empty.";
-            exit 1;
+          $tagCheckFailed = "${{ steps.tag-check.outcome == 'failure' }}";
+          $sdkCheckFailed = "${{ steps.sdk-check.outcome == 'failure' }}";
+          $notesFileCheckFailed = "${{ steps.release-notes-check.outcome == 'failure' }}";
+          $packageCheckFailed = "${{ steps.package-check.outcome == 'failure' }}";
+          $milestoneExists = "${{ steps.milestone-exists.outputs.milestone-exists }}";
+          $milestoneItemsCheckFailed = "${{ steps.milestone-items-check.outcome == 'failure' }}";
+          $githubReleaseCheckFailed = "${{ steps.github-release-check.outcome == 'failure' }}";
+
+          if ($tagCheckFailed -eq "true") {
+            Write-Host "::error::Tag already exists.  Please update the version in the 'deno.json' file.";
           }
 
-
-          $releaseType = "${{ inputs.release-type }}".Trim().ToLower();
-
-          # Verify that the release type is only 'Preview' or 'Production'
-          if ($releaseType -ne "Preview" -and $releaseType -ne "Production") {
-            Write-Host "::error::The 'release-type' workflow input is invalid.  Expecting value of 'Preview' or 'Production'.";
-            exit 1;
+          if ($sdkCheckFailed -eq "true") {
+            Write-Host "::error::One or more of the SDK versions are invalid. Check each '.csproj' file.";
           }
 
-
-          # Verify that the run branch workflow input is not empty
-          if ("${{ inputs.run-branch }}".Trim().ToLower() -eq "") {
-            Write-Host "::error::The 'run-branch' workflow input cannot be empty.";
-            exit 1;
+          if ($notesFileCheckFailed -eq "true") {
+            Write-Host "::error::The release notes for version '${{ needs.get_and_validate_version.outputs.version }}' do not exist.";
           }
 
-
-          $sdkVersion = "${{ inputs.net-sdk-version }}".Trim().ToLower();
-          
-          # Verify that the dotnet sdk version has valid syntax
-          if ($sdkVersion -match "[0-9]+\.[0-9]+\.[0-9]+") {
-            Write-Host "::notice::The 'net-sdk-version' workflow input is valid.";
-          } else {
-            Write-Host "::error::The 'net-sdk-version' workflow input is invalid.  Expected version format: '#.#.#'";
-            exit 1;
+          if ($packageCheckFailed -eq "true") {
+            Write-Host "::error::The NuGet package already exists.";
           }
 
-
-          $dirPath = "${{ inputs.relative-release-notes-dir-path }}".Trim().ToLower();;
-
-          # Verify that the relative release notes dir path is not empty
-          if ($dirPath -eq "") {
-            Write-Host "::error::The 'relative-release-notes-dir-path' workflow input cannot be empty.";
-            exit 1;
+          if ($milestoneExists -eq "false") {
+            Write-Host "::error::The milestone '${{ needs.get_and_validate_version.outputs.version }}' does not exist.";
           }
 
-
-          $backSlash = "\\";
-          $forwardSlash = "/";
-          
-          # Verify that the relative release notes dir path does not start or end with a with a forward or back slash
-          if ($dirPath.StartsWith($backSlash) -or $dirPath.StartsWith($forwardSlash) -or $dirPath.EndsWith($backSlash) -or $dirPath.EndsWith($forwardSlash)) {
-            Write-Host "::error::The 'relative-release-notes-dir-path' cannot start or end with a forward or back slash.";
-            exit 1;
+          if ($milestoneItemsCheckFailed -eq "true") {
+            Write-Host "::error::The milestone '${{ needs.get_and_validate_version.outputs.version }}' has one or more issues that are not closed or prs that are in draft.";
           }
 
-
-          # Verify that the release notes file name prefix workflow input is not empty
-          if ("${{ inputs.release-notes-file-name-prefix }}".Trim().ToLower() -eq "") {
-            Write-Host "::error::The 'release-notes-file-name-prefix' workflow input cannot be empty.";
-            exit 1;
+          if ($githubReleaseCheckFailed -eq "true") {
+            Write-Host "::error::The GitHub release already exists.";
           }
 
-
-          $buildConfig = "${{ inputs.build-config }}".Trim().ToLower();
-
-          # Verify that the build config is only 'Debug' or 'Release'
-          if ($buildConfig -ne "Debug" -and $buildConfig -ne "Release") {
-            Write-Host "::error::The build configuration '$buildConfig' is invalid.  Expecting a value of 'Debug' or 'Release'.";
-            exit 1;
-          }
-
-
-  validate_branch:
-    name: Validate Branch (${{ inputs.run-branch }})
-    needs: print_validate_workflow
-    runs-on: ubuntu-latest
-    steps:
-      - name: Validate Branch
-        run: |
-          $branch = "${{ github.ref_name }}"
-
-          if ($branch -ne "${{ inputs.run-branch }}") {
-            Write-Host "::error::The branch '$branch' is invalid. This release can only run on '${{ inputs.run-branch }}' branches."
+          if ($tagCheckFailed -eq "true" `
+              -or $sdkCheckFailed -eq "true" `
+              -or $notesFileCheckFailed -eq "true" `
+              -or $packageCheckFailed -eq "true" `
+              -or $milestoneExists -eq "false" `
+              -or $milestoneItemsCheckFailed -eq "true" `
+              -or $githubReleaseCheckFailed -eq "true") {
             exit 1;
           }
 
 
   get_and_validate_version:
     name: Get And Validate Version
-    runs-on: ubuntu-latest
+    runs-on: "${{ inputs.runs-on }}"
     outputs:
       version: ${{ steps.validate-version.outputs.version }}
     steps:
@@ -176,67 +216,9 @@ jobs:
           deno-version: "${{ vars.DENO_VERSION }}"
 
 
-  validate_tag:
-    name: Validate Tag
-    needs: get_and_validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-tag.yml@v15.0.0
-    with:
-      project-name: "${{ inputs.project-name }}"
-      release-type: "${{ inputs.release-type }}"
-      tag-name: "${{ needs.get_and_validate_version.outputs.version }}"
-    secrets:
-      cicd-pat: "${{ secrets.cicd-pat }}"
-
-
-  validate_sdk_setup:
-    name: Validate SDK Setup
-    needs: print_validate_workflow
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-sdk-versions.yml@v15.0.0
-    with:
-      repo-name: "${{ inputs.project-name }}"
-
-
-  validate_release_notes_exist:
-    name: Validate Release Notes Exist
-    needs: get_and_validate_version
-    runs-on: ubuntu-latest
-    steps:
-      - name:  Checkout Repo
-        uses: actions/checkout@v4
-
-      - name: Release Notes Exist
-        run: |
-          $relativeDirPath = "${{ inputs.relative-release-notes-dir-path }}";
-        
-          # Remove all leading forward slashes until none are left
-          $relativeDirPath = $relativeDirPath.Replace("\", "/");
-          $relativeDirPath = $relativeDirPath.TrimStart("/").TrimEnd("/");
-
-          $dirPath = "$env:GITHUB_WORKSPACE/$relativeDirPath";
-          $version = "${{ needs.get_and_validate_version.outputs.version }}";
-          $fileName = "${{ inputs.release-notes-file-name-prefix }}$version.md";
-          $filePath = "$dirPath/$fileName";
-
-          if (-not(Test-Path $filePath)) {
-            Write-Host "::error::The release notes file '$filePath' does not exist.";
-            exit 1;
-          }
-
-
-  validate_github_release:
-    name: GitHub Release Does Not Exist
-    needs: get_and_validate_version
-    uses: KinsonDigital/Infrastructure/.github/workflows/validate-github-release.yml@v15.0.0
-    with:
-      project-name: "${{ inputs.project-name }}"
-      version: "${{ needs.get_and_validate_version.outputs.version }}"
-    secrets:
-      cicd-pat: "${{ secrets.cicd-pat }}"
-
-
   build_project:
     name: Build Main Project (${{ inputs.project-name }})
-    needs: print_validate_workflow
+    needs: run_prerelease_validation
     uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v15.0.0
     with:
       project-name: "${{ inputs.project-name }}"
@@ -250,19 +232,14 @@ jobs:
   perform_release:
     name: Perform ${{ inputs.release-type }} Release
     needs: [
-      print_validate_workflow,
-      validate_branch,
+      run_prerelease_validation,
       get_and_validate_version,
-      validate_tag,
-      validate_sdk_setup,
-      validate_release_notes_exist,
-      validate_github_release,
       build_project,
-      run_tests]
-    runs-on: ubuntu-latest
+    ]
+    runs-on: "${{ inputs.runs-on }}"
     steps:
     - name: Checkout
-      uses: actions/checkout@v4 
+      uses: actions/checkout@v5 
 
     - name: Get GitHub Workspace
       id: base-dir-path
@@ -270,32 +247,14 @@ jobs:
         "github-workspace=$env:GITHUB_WORKSPACE" >> $env:GITHUB_OUTPUT;
 
     - name: Create GitHub Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
-      if: ${{ inputs.dry-run == false }}
-      env:
-        GH_TOKEN: ${{ secrets.CICD_TOKEN }}
-      run: |
-        $ownerRepoName = "${{ github.repository }}";
-
-        $tag = "${{ needs.get_and_validate_version.outputs.version }}".ToLower().Trim();
-        $tag = $tag.StartsWith("v") ? $tag : "v$tag";
-
-        $releaseType = "${{ inputs.release-type }}";
-        $version = "${{ needs.get_and_validate_version.outputs.version }}";
-
-        $title = $version;
-
-        $releaseDirPrefix = $releaseType.ToLower();
-        $releaseTypeDir = "$releaseDirPrefix-releases";
-        $fullReleaseNotesPath = "${{ github.workspace }}/${{ inputs.relative-release-notes-dir-path }}/${{ inputs.release-notes-file-name-prefix }}${{ needs.get_and_validate_version.outputs.version }}.md";
-
-        $isPreRelease = $releaseType -eq "Preview" ? "--prerelease" : "";
-
-        Write-Host "::notice::Release Notes File Path: $fullReleaseNotesPath";
-
-        gh release create $tag `
-          -R $ownerRepoName `
-          --target ${{ github.ref_name }} `
-          -t $title `
-          -F $fullReleaseNotesPath `
-          $isPreRelease `
-          $fullReleaseNotesPath;|
+      if: inputs.dry-run == false
+      uses: ncipollo/release-action@v1
+      with:
+        name: "🚀${{ inputs.release-type }} - ${{ needs.get_and_validate_version.outputs.version }}"
+        tag: ${{ needs.get_and_validate_version.outputs.version }}
+        owner: ${{ vars.ORGANIZATION_NAME }}
+        repo: ${{ inputs.project-name }}
+        bodyFile: "${{ github.workspace }}/ReleaseNotes/${{ inputs.release-type }}Releases/Release-Notes-${{ needs.get_and_validate_version.outputs.version }}.md"
+        artifacts: "${{ github.workspace }}/ReleaseNotes/${{ inputs.release-type }}Releases/Release-Notes-${{ needs.get_and_validate_version.outputs.version }}.md"
+        prerelease: ${{ inputs.release-type }} == 'Preview'
+        token: ${{ secrets.CICD_TOKEN }}
