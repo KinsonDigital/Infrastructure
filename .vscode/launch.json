@@ -440,28 +440,6 @@
 				"runtimeExecutable": "${userHome}/.deno/bin/deno"
 			}
 		},
-		{ // GET VALIDATE VERSION
-			"name": "Get Validate Version",
-			"request": "launch",
-			"type": "node",
-			"program": "${workspaceFolder}/.github/internal-cicd/scripts/get-validate-version.ts",
-			"cwd": "${workspaceFolder}",
-			"runtimeArgs": [
-				"run",
-				"-ERW",
-				"--inspect-wait",
-			],
-			"env": {
-				"GITHUB_OUTPUT": "${workspaceFolder}/github_output.txt",
-			},
-			"attachSimplePort": 9229,
-			"windows": {
-				"runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
-			},
-			"linux": {
-				"runtimeExecutable": "${userHome}/.deno/bin/deno"
-			}
-		},
 		{ // CREATE FEATURE PR TOOL
 			"name": "Create Feature PR Tool",
 			"request": "launch",
@@ -524,6 +502,33 @@
 			],
 			"env": {
 				"CS_PROJ_FILE_NAME": "csharp.csproj"
+			},
+			"attachSimplePort": 9229,
+			"windows": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
+			},
+			"linux": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno"
+			}
+		},
+		{ // JSR PKG EXISTS
+			"name": "JSR Package Exists",
+			"request": "launch",
+			"type": "node",
+			"program": "${workspaceFolder}/actions/jsr-pkg-exists/jsr-pkg-exists.ts",
+			"cwd": "${workspaceFolder}",
+			"preLaunchTask": "Generate Output File",
+			"runtimeArgs": [
+				"run",
+				"-ERWN",
+				"--inspect-wait",
+			],
+			"env": {
+				"SCOPE": "kinsondigital",
+				"PKG_NAME": "sprocket",
+				"VERSION": "1.0.0",
+				"FAIL_IF_EXISTS": "true",
+				"GITHUB_OUTPUT": "${workspaceFolder}/github_output.txt"
 			},
 			"attachSimplePort": 9229,
 			"windows": {

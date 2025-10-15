@@ -6,8 +6,14 @@ type ReleaseType = "production" | "preview";
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
 let version: string = getEnvVar("VERSION", scriptFileName).toLowerCase();
-version = version.startsWith("v") ? version : `v${version}`;
 const releaseType: ReleaseType = <ReleaseType> getEnvVar("RELEASE_TYPE", scriptFileName).toLowerCase();
+const stripVPrefix = getEnvVar("STRIP_V_PREFIX", scriptFileName, false) === "true";
+
+if (stripVPrefix) {
+	version = version.startsWith("v") ? version.substring(1) : version;
+} else {
+	version = version.startsWith("v") ? version : `v${version}`;
+}
 
 const releaseTypeInvalid = releaseType != "production" && releaseType != "preview";
 
