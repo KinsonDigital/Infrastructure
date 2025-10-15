@@ -79,7 +79,7 @@ if (noFilesUpdated) {
 	});
 }
 
-const repoVarName = "CICD_SCRIPTS_VERSION";
+const repoVarName = "INFRASTRUCTURE_VERSION";
 const repoClient = new RepoClient(ownerName, repoName, token);
 
 if (!(await repoClient.variableExists(repoVarName))) {

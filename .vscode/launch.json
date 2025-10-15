@@ -624,7 +624,7 @@
 			"env": {
 				"OWNER_NAME": "KinsonDigital",
 				"REPO_NAME": "Infrastructure",
-				"CICD_SCRIPTS_VERSION_REPO_VAR_NAME": "CICD_SCRIPTS_VERSION",
+				"INFRASTRUCTURE_VERSION_REPO_VAR_NAME": "INFRASTRUCTURE_VERSION",
 				"VERSION": "v1.2.3",
 				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
 			},

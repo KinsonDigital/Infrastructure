@@ -166,7 +166,6 @@ jobs:
         with:
           version-file-path: "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj"
           deno-version: "${{ vars.DENO_VERSION }}"
-          action-version: "${{ vars.CICD_SCRIPTS_VERSION }}"
 
       - name: Validate Version
         id: validate-version
@@ -175,7 +174,6 @@ jobs:
           version: "${{ steps.get-version.outputs.version}}"
           release-type: "${{ inputs.release-type }}"
           deno-version: "${{ vars.DENO_VERSION }}"
-          action-version: "${{ vars.CICD_SCRIPTS_VERSION }}"
 
 
   validate_tag:
