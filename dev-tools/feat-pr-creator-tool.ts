@@ -1,4 +1,4 @@
-import { delay } from "jsr:@std/async@1.0.14";
+import { delay } from "jsr:@std/async@1.0.15";
 import { existsSync, walkSync } from "jsr:@std/fs@1.0.19";
 import { Input } from "jsr:@cliffy/prompt@1.0.0-rc.8/input";
 import { Select } from "jsr:@cliffy/prompt@1.0.0-rc.8/select";
