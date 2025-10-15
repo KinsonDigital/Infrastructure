@@ -55,6 +55,14 @@ jobs:
     needs: [get_and_validate_version]
     runs-on: ubuntu-latest
     steps:
+      - name: Check Branch
+        id: check-branch
+        continue-on-error: true
+        run: |
+          if ("${{ github.ref_name }}" -ne "main") {
+            exit 1;
+          }
+
       - name: Checkout Repository
         uses: actions/checkout@v5
 
@@ -113,10 +121,15 @@ jobs:
     
       - name: Should Fail Job
         run: |
+          $validBranch = "${{ steps.check-branch.outcome == 'failure' }}";
           $milestoneExists = "${{ steps.milestone-exists.outputs.milestone-exists }}";
           $milestoneItemsCheckFailed = "${{ steps.milestone-items-check.outcome == 'failure' }}";
           $releaseNotesCheckFailed = "${{ steps.release-notes-check.outcome == 'failure' }}";
           $githubReleaseCheckFailed = "${{ steps.github-release-check.outcome == 'failure' }}";
+
+          if ($validBranch -eq "true") {
+            Write-Host "::error::The branch '${{ github.ref_name }}' is invalid.  Must run on the 'main' branch.";
+          }
 
           if ($milestoneExists -eq "true") {
             Write-Host "::error::The milestone '${{ needs.get_and_validate_version.outputs.version }}' does not exist.";
@@ -134,7 +147,8 @@ jobs:
             Write-Host "::error::The GitHub release already exists.";
           }
 
-          if ($milestoneExists -eq "true" `
+          if ($validBranch -eq "true" `
+              -or $milestoneExists -eq "true" `
               -or $milestoneCheckFailed -eq "true" `
               -or $milestoneItemsCheckFailed -eq "true" `
               -or $releaseNotesCheckFailed -eq "true" `
