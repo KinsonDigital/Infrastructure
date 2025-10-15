@@ -68,14 +68,14 @@ jobs:
     steps:
       - name: Get Version
         id: get-version
-        uses: KinsonDigital/Infrastructure/actions/get-version@main
+        uses: KinsonDigital/Infrastructure/actions/get-version@v16.0.0
         with:
           version-file-path: "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj"
           deno-version: "${{ vars.DENO_VERSION }}"
 
       - name: Validate Version
         id: validate-version
-        uses: KinsonDigital/Infrastructure/actions/validate-version@main
+        uses: KinsonDigital/Infrastructure/actions/validate-version@v16.0.0
         with:
           version: "${{ steps.get-version.outputs.version}}"
           release-type: "${{ inputs.release-type }}"
@@ -97,7 +97,7 @@ jobs:
 
       - name: Validate Tag
         id: tag-check
-        uses: KinsonDigital/Infrastructure/actions/validate-tag@main
+        uses: KinsonDigital/Infrastructure/actions/validate-tag@v16.0.0
         with:
           repo-owner: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
@@ -109,7 +109,7 @@ jobs:
 
       - name: Validate SDK Versions
         id: sdk-check
-        uses: KinsonDigital/Infrastructure/actions/validate-sdk-versions@main
+        uses: KinsonDigital/Infrastructure/actions/validate-sdk-versions@v16.0.0
         with:
           base-search-dir-path: "${{ github.workspace }}"
           net-sdk-version: "${{ vars.NET_SDK_VERSION }}"
@@ -118,7 +118,7 @@ jobs:
 
       - name: Release Notes Exist
         id: release-notes-check
-        uses: KinsonDigital/Infrastructure/actions/release-notes-exist@main
+        uses: KinsonDigital/Infrastructure/actions/release-notes-exist@v16.0.0
         with:
           release-notes-file-path: "${{ inputs.release-notes-file-path }}"
           deno-version: "${{ inputs.deno-version }}"
@@ -126,7 +126,7 @@ jobs:
         continue-on-error: true
         
       - name: Nuget Package Does Not Exist
-        uses: KinsonDigital/Infrastructure/actions/nuget-pkg-exists@main
+        uses: KinsonDigital/Infrastructure/actions/nuget-pkg-exists@v16.0.0
         id: package-check
         with:
           nuget-pkg-name: "${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}"
@@ -136,7 +136,7 @@ jobs:
 
       - name: Milestone Exists
         id: milestone-exists
-        uses: KinsonDigital/Infrastructure/actions/milestone-exists@main
+        uses: KinsonDigital/Infrastructure/actions/milestone-exists@v16.0.0
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
@@ -147,7 +147,7 @@ jobs:
 
       - name: Validate Milestone Items
         id: milestone-items-check
-        uses: KinsonDigital/Infrastructure/actions/milestone-items-closed@main
+        uses: KinsonDigital/Infrastructure/actions/milestone-items-closed@v16.0.0
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
@@ -159,7 +159,7 @@ jobs:
 
       - name: GitHub Release Exists
         id: github-release-check
-        uses: KinsonDigital/Infrastructure/actions/github-release-exists@main
+        uses: KinsonDigital/Infrastructure/actions/github-release-exists@v16.0.0
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
@@ -220,7 +220,7 @@ jobs:
   build_project:
     name: Build Main Project (${{ inputs.project-name }})
     needs: run_prerelease_validation
-    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v15.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v16.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       runs-on: "${{ inputs.runs-on }}"

@@ -7,6 +7,12 @@ inputs:
   release-type:
     description: "The type of release.  Either 'Preview' or 'Production'."
     required: true
+  strip-v-prefix:
+    description: |
+      Whether to strip the 'v' prefix from the version.
+      If 'false', the version will be prefixed with 'v' if it does not already have it.
+    required: false
+    default: "false"
   deno-version:
     description: "The version of Deno to use."
     required: true
@@ -23,6 +29,7 @@ runs:
       shell: pwsh
       env:
         VERSION: "${{ inputs.VERSION }}"
+        STRIP_V_PREFIX: "${{ inputs.strip-v-prefix }}"
         RELEASE_TYPE: "${{ inputs.release-type }}"
       run: |
         $scriptFilePath = "${{ github.action_path }}/validate-version.ts";

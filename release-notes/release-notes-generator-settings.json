@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/KinsonDigital/Infrastructure/refs/tags/v15.1.0/dev-tools/release-notes-settings-schema.json",
+    "$schema": "https://raw.githubusercontent.com/KinsonDigital/Infrastructure/refs/tags/v16.0.0/dev-tools/release-notes-settings-schema.json",
     "ownerName": "KinsonDigital",
     "repoName": "Infrastructure",
     "githubTokenEnvVarName": "CICD_TOKEN",

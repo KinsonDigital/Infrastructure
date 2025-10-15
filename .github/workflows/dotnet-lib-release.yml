@@ -97,16 +97,16 @@ jobs:
     steps:
       - name: Get Version
         id: get-version
-        uses: KinsonDigital/Infrastructure/actions/get-version@main
+        uses: KinsonDigital/Infrastructure/actions/get-version@v16.0.0
         with:
           version-file-path: "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj"
           deno-version: "${{ inputs.deno-version }}"
 
       - name: Validate Version
         id: validate-version
-        uses: KinsonDigital/Infrastructure/actions/validate-version@main
+        uses: KinsonDigital/Infrastructure/actions/validate-version@v16.0.0
         with:
-          version: "${{ steps.get-version.outputs.version}}"
+          version: "v${{ steps.get-version.outputs.version }}"
           release-type: "${{ inputs.release-type }}"
           deno-version: "${{ inputs.deno-version }}"
 
@@ -127,7 +127,7 @@ jobs:
 
       - name: Validate Tag
         id: tag-check
-        uses: KinsonDigital/Infrastructure/actions/validate-tag@main
+        uses: KinsonDigital/Infrastructure/actions/validate-tag@v16.0.0
         with:
           repo-owner: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
@@ -139,7 +139,7 @@ jobs:
 
       - name: Validate SDK Versions
         id: sdk-check
-        uses: KinsonDigital/Infrastructure/actions/validate-sdk-versions@main
+        uses: KinsonDigital/Infrastructure/actions/validate-sdk-versions@v16.0.0
         with:
           base-search-dir-path: "${{ github.workspace }}"
           net-sdk-version: "${{ vars.NET_SDK_VERSION }}"
@@ -148,7 +148,7 @@ jobs:
 
       - name: Release Notes Exist
         id: release-notes-check
-        uses: KinsonDigital/Infrastructure/actions/release-notes-exist@main
+        uses: KinsonDigital/Infrastructure/actions/release-notes-exist@v16.0.0
         with:
           release-notes-file-path: "${{ inputs.release-notes-file-path }}"
           deno-version: "${{ inputs.deno-version }}"
@@ -156,7 +156,7 @@ jobs:
         continue-on-error: true
         
       - name: Nuget Package Does Not Exist
-        uses: KinsonDigital/Infrastructure/actions/nuget-pkg-exists@main
+        uses: KinsonDigital/Infrastructure/actions/nuget-pkg-exists@v16.0.0
         id: package-check
         with:
           nuget-pkg-name: "${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}"
@@ -166,22 +166,22 @@ jobs:
 
       - name: Milestone Exists
         id: milestone-exists
-        uses: KinsonDigital/Infrastructure/actions/milestone-exists@main
+        uses: KinsonDigital/Infrastructure/actions/milestone-exists@v16.0.0
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
-          milestone-name: "${{ needs.get_and_validate_version.outputs.version }}"
+          milestone-name: "v${{ needs.get_and_validate_version.outputs.version }}"
           github-token: "${{ secrets.cicd-pat }}"
           deno-version: "${{ inputs.deno-version }}"
         continue-on-error: true
 
       - name: Validate Milestone Items
         id: milestone-items-check
-        uses: KinsonDigital/Infrastructure/actions/milestone-items-closed@main
+        uses: KinsonDigital/Infrastructure/actions/milestone-items-closed@v16.0.0
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
-          milestone-name: "${{ needs.get_and_validate_version.outputs.version }}"
+          milestone-name: "v${{ needs.get_and_validate_version.outputs.version }}"
           github-token: "${{ secrets.cicd-pat }}"
           deno-version: "${{ inputs.deno-version }}"
           fail-if-all-items-not-closed: true
@@ -189,13 +189,13 @@ jobs:
 
       - name: GitHub Release Exists
         id: github-release-check
-        uses: KinsonDigital/Infrastructure/actions/github-release-exists@main
+        uses: KinsonDigital/Infrastructure/actions/github-release-exists@v16.0.0
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
-          tag-name: "${{ needs.get_and_validate_version.outputs.version }}"
+          tag-name: "v${{ needs.get_and_validate_version.outputs.version }}"
           deno-version: "${{ inputs.deno-version }}"
-          github-token: "${{ secrets.CICD_TOKEN }}"
+          github-token: "${{ secrets.cicd-pat }}"
         continue-on-error: true
 
       - name: Should Fail Job
@@ -249,15 +249,17 @@ jobs:
 
   build_project:
     name: Build Main Project
-    needs: [run_prerelease_validation]
-    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v15.0.0
-    with:
-      project-name: "${{ inputs.project-name }}"
-      runs-on: "${{ inputs.runs-on }}"
-      build-config: "${{ inputs.build-config }}"
-      net-sdk-version: "${{ inputs.net-sdk-version }}"
-    secrets:
-      cicd-pat: ${{ secrets.cicd-pat }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set Up .NET SDK (${{ inputs.net-sdk-version }})
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ inputs.net-sdk-version }}
+
+      - name: Run Build
+        run: dotnet build "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj" -c ${{ inputs.build-config }};
 
 
   perform_release:
@@ -289,13 +291,13 @@ jobs:
 
       - name: Transpile README
         if: inputs.transpile-readme == true
-        uses: KinsonDigital/Infrastructure/actions/transpile-readme@main
+        uses: KinsonDigital/Infrastructure/actions/transpile-readme@v16.0.0
         with:
           base-dir-path: "${{ github.workspace }}"
           deno-version: "${{ inputs.deno-version }}"
 
       - name: Update Copyright
-        uses: KinsonDigital/Infrastructure/actions/update-copyright@main
+        uses: KinsonDigital/Infrastructure/actions/update-copyright@v16.0.0
         with:
           cs-proj-file-name: "${{ inputs.project-name }}.csproj"
           deno-version: "${{ inputs.deno-version }}"
@@ -323,10 +325,11 @@ jobs:
 
       - name: Send X Release Announcement ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: inputs.dry-run == false && inputs.send-x-release-post == true
-        uses: KinsonDigital/Infrastructure/actions/send-x-release-announcement@main
+        uses: KinsonDigital/Infrastructure/actions/send-x-release-announcement@v16.0.0
         with:
           repo-owner: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
+          version: "${{ needs.get_and_validate_version.outputs.version }}"
           github-token: "${{ secrets.cicd-pat }}"
           release-x-post-template-repo-name: "${{ vars.RELEASE_X_POST_TEMPLATE_REPO_NAME }}"
           release-x-post-template-branch-name: "${{ vars.RELEASE_X_POST_TEMPLATE_BRANCH_NAME }}"
@@ -354,7 +357,7 @@ jobs:
 
       - name: Close Milestone ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: inputs.dry-run == false
-        uses: KinsonDigital/Infrastructure/actions/close-milestone@main
+        uses: KinsonDigital/Infrastructure/actions/close-milestone@v16.0.0
         with:
           repo-owner: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
