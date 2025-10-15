@@ -1,0 +1,30 @@
+name: "Validate Version"
+description: "Validates a version."
+inputs:
+  version:
+    description: "The version being released."
+    required: true
+  release-type:
+    description: "The type of release.  Either 'Preview' or 'Production'."
+    required: true
+  deno-version:
+    description: "The version of Deno to use."
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Deno (${{ inputs.deno-version }})
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: ${{ inputs.deno-version }}
+        cache: true
+
+    - name: Run Script
+      shell: pwsh
+      env:
+        VERSION: "${{ inputs.VERSION }}"
+        RELEASE_TYPE: "${{ inputs.release-type }}"
+      run: |
+        $scriptFilePath = "${{ github.action_path }}/validate-version.ts";
+
+        deno run -E $scriptFilePath;

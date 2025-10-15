@@ -1,0 +1,34 @@
+name: "Validate .NET SDK Versions"
+description: "Checks if the all of the .NET SDK versions for all projects in the repository exist and match a specified version."
+inputs:
+  base-search-dir-path:
+    description: "The base directory path to search for .NET projects."
+    required: true
+  net-sdk-version:
+    description: "The .NET SDK version to validate against."
+    required: true
+  deno-version:
+    description: "The version of Deno to use."
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v5
+
+    - name: Setup Deno (${{ inputs.deno-version }})
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: ${{ inputs.deno-version }}
+        cache: true
+
+    - name: Run Script
+      id: run-script
+      shell: pwsh
+      env:
+        BASE_SEARCH_DIR_PATH: "${{ inputs.base-search-dir-path }}"
+        NET_SDK_VERSION: "${{ inputs.net-sdk-version }}"
+      run: |
+        $scriptFilePath = "${{ github.action_path }}/validate-sdk-versions.ts";
+
+        deno run -ER $scriptFilePath;

@@ -1,11 +1,11 @@
 import { existsSync } from "jsr:@std/fs@1.0.19";
-import { normalizeLineEndings, printAsGitHubError, splitBy, trimAllStartingWhiteSpace } from "../Utils.ts";
+import { normalizeLineEndings, splitBy, trimAllStartingWhiteSpace } from "../Utils.ts";
+import { printAsGitHubError } from "../github.ts";
 
 /**
  * Transpiles the HTML content in a README.md file to markdown.
  */
 export class ReadMeTranspilerService {
-	private readonly readmeFileName = "README.md";
 	private readonly divStartTagRegEx = /<div.*>/gm;
 	private readonly divEndTagRegEx = /<\/div\s*>/gm;
 	private readonly breakTagRegEx = /<br\s*\/>/gm;
@@ -24,17 +24,15 @@ export class ReadMeTranspilerService {
 	/**
 	 * Runs the transpile readme script.
 	 */
-	public transpile(dirPath: string): void {
-		const readmeFilePath = `${dirPath}/${this.readmeFileName}`;
-
-		if (!existsSync(readmeFilePath)) {
+	public transpile(filePath: string): string {
+		if (!existsSync(filePath)) {
 			let errorMsg = "Error with transpiling readme.";
-			errorMsg += `\nThe given path '${readmeFilePath}' is not a valid file path.`;
+			errorMsg += `\nThe given path '${filePath}' is not a valid file path.`;
 			printAsGitHubError(errorMsg);
 			Deno.exit(1);
 		}
 
-		let readmeFileContent = Deno.readTextFileSync(readmeFilePath);
+		let readmeFileContent = Deno.readTextFileSync(filePath);
 
 		// Remove start and end div tags
 		readmeFileContent = readmeFileContent.replace(this.divStartTagRegEx, "");
@@ -55,8 +53,7 @@ export class ReadMeTranspilerService {
 
 		readmeFileContent = this.bumpMarkdownLinksToLeft(readmeFileContent);
 
-		// Overwrite the README.md file with the transpiled content
-		Deno.writeTextFileSync(readmeFilePath, readmeFileContent);
+		return readmeFileContent;
 	}
 
 	/**

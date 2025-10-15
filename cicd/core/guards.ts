@@ -99,20 +99,48 @@ export function isUndefinedOrNullOrEmpty(value: unknown | string | []): value is
 }
 
 /**
- * Returns true if the given {@link value} is nothing (undefined, null, or an empty string or array).
+ * Returns a value indicating whether the value is null, undefined, or empty.
  * @param value The value to check.
- * @returns True if the value is nothing.
+ * @returns True if the value is null, undefined, or empty, otherwise false.
+ * @remarks If the value is null, undefined, the value true will be returned.
+ * If the value is a string, true will be returned if the string is empty.
+ * If the value is a number, true will be returned if the number is NaN.
+ * If the value is an array, true will be returned if the array is empty.
  */
-export function isNothing(value: unknown): value is undefined | null | "" {
-	return isUndefinedOrNullOrEmpty(value);
+export function isNothing<T>(
+	value: unknown | undefined | null | string | number | boolean | T[]
+): value is undefined | null | "" {
+	if (value === undefined || value === null) {
+		return true;
+	}
+
+	if (isString(value)) {
+		return value === "";
+	}
+
+	if (typeof value === "number") {
+		return isNaN(value);
+	}
+
+	if (Array.isArray(value)) {
+		return value.length <= 0;
+	}
+
+	return false;
 }
 
 /**
- * Returns true if the given {@link value} is not nothing (undefined, null, or an empty string or array).
+ * Returns a value indicating whether the value is not null, undefined, or empty.
  * @param value The value to check.
- * @returns True if the value is not nothing.
+ * @returns True if the value is not null, undefined, or empty, otherwise false.
+ * @remarks If the value is not null, undefined, the value true will be returned.
+ * If the value is a string, true will be returned if the string is not empty.
+ * If the value is a number, true will be returned if the number is not NaN.
+ * If the value is an array, true will be returned if the array is not empty.
  */
-export function isNotNothing(value: unknown): value is undefined | null | "" {
+export function isNotNothing<T>(
+	value: unknown | undefined | null | string | number | boolean | T[]
+): value is undefined | null | "" {
 	return !isNothing(value);
 }
 
@@ -227,6 +255,22 @@ export function endsWithCR(value: string): value is string {
 export function endsWithNLOrCR(value: string): value is string {
 	if (isString(value)) {
 		return endsWithNL(value) || endsWithCR(value);
+	}
+
+	return false;
+}
+
+/**
+ * Returns a value indicating whether the value is less than one.
+ * @param value The value to check.
+ */
+export function isLessThanOne(value: undefined | null | number): value is undefined | null {
+	if (isUndefinedOrNull(value) || isNaN(value) || !isFinite(value)) {
+		return true;
+	}
+
+	if (value < 1) {
+		return true;
 	}
 
 	return false;

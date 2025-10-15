@@ -1,6 +1,7 @@
 import { OrgClient, RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
-import { isNothing } from "../ParamGuards.ts";
+import { isNothing } from "../guards.ts";
 import { GitHubVarModel } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github/models";
+import { printAsGitHubError } from "../github.ts";
 
 /**
  * Provides a service for interacting with GitHub organization or repository variables.
@@ -18,8 +19,17 @@ export class GitHubVariableService {
 	 * @param token The GitHub personal access token.
 	 */
 	constructor(ownerName: string, repoName: string, token: string) {
-		const funcName = "ctor";
-		isNothing(token, funcName, "token");
+		if (isNothing(ownerName)) {
+			throw new Error("The ownerName parameter cannot be null, undefined, or empty.");
+		}
+
+		if (isNothing(repoName)) {
+			throw new Error("The repoName parameter cannot be null, undefined, or empty.");
+		}
+
+		if (isNothing(token)) {
+			throw new Error("The token parameter cannot be null, undefined, or empty.");
+		}
 
 		this.orgClient = new OrgClient(ownerName, token);
 		this.repoClient = new RepoClient(ownerName, repoName, token);
@@ -31,9 +41,12 @@ export class GitHubVariableService {
 	 * @param repoName The name of the repository.
 	 */
 	public setOrgAndRepo(ownerName: string, repoName: string): void {
-		const funcName = "setOrgAndRepo";
-		isNothing(ownerName, funcName, "ownerName");
-		isNothing(repoName, funcName, "repoName");
+		if (isNothing(ownerName)) {
+			throw new Error("The ownerName parameter cannot be null, undefined, or empty.");
+		}
+		if (isNothing(repoName)) {
+			throw new Error("The ownerName parameter cannot be null, undefined, or empty.");
+		}
 	}
 
 	/**
@@ -98,7 +111,10 @@ export class GitHubVariableService {
 	 * @remarks The variables are cached to reduce requests to GitHub.
 	 */
 	private async getVar(name: string): Promise<GitHubVarModel | undefined> {
-		isNothing(name, "getVar", "name");
+		if (isNothing(name)) {
+			printAsGitHubError("The name parameter cannot be null, undefined, or empty.");
+			Deno.exit(1);
+		}
 
 		if (this.cachedVars.length === 0) {
 			const orgVars = await this.orgClient.getVariables();

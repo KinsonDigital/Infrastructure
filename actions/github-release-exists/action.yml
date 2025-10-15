@@ -1,0 +1,44 @@
+name: "GitHub Release Exists"
+description: "Checks if a GitHub release exists."
+inputs:
+  owner-name:
+    description: "The owner of the repository where the GitHub release lives."
+    required: true
+  repo-name:
+    description: "The name of the repository where the GitHub release lives."
+    required: true
+  tag-name:
+    description: "The git tag associated with the GitHub release."
+    required: true
+  deno-version:
+    description: "The version of Deno to use."
+    required: true
+  fail-if-exists:
+    description: "Fail if the GitHub release exists."
+    required: false
+    default: "true"
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Deno (${{ inputs.deno-version }})
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: ${{ inputs.deno-version }}
+        cache: true
+
+    - name: Run Script
+      id: run-script
+      shell: pwsh
+      env:
+        OWNER_NAME: "${{ inputs.owner-name }}"
+        REPO_NAME: "${{ inputs.repo-name }}"
+        TAG_NAME: "${{ inputs.tag-name }}"
+        FAIL_IF_EXISTS: "${{ inputs.fail-if-exists }}"
+      run: |
+        $scriptFilePath = "${{ github.action_path }}/github-release-exists.ts";
+
+        deno run -ERN $scriptFilePath;
+outputs:
+  release-exists:
+    description: "Whether the GitHub release exists."
+    value: ${{ steps.run-script.outputs.release-exists }}

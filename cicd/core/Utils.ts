@@ -1,5 +1,5 @@
-import { GitHubHttpStatusCodes, GitHubLogType } from "./Enums.ts";
-import { isLessThanOne, isNothing as isNothingGuard } from "./ParamGuards.ts";
+import { GitHubLogType } from "./Enums.ts";
+import { printAsGitHubError, printAsGitHubNotice, printAsGitHubWarning } from "./github.ts";
 import {
 	IssueModel,
 	LabelModel,
@@ -7,6 +7,7 @@ import {
 	PullRequestModel,
 	UserModel,
 } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github/models";
+import { isLessThanOne } from "./guards.ts";
 
 const prodVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)$/;
 const prevVersionRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)-preview\.([1-9]\d*|0)$/;
@@ -41,8 +42,6 @@ export function printInGroup(title: string, lineOrLines: string | string[]): voi
 	console.log("::endgroup::");
 }
 
-// TODO: Move this function to a Guards class
-
 /**
  * Checks if the value is null, undefined, or empty.
  * @param value The value to check.
@@ -72,7 +71,7 @@ export function isNothing<T>(
  * @returns The issues from the given list of issues or pull requests.
  */
 export function filterIssues(issuesOrPrs: (IssueModel | PullRequestModel)[]): IssueModel[] {
-	return <IssueModel[]> issuesOrPrs.filter((item) => isIssue(item));
+	return <IssueModel[]>issuesOrPrs.filter((item) => isIssue(item));
 }
 
 /**
@@ -81,7 +80,7 @@ export function filterIssues(issuesOrPrs: (IssueModel | PullRequestModel)[]): Is
  * @returns The pull requests from the given list of issues or pull requests.
  */
 export function filterPullRequests(issuesOrPrs: (IssueModel | PullRequestModel)[]): PullRequestModel[] {
-	return <PullRequestModel[]> issuesOrPrs.filter((item) => isPr(item));
+	return <PullRequestModel[]>issuesOrPrs.filter((item) => isPr(item));
 }
 
 /**
@@ -103,56 +102,6 @@ export function isPr(issueOrPr: PullRequestModel | IssueModel): issueOrPr is Pul
 }
 
 /**
- * Prints the given {@link message} as a GitHub notice.
- * @param message The message to print.
- */
-export function printAsGitHubNotice(message: string): void {
-	printEmptyLine();
-	console.log(`::notice::${message}`);
-	printEmptyLine();
-}
-
-/**
- * Prints the given {@link messages} as GitHub notices.
- * @param messages The messages to print.
- */
-export function printAsGitHubNotices(messages: string[]): void {
-	messages.forEach((message) => {
-		printAsGitHubNotice(message);
-	});
-}
-
-/**
- * Prints the given {@link message} as a GitHub error.
- * @param message The message to print.
- */
-export function printAsGitHubError(message: string): void {
-	printEmptyLine();
-	console.log(`::error::${message}`);
-	printEmptyLine();
-}
-
-/**
- * Prints the given {@link messages} as GitHub errors.
- * @param messages The error messages.
- */
-export function printAsGitHubErrors(messages: string[]): void {
-	messages.forEach((message) => {
-		printAsGitHubError(message);
-	});
-}
-
-/**
- * Prints the given {@link message} as a GitHub warning.
- * @param message The message to print.
- */
-export function printAsGitHubWarning(message: string): void {
-	printEmptyLine();
-	console.log(`::warning::${message}`);
-	printEmptyLine();
-}
-
-/**
  * Prints the given list of problems as errors.
  * @param problems The list of problems to print.
  * @param successMsg The message to print if there are no problems.
@@ -162,7 +111,7 @@ export function printAsGitHubWarning(message: string): void {
 export function printProblemList(problems: string[], successMsg: string, failureMsg: string): void {
 	const errorList: string[] = [];
 
-	// Display all of the issues that have been found as errors
+	// Create a numbered list of the problems
 	for (let i = 0; i < problems.length; i++) {
 		const errorFound = problems[i];
 
@@ -234,20 +183,6 @@ export function printAsNumberedList(prefix: string, items: string[], logType: Gi
 }
 
 /**
- * Checks if the response contains status codes other than in the 200 range.
- * If it does, it will print the error message and exit the process.
- * @param response The response from a request.
- */
-export function throwIfErrors(response: Response): void {
-	if (response.status < GitHubHttpStatusCodes.OK) {
-		const errorMsg = `There was a problem with the request. Error: ${response.status}(${response.statusText}).`;
-
-		printAsGitHubError(errorMsg);
-		Deno.exit(1);
-	}
-}
-
-/**
  * Checks if the given {@link version} is a valid production version.
  * @param version The version to check.
  * @returns True if the version is a valid production version, otherwise false.
@@ -303,10 +238,17 @@ export function clamp(value: number, min: number, max: number): number {
  * @returns The URL to the issue.
  */
 export function buildIssueUrl(repoOwner: string, repoName: string, issueNumber: number): string {
-	const funcName = "buildIssueUrl";
-	isNothingGuard(repoOwner, funcName, "repoOwner");
-	isNothingGuard(repoName, funcName, "repoName");
-	isLessThanOne(issueNumber, funcName, "issueNumber");
+	if (isNothing(repoOwner)) {
+		throw new Error("repoOwner parameter cannot be null, undefined, or empty.");
+	}
+
+	if (isNothing(repoName)) {
+		throw new Error("repoName parameter cannot be null, undefined, or empty.");
+	}
+
+	if (isLessThanOne(issueNumber)) {
+		throw new Error("issueNumber parameter must be greater than 1.");
+	}
 
 	return `https://github.com/${repoOwner}/${repoName}/issues/${issueNumber}`;
 }
@@ -320,10 +262,16 @@ export function buildIssueUrl(repoOwner: string, repoName: string, issueNumber: 
  * @returns The URL to the issue.
  */
 export function buildPullRequestUrl(repoOwner: string, repoName: string, prNumber: number): string {
-	const funcName = "buildPullRequestUrl";
-	isNothingGuard(repoOwner, funcName, "repoOwner");
-	isNothingGuard(repoName, funcName, "repoName");
-	isLessThanOne(prNumber, funcName, "prNumber");
+	if (isNothing(repoOwner)) {
+		throw new Error("repoOwner parameter cannot be null, undefined, or empty.");
+	}
+	if (isNothing(repoName)) {
+		throw new Error("repoOwner parameter cannot be null, undefined, or empty.");
+	}
+
+	if (isLessThanOne(prNumber)) {
+		throw new Error("prNumber parameter must be greater than 1.");
+	}
 
 	return `https://github.com/${repoOwner}/${repoName}/pull/${prNumber}`;
 }
@@ -336,9 +284,12 @@ export function buildPullRequestUrl(repoOwner: string, repoName: string, prNumbe
  * @returns The URL to the repository labels page.
  */
 export function buildLabelsUrl(repoOwner: string, repoName: string): string {
-	const funcName = "buildLabelsUrl";
-	isNothingGuard(repoOwner, funcName, "repoOwner");
-	isNothingGuard(repoName, funcName, "repoName");
+	if (isNothing(repoOwner)) {
+		throw new Error("repoOwner parameter cannot be null, undefined, or empty.");
+	}
+	if (isNothing(repoName)) {
+		throw new Error("repoOwner parameter cannot be null, undefined, or empty.");
+	}
 
 	return `https://github.com/${repoOwner}/${repoName}/labels`;
 }
@@ -637,6 +588,24 @@ export function trimPathBothEnds(value: string) {
 
 	while (endsWithBackSlashRegex.test(value)) {
 		value = value.replace(endsWithBackSlashRegex, "");
+	}
+
+	return value;
+}
+
+/**
+ * Get the value of an environment variable after checking if it exists.
+ * @param name The name of the environment variable.
+ * @remarks This function will throw an error if the environment variable does not exist.
+ */
+export function getEnvVar(name: string, scriptFileName?: string, throwErrorIfMissing: boolean = true): string {
+	const value = (Deno.env.get(name) ?? "").trim();
+
+	if (isNothing(value) && throwErrorIfMissing) {
+		const fileName = isNothing(scriptFileName) ? "" : `\n\t${scriptFileName}`;
+		const errorMsg = `The '${name}' environment variable does not exist.${fileName}`;
+		printAsGitHubError(errorMsg);
+		Deno.exit(1);
 	}
 
 	return value;

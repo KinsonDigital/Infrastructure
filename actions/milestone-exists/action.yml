@@ -1,0 +1,48 @@
+name: "Milestone Exists"
+description: "Checks if a milestone exists."
+inputs:
+  owner-name:
+    description: "The owner of the repository where the milestone lives."
+    required: true
+  repo-name:
+    description: "The name of the repository where the milestone lives."
+    required: true
+  milestone-name:
+    description: "The name of the milestone to check."
+    required: true
+  github-token:
+    description: "The GitHub token to use."
+    required: true
+  deno-version:
+    description: "The version of Deno to use."
+    required: true
+  fail-if-does-not-exist:
+    description: "Fail if the milestone does not exist."
+    required: false
+    default: "false"
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Deno (${{ inputs.deno-version }})
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: ${{ inputs.deno-version }}
+        cache: true
+
+    - name: Run Script
+      id: run-script
+      shell: pwsh
+      env:
+        OWNER_NAME: "${{ inputs.owner-name }}"
+        REPO_NAME: "${{ inputs.repo-name }}"
+        MILESTONE_NAME: "${{ inputs.milestone-name }}"
+        FAIL_IF_DOES_NOT_EXIST: "${{ inputs.fail-if-does-not-exist }}"
+        GITHUB_TOKEN: "${{ inputs.github-token }}"
+      run: |
+        $scriptFilePath = "${{ github.action_path }}/milestone-exists.ts";
+
+        deno run -EN $scriptFilePath;
+outputs:
+  milestone-exists:
+    description: "Whether the milestone exists."
+    value: ${{ steps.run-script.outputs.milestone-exists }}

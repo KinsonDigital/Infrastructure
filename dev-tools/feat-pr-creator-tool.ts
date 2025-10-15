@@ -1,4 +1,4 @@
-import { delay } from "jsr:@std/async@1.0.14";
+import { delay } from "jsr:@std/async@1.0.15";
 import { existsSync, walkSync } from "jsr:@std/fs@1.0.19";
 import { Input } from "jsr:@cliffy/prompt@1.0.0-rc.8/input";
 import { Select } from "jsr:@cliffy/prompt@1.0.0-rc.8/select";
@@ -15,7 +15,7 @@ import {
 } from "../cicd/core/git.ts";
 import { printError, printStatusUpdate, printStep } from "./core/console-msgs.ts";
 
-const token = (Deno.env.get("EA_DEV_TOKEN") ?? "").trim();
+const token = (Deno.env.get("CICD_TOKEN") ?? "").trim();
 const prReviewer = "KinsonDigitalAdmin";
 
 if (token === undefined || token === null || token === "") {
@@ -213,15 +213,14 @@ try {
 	let prDescription = templateFound ? await Deno.readTextFile(prTemplateFilePath) : noTemplateFoundDescription;
 
 	// Replace issue number placeholder with actual issue number
-	prDescription = prDescription.replace("#${ISSUE_NUMBER}", `#${issue.number.toString()}`)
-		.replace("${ISSUE_NUMBER}", `#${issue.number.toString()}`);
+	prDescription = prDescription.replace("{ISSUE_NUMBER}", issue.number.toString());
 
 	// Create a pull request
 	const prClient = new PullRequestClient(repoOwnerName, repoName, token);
 
 	printStatusUpdate("Creating pull request");
 	const newPr = await prClient.createPullRequest(
-		issue.title ?? "WIP - Issue/pr sync system will set this",
+		issue.title ?? "WIP - Please update title",
 		featureBranch,
 		chosenBaseBranch,
 		prDescription,

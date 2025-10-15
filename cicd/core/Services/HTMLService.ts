@@ -1,5 +1,5 @@
-import { isNothing as isNothingGuard } from "../ParamGuards.ts";
-import { isNothing, printAsGitHubError } from "../Utils.ts";
+import { isNothing } from "../guards.ts";
+import { printAsGitHubError } from "../github.ts";
 
 /**
  * Provides HTML related services.
@@ -20,7 +20,10 @@ export class HTMLService {
 		isCentered?: boolean,
 		onSeparateLines?: boolean,
 	): string {
-		isNothingGuard(text, "createHeader", "text");
+		if (isNothing(text)) {
+			printAsGitHubError("The text parameter cannot be null, undefined, or empty.");
+			Deno.exit(1);
+		}
 
 		if (level < 1 || level > 6) {
 			printAsGitHubError(`The header level '${level}' is not valid. It must be between 1 and 6.`);
@@ -59,7 +62,10 @@ export class HTMLService {
 	 * @returns The HTML div.
 	 */
 	public createCenteredDiv(text: string, onSeparateLines?: boolean): string {
-		isNothingGuard(text, "createCenteredDiv", "text");
+		if (isNothing(text)) {
+			printAsGitHubError("The text parameter cannot be null, undefined, or empty.");
+			Deno.exit(1);
+		}
 
 		if (onSeparateLines) {
 			return `<div ${this.createCenteredAttr()}>\n${text}\n</div>`;

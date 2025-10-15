@@ -1,0 +1,39 @@
+name: "Close Milestone"
+description: "Closes a milestone for a GitHub repository"
+inputs:
+  repo-owner:
+    description: "The owner of the repository."
+    required: true
+  repo-name:
+    description: "The name of the repository."
+    required: true
+  milestone-title:
+    description: "The title of the milestone to close."
+    required: true
+  github-token:
+    description: "The GitHub token used to download the script for installation."
+    required: true
+  deno-version:
+    description: "The version of Deno to use."
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Deno (${{ inputs.deno-version }})
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: ${{ inputs.deno-version }}
+        cache: true
+
+    - name: Run Script
+      shell: pwsh
+      env:
+        REPO_OWNER: "${{ inputs.repo-owner }}"
+        REPO_NAME: "${{ inputs.repo-name }}"
+        MILESTONE_TITLE: "${{ inputs.milestone-title }}"
+        GITHUB_TOKEN: "${{ inputs.github-token }}"
+        DENO_AUTH_TOKENS: "${{ inputs.github-token }}@raw.githubusercontent.com"
+      run: |
+        $scriptFilePath = "${{ github.action_path }}/close-milestone.ts";
+
+        deno run -ERN $scriptFilePath;

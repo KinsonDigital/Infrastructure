@@ -1,0 +1,38 @@
+name: "Get Version"
+description: "Gets a version from a 'csproj' or 'json' file."
+inputs:
+  version-file-path:
+    description: "The path to the file containing the version value."
+    required: true
+  json-prop-path:
+    description: "The JSON property path to the version value. Uses dot notation for nested properties."
+    required: false
+  deno-version:
+    description: "The version of Deno to use."
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v5
+
+    - name: Setup Deno (${{ inputs.deno-version }})
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: ${{ inputs.deno-version }}
+        cache: true
+
+    - name: Run Script
+      id: run-script
+      shell: pwsh
+      env:
+        VERSION_FILE_PATH: "${{ inputs.version-file-path }}"
+        JSON_PROP_PATH: "${{ inputs.json-prop-path }}"
+      run: |
+        $scriptFilePath = "${{ github.action_path }}/get-version.ts";
+
+        deno run -ERW $scriptFilePath;
+outputs:
+  version:
+    description: "The extracted version."
+    value: ${{ steps.run-script.outputs.version }}

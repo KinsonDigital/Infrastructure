@@ -1,4 +1,5 @@
-import { isLessThanOne, isNothing } from "../ParamGuards.ts";
+import { printAsGitHubError } from "../github.ts";
+import { isLessThanOne, isNothing } from "../guards.ts";
 
 /**
  * Provides markdown related services.
@@ -11,9 +12,15 @@ export class MarkdownService {
 	 * @returns The markdown link.
 	 */
 	public createMarkdownLink(text: string, url: string): string {
-		const funcName = "createMarkdownLink";
-		isNothing(text, funcName, "text");
-		isNothing(url, funcName, "url");
+		if (isNothing(text)) {
+			printAsGitHubError("The text parameter cannot be null, undefined, or empty.");
+			Deno.exit(1);
+		}
+
+		if (isNothing(url)) {
+			printAsGitHubError("The url parameter cannot be null, undefined, or empty.");
+			Deno.exit(1);
+		}
 
 		return `[${text}](${url})`;
 	}
@@ -26,9 +33,15 @@ export class MarkdownService {
 	 * @returns The markdown header.
 	 */
 	public createHeader(text: string, level: number, isBold = false): string {
-		const funcName = "createHeader";
-		isNothing(text, funcName, "text");
-		isLessThanOne(level, funcName, "level");
+		if (isNothing(text)) {
+			printAsGitHubError("The text parameter cannot be null, undefined, or empty.");
+			Deno.exit(1);
+		}
+
+		if (isLessThanOne(level)) {
+			printAsGitHubError("The level parameter must be greater than zero.");
+			Deno.exit(1);
+		}
 
 		level = level < 1 ? 1 : level;
 		level = level > 6 ? 6 : level;
