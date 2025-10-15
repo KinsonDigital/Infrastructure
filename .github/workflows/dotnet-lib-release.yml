@@ -97,14 +97,14 @@ jobs:
     steps:
       - name: Get Version
         id: get-version
-        uses: KinsonDigital/Infrastructure/actions/get-version@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/get-version@v16.0.0
         with:
           version-file-path: "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj"
           deno-version: "${{ inputs.deno-version }}"
 
       - name: Validate Version
         id: validate-version
-        uses: KinsonDigital/Infrastructure/actions/validate-version@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/validate-version@v16.0.0
         with:
           version: "${{ steps.get-version.outputs.version}}"
           release-type: "${{ inputs.release-type }}"
@@ -127,7 +127,7 @@ jobs:
 
       - name: Validate Tag
         id: tag-check
-        uses: KinsonDigital/Infrastructure/actions/validate-tag@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/validate-tag@v16.0.0
         with:
           repo-owner: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
@@ -139,7 +139,7 @@ jobs:
 
       - name: Validate SDK Versions
         id: sdk-check
-        uses: KinsonDigital/Infrastructure/actions/validate-sdk-versions@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/validate-sdk-versions@v16.0.0
         with:
           base-search-dir-path: "${{ github.workspace }}"
           net-sdk-version: "${{ vars.NET_SDK_VERSION }}"
@@ -148,7 +148,7 @@ jobs:
 
       - name: Release Notes Exist
         id: release-notes-check
-        uses: KinsonDigital/Infrastructure/actions/release-notes-exist@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/release-notes-exist@v16.0.0
         with:
           release-notes-file-path: "${{ inputs.release-notes-file-path }}"
           deno-version: "${{ inputs.deno-version }}"
@@ -156,7 +156,7 @@ jobs:
         continue-on-error: true
         
       - name: Nuget Package Does Not Exist
-        uses: KinsonDigital/Infrastructure/actions/nuget-pkg-exists@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/nuget-pkg-exists@v16.0.0
         id: package-check
         with:
           nuget-pkg-name: "${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}"
@@ -166,7 +166,7 @@ jobs:
 
       - name: Milestone Exists
         id: milestone-exists
-        uses: KinsonDigital/Infrastructure/actions/milestone-exists@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/milestone-exists@v16.0.0
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
@@ -177,7 +177,7 @@ jobs:
 
       - name: Validate Milestone Items
         id: milestone-items-check
-        uses: KinsonDigital/Infrastructure/actions/milestone-items-closed@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/milestone-items-closed@v16.0.0
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
@@ -189,7 +189,7 @@ jobs:
 
       - name: GitHub Release Exists
         id: github-release-check
-        uses: KinsonDigital/Infrastructure/actions/github-release-exists@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/github-release-exists@v16.0.0
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
@@ -288,13 +288,13 @@ jobs:
 
       - name: Transpile README
         if: inputs.transpile-readme == true
-        uses: KinsonDigital/Infrastructure/actions/transpile-readme@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/transpile-readme@v16.0.0
         with:
           base-dir-path: "${{ github.workspace }}"
           deno-version: "${{ inputs.deno-version }}"
 
       - name: Update Copyright
-        uses: KinsonDigital/Infrastructure/actions/update-copyright@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/update-copyright@v16.0.0
         with:
           cs-proj-file-name: "${{ inputs.project-name }}.csproj"
           deno-version: "${{ inputs.deno-version }}"
@@ -322,7 +322,7 @@ jobs:
 
       - name: Send X Release Announcement
         if: inputs.dry-run == false && inputs.send-x-release-post == true
-        uses: KinsonDigital/Infrastructure/actions/send-x-release-announcement@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/send-x-release-announcement@v16.0.0
         with:
           repo-owner: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
@@ -353,7 +353,7 @@ jobs:
 
       - name: Close Milestone
         if: inputs.dry-run == false
-        uses: KinsonDigital/Infrastructure/actions/close-milestone@feature/269-create-custom-actions
+        uses: KinsonDigital/Infrastructure/actions/close-milestone@v16.0.0
         with:
           repo-owner: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
