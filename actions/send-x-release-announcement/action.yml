@@ -4,27 +4,41 @@ inputs:
   repo-owner:
     description: "The owner of the repository."
     required: true
-  repo-name:
-    description: "The name of the repository."
-    required: true
   version:
     description: "The version of the release."
     required: true
+  website-url:
+    description: "The URL of a website to include in the post."
+    required: false
   github-token:
     description: "The GitHub token used to download the script for installation."
     required: true
-  release-x-post-template-repo-name:
-    description: "The name of the repository containing the release X post template."
-    required: true
-  release-x-post-template-branch-name:
-    description: "The branch name of the repository containing the release X post template."
-    required: true
-  relative-release-x-post-template-file-path:
-    description: "The relative file path to the release X post template within the repository."
-    required: true
+  post-template-repo-name:
+    description: "The name of the repository containing the release X post template.
+      This input requires the use of the 'post-template-branch-name' and 'post-template-repo-relative-file-path' inputs.
+      Using the 'local-post-template-file-path' input takes precedence over this input."
+    required: false
+  post-template-branch-name:
+    description: |
+      "The branch name of the repository containing the release X post template.
+      This input requires the use of the 'post-template-repo-name' and 'post-template-repo-relative-file-path' inputs.
+      Using the 'local-post-template-file-path' input takes precedence over this input."
+    required: false
+  post-template-repo-relative-file-path:
+    description: |
+      "The relative file path to the release X post template within the repository set by
+      the 'post-template-repo-name' and 'post-template-branch-name' inputs. This input
+      requires the use of the 'post-template-repo-name' and 'post-template-branch-name' inputs.
+      Using the 'local-post-template-file-path' input takes precedence over this input."
+    required: false
+  local-post-template-file-path:
+    description: |
+      "The file path to the release X post template within the repository.
+      This input takes precedence over the 'post-template-repo-name', 'post-template-branch-name', and 'post-template-repo-relative-file-path' inputs."
+    required: false
   discord-invite-code:
     description: "The Discord invite code to include in the post."
-    required: true
+    required: false
   x-broadcast-enabled:
     description: "Whether to broadcast the post on X."
     required: true
@@ -57,12 +71,13 @@ runs:
       env:
         GITHUB_TOKEN: "${{ inputs.github-token }}"
         DENO_AUTH_TOKENS: "${{ inputs.github-token }}@raw.githubusercontent.com"
-        REPO_OWNER: "${{ inputs.repo-owner }}"
-        REPO_NAME: "${{ inputs.repo-name }}"
+        OWNER_NAME: "${{ inputs.repo-owner }}"
         VERSION: "${{ inputs.version }}"
-        RELEASE_X_POST_TEMPLATE_REPO_NAME: "${{ inputs.release-x-post-template-repo-name }}"
-        RELEASE_X_POST_TEMPLATE_BRANCH_NAME: "${{ inputs.release-x-post-template-branch-name }}"
-        RELATIVE_RELEASE_X_POST_TEMPLATE_FILE_PATH: "${{ inputs.relative-release-x-post-template-file-path }}"
+        WEBSITE_URL: "${{ inputs.website-url }}"
+        POST_TEMPLATE_REPO_NAME: "${{ inputs.post-template-repo-name }}"
+        POST_TEMPLATE_BRANCH_NAME: "${{ inputs.post-template-branch-name }}"
+        POST_TEMPLATE_REPO_RELATIVE_FILE_PATH: "${{ inputs.post-template-repo-relative-file-path }}"
+        LOCAL_POST_TEMPLATE_FILE_PATH: "${{ inputs.local-post-template-file-path }}"
         DISCORD_INVITE_CODE: "${{ inputs.discord-invite-code }}"
         X_BROADCAST_ENABLED: "${{ inputs.x-broadcast-enabled }}"
         X_ACCESS_TOKEN_KEY: "${{ inputs.x-access-token-key }}"
