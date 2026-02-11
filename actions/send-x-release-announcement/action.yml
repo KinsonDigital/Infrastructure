@@ -31,6 +31,11 @@ inputs:
       requires the use of the 'post-template-repo-name' and 'post-template-branch-name' inputs.
       Using the 'local-post-template-file-path' input takes precedence over this input."
     required: false
+  local-post-template-file-path:
+    description: |
+      "The file path to the release X post template within the repository.
+      This input takes precedence over the 'post-template-repo-name', 'post-template-branch-name', and 'post-template-repo-relative-file-path' inputs."
+    required: false
   discord-invite-code:
     description: "The Discord invite code to include in the post."
     required: true
@@ -72,6 +77,7 @@ runs:
         POST_TEMPLATE_REPO_NAME: "${{ inputs.post-template-repo-name }}"
         POST_TEMPLATE_BRANCH_NAME: "${{ inputs.post-template-branch-name }}"
         POST_TEMPLATE_REPO_RELATIVE_FILE_PATH: "${{ inputs.post-template-repo-relative-file-path }}"
+        LOCAL_POST_TEMPLATE_FILE_PATH: "${{ inputs.local-post-template-file-path }}"
         DISCORD_INVITE_CODE: "${{ inputs.discord-invite-code }}"
         X_BROADCAST_ENABLED: "${{ inputs.x-broadcast-enabled }}"
         X_ACCESS_TOKEN_KEY: "${{ inputs.x-access-token-key }}"
