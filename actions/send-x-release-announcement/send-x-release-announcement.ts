@@ -2,7 +2,6 @@ import { XClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/social";
 import { RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
 import { getEnvVar, isNotValidPreviewVersion, isNotValidProdVersion } from "../../cicd/core/Utils.ts";
 import { isNothing } from "../../cicd/core/guards.ts";
-import { GitHubVariableService } from "../../cicd/core/Services/GitHubVariableService.ts";
 import { validateOrgExists, validateRepoExists } from "../../cicd/core/Validators.ts";
 import { printAsGitHubError, printAsGitHubNotice } from "../../cicd/core/github.ts";
 
@@ -32,7 +31,6 @@ export interface XAuthValues {
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
 const ownerName = getEnvVar("OWNER_NAME", scriptFileName);
-const repoName = getEnvVar("REPO_NAME", scriptFileName);
 let version = getEnvVar("VERSION", scriptFileName).toLowerCase();
 const websiteUrl = (Deno.env.get("WEBSITE_URL") || "").trim(); // Optional
 const consumerAPIKey = getEnvVar("X_CONSUMER_API_KEY", scriptFileName);
@@ -50,7 +48,7 @@ const token = getEnvVar("GITHUB_TOKEN", scriptFileName);
 version = version.startsWith("v") ? version : `v${version}`;
 
 await validateOrgExists(ownerName, token);
-await validateRepoExists(ownerName, repoName, token);
+await validateRepoExists(ownerName, templateRepoName, token);
 
 if (isNotValidPreviewVersion(version) && isNotValidProdVersion(version)) {
 	let errorMsg = `The version '${version}' is not a valid preview or production version.`;
@@ -58,9 +56,6 @@ if (isNotValidPreviewVersion(version) && isNotValidProdVersion(version)) {
 	printAsGitHubError(errorMsg);
 	Deno.exit(1);
 }
-
-const githubVarService = new GitHubVariableService(ownerName, repoName, token);
-githubVarService.setOrgAndRepo(ownerName, repoName);
 
 if (isNothing(xBroadcastEnabled) || xBroadcastEnabled === "false") {
 	const noticeMsg = `No X post broadcast will be performed.` +
@@ -89,7 +84,7 @@ if (templateDoesNotExist) {
 
 const templateFileData: string = await repoClient.getFileContent(templateBranchName, relativeTemplateFilePath);
 
-let post = templateFileData.replaceAll(`{PROJECT_NAME}`, repoName);
+let post = templateFileData.replaceAll(`{PROJECT_NAME}`, templateRepoName);
 post = post.replaceAll(`{VERSION}`, version);
 post = post.replaceAll("{WEBSITE_URL}", websiteUrl);
 post = post.replaceAll(`{NUGET_VERSION_VAR}`, nugetVersion);
@@ -99,4 +94,4 @@ post = post.replaceAll(`{DISCORD_INVITE_CODE_VAR}`, discordInviteCode);
 const xClient: XClient = new XClient(authValues);
 await xClient.tweet(post);
 
-printAsGitHubNotice(`A release X post was successfully broadcasted for the '${repoName}' project for version '${version}'.`);
+printAsGitHubNotice(`A release X post was successfully broadcasted for the '${templateRepoName}' project for version '${version}'.`);

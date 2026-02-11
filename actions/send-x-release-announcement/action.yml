@@ -4,9 +4,6 @@ inputs:
   repo-owner:
     description: "The owner of the repository."
     required: true
-  repo-name:
-    description: "The name of the repository."
-    required: true
   version:
     description: "The version of the release."
     required: true
@@ -61,7 +58,6 @@ runs:
         GITHUB_TOKEN: "${{ inputs.github-token }}"
         DENO_AUTH_TOKENS: "${{ inputs.github-token }}@raw.githubusercontent.com"
         REPO_OWNER: "${{ inputs.repo-owner }}"
-        REPO_NAME: "${{ inputs.repo-name }}"
         VERSION: "${{ inputs.version }}"
         WEBSITE_URL: "${{ inputs.website-url }}"
         RELEASE_X_POST_TEMPLATE_REPO_NAME: "${{ inputs.release-x-post-template-repo-name }}"
