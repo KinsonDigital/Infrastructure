@@ -158,7 +158,7 @@ const featureBranch = await Input.prompt({
 
 const chosenBaseBranch = await Select.prompt({
 	message: "Choose the pull request base branch:",
-	options: ["develop", "main"],
+	options: ["main", "develop"],
 });
 
 // If the chosen branch exists
