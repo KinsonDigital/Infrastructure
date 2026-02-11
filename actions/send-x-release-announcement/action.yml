@@ -38,7 +38,7 @@ inputs:
     required: false
   discord-invite-code:
     description: "The Discord invite code to include in the post."
-    required: true
+    required: false
   x-broadcast-enabled:
     description: "Whether to broadcast the post on X."
     required: true

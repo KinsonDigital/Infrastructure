@@ -44,7 +44,7 @@ const templateRepoName = (Deno.env.get("POST_TEMPLATE_REPO_NAME") ?? "").trim();
 const templateBranchName = (Deno.env.get("POST_TEMPLATE_BRANCH_NAME") ?? "").trim(); // Optional
 const relativeTemplateFilePath = (Deno.env.get("POST_TEMPLATE_REPO_RELATIVE_FILE_PATH") ?? "").trim(); // Optional
 const localPostTemplateFilePath = (Deno.env.get("LOCAL_POST_TEMPLATE_FILE_PATH") ?? "").trim(); // Optional
-const discordInviteCode = getEnvVar("DISCORD_INVITE_CODE", scriptFileName);
+const discordInviteCode = (Deno.env.get("DISCORD_INVITE_CODE") ?? "").trim(); // Optional
 const token = getEnvVar("GITHUB_TOKEN", scriptFileName);
 
 version = version.startsWith("v") ? version : `v${version}`;
