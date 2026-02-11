@@ -18,9 +18,12 @@ inputs:
       This input requires the use of the 'post-template-branch-name' and 'post-template-repo-relative-file-path' inputs.
       Using the 'local-post-template-file-path' input takes precedence over this input."
     required: false
-  release-x-post-template-branch-name:
-    description: "The branch name of the repository containing the release X post template."
-    required: true
+  post-template-branch-name:
+    description: |
+      "The branch name of the repository containing the release X post template.
+      This input requires the use of the 'post-template-repo-name' and 'post-template-repo-relative-file-path' inputs.
+      Using the 'local-post-template-file-path' input takes precedence over this input."
+    required: false
   relative-release-x-post-template-file-path:
     description: "The relative file path to the release X post template within the repository."
     required: true
@@ -63,7 +66,7 @@ runs:
         VERSION: "${{ inputs.version }}"
         WEBSITE_URL: "${{ inputs.website-url }}"
         POST_TEMPLATE_REPO_NAME: "${{ inputs.post-template-repo-name }}"
-        RELEASE_X_POST_TEMPLATE_BRANCH_NAME: "${{ inputs.release-x-post-template-branch-name }}"
+        POST_TEMPLATE_BRANCH_NAME: "${{ inputs.post-template-branch-name }}"
         RELATIVE_RELEASE_X_POST_TEMPLATE_FILE_PATH: "${{ inputs.relative-release-x-post-template-file-path }}"
         DISCORD_INVITE_CODE: "${{ inputs.discord-invite-code }}"
         X_BROADCAST_ENABLED: "${{ inputs.x-broadcast-enabled }}"
