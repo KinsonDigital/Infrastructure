@@ -38,8 +38,7 @@ const consumerAPIKey = getEnvVar("X_CONSUMER_API_KEY", scriptFileName);
 const consumerAPISecret = getEnvVar("X_CONSUMER_API_SECRET", scriptFileName);
 const accessTokenKey = getEnvVar("X_ACCESS_TOKEN_KEY", scriptFileName);
 const accessTokenSecret = getEnvVar("X_ACCESS_TOKEN_SECRET", scriptFileName);
-const X_BROADCAST_ENABLED = "X_BROADCAST_ENABLED";
-const xBroadcastEnabled = getEnvVar(X_BROADCAST_ENABLED, scriptFileName, false).toLowerCase();
+const xBroadcastEnabled = getEnvVar("X_BROADCAST_ENABLED", scriptFileName, false).toLowerCase();
 const templateRepoName = (Deno.env.get("POST_TEMPLATE_REPO_NAME") ?? "").trim(); // Optional
 const templateBranchName = (Deno.env.get("POST_TEMPLATE_BRANCH_NAME") ?? "").trim(); // Optional
 const relativeTemplateFilePath = (Deno.env.get("POST_TEMPLATE_REPO_RELATIVE_FILE_PATH") ?? "").trim(); // Optional
@@ -80,7 +79,7 @@ if (isNotValidPreviewVersion(version) && isNotValidProdVersion(version)) {
 
 if (isNothing(xBroadcastEnabled) || xBroadcastEnabled === "false") {
 	const noticeMsg = `No X post broadcast will be performed.` +
-		`\nTo enable X post broadcasting, set the '${X_BROADCAST_ENABLED}' variable to 'true'.` +
+		`\nTo enable X post broadcasting, set the 'X_BROADCAST_ENABLED' variable to 'true'.` +
 		"\nIf the variable is missing, empty, or set to 'false', no X post broadcast will be performed.";
 	printAsGitHubNotice(noticeMsg);
 	Deno.exit(0);
@@ -122,6 +121,11 @@ if (getTemplateFromRemoteRepo) {
 		"('post-template-repo-name', 'post-template-branch-name', 'post-template-repo-relative-file-path') input values." +
 		"\nThe input 'local-post-template-file-path' input takes precedence over the repository template inputs.";
 	printAsGitHubError(errorMsg);
+	Deno.exit(1);
+}
+
+if (isNothing(templateFileData)) {
+	printAsGitHubError("The release announcement post template file is empty.");
 	Deno.exit(1);
 }
 

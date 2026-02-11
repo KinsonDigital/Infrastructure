@@ -71,7 +71,7 @@ runs:
       env:
         GITHUB_TOKEN: "${{ inputs.github-token }}"
         DENO_AUTH_TOKENS: "${{ inputs.github-token }}@raw.githubusercontent.com"
-        REPO_OWNER: "${{ inputs.repo-owner }}"
+        OWNER_NAME: "${{ inputs.repo-owner }}"
         VERSION: "${{ inputs.version }}"
         WEBSITE_URL: "${{ inputs.website-url }}"
         POST_TEMPLATE_REPO_NAME: "${{ inputs.post-template-repo-name }}"
