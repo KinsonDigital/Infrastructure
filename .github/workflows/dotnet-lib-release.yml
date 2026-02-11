@@ -317,7 +317,7 @@ jobs:
           bodyFile: "${{ github.workspace }}/ReleaseNotes/${{ inputs.release-type }}Releases/Release-Notes-${{ needs.get_and_validate_version.outputs.version }}.md"
           artifacts: "${{ github.workspace }}/ReleaseNotes/${{ inputs.release-type }}Releases/Release-Notes-${{ needs.get_and_validate_version.outputs.version }}.md"
           prerelease: ${{ inputs.release-type }} == 'Preview'
-          token: ${{ secrets.CICD_TOKEN }}
+          token: ${{ secrets.cicd-pat }}
 
       - name: Close Milestone ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: inputs.dry-run == false
