@@ -41,7 +41,7 @@ const X_BROADCAST_ENABLED = "X_BROADCAST_ENABLED";
 const xBroadcastEnabled = getEnvVar(X_BROADCAST_ENABLED, scriptFileName, false).toLowerCase();
 const templateRepoName = (Deno.env.get("POST_TEMPLATE_REPO_NAME") ?? "").trim();
 const templateBranchName = (Deno.env.get("POST_TEMPLATE_BRANCH_NAME") ?? "").trim();
-const relativeTemplateFilePath = getEnvVar("RELATIVE_RELEASE_X_POST_TEMPLATE_FILE_PATH", scriptFileName);
+const relativeTemplateFilePath = (Deno.env.get("POST_TEMPLATE_REPO_RELATIVE_FILE_PATH") ?? "").trim();
 const discordInviteCode = getEnvVar("DISCORD_INVITE_CODE", scriptFileName);
 const token = getEnvVar("GITHUB_TOKEN", scriptFileName);
 
