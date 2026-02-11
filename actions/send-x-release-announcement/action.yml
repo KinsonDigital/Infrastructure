@@ -10,6 +10,9 @@ inputs:
   version:
     description: "The version of the release."
     required: true
+  website-url:
+    description: "The URL of a website to include in the post."
+    required: false
   github-token:
     description: "The GitHub token used to download the script for installation."
     required: true
@@ -60,6 +63,7 @@ runs:
         REPO_OWNER: "${{ inputs.repo-owner }}"
         REPO_NAME: "${{ inputs.repo-name }}"
         VERSION: "${{ inputs.version }}"
+        WEBSITE_URL: "${{ inputs.website-url }}"
         RELEASE_X_POST_TEMPLATE_REPO_NAME: "${{ inputs.release-x-post-template-repo-name }}"
         RELEASE_X_POST_TEMPLATE_BRANCH_NAME: "${{ inputs.release-x-post-template-branch-name }}"
         RELATIVE_RELEASE_X_POST_TEMPLATE_FILE_PATH: "${{ inputs.relative-release-x-post-template-file-path }}"

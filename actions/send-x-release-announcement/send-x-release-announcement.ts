@@ -34,6 +34,7 @@ const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 const ownerName = getEnvVar("OWNER_NAME", scriptFileName);
 const repoName = getEnvVar("REPO_NAME", scriptFileName);
 let version = getEnvVar("VERSION", scriptFileName).toLowerCase();
+const websiteUrl = (Deno.env.get("WEBSITE_URL") || "").trim(); // Optional
 const consumerAPIKey = getEnvVar("X_CONSUMER_API_KEY", scriptFileName);
 const consumerAPISecret = getEnvVar("X_CONSUMER_API_SECRET", scriptFileName);
 const accessTokenKey = getEnvVar("X_ACCESS_TOKEN_KEY", scriptFileName);
@@ -89,10 +90,11 @@ if (templateDoesNotExist) {
 const templateFileData: string = await repoClient.getFileContent(templateBranchName, relativeTemplateFilePath);
 
 let post = templateFileData.replaceAll(`{PROJECT_NAME}`, repoName);
-post = post.replaceAll(`{$VERSION}`, version);
-post = post.replaceAll(`{$NUGET_VERSION_VAR}`, nugetVersion);
-post = post.replaceAll(`{$REPO_OWNER_VAR}`, ownerName);
-post = post.replaceAll(`{$DISCORD_INVITE_CODE_VAR}`, discordInviteCode);
+post = post.replaceAll(`{VERSION}`, version);
+post = post.replaceAll("{WEBSITE_URL}", websiteUrl);
+post = post.replaceAll(`{NUGET_VERSION_VAR}`, nugetVersion);
+post = post.replaceAll(`{REPO_OWNER_VAR}`, ownerName);
+post = post.replaceAll(`{DISCORD_INVITE_CODE_VAR}`, discordInviteCode);
 
 const xClient: XClient = new XClient(authValues);
 await xClient.tweet(post);
