@@ -13,9 +13,11 @@ inputs:
   github-token:
     description: "The GitHub token used to download the script for installation."
     required: true
-  release-x-post-template-repo-name:
-    description: "The name of the repository containing the release X post template."
-    required: true
+  post-template-repo-name:
+    description: "The name of the repository containing the release X post template.
+      This input requires the use of the 'post-template-branch-name' and 'post-template-repo-relative-file-path' inputs.
+      Using the 'local-post-template-file-path' input takes precedence over this input."
+    required: false
   release-x-post-template-branch-name:
     description: "The branch name of the repository containing the release X post template."
     required: true
@@ -60,7 +62,7 @@ runs:
         REPO_OWNER: "${{ inputs.repo-owner }}"
         VERSION: "${{ inputs.version }}"
         WEBSITE_URL: "${{ inputs.website-url }}"
-        RELEASE_X_POST_TEMPLATE_REPO_NAME: "${{ inputs.release-x-post-template-repo-name }}"
+        POST_TEMPLATE_REPO_NAME: "${{ inputs.post-template-repo-name }}"
         RELEASE_X_POST_TEMPLATE_BRANCH_NAME: "${{ inputs.release-x-post-template-branch-name }}"
         RELATIVE_RELEASE_X_POST_TEMPLATE_FILE_PATH: "${{ inputs.relative-release-x-post-template-file-path }}"
         DISCORD_INVITE_CODE: "${{ inputs.discord-invite-code }}"
