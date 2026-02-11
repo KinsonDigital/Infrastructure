@@ -52,11 +52,6 @@ on:
         description: If true, transpiles the README.md file HTML to markdown.
         default: false
         type: boolean
-      send-x-release-post:
-        required: false
-        description: If true, sends a post about the release to X.
-        default: false
-        type: boolean
       dry-run:
         required: false
         description: If true, the release will not be created.
@@ -69,18 +64,6 @@ on:
       nuget-org-api-key:
         required: true
         description: The NuGet.org API key.
-      x-consumer-api-key:
-        required: false
-        description: The X consumer API key.
-      x-consumer-api-secret:
-        required: false
-        description: The X consumer API secret.
-      x-access-token-key:
-        required: false
-        description: The X access token key.
-      x-access-token-secret:
-        required: false
-        description: The X access token secret.
 
 
 env:
@@ -322,25 +305,6 @@ jobs:
             "${{ github.workspace }}/${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}.$version.nupkg" `
             --api-key ${{ secrets.nuget-org-api-key }} `
             --source https://api.nuget.org/v3/index.json;
-
-      - name: Send X Release Announcement ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
-        if: inputs.dry-run == false && inputs.send-x-release-post == true
-        uses: KinsonDigital/Infrastructure/actions/send-x-release-announcement@v16.0.0
-        with:
-          repo-owner: "${{ vars.ORGANIZATION_NAME }}"
-          repo-name: "${{ inputs.project-name }}"
-          version: "${{ needs.get_and_validate_version.outputs.version }}"
-          github-token: "${{ secrets.cicd-pat }}"
-          release-x-post-template-repo-name: "${{ vars.RELEASE_X_POST_TEMPLATE_REPO_NAME }}"
-          release-x-post-template-branch-name: "${{ vars.RELEASE_X_POST_TEMPLATE_BRANCH_NAME }}"
-          relative-release-x-post-template-file-path: "${{ vars.RELATIVE_RELEASE_X_POST_TEMPLATE_FILE_PATH }}"
-          discord-invite-code: "${{ vars.DISCORD_INVITE_CODE }}"
-          x-broadcast-enabled: "${{ vars.X_BROADCAST_ENABLED }}"
-          x-access-token-key: "${{ secrets.x-access-token-key }}"
-          x-access-token-secret: "${{ secrets.x-access-token-secret }}"
-          x-consumer-api-key: "${{ secrets.x-consumer-api-key }}"
-          x-consumer-api-secret: "${{ secrets.x-consumer-api-secret }}"
-          deno-version: "${{ inputs.deno-version }}"
 
       - name: Create GitHub Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: inputs.dry-run == false
