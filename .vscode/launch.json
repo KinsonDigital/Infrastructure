@@ -209,25 +209,26 @@
 				"runtimeExecutable": "${userHome}/.deno/bin/deno"
 			}
 		},
-		{ // SEND RELEASE POST
-			"name": "Send Release Post",
+		{ // SEND X RELEASE ANNOUNCEMENT
+			"name": "Send X Release Announcement",
 			"request": "launch",
 			"type": "node",
-			"program": "${workspaceFolder}/cicd/scripts/send-release-x-post.ts",
-			"cwd": "${workspaceFolder}/cicd/scripts",
+			"program": "${workspaceFolder}/actions/send-x-release-announcement/send-x-release-announcement.ts",
+			"cwd": "${workspaceFolder}",
 			"runtimeArgs": [
 				"run",
 				"-ERN",
 				"--inspect-wait",
 			],
 			"env": {
-				"OWNER_NAME": "KinsonDigital",
-				"REPO_NAME": "Infrastructure",
-				"VERSION": "v1.0.0-preview.15",
 				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
-				"RELEASE_X_POST_TEMPLATE_REPO_NAME": "Infrastructure",
-				"RELEASE_X_POST_TEMPLATE_BRANCH_NAME": "main",
-				"RELATIVE_RELEASE_X_POST_TEMPLATE_FILE_PATH": "cicd/templates/release-x-post-template.txt",
+				"OWNER_NAME": "KinsonDigital",
+				"VERSION": "v1.0.0-preview.15",
+				"WEBSITE_URL": "https://docs.velaptor.io",
+				"POST_TEMPLATE_REPO_NAME": "Infrastructure",
+				"POST_TEMPLATE_BRANCH_NAME": "feature/276-send-x-post-improvements",
+				"POST_TEMPLATE_REPO_RELATIVE_FILE_PATH": "actions/send-x-release-announcement/remote-test-template.txt",
+				"LOCAL_POST_TEMPLATE_FILE_PATH": "",
 				"DISCORD_INVITE_CODE": "qewu6fNgv7",
 				"X_BROADCAST_ENABLED": "true",
 				"X_ACCESS_TOKEN_KEY": "${env:X_ACCESS_TOKEN_KEY}",
