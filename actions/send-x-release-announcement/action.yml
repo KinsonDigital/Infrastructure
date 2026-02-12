@@ -4,6 +4,9 @@ inputs:
   repo-owner:
     description: "The owner of the repository."
     required: true
+  project-name:
+    description: "The name of the project."
+    required: false
   version:
     description: "The version of the release."
     required: true
@@ -14,45 +17,44 @@ inputs:
     description: "The GitHub token used to download the script for installation."
     required: true
   post-template-repo-name:
-    description: "The name of the repository containing the release X post template.
+    description: |
+      The name of the repository containing the release X post template.
       This input requires the use of the 'post-template-branch-name' and 'post-template-repo-relative-file-path' inputs.
-      Using the 'local-post-template-file-path' input takes precedence over this input."
+      Using the 'local-post-template-file-path' input takes precedence over this input.
     required: false
   post-template-branch-name:
     description: |
-      "The branch name of the repository containing the release X post template.
+      The branch name of the repository containing the release X post template.
       This input requires the use of the 'post-template-repo-name' and 'post-template-repo-relative-file-path' inputs.
-      Using the 'local-post-template-file-path' input takes precedence over this input."
+      Using the 'local-post-template-file-path' input takes precedence over this input.
     required: false
   post-template-repo-relative-file-path:
     description: |
-      "The relative file path to the release X post template within the repository set by
+      The relative file path to the release X post template within the repository set by
       the 'post-template-repo-name' and 'post-template-branch-name' inputs. This input
       requires the use of the 'post-template-repo-name' and 'post-template-branch-name' inputs.
-      Using the 'local-post-template-file-path' input takes precedence over this input."
+      Using the 'local-post-template-file-path' input takes precedence over this input.
     required: false
   local-post-template-file-path:
     description: |
-      "The file path to the release X post template within the repository.
-      This input takes precedence over the 'post-template-repo-name', 'post-template-branch-name', and 'post-template-repo-relative-file-path' inputs."
+      The file path to the release X post template within the checked-out repository, relative to the GitHub Actions workspace.
+      The caller must check out the repository (for example, using 'actions/checkout') before using this input.
+      This input takes precedence over the 'post-template-repo-name', 'post-template-branch-name', and 'post-template-repo-relative-file-path' inputs.
     required: false
   discord-invite-code:
     description: "The Discord invite code to include in the post."
     required: false
-  x-broadcast-enabled:
-    description: "Whether to broadcast the post on X."
+  access-token-key:
+    description: "The access token key."
     required: true
-  x-access-token-key:
-    description: "The X access token key."
+  access-token-secret:
+    description: "The access token secret."
     required: true
-  x-access-token-secret:
-    description: "The X access token secret."
+  consumer-api-key:
+    description: "The consumer API key."
     required: true
-  x-consumer-api-key:
-    description: "The X consumer API key."
-    required: true
-  x-consumer-api-secret:
-    description: "The X consumer API secret."
+  consumer-api-secret:
+    description: "The consumer API secret."
     required: true
   deno-version:
     description: "The version of Deno to use."
@@ -72,6 +74,7 @@ runs:
         GITHUB_TOKEN: "${{ inputs.github-token }}"
         DENO_AUTH_TOKENS: "${{ inputs.github-token }}@raw.githubusercontent.com"
         OWNER_NAME: "${{ inputs.repo-owner }}"
+        PROJECT_NAME: "${{ inputs.project-name }}"
         VERSION: "${{ inputs.version }}"
         WEBSITE_URL: "${{ inputs.website-url }}"
         POST_TEMPLATE_REPO_NAME: "${{ inputs.post-template-repo-name }}"
@@ -79,12 +82,12 @@ runs:
         POST_TEMPLATE_REPO_RELATIVE_FILE_PATH: "${{ inputs.post-template-repo-relative-file-path }}"
         LOCAL_POST_TEMPLATE_FILE_PATH: "${{ inputs.local-post-template-file-path }}"
         DISCORD_INVITE_CODE: "${{ inputs.discord-invite-code }}"
-        X_BROADCAST_ENABLED: "${{ inputs.x-broadcast-enabled }}"
-        X_ACCESS_TOKEN_KEY: "${{ inputs.x-access-token-key }}"
-        X_ACCESS_TOKEN_SECRET: "${{ inputs.x-access-token-secret }}"
-        X_CONSUMER_API_KEY: "${{ inputs.x-consumer-api-key }}"
-        X_CONSUMER_API_SECRET: "${{ inputs.x-consumer-api-secret }}"
+        ENABLED: "${{ inputs.enabled }}"
+        ACCESS_TOKEN_KEY: "${{ inputs.access-token-key }}"
+        ACCESS_TOKEN_SECRET: "${{ inputs.access-token-secret }}"
+        CONSUMER_API_KEY: "${{ inputs.consumer-api-key }}"
+        CONSUMER_API_SECRET: "${{ inputs.consumer-api-secret }}"
       run: |
         $scriptFilePath = "${{ github.action_path }}/send-x-release-announcement.ts";
 
-        deno run -EN $scriptFilePath;
+        deno run -ERN $scriptFilePath;
