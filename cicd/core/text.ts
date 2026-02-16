@@ -3,7 +3,7 @@
  * @param text The text that contains the substring for which to calculate byte positions.
  * @param substring The substring for which to calculate byte positions within the text.
  * @param occurrence The occurrence of the substring.
- * @returns
+ * @returns An object containing the byteStart and byteEnd positions of the specified occurrence of the substring, or null if the substring occurrence is not found.
  */
 export function getBytePosition(
 	text: string,

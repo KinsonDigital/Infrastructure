@@ -266,7 +266,7 @@
 				// "POST_TEMPLATE_BRANCH_NAME": "feature/277-bluesky-post-action",
 				// "POST_TEMPLATE_REPO_RELATIVE_FILE_PATH": "actions/bluesky-release-announcement/local-test-template.txt",
 				// "LOCAL_POST_TEMPLATE_FILE_PATH": "./actions/bluesky-release-announcement/local-test-template.txt",
-				"LOCAL_POST_TEMPLATE_FILE_PATH": "./cicd/templates/release-x-post-template.txt",
+				"LOCAL_POST_TEMPLATE_FILE_PATH": "./actions/bluesky-release-announcement/local-test-template.txt",
 				"DISCORD_INVITE_CODE": "qewu6fNgv7",
 				"SERVICE": "https://kdcoder.bsky.social",
 				"IDENTIFIER": "${env:BLUE_SKY_IDENTIFIER}",

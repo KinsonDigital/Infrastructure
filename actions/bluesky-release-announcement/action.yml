@@ -18,26 +18,26 @@ inputs:
     required: true
   post-template-repo-name:
     description: |
-      The name of the repository containing the release X post template.
+      The name of the repository containing the release Bluesky post template.
       This input requires the use of the 'post-template-branch-name' and 'post-template-repo-relative-file-path' inputs.
       Using the 'local-post-template-file-path' input takes precedence over this input.
     required: false
   post-template-branch-name:
     description: |
-      The branch name of the repository containing the release X post template.
+      The branch name of the repository containing the release Bluesky post template.
       This input requires the use of the 'post-template-repo-name' and 'post-template-repo-relative-file-path' inputs.
       Using the 'local-post-template-file-path' input takes precedence over this input.
     required: false
   post-template-repo-relative-file-path:
     description: |
-      The relative file path to the release X post template within the repository set by
+      The relative file path to the release Bluesky post template within the repository set by
       the 'post-template-repo-name' and 'post-template-branch-name' inputs. This input
       requires the use of the 'post-template-repo-name' and 'post-template-branch-name' inputs.
       Using the 'local-post-template-file-path' input takes precedence over this input.
     required: false
   local-post-template-file-path:
     description: |
-      The file path to the release X post template within the checked-out repository, relative to the GitHub Actions workspace.
+      The file path to the release Bluesky post template within the checked-out repository, relative to the GitHub Actions workspace.
       The caller must check out the repository (for example, using 'actions/checkout') before using this input.
       This input takes precedence over the 'post-template-repo-name', 'post-template-branch-name', and 'post-template-repo-relative-file-path' inputs.
     required: false
@@ -45,7 +45,7 @@ inputs:
     description: "The Discord invite code to include in the post."
     required: false
   broadcast-enabled:
-    description: "Whether to broadcast the post on X."
+    description: "Whether to broadcast the post on Bluesky."
     required: false
     default: "true"
   service:
@@ -87,6 +87,6 @@ runs:
         IDENTIFIER: "${{ inputs.identifier }}"
         PASSWORD: "${{ inputs.password }}"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/send-x-release-announcement.ts";
+        $scriptFilePath = "${{ github.action_path }}/bluesky-release-announcement.ts";
 
         deno run -ERN $scriptFilePath;

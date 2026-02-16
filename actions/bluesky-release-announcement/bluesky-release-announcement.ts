@@ -6,29 +6,6 @@ import { isNothing } from "../../cicd/core/guards.ts";
 import { validateOrgExists, validateRepoExists } from "../../cicd/core/Validators.ts";
 import { printAsGitHubError, printAsGitHubNotice } from "../../cicd/core/github.ts";
 
-// TODO: Need to import this from kd-clients library once it is available
-export interface XAuthValues {
-	/**
-	 * Gets or sets the consumer key.
-	 */
-	consumer_api_key: string;
-
-	/**
-	 * Gets or sets the consumer secret.
-	 */
-	consumer_api_secret: string;
-
-	/**
-	 * Gets or sets the access token key.
-	 */
-	access_token_key: string;
-
-	/**
-	 * Gets or sets the access token secret.
-	 */
-	access_token_secret: string;
-}
-
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
 const ownerName = getEnvVar("OWNER_NAME", scriptFileName);
@@ -52,9 +29,9 @@ const tempVarsInfoMsg = `The following template variables are available for use 
 	"\n\tPROJECT_NAME" +
 	"\n\tVERSION" +
 	"\n\tWEBSITE_URL" +
-	"\n\tNUGET_VERSION_VAR" +
-	"\n\tREPO_OWNER_VAR" +
-	"\n\tDISCORD_INVITE_CODE_VAR";
+	"\n\tNUGET_VERSION" +
+	"\n\tREPO_OWNER" +
+	"\n\tDISCORD_INVITE_CODE";
 printAsGitHubNotice(tempVarsInfoMsg);
 
 // If the local post template file path is not provided, and the repository inputs are provided
@@ -121,8 +98,6 @@ const post = templateFileData.replaceAll(`{PROJECT_NAME}`, projectName)
 	.replaceAll(`{NUGET_VERSION}`, nugetVersion)
 	.replaceAll(`{REPO_OWNER}`, ownerName)
 	.replaceAll(`{DISCORD_INVITE_CODE}`, discordInviteCode);
-
-console.log(post);
 
 const agent = new AtpAgent({ service });
 
