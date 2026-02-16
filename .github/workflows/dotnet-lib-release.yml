@@ -74,7 +74,7 @@ env:
 jobs:
   get_and_validate_version:
     name: Get And Validate Version
-    runs-on: "${{ inputs.runs-on }}"
+    runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get-version.outputs.version }}
     steps:
@@ -97,7 +97,7 @@ jobs:
   run_prerelease_validation:
     name: Run Pre-Release Validation
     needs: [get_and_validate_version]
-    runs-on: "${{ inputs.runs-on }}"
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
@@ -232,7 +232,7 @@ jobs:
 
   build_project:
     name: Build Main Project
-    runs-on: ubuntu-latest
+    runs-on: "${{ inputs.runs-on }}"
     steps:
       - uses: actions/checkout@v5
 
@@ -247,7 +247,7 @@ jobs:
 
   perform_release:
     name: Perform ${{ inputs.release-type }} Release
-    runs-on: "${{ inputs.runs-on }}"
+    runs-on: ubuntu-latest
     needs:
       [
         get_and_validate_version,
