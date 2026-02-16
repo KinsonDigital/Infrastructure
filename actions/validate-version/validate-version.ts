@@ -1,5 +1,5 @@
 import { printAsGitHubError, printAsGitHubNotice } from "../../cicd/core/github.ts";
-import { getEnvVar, isNotValidProdVersion, isNotValidPreviewVersion } from "../../cicd/core/Utils.ts";
+import { getEnvVar, isNotValidPreviewVersion, isNotValidProdVersion } from "../../cicd/core/Utils.ts";
 
 type ReleaseType = "production" | "preview";
 

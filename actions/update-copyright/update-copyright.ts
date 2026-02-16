@@ -1,5 +1,5 @@
 import { existsSync, walkSync } from "jsr:@std/fs@1.0.19";
-import { printAsGitHubError, printAsGitHubWarning, printAsGitHubNotice } from "../../cicd/core/github.ts";
+import { printAsGitHubError, printAsGitHubNotice, printAsGitHubWarning } from "../../cicd/core/github.ts";
 import { getEnvVar } from "../../cicd/core/Utils.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();

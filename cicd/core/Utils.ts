@@ -73,7 +73,7 @@ export function isNothing<T>(
  * @returns The issues from the given list of issues or pull requests.
  */
 export function filterIssues(issuesOrPrs: (IssueModel | PullRequestModel)[]): IssueModel[] {
-	return <IssueModel[]>issuesOrPrs.filter((item) => isIssue(item));
+	return <IssueModel[]> issuesOrPrs.filter((item) => isIssue(item));
 }
 
 /**
@@ -82,7 +82,7 @@ export function filterIssues(issuesOrPrs: (IssueModel | PullRequestModel)[]): Is
  * @returns The pull requests from the given list of issues or pull requests.
  */
 export function filterPullRequests(issuesOrPrs: (IssueModel | PullRequestModel)[]): PullRequestModel[] {
-	return <PullRequestModel[]>issuesOrPrs.filter((item) => isPr(item));
+	return <PullRequestModel[]> issuesOrPrs.filter((item) => isPr(item));
 }
 
 /**

@@ -108,7 +108,7 @@ export function isUndefinedOrNullOrEmpty(value: unknown | string | []): value is
  * If the value is an array, true will be returned if the array is empty.
  */
 export function isNothing<T>(
-	value: unknown | undefined | null | string | number | boolean | T[]
+	value: unknown | undefined | null | string | number | boolean | T[],
 ): value is undefined | null | "" {
 	if (value === undefined || value === null) {
 		return true;
@@ -139,7 +139,7 @@ export function isNothing<T>(
  * If the value is an array, true will be returned if the array is not empty.
  */
 export function isNotNothing<T>(
-	value: unknown | undefined | null | string | number | boolean | T[]
+	value: unknown | undefined | null | string | number | boolean | T[],
 ): value is undefined | null | "" {
 	return !isNothing(value);
 }
