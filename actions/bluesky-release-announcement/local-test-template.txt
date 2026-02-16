@@ -1,0 +1,8 @@
+--Bluesky Local Template--
+
+Project: {PROJECT_NAME}
+Version: {VERSION}
+Website URL: {WEBSITE_URL}
+Nuget Version: {NUGET_VERSION_VAR}
+Repo Owner: {REPO_OWNER_VAR}
+Discord Invite Code: {DISCORD_INVITE_CODE_VAR}
