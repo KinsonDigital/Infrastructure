@@ -42,7 +42,12 @@ const validateRepoExists = async (ownerName: string, repoName: string, token: st
  * @param milestoneTitle The title of the milestone.
  * @param token The GitHub token.
  */
-const validateMilestoneExists = async (ownerName: string, repoName: string, milestoneTitle: string, token: string): Promise<void> => {
+const validateMilestoneExists = async (
+	ownerName: string,
+	repoName: string,
+	milestoneTitle: string,
+	token: string,
+): Promise<void> => {
 	const milestoneClient = new MilestoneClient(ownerName, repoName, token);
 
 	if (!(await milestoneClient.exists(milestoneTitle))) {

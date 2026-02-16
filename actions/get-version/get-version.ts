@@ -13,7 +13,8 @@ const versionFileExtension = extname(versionFilePath).toLowerCase();
 
 // Check if the extension is a csproj or json file
 if (versionFileExtension !== ".csproj" && versionFileExtension !== ".json") {
-	const errorMsg = `The version file path '${versionFilePath}' is not a valid file type.  Valid file types are '.csproj' and 'json'.`;
+	const errorMsg =
+		`The version file path '${versionFilePath}' is not a valid file type.  Valid file types are '.csproj' and 'json'.`;
 	console.error(errorMsg);
 	Deno.exit(1);
 }
@@ -80,7 +81,9 @@ if (isNothing(version)) {
 // Update the GitHub output file
 Deno.writeTextFileSync(githubOutputFilePath, `version=${version}\n`, { append: true });
 
-printAsGitHubNotice(`The version '${version}' was retrieved from the file '${versionFilePath}' and set as an output variable with the name 'version'.`);
+printAsGitHubNotice(
+	`The version '${version}' was retrieved from the file '${versionFilePath}' and set as an output variable with the name 'version'.`,
+);
 
 /**
  * Gets the the value of a property using the given {@link path} from the given {@link obj}.
@@ -89,8 +92,8 @@ printAsGitHubNotice(`The version '${version}' was retrieved from the file '${ver
  * @returns The value of the property or undefined if not found.
  */
 function getJsonValueByPath(obj: Record<string, unknown>, path: string): string | undefined {
-	const result = path.split('.').reduce((current: unknown, key: string) => {
-		if (current && typeof current === 'object' && current !== null) {
+	const result = path.split(".").reduce((current: unknown, key: string) => {
+		if (current && typeof current === "object" && current !== null) {
 			const currentObj = current as Record<string, unknown>;
 			return currentObj[key];
 		}

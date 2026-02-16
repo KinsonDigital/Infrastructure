@@ -1,5 +1,5 @@
-name: "Send X Release Announcement"
-description: "Sends a release announcement to X"
+name: "Send Bluesky Release Announcement"
+description: "Sends a release announcement to Bluesky"
 inputs:
   repo-owner:
     description: "The owner of the repository."
@@ -18,43 +18,44 @@ inputs:
     required: true
   post-template-repo-name:
     description: |
-      The name of the repository containing the release X post template.
+      The name of the repository containing the release Bluesky post template.
       This input requires the use of the 'post-template-branch-name' and 'post-template-repo-relative-file-path' inputs.
       Using the 'local-post-template-file-path' input takes precedence over this input.
     required: false
   post-template-branch-name:
     description: |
-      The branch name of the repository containing the release X post template.
+      The branch name of the repository containing the release Bluesky post template.
       This input requires the use of the 'post-template-repo-name' and 'post-template-repo-relative-file-path' inputs.
       Using the 'local-post-template-file-path' input takes precedence over this input.
     required: false
   post-template-repo-relative-file-path:
     description: |
-      The relative file path to the release X post template within the repository set by
+      The relative file path to the release Bluesky post template within the repository set by
       the 'post-template-repo-name' and 'post-template-branch-name' inputs. This input
       requires the use of the 'post-template-repo-name' and 'post-template-branch-name' inputs.
       Using the 'local-post-template-file-path' input takes precedence over this input.
     required: false
   local-post-template-file-path:
     description: |
-      The file path to the release X post template within the checked-out repository, relative to the GitHub Actions workspace.
+      The file path to the release Bluesky post template within the checked-out repository, relative to the GitHub Actions workspace.
       The caller must check out the repository (for example, using 'actions/checkout') before using this input.
       This input takes precedence over the 'post-template-repo-name', 'post-template-branch-name', and 'post-template-repo-relative-file-path' inputs.
     required: false
   discord-invite-code:
     description: "The Discord invite code to include in the post."
     required: false
-  access-token-key:
-    description: "The access token key."
+  broadcast-enabled:
+    description: "Whether to broadcast the post on Bluesky."
+    required: false
+    default: "true"
+  service:
+    description: "The Bluesky service URL."
     required: true
-  access-token-secret:
-    description: "The access token secret."
+  identifier:
+    description: "The Bluesky identifier."
     required: true
-  consumer-api-key:
-    description: "The consumer API key."
-    required: true
-  consumer-api-secret:
-    description: "The consumer API secret."
+  password:
+    description: "The Bluesky password."
     required: true
   deno-version:
     description: "The version of Deno to use."
@@ -82,11 +83,10 @@ runs:
         POST_TEMPLATE_REPO_RELATIVE_FILE_PATH: "${{ inputs.post-template-repo-relative-file-path }}"
         LOCAL_POST_TEMPLATE_FILE_PATH: "${{ inputs.local-post-template-file-path }}"
         DISCORD_INVITE_CODE: "${{ inputs.discord-invite-code }}"
-        ACCESS_TOKEN_KEY: "${{ inputs.access-token-key }}"
-        ACCESS_TOKEN_SECRET: "${{ inputs.access-token-secret }}"
-        CONSUMER_API_KEY: "${{ inputs.consumer-api-key }}"
-        CONSUMER_API_SECRET: "${{ inputs.consumer-api-secret }}"
+        SERVICE: "${{ inputs.service }}"
+        IDENTIFIER: "${{ inputs.identifier }}"
+        PASSWORD: "${{ inputs.password }}"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/send-x-release-announcement.ts";
+        $scriptFilePath = "${{ github.action_path }}/bluesky-release-announcement.ts";
 
         deno run -ERN $scriptFilePath;

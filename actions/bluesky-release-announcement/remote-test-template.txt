@@ -1,4 +1,4 @@
---X Local Template--
+--Bluesky Remote Template--
 
 Project: {PROJECT_NAME}
 Version: {VERSION}

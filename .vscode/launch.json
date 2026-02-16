@@ -209,8 +209,8 @@
 				"runtimeExecutable": "${userHome}/.deno/bin/deno"
 			}
 		},
-		{ // SEND X RELEASE ANNOUNCEMENT
-			"name": "Send X Release Announcement",
+		{ // SEND X RELEASE POST
+			"name": "Send X Release Post",
 			"request": "launch",
 			"type": "node",
 			"program": "${workspaceFolder}/actions/send-x-release-announcement/send-x-release-announcement.ts",
@@ -223,6 +223,7 @@
 			"env": {
 				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
 				"OWNER_NAME": "KinsonDigital",
+				"PROJECT_NAME": "Velaptor",
 				"VERSION": "v1.0.0-preview.15",
 				"WEBSITE_URL": "https://docs.velaptor.io",
 				"POST_TEMPLATE_REPO_NAME": "Infrastructure",
@@ -235,6 +236,41 @@
 				"X_ACCESS_TOKEN_SECRET": "${env:X_ACCESS_TOKEN_SECRET}",
 				"X_CONSUMER_API_KEY": "${env:X_CONSUMER_API_KEY}",
 				"X_CONSUMER_API_SECRET": "${env:X_CONSUMER_API_SECRET}",
+			},
+			"attachSimplePort": 9229,
+			"windows": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
+			},
+			"linux": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno"
+			}
+		},
+		{ // SEND BLUESKY RELEASE POST
+			"name": "Send Bluesky Release Post",
+			"request": "launch",
+			"type": "node",
+			"program": "${workspaceFolder}/actions/bluesky-release-announcement/bluesky-release-announcement.ts",
+			"cwd": "${workspaceFolder}",
+			"runtimeArgs": [
+				"run",
+				"-ERN",
+				"--inspect-wait",
+			],
+			"env": {
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+				"OWNER_NAME": "KinsonDigital",
+				"PROJECT_NAME": "Velaptor",
+				"VERSION": "v1.0.0-preview.15",
+				"WEBSITE_URL": "https://docs.velaptor.io",
+				// "POST_TEMPLATE_REPO_NAME": "Infrastructure",
+				// "POST_TEMPLATE_BRANCH_NAME": "feature/277-bluesky-post-action",
+				// "POST_TEMPLATE_REPO_RELATIVE_FILE_PATH": "actions/bluesky-release-announcement/local-test-template.txt",
+				// "LOCAL_POST_TEMPLATE_FILE_PATH": "./actions/bluesky-release-announcement/local-test-template.txt",
+				"LOCAL_POST_TEMPLATE_FILE_PATH": "./actions/bluesky-release-announcement/local-test-template.txt",
+				"DISCORD_INVITE_CODE": "qewu6fNgv7",
+				"SERVICE": "https://kdcoder.bsky.social",
+				"IDENTIFIER": "${env:BLUE_SKY_IDENTIFIER}",
+				"PASSWORD": "${env:BLUE_SKY_PASSWORD}",
 			},
 			"attachSimplePort": 9229,
 			"windows": {

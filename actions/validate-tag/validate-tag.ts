@@ -1,6 +1,6 @@
 import { TagClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
 import { printAsGitHubError, setGitHubOutput } from "../../cicd/core/github.ts";
-import { getEnvVar, isNotValidProdVersion, isNotValidPreviewVersion } from "../../cicd/core/Utils.ts";
+import { getEnvVar, isNotValidPreviewVersion, isNotValidProdVersion } from "../../cicd/core/Utils.ts";
 import { validateOrgExists, validateRepoExists } from "../../cicd/core/Validators.ts";
 
 type ReleaseType = "production" | "preview";
