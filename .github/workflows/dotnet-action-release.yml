@@ -220,7 +220,7 @@ jobs:
   build_project:
     name: Build Main Project (${{ inputs.project-name }})
     needs: run_prerelease_validation
-    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v16.0.0
+    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v17.0.0
     with:
       project-name: "${{ inputs.project-name }}"
       runs-on: "${{ inputs.runs-on }}"

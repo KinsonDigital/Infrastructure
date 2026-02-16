@@ -314,8 +314,8 @@ jobs:
           tag: ${{ needs.get_and_validate_version.outputs.version }}
           owner: ${{ vars.ORGANIZATION_NAME }}
           repo: ${{ inputs.project-name }}
-          bodyFile: "${{ github.workspace }}/ReleaseNotes/${{ inputs.release-type }}Releases/Release-Notes-${{ needs.get_and_validate_version.outputs.version }}.md"
-          artifacts: "${{ github.workspace }}/ReleaseNotes/${{ inputs.release-type }}Releases/Release-Notes-${{ needs.get_and_validate_version.outputs.version }}.md"
+          bodyFile: "${{ inputs.release-notes-file-path }}"
+          artifacts: "${{ inputs.release-notes-file-path }}"
           prerelease: ${{ inputs.release-type }} == 'Preview'
           token: ${{ secrets.cicd-pat }}
 

@@ -249,7 +249,7 @@
 			"name": "Send Bluesky Release Post",
 			"request": "launch",
 			"type": "node",
-			"program": "${workspaceFolder}/actions/bluesky-release-announcement/bluesky-release-announcement.ts",
+			"program": "${workspaceFolder}/actions/send-bluesky-release-announcement/send-bluesky-release-announcement.ts",
 			"cwd": "${workspaceFolder}",
 			"runtimeArgs": [
 				"run",
@@ -574,6 +574,26 @@
 			"linux": {
 				"runtimeExecutable": "${userHome}/.deno/bin/deno"
 			}
+		},
+		{ // RELEASE NOTES GENERATOR TOOL
+			"name": "Release Notes Generator Tool",
+			"request": "launch",
+			"type": "node",
+			"program": "${workspaceFolder}/dev-tools/release-notes-generator-tool.ts",
+			"cwd": "${workspaceFolder}",
+			"runtimeArgs": [
+				"run",
+				"-ERWN",
+				"--inspect-wait",
+			],
+			"attachSimplePort": 9229,
+			"windows": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
+			},
+			"linux": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno"
+			},
+			"console": "integratedTerminal"
 		},
 	]
 }
