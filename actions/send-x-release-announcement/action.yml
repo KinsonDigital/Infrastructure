@@ -82,7 +82,6 @@ runs:
         POST_TEMPLATE_REPO_RELATIVE_FILE_PATH: "${{ inputs.post-template-repo-relative-file-path }}"
         LOCAL_POST_TEMPLATE_FILE_PATH: "${{ inputs.local-post-template-file-path }}"
         DISCORD_INVITE_CODE: "${{ inputs.discord-invite-code }}"
-        ENABLED: "${{ inputs.enabled }}"
         ACCESS_TOKEN_KEY: "${{ inputs.access-token-key }}"
         ACCESS_TOKEN_SECRET: "${{ inputs.access-token-secret }}"
         CONSUMER_API_KEY: "${{ inputs.consumer-api-key }}"
