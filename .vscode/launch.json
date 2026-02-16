@@ -575,5 +575,25 @@
 				"runtimeExecutable": "${userHome}/.deno/bin/deno"
 			}
 		},
+		{ // RELEASE NOTES GENERATOR TOOL
+			"name": "Release Notes Generator Tool",
+			"request": "launch",
+			"type": "node",
+			"program": "${workspaceFolder}/dev-tools/release-notes-generator-tool.ts",
+			"cwd": "${workspaceFolder}",
+			"runtimeArgs": [
+				"run",
+				"-ERWN",
+				"--inspect-wait",
+			],
+			"attachSimplePort": 9229,
+			"windows": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
+			},
+			"linux": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno"
+			},
+			"console": "integratedTerminal"
+		},
 	]
 }

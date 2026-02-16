@@ -36,7 +36,7 @@ export class ReleaseNotesGenerator {
 		let categorySections: Record<string, string[]> = {};
 
 		const issuesWithTypes: IssueModelNew[] = issues.map((issue) => {
-			return <IssueModelNew> issue;
+			return <IssueModelNew>issue;
 		});
 
 		const issueTypeCatSections = this.buildCategoryIssueTypeSections(
@@ -51,16 +51,27 @@ export class ReleaseNotesGenerator {
 		const prCatSections = this.buildCategoryLabelSections(settings.prCategoryLabelMappings ?? {}, prs);
 
 		const issueCatLabels: string[] = [];
+		const issueTypeNames: string[] = [];
 
 		// Collect all of the issue category names
 		for (const catName in settings.issueCategoryLabelMappings) {
 			issueCatLabels.push(settings.issueCategoryLabelMappings[catName].trim());
 		}
 
+		// Collect all of the issueType names
+		for (const catName in settings.issueCategoryIssueTypeMappings) {
+			issueTypeNames.push(catName.trim());
+		}
+
 		// Get all of the issues that do not have any of the labels in the category labels
 		const otherCatIssues = settings.otherCategoryName === undefined
 			? []
-			: issues.filter((issue) => issue.labels.every((label) => !issueCatLabels.includes(label.name)));
+			: issues.filter((issue) => {
+				const hasNoCategoryLabels = issue.labels.every((label) => !issueCatLabels.includes(label.name));
+				const hasNoIssueType = isNothing(issue.type) || !issueTypeNames.includes(issue.type.name.trim());
+
+				return hasNoCategoryLabels && hasNoIssueType;
+			});
 
 		const otherCat: Record<string, string | undefined> = {};
 		otherCat[settings?.otherCategoryName ?? ""] = undefined;
@@ -130,14 +141,14 @@ export class ReleaseNotesGenerator {
 
 		// Validate the labels in the issue category to label mappings
 		if (settings.issueCategoryLabelMappings !== undefined) {
-			const labelsToCheck = Object.values(settings.issueCategoryLabelMappings).map((l) => l.trim());
+			const labelsToCheck = Object.getOwnPropertyNames(settings.issueCategoryLabelMappings).map((p) => p.trim());
 
 			await this.validateLabels("issueCategoryLabelMappings", labelsToCheck);
 		}
 
 		// Validate the labels in the pr category to label mappings
 		if (settings.prCategoryLabelMappings !== undefined) {
-			const labelsToCheck = Object.values(settings.prCategoryLabelMappings).map((l) => l.trim());
+			const labelsToCheck = Object.getOwnPropertyNames(settings.prCategoryLabelMappings).map((l) => l.trim());
 
 			await this.validateLabels("prCategoryLabelMappings", labelsToCheck);
 		}
@@ -201,20 +212,22 @@ export class ReleaseNotesGenerator {
 		const categorySection: Record<string, string[]> = {};
 
 		for (const catName in categoryMappings) {
-			const catIssues = issues.filter((issue) => issue.type.name === catName);
+			const catIssues = issues.filter((issue) => !isNothing(issue.type) && issue.type.name === catName);
 
 			if (catIssues.length > 0) {
-				if (categorySection[catName] === undefined) {
-					categorySection[catName] = [`${this.createCategoryHeader(catName)}\n`];
+				const notesCategoryName = catName.replaceAll("-", " ").trim();
+
+				if (categorySection[notesCategoryName] === undefined) {
+					categorySection[notesCategoryName] = [`${this.createCategoryHeader(categoryMappings[catName])}\n`];
 				}
 
 				for (let i = 0; i < catIssues.length; i++) {
 					const issueItem = this.buildLineItem(catIssues[i], i);
 
-					if (categorySection[catName] === undefined) {
-						categorySection[catName] = [issueItem];
+					if (categorySection[notesCategoryName] === undefined) {
+						categorySection[notesCategoryName] = [issueItem];
 					} else {
-						categorySection[catName].push(issueItem);
+						categorySection[notesCategoryName].push(issueItem);
 					}
 				}
 			}
@@ -239,12 +252,12 @@ export class ReleaseNotesGenerator {
 			const catLabel = categoryMappings[catName];
 
 			const catIssues = issuesOrPrs.filter((issue) =>
-				issue.labels.some((label) => catLabel === undefined || label.name === catLabel)
+				issue.labels.some((label) => label.name === catName)
 			);
 
 			if (catIssues.length > 0) {
 				if (categorySection[catName] === undefined) {
-					categorySection[catName] = [`${this.createCategoryHeader(catName)}\n`];
+					categorySection[catName] = [`${this.createCategoryHeader(catLabel)}\n`];
 				}
 
 				for (let i = 0; i < catIssues.length; i++) {
@@ -279,10 +292,10 @@ export class ReleaseNotesGenerator {
 	 * @param settings The settings to use to get the issues.
 	 * @returns The list of issues that belong to a milestone.
 	 */
-	private async getIssues(settings: GeneratorSettings): Promise<IssueModel[]> {
+	private async getIssues(settings: GeneratorSettings): Promise<IssueModelNew[]> {
 		const milestoneName = this.buildMilestoneName(settings);
 
-		const issues = await this.milestoneClient?.getIssues(milestoneName) ?? [];
+		const issues = (await this.milestoneClient?.getIssues(milestoneName) ?? []) as IssueModelNew[];
 
 		const ignoreLabels = settings.ignoreLabels ?? [];
 
@@ -329,7 +342,7 @@ export class ReleaseNotesGenerator {
 	 * @param title The title to sanitize.
 	 * @returns The sanitized title.
 	 */
-	private sanitizeIssueTitle(settings: GeneratorSettings, issue: IssueModel): IssueModel {
+	private sanitizeIssueTitle(settings: GeneratorSettings, issue: IssueModelNew): IssueModelNew {
 		issue.title = this.sanitizeTitle(settings, issue.title ?? "");
 
 		return issue;
