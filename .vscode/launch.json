@@ -249,7 +249,7 @@
 			"name": "Send Bluesky Release Post",
 			"request": "launch",
 			"type": "node",
-			"program": "${workspaceFolder}/actions/bluesky-release-announcement/bluesky-release-announcement.ts",
+			"program": "${workspaceFolder}/actions/send-bluesky-release-announcement/send-bluesky-release-announcement.ts",
 			"cwd": "${workspaceFolder}",
 			"runtimeArgs": [
 				"run",

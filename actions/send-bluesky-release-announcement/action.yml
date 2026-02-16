@@ -44,10 +44,6 @@ inputs:
   discord-invite-code:
     description: "The Discord invite code to include in the post."
     required: false
-  broadcast-enabled:
-    description: "Whether to broadcast the post on Bluesky."
-    required: false
-    default: "true"
   service:
     description: "The Bluesky service URL."
     required: true
@@ -87,6 +83,6 @@ runs:
         IDENTIFIER: "${{ inputs.identifier }}"
         PASSWORD: "${{ inputs.password }}"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/bluesky-release-announcement.ts";
+        $scriptFilePath = "${{ github.action_path }}/send-bluesky-release-announcement.ts";
 
         deno run -ERN $scriptFilePath;
