@@ -9,11 +9,14 @@
     "releaseTypeNames": ["Preview", "Production"],
     "relativeReleaseNotesDirPath": "release-notes",
     "emojisToRemoveFromTitle": ["🚧", "🐛", "✨", "🚀", "🧪", "🔬"],
+    "issueCategoryLabelMappings": {
+        "breaking-changes": "Breaking Changes 🧨"
+    },
     "issueCategoryIssueTypeMappings": {
         "CICD": "CICD ⚙️",
         "Bug": "Bug Fixes 🐛",
         "Enhancement": "Enhancements 💎",
-        "Feature": "New Features ✨",
+        "Feature": "Features ✨",
         "Project-Config": "Configuration 🛠️",
         "Research": "Research 🔬",
         "QA-Testing": "Testing 🧪",
@@ -21,9 +24,10 @@
         "Dependency-Update": "Dependency Updates 📦"
     },
     "prCategoryLabelMappings": {
-        "Dependency Updates 📦": "📦dependency-update"
+        "dependency-update": "Dependency Updates 📦"
     },
-    "ignoreLabels": ["🚀production-release"],
+    "otherCategoryName": "Uncategorized",
+    "ignoreLabels": ["production-release"],
     "wordReplacements": {
 		"chore(deps): ": ""
 	},
