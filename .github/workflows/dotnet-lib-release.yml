@@ -35,6 +35,11 @@ on:
         required: true
         description: The version of Deno to use.  The deno platform is used in all of the composite actions used in this workflow.
         type: string
+      build-project:
+        required: false
+        description: If true, builds the project to ensure it compiles before performing the release.
+        default: true
+        type: boolean
       enable-deno-cache:
         required: false
         description: If true, enables caching of the Deno modules.
@@ -234,14 +239,18 @@ jobs:
     name: Build Main Project
     runs-on: "${{ inputs.runs-on }}"
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout Repository
+        if: inputs.build-project == true
+        uses: actions/checkout@v5
 
       - name: Set Up .NET SDK (${{ inputs.net-sdk-version }})
+        if: inputs.build-project == true
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ inputs.net-sdk-version }}
 
       - name: Run Build
+        if: inputs.build-project == true  
         run: dotnet build "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj" -c ${{ inputs.build-config }};
 
 
@@ -291,6 +300,7 @@ jobs:
             "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj" `
             -o "${{ github.workspace }}" `
             -c ${{ inputs.build-config }} `
+            ${{ inputs.build-project == false && '--no-build' || '' }} `
             -p:IncludeSymbols=true `
             -p:SymbolPackageFormat=snupkg;
 
