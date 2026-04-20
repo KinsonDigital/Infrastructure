@@ -300,7 +300,6 @@ jobs:
             "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj" `
             -o "${{ github.workspace }}" `
             -c ${{ inputs.build-config }} `
-            ${{ inputs.build-project == false && '--no-build' || '' }} `
             -p:IncludeSymbols=true `
             -p:SymbolPackageFormat=snupkg;
 
