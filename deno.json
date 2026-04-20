@@ -7,7 +7,7 @@
         "fmt-check": "deno fmt --check ./**/*.ts",
         "reload-cache": "deno cache ./**/*.ts",
         "create-pr": "powershell -ExecutionPolicy Bypass -File ./dev-tools/create-pr.ps1",
-        "gen-release-notes": "deno run -ERN --allow-run https://raw.githubusercontent.com/KinsonDigital/Infrastructure/refs/tags/v16.0.0/dev-tools/release-notes-generator-tool.ts"
+        "gen-release-notes": "deno run -ERN --allow-run https://raw.githubusercontent.com/KinsonDigital/Infrastructure/refs/tags/v17.1.0/dev-tools/release-notes-generator-tool.ts"
     },
     "lint": {
         "exclude": [
