@@ -35,6 +35,11 @@ on:
         required: true
         description: The version of Deno to use.  The deno platform is used in all of the composite actions used in this workflow.
         type: string
+      telemetry-enabled:
+        required: false
+        description: If true, enables telemetry for the dotnet library.
+        default: false
+        type: boolean
       build-project:
         required: false
         description: If true, builds the project to ensure it compiles before performing the release.
@@ -251,7 +256,10 @@ jobs:
 
       - name: Run Build
         if: inputs.build-project == true  
-        run: dotnet build "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj" -c ${{ inputs.build-config }};
+        run: |
+          dotnet build "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj" `
+            -c ${{ inputs.build-config }} `
+            -p:EnableTelemetry="${{ inputs.telemetry-enabled }}";
 
 
   perform_release:
@@ -300,9 +308,9 @@ jobs:
             "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj" `
             -o "${{ github.workspace }}" `
             -c ${{ inputs.build-config }} `
-            ${{ inputs.build-project == false && '--no-build' || '' }} `
             -p:IncludeSymbols=true `
-            -p:SymbolPackageFormat=snupkg;
+            -p:SymbolPackageFormat=snupkg `
+            -p:EnableTelemetry="${{ inputs.telemetry-enabled }}";
 
       - name: Publish Nuget Package ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: inputs.dry-run == false
