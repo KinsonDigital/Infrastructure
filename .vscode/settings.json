@@ -1,5 +1,5 @@
 {
-	"window.title": "🦕${activeRepositoryName} - [${activeRepositoryBranchName}]",
+	"window.title": "🦕Infrastructure (PERSONAL)",
 	"workbench.colorCustomizations": {
 		"titleBar.activeBackground": "#21351f"
 	},

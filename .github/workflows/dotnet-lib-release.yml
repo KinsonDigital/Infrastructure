@@ -74,7 +74,9 @@ on:
       nuget-org-api-key:
         required: true
         description: The NuGet.org API key.
-
+      telemetry-key:
+        required: false
+        description: The telemetry key to use if telemetry is enabled.
 
 env:
   OWNER_NAME: "${{ vars.ORGANIZATION_NAME }}"
@@ -310,7 +312,8 @@ jobs:
             -c ${{ inputs.build-config }} `
             -p:IncludeSymbols=true `
             -p:SymbolPackageFormat=snupkg `
-            -p:EnableTelemetry="${{ inputs.telemetry-enabled }}";
+            -p:EnableTelemetry="${{ inputs.telemetry-enabled }} `
+            -p:TelemetryKey="${{ secrets.telemetry-key }}";
 
       - name: Publish Nuget Package ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: inputs.dry-run == false
