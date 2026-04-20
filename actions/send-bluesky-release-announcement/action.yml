@@ -53,6 +53,10 @@ inputs:
   password:
     description: "The Bluesky password."
     required: true
+  cache-enabled:
+    description: "Whether to enable caching of the Deno installation."
+    required: false
+    default: "true"
 runs:
   using: "composite"
   steps:
@@ -60,7 +64,7 @@ runs:
       uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 #v2.0.4
       with:
         deno-version: v2.7.14
-        cache: true
+        cache: ${{ inputs.cache-enabled == 'true' }}
 
     - name: Run Script
       shell: pwsh
@@ -80,6 +84,6 @@ runs:
         IDENTIFIER: "${{ inputs.identifier }}"
         PASSWORD: "${{ inputs.password }}"
       run: |
-        $scriptFilePath = "$env:ACTION_PATH/send-bluesky-release-announcement.ts";
+        $scriptFilePath = "$env:GITHUB_ACTION_PATH/send-bluesky-release-announcement.ts";
 
         deno run -ERN $scriptFilePath;

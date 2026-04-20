@@ -14,6 +14,10 @@ inputs:
     description: "Fail if the JSR package exists."
     required: false
     default: "true"
+  cache-enabled:
+    description: "Whether to enable caching of the Deno installation."
+    required: false
+    default: "true"
 runs:
   using: "composite"
   steps:
@@ -21,7 +25,7 @@ runs:
       uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 #v2.0.4
       with:
         deno-version: v2.7.14
-        cache: true
+        cache: ${{ inputs.cache-enabled == 'true' }}
 
     - name: Run Script
       id: run-script
@@ -32,7 +36,7 @@ runs:
         VERSION: "${{ inputs.version }}"
         FAIL_IF_EXISTS: "${{ inputs.fail-if-exists }}"
       run: |
-        $scriptFilePath = "$env:ACTION_PATH/jsr-pkg-exists.ts";
+        $scriptFilePath = "$env:GITHUB_ACTION_PATH/jsr-pkg-exists.ts";
 
         deno run -ERWN $scriptFilePath;
 outputs:

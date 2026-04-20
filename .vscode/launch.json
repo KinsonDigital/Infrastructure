@@ -386,7 +386,7 @@
 			"preLaunchTask": "Generate Output File",
 			"runtimeArgs": [
 				"run",
-				"-ERN",
+				"-ERWN",
 				"--inspect-wait",
 			],
 			"env": {
@@ -395,6 +395,7 @@
 				"RELEASE_TYPE": "Production",
 				"TAG_NAME": "v13.6.3",
 				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+				"GITHUB_OUTPUT": "${workspaceFolder}/github_output.txt"
 			},
 			"attachSimplePort": 9229,
 			"console": "integratedTerminal",

@@ -10,7 +10,7 @@
     "relativeReleaseNotesDirPath": "release-notes",
     "emojisToRemoveFromTitle": ["🚧", "🐛", "✨", "🚀", "🧪", "🔬"],
     "issueCategoryLabelMappings": {
-        "breaking-changes": "Breaking Changes 🧨"
+        "breaking-changes": "breaking-changes"
     },
     "issueCategoryIssueTypeMappings": {
         "CICD": "CICD ⚙️",
@@ -24,7 +24,7 @@
         "Dependency-Update": "Dependency Updates 📦"
     },
     "prCategoryLabelMappings": {
-        "dependency-update": "Dependency Updates 📦"
+        "dependency-update": "dependency-update"
     },
     "otherCategoryName": "Uncategorized",
     "ignoreLabels": ["production-release"],

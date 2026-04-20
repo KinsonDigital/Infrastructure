@@ -7,7 +7,7 @@ type ReleaseType = "production" | "preview";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
-const ownerName: string = getEnvVar("OWNER_NAME", scriptFileName);
+const ownerName: string = getEnvVar("REPO_OWNER", scriptFileName);
 const repoName: string = getEnvVar("REPO_NAME", scriptFileName);
 const releaseType = <ReleaseType> getEnvVar("RELEASE_TYPE", scriptFileName).toLowerCase();
 let tag: string = getEnvVar("TAG_NAME", scriptFileName);

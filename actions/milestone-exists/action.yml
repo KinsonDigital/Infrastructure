@@ -17,6 +17,10 @@ inputs:
     description: "Fail if the milestone does not exist."
     required: false
     default: "false"
+  cache-enabled:
+    description: "Whether to enable caching of the Deno installation."
+    required: false
+    default: "true"
 runs:
   using: "composite"
   steps:
@@ -24,7 +28,7 @@ runs:
       uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 #v2.0.4
       with:
         deno-version: v2.7.14
-        cache: true
+        cache: ${{ inputs.cache-enabled == 'true' }}
 
     - name: Run Script
       id: run-script
@@ -36,7 +40,7 @@ runs:
         FAIL_IF_DOES_NOT_EXIST: "${{ inputs.fail-if-does-not-exist }}"
         GITHUB_TOKEN: "${{ inputs.github-token }}"
       run: |
-        $scriptFilePath = "$env:ACTION_PATH/milestone-exists.ts";
+        $scriptFilePath = "$env:GITHUB_ACTION_PATH/milestone-exists.ts";
 
         deno run -ERWN $scriptFilePath;
 outputs:

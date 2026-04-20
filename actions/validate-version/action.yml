@@ -13,6 +13,10 @@ inputs:
       If 'false', the version will be prefixed with 'v' if it does not already have it.
     required: false
     default: "false"
+  cache-enabled:
+    description: "Whether to enable caching of the Deno installation."
+    required: false
+    default: "true"
 runs:
   using: "composite"
   steps:
@@ -20,7 +24,7 @@ runs:
       uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 #v2.0.4
       with:
         deno-version: v2.7.14
-        cache: true
+        cache: ${{ inputs.cache-enabled == 'true' }}
 
     - name: Run Script
       shell: pwsh
@@ -29,6 +33,6 @@ runs:
         STRIP_V_PREFIX: "${{ inputs.strip-v-prefix }}"
         RELEASE_TYPE: "${{ inputs.release-type }}"
       run: |
-        $scriptFilePath = "$env:ACTION_PATH/validate-version.ts";
+        $scriptFilePath = "$env:GITHUB_ACTION_PATH/validate-version.ts";
 
         deno run -E $scriptFilePath;
