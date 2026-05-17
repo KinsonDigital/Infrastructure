@@ -36,7 +36,7 @@ runs:
         FAIL_IF_DOES_NOT_EXIST: "${{ inputs.fail-if-does-not-exist }}"
         GITHUB_TOKEN: "${{ inputs.github-token }}"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/milestone-exists.ts";
+        $scriptFilePath = "$env:ACTION_PATH/milestone-exists.ts";
 
         deno run -ERWN $scriptFilePath;
 outputs:

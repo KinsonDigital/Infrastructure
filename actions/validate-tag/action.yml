@@ -45,7 +45,7 @@ runs:
         RELEASE_TYPE: "${{ inputs.release-type }}"
         GITHUB_TOKEN: "${{ inputs.github-token }}"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/validate-tag.ts";
+        $scriptFilePath = "$env:ACTION_PATH/validate-tag.ts";
 
         deno run -ERWN $scriptFilePath;
 outputs:

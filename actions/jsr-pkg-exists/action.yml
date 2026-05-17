@@ -32,7 +32,7 @@ runs:
         VERSION: "${{ inputs.version }}"
         FAIL_IF_EXISTS: "${{ inputs.fail-if-exists }}"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/jsr-pkg-exists.ts";
+        $scriptFilePath = "$env:ACTION_PATH/jsr-pkg-exists.ts";
 
         deno run -ERWN $scriptFilePath;
 outputs:

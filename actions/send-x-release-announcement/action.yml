@@ -84,6 +84,6 @@ runs:
         CONSUMER_API_KEY: "${{ inputs.consumer-api-key }}"
         CONSUMER_API_SECRET: "${{ inputs.consumer-api-secret }}"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/send-x-release-announcement.ts";
+        $scriptFilePath = "$env:ACTION_PATH/send-x-release-announcement.ts";
 
         deno run -ERN $scriptFilePath;

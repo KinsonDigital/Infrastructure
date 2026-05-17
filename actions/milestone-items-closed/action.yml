@@ -36,7 +36,7 @@ runs:
         FAIL_IF_ALL_ITEMS_NOT_CLOSED: "${{ inputs.fail-if-all-items-not-closed }}"
         GITHUB_TOKEN: "${{ inputs.github-token }}"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/milestone-items-closed.ts";
+        $scriptFilePath = "$env:ACTION_PATH/milestone-items-closed.ts";
 
         deno run -ERWN $scriptFilePath;
 outputs:

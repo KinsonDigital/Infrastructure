@@ -29,6 +29,6 @@ runs:
         STRIP_V_PREFIX: "${{ inputs.strip-v-prefix }}"
         RELEASE_TYPE: "${{ inputs.release-type }}"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/validate-version.ts";
+        $scriptFilePath = "$env:ACTION_PATH/validate-version.ts";
 
         deno run -E $scriptFilePath;

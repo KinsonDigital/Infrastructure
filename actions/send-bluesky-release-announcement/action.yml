@@ -80,6 +80,6 @@ runs:
         IDENTIFIER: "${{ inputs.identifier }}"
         PASSWORD: "${{ inputs.password }}"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/send-bluesky-release-announcement.ts";
+        $scriptFilePath = "$env:ACTION_PATH/send-bluesky-release-announcement.ts";
 
         deno run -ERN $scriptFilePath;

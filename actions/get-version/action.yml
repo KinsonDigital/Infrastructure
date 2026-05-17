@@ -26,7 +26,7 @@ runs:
         VERSION_FILE_PATH: "${{ inputs.version-file-path }}"
         JSON_PROP_PATH: "${{ inputs.json-prop-path }}"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/get-version.ts";
+        $scriptFilePath = "$env:ACTION_PATH/get-version.ts";
 
         deno run -ERW $scriptFilePath;
 outputs:

@@ -26,6 +26,6 @@ runs:
         BASE_SEARCH_DIR_PATH: "${{ inputs.base-search-dir-path }}"
         NET_SDK_VERSION: "${{ inputs.net-sdk-version }}"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/validate-sdk-versions.ts";
+        $scriptFilePath = "$env:ACTION_PATH/validate-sdk-versions.ts";
 
         deno run -ER $scriptFilePath;

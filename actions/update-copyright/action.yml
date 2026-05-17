@@ -18,6 +18,6 @@ runs:
       env:
         CS_PROJ_FILE_NAME: "${{ inputs.cs-proj-file-name }}"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/update-copyright.ts";
+        $scriptFilePath = "$env:ACTION_PATH/update-copyright.ts";
 
         deno run -ERW $scriptFilePath;

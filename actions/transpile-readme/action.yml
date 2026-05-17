@@ -22,6 +22,6 @@ runs:
         BASE_DIR_PATH: "${{ inputs.base-dir-path }}"
         JSON_PROP_PATH: "${{ inputs.json-prop-path }}"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/transpile-readme.ts";
+        $scriptFilePath = "$env:ACTION_PATH/transpile-readme.ts";
 
         deno run -ERW $scriptFilePath;

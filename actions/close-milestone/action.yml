@@ -31,6 +31,6 @@ runs:
         GITHUB_TOKEN: "${{ inputs.github-token }}"
         DENO_AUTH_TOKENS: "${{ inputs.github-token }}@raw.githubusercontent.com"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/close-milestone.ts";
+        $scriptFilePath = "$env:ACTION_PATH/close-milestone.ts";
 
         deno run -ERN $scriptFilePath;

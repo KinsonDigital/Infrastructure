@@ -28,7 +28,7 @@ runs:
         NUGET_PKG_VERSION: "${{ inputs.nuget-pkg-version }}"
         FAIL_IF_EXISTS: "${{ inputs.fail-if-exists }}"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/nuget-pkg-exists.ts";
+        $scriptFilePath = "$env:ACTION_PATH/nuget-pkg-exists.ts";
 
         deno run -ERWN $scriptFilePath;
 outputs:
