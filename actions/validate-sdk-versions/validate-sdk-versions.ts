@@ -1,4 +1,4 @@
-import { walkSync } from "jsr:@std/fs@1.0.19";
+import { walkSync } from "jsr:@std/fs@1.0.23";
 import { getEnvVar, isNothing } from "../../cicd/core/Utils.ts";
 import { printAsGitHubError } from "../../cicd/core/github.ts";
 

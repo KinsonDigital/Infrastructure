@@ -1,5 +1,5 @@
-import { MilestoneClient, RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
-import { IssueModel, PullRequestModel } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github/models";
+import { MilestoneClient, RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/github";
+import { IssueModel, PullRequestModel } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/github/models";
 import { printAsGitHubError, setGitHubOutput } from "../../cicd/core/github.ts";
 import { filterIssues, filterPullRequests, getEnvVar, printProblemList } from "../../cicd/core/Utils.ts";
 import { validateOrgExists, validateRepoExists } from "../../cicd/core/Validators.ts";

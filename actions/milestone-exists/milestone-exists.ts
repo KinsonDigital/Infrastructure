@@ -1,4 +1,4 @@
-import { MilestoneClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
+import { MilestoneClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/github";
 import { getEnvVar, isNothing } from "../../cicd/core/Utils.ts";
 import { printAsGitHubError, setGitHubOutput } from "../../cicd/core/github.ts";
 import { validateOrgExists, validateRepoExists } from "../../cicd/core/Validators.ts";
