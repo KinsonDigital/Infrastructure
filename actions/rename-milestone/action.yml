@@ -1,0 +1,40 @@
+name: "Rename Milestone"
+description: "Renames a milestone for a GitHub repository"
+inputs:
+  repo-owner:
+    description: "The owner of the repository."
+    required: true
+  repo-name:
+    description: "The name of the repository."
+    required: true
+  current-milestone-name:
+    description: "The current name of the milestone to rename."
+    required: true
+  new-milestone-name:
+    description: "The new name for the milestone."
+    required: true
+  github-token:
+    description: "The GitHub token used to authenticate API requests."
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Deno (v2.7.14)
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: v2.7.14
+        cache: true
+
+    - name: Run Script
+      shell: pwsh
+      env:
+        REPO_OWNER: "${{ inputs.repo-owner }}"
+        REPO_NAME: "${{ inputs.repo-name }}"
+        CURRENT_MILESTONE_NAME: "${{ inputs.current-milestone-name }}"
+        NEW_MILESTONE_NAME: "${{ inputs.new-milestone-name }}"
+        GITHUB_TOKEN: "${{ inputs.github-token }}"
+        DENO_AUTH_TOKENS: "${{ inputs.github-token }}@raw.githubusercontent.com"
+      run: |
+        $scriptFilePath = "${{ github.action_path }}/rename-milestone.ts";
+
+        deno run -ERN $scriptFilePath;
