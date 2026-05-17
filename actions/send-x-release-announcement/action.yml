@@ -14,7 +14,7 @@ inputs:
     description: "The URL of a website to include in the post."
     required: false
   github-token:
-    description: "The GitHub token used to download the script for installation."
+    description: "The GitHub token used to authenticate API requests."
     required: true
   post-template-repo-name:
     description: |

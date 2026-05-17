@@ -11,7 +11,7 @@ inputs:
     description: "The title of the milestone to close."
     required: true
   github-token:
-    description: "The GitHub token used to download the script for installation."
+    description: "The GitHub token used to authenticate API requests."
     required: true
   deno-version:
     description: "The version of Deno to use."
