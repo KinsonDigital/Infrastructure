@@ -60,7 +60,7 @@ runs:
   using: "composite"
   steps:
     - name: Setup Deno (v2.7.14)
-      uses: denoland/setup-deno@v2
+      uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 #v2.0.4
       with:
         deno-version: v2.7.14
         cache: true
@@ -84,6 +84,6 @@ runs:
         CONSUMER_API_KEY: "${{ inputs.consumer-api-key }}"
         CONSUMER_API_SECRET: "${{ inputs.consumer-api-secret }}"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/send-x-release-announcement.ts";
+        $scriptFilePath = "$env:ACTION_PATH/send-x-release-announcement.ts";
 
         deno run -ERN $scriptFilePath;

@@ -17,7 +17,7 @@ runs:
   using: "composite"
   steps:
     - name: Setup Deno (v2.7.14)
-      uses: denoland/setup-deno@v2
+      uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 #v2.0.4
       with:
         deno-version: v2.7.14
         cache: true
@@ -31,6 +31,6 @@ runs:
         GITHUB_TOKEN: "${{ inputs.github-token }}"
         DENO_AUTH_TOKENS: "${{ inputs.github-token }}@raw.githubusercontent.com"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/close-milestone.ts";
+        $scriptFilePath = "$env:ACTION_PATH/close-milestone.ts";
 
         deno run -ERN $scriptFilePath;

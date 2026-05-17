@@ -1,0 +1,57 @@
+name: "Get Deno Config Version"
+description: "Gets the Deno configuration version for a GitHub repository"
+inputs:
+  config-file-path:
+    description: |
+      The path to the Deno configuration file (e.g., deno.json or deno.jsonc) relative to the repository root.
+
+      If a file path is provided:
+      The action will attempt to read the Deno version from that file. The action
+      will fail if the file is not found when the 'fail-if-config-not-found' input is set to 'true'.
+
+      If a file path is not provided:
+      The action will attempt to find a Deno configuration file in the repository by looking for
+      files named "deno.json" or "deno.jsonc" in the repository root and then recursively in subdirectories. The first
+      file found will be used to determine the Deno version. The action will fail if the file is not
+      found when the 'fail-if-config-not-found' input is set to 'true'.
+
+      If a found configuration file does not specify a 'version' property, the action will fail.
+    required: false
+  trim-version-prefix:
+    description: |
+      Whether to trim the 'v' prefix from the version set to the action output.
+
+      Default: false
+    required: false
+    default: "false"
+  fail-if-config-not-found:
+    description: |
+      Whether the action should fail if the Deno configuration file is not found.
+
+      Default: true
+    required: false
+    default: "true"
+outputs:
+  deno-config-version:
+    description: "The version of Deno specified in the configuration file."
+    value: ${{ steps.get-deno-config-version.outputs.deno-config-version }}
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Deno (v2.7.14)
+      uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 #v2.0.4
+      with:
+        deno-version: v2.7.14
+        cache: true
+
+    - name: Run Script
+      shell: pwsh
+      id: get-deno-config-version
+      env:
+        CONFIG_FILE_PATH: "${{ inputs.config-file-path }}"
+        TRIM_VERSION_PREFIX: "${{ inputs.trim-version-prefix }}"
+        FAIL_IF_CONFIG_NOT_FOUND: "${{ inputs.fail-if-config-not-found }}"
+      run: |
+        $scriptFilePath = "$env:ACTION_PATH/get-deno-config-version.ts";
+
+        deno run -ERWN $scriptFilePath;

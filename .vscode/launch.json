@@ -575,6 +575,32 @@
 				"runtimeExecutable": "${userHome}/.deno/bin/deno"
 			}
 		},
+		{ // GET DENO CONFIG VERSION
+			"name": "Get Deno Config Version",
+			"request": "launch",
+			"type": "node",
+			"program": "${workspaceFolder}/actions/get-deno-config-version/get-deno-config-version.ts",
+			"cwd": "${workspaceFolder}",
+			"env": {
+				"CONFIG_FILE_PATH": "",
+				"TRIM_VERSION_PREFIX": "false",
+				"FAIL_IF_CONFIG_NOT_FOUND": "true",
+				"GITHUB_OUTPUT": "${workspaceFolder}/github_output.txt"
+			},
+			"runtimeArgs": [
+				"run",
+				"-ERWN",
+				"--inspect-wait",
+			],
+			"attachSimplePort": 9229,
+			"windows": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
+			},
+			"linux": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno"
+			},
+			"console": "integratedTerminal"
+		},
 		{ // RELEASE NOTES GENERATOR TOOL
 			"name": "Release Notes Generator Tool",
 			"request": "launch",

@@ -17,7 +17,7 @@ runs:
   using: "composite"
   steps:
     - name: Setup Deno (v2.7.14)
-      uses: denoland/setup-deno@v2
+      uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 #v2.0.4
       with:
         deno-version: v2.7.14
         cache: true
@@ -29,6 +29,6 @@ runs:
         STRIP_V_PREFIX: "${{ inputs.strip-v-prefix }}"
         RELEASE_TYPE: "${{ inputs.release-type }}"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/validate-version.ts";
+        $scriptFilePath = "$env:ACTION_PATH/validate-version.ts";
 
         deno run -E $scriptFilePath;

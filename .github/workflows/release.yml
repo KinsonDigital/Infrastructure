@@ -65,10 +65,10 @@ jobs:
           }
 
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
 
       - name: Set Up Deno (${{ vars.DENO_VERSION }})
-        uses: denoland/setup-deno@v2
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 #v2.0.4
         with:
           deno-version: ${{ vars.DENO_VERSION }}
           cache: true
@@ -164,10 +164,10 @@ jobs:
     needs: [get_and_validate_version, run_prerelease_validation]
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
 
       - name: Set Up Deno (${{ vars.DENO_VERSION }})
-        uses: denoland/setup-deno@v2
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 #v2.0.4
         with:
           deno-version: ${{ vars.DENO_VERSION }}
           cache: true
@@ -182,10 +182,10 @@ jobs:
     needs: [get_and_validate_version, run_prerelease_validation]
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
 
       - name: Set Up Deno (${{ vars.DENO_VERSION }})
-        uses: denoland/setup-deno@v2
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 #v2.0.4
         with:
           deno-version: ${{ vars.DENO_VERSION }}
           cache: true
@@ -202,12 +202,12 @@ jobs:
       contents: write
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
         with:
           token: ${{ secrets.CICD_TOKEN }}
 
       - name: Set Up Deno (${{ vars.DENO_VERSION }})
-        uses: denoland/setup-deno@v2
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 #v2.0.4
         with:
           deno-version: ${{ vars.DENO_VERSION }}
           cache: true

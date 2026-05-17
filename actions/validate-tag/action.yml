@@ -31,7 +31,7 @@ runs:
   using: "composite"
   steps:
     - name: Setup Deno (v2.7.14)
-      uses: denoland/setup-deno@v2
+      uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 #v2.0.4
       with:
         deno-version: v2.7.14
         cache: true
@@ -45,7 +45,7 @@ runs:
         RELEASE_TYPE: "${{ inputs.release-type }}"
         GITHUB_TOKEN: "${{ inputs.github-token }}"
       run: |
-        $scriptFilePath = "${{ github.action_path }}/validate-tag.ts";
+        $scriptFilePath = "$env:ACTION_PATH/validate-tag.ts";
 
         deno run -ERWN $scriptFilePath;
 outputs:
