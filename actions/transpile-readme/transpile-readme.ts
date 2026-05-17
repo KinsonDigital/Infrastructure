@@ -1,4 +1,4 @@
-import { existsSync } from "jsr:@std/fs@1.0.19";
+import { existsSync } from "jsr:@std/fs@1.0.23";
 import { printAsGitHubError, printAsGitHubNotice } from "../../cicd/core/github.ts";
 import { ReadMeTranspilerService } from "../../cicd/core/Services/ReadMeTranspilerService.ts";
 import { getEnvVar } from "../../cicd/core/Utils.ts";
