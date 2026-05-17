@@ -115,7 +115,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Set Up Deno (${{ inputs.deno-version }})
-        uses: denoland/setup-deno@v2
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 #v2.0.4
         with:
           deno-version: ${{ inputs.deno-version }}
           cache: ${{ inputs.enable-deno-cache }}
@@ -286,7 +286,7 @@ jobs:
         uses: NuGet/setup-nuget@v2
 
       - name: Set Up Deno (${{ inputs.deno-version }})
-        uses: denoland/setup-deno@v2
+        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 #v2.0.4
         with:
           deno-version: ${{ inputs.deno-version }}
           cache: ${{ inputs.enable-deno-cache }}
