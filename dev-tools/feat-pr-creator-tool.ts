@@ -1,7 +1,7 @@
 import { delay } from "jsr:@std/async@1.3.0";
 import { existsSync, walkSync } from "jsr:@std/fs@1.0.23";
-import { Input } from "jsr:@cliffy/prompt@1.0.0-rc.8/input";
-import { Select } from "jsr:@cliffy/prompt@1.0.0-rc.8/select";
+import { Input } from "jsr:@cliffy/prompt@1.0.1/input";
+import { Select } from "jsr:@cliffy/prompt@1.0.1/select";
 import { IssueOrPRRequestData } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/core";
 import { IssueClient, ProjectClient, PullRequestClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/github";
 import {
