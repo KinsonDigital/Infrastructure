@@ -1,5 +1,5 @@
-import { existsSync } from "jsr:@std/fs@1.0.19";
-import { extname } from "jsr:@std/path@1.1.2";
+import { existsSync } from "jsr:@std/fs@1.0.23";
+import { extname } from "jsr:@std/path@1.1.4";
 import { getEnvVar } from "../../cicd/core/Utils.ts";
 import { isNothing } from "../../cicd/core/guards.ts";
 import { printAsGitHubError, printAsGitHubNotice } from "../../cicd/core/github.ts";

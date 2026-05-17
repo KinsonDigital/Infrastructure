@@ -6,7 +6,7 @@ import {
 	ProjectModel,
 	PullRequestModel,
 	UserModel,
-} from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github/models";
+} from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/github/models";
 import { isLessThanOne } from "./guards.ts";
 
 const prodVersionWithVPrefixRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)$/;

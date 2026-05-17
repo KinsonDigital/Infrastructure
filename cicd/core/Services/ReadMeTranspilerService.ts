@@ -1,4 +1,4 @@
-import { existsSync } from "jsr:@std/fs@1.0.19";
+import { existsSync } from "jsr:@std/fs@1.0.23";
 import { normalizeLineEndings, splitBy, trimAllStartingWhiteSpace } from "../Utils.ts";
 import { printAsGitHubError } from "../github.ts";
 

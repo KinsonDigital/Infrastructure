@@ -1,5 +1,5 @@
-import { Confirm, Input, Select } from "jsr:@cliffy/prompt@1.0.0-rc.8";
-import { walkSync } from "jsr:@std/fs@1.0.19";
+import { Confirm, Input, Select } from "jsr:@cliffy/prompt@1.0.1";
+import { walkSync } from "jsr:@std/fs@1.0.23";
 import { printError, printInfo, printStatusUpdate, printStep } from "./core/console-msgs.ts";
 import { GeneratorSettings } from "./core/generator-settings.ts";
 import { ReleaseNotesGenerator } from "./core/release-notes-generator.ts";

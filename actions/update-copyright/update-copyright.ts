@@ -1,4 +1,4 @@
-import { existsSync, walkSync } from "jsr:@std/fs@1.0.19";
+import { existsSync, walkSync } from "jsr:@std/fs@1.0.23";
 import { printAsGitHubError, printAsGitHubNotice, printAsGitHubWarning } from "../../cicd/core/github.ts";
 import { getEnvVar } from "../../cicd/core/Utils.ts";
 
