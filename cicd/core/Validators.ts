@@ -1,4 +1,4 @@
-import { MilestoneClient, OrgClient, RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
+import { MilestoneClient, OrgClient, RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/github";
 import { printAsGitHubError } from "./github.ts";
 
 /**

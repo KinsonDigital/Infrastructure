@@ -1,4 +1,4 @@
-import { NuGetClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/packaging";
+import { NuGetClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/packaging";
 import { printAsGitHubError, setGitHubOutput } from "../../cicd/core/github.ts";
 import { getEnvVar } from "../../cicd/core/Utils.ts";
 

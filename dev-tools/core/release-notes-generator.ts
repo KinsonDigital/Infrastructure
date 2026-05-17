@@ -1,5 +1,5 @@
-import { LabelClient, MilestoneClient, RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
-import { IssueModel, PullRequestModel } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github/models";
+import { LabelClient, MilestoneClient, RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/github";
+import { IssueModel, PullRequestModel } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/github/models";
 import { IssueTypeModel } from "./issue-type-model.ts";
 import { GeneratorSettings } from "./generator-settings.ts";
 import { isNothing } from "../../cicd/core/guards.ts";

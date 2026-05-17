@@ -1,4 +1,4 @@
-import { RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
+import { RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/github";
 import { ReleaseType } from "../Enums.ts";
 import { isNothing, normalizePath, trimAllStartingValue } from "../Utils.ts";
 import { GitHubVariableService } from "./GitHubVariableService.ts";

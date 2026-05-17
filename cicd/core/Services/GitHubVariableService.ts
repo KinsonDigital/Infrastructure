@@ -1,6 +1,6 @@
-import { OrgClient, RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
+import { OrgClient, RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/github";
 import { isNothing } from "../guards.ts";
-import { GitHubVarModel } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github/models";
+import { GitHubVarModel } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/github/models";
 import { printAsGitHubError } from "../github.ts";
 
 /**

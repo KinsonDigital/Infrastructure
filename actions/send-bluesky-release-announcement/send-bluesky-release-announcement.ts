@@ -1,5 +1,5 @@
 import { AppBskyFeedPost, AtpAgent, RichText } from "npm:@atproto/api@0.18.21";
-import { RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
+import { RepoClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/github";
 import { existsSync } from "jsr:@std/fs@1.0.22";
 import { getEnvVar, isNotValidPreviewVersion, isNotValidProdVersion } from "../../cicd/core/Utils.ts";
 import { isNothing } from "../../cicd/core/guards.ts";
