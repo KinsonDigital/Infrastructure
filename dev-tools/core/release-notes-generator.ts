@@ -36,7 +36,7 @@ export class ReleaseNotesGenerator {
 		let categorySections: Record<string, string[]> = {};
 
 		const issuesWithTypes: IssueModelNew[] = issues.map((issue) => {
-			return <IssueModelNew>issue;
+			return <IssueModelNew> issue;
 		});
 
 		const issueTypeCatSections = this.buildCategoryIssueTypeSections(
@@ -64,14 +64,12 @@ export class ReleaseNotesGenerator {
 		}
 
 		// Get all of the issues that do not have any of the labels in the category labels
-		const otherCatIssues = settings.otherCategoryName === undefined
-			? []
-			: issues.filter((issue) => {
-				const hasNoCategoryLabels = issue.labels.every((label) => !issueCatLabels.includes(label.name));
-				const hasNoIssueType = isNothing(issue.type) || !issueTypeNames.includes(issue.type.name.trim());
+		const otherCatIssues = settings.otherCategoryName === undefined ? [] : issues.filter((issue) => {
+			const hasNoCategoryLabels = issue.labels.every((label) => !issueCatLabels.includes(label.name));
+			const hasNoIssueType = isNothing(issue.type) || !issueTypeNames.includes(issue.type.name.trim());
 
-				return hasNoCategoryLabels && hasNoIssueType;
-			});
+			return hasNoCategoryLabels && hasNoIssueType;
+		});
 
 		const otherCat: Record<string, string | undefined> = {};
 		otherCat[settings?.otherCategoryName ?? ""] = undefined;
@@ -251,9 +249,7 @@ export class ReleaseNotesGenerator {
 		for (const catName in categoryMappings) {
 			const catLabel = categoryMappings[catName];
 
-			const catIssues = issuesOrPrs.filter((issue) =>
-				issue.labels.some((label) => label.name === catName)
-			);
+			const catIssues = issuesOrPrs.filter((issue) => issue.labels.some((label) => label.name === catName));
 
 			if (catIssues.length > 0) {
 				if (categorySection[catName] === undefined) {

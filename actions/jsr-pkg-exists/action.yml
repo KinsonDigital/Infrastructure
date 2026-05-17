@@ -10,9 +10,6 @@ inputs:
   version:
     description: "The version of the JSR package to check."
     required: true
-  deno-version:
-    description: "The version of Deno to use."
-    required: true
   fail-if-exists:
     description: "Fail if the JSR package exists."
     required: false
@@ -20,10 +17,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Setup Deno (${{ inputs.deno-version }})
+    - name: Setup Deno (v2.7.14)
       uses: denoland/setup-deno@v2
       with:
-        deno-version: ${{ inputs.deno-version }}
+        deno-version: v2.7.14
         cache: true
 
     - name: Run Script

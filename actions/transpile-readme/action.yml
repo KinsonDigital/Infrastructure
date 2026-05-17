@@ -4,19 +4,16 @@ inputs:
   base-dir-path:
     description: "The base directory path to use."
     required: true
-  deno-version:
-    description: "The version of Deno to use."
-    required: true
 runs:
   using: "composite"
   steps:
     - name: Checkout Repository
       uses: actions/checkout@v5
 
-    - name: Setup Deno (${{ inputs.deno-version }})
+    - name: Setup Deno (v2.7.14)
       uses: denoland/setup-deno@v2
       with:
-        deno-version: ${{ inputs.deno-version }}
+        deno-version: v2.7.14
         cache: true
 
     - name: Run Script

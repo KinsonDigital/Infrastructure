@@ -13,9 +13,6 @@ inputs:
   github-token:
     description: "The GitHub token to use."
     required: true
-  deno-version:
-    description: "The version of Deno to use."
-    required: true
   fail-if-all-items-not-closed:
     description: "Fail if all items in the milestone are not closed."
     required: false
@@ -23,10 +20,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Setup Deno (${{ inputs.deno-version }})
+    - name: Setup Deno (v2.7.14)
       uses: denoland/setup-deno@v2
       with:
-        deno-version: ${{ inputs.deno-version }}
+        deno-version: v2.7.14
         cache: true
 
     - name: Run Script
