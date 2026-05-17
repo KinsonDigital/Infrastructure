@@ -14,10 +14,7 @@ inputs:
     description: "The name of the tag to validate."
     required: true
   github-token:
-    description: "The GitHub token used to download the script for installation."
-    required: true
-  deno-version:
-    description: "The version of Deno to use."
+    description: "The GitHub token used to authenticate API requests."
     required: true
   fail-if-invalid-syntax:
     description: |
@@ -33,10 +30,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Setup Deno (${{ inputs.deno-version }})
+    - name: Setup Deno (v2.7.14)
       uses: denoland/setup-deno@v2
       with:
-        deno-version: ${{ inputs.deno-version }}
+        deno-version: v2.7.14
         cache: true
 
     - name: Run Script

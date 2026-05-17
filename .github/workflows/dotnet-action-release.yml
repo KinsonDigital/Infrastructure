@@ -217,25 +217,11 @@ jobs:
           }
 
 
-  build_project:
-    name: Build Main Project (${{ inputs.project-name }})
-    needs: run_prerelease_validation
-    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v17.1.0
-    with:
-      project-name: "${{ inputs.project-name }}"
-      runs-on: "${{ inputs.runs-on }}"
-      build-config: "${{ inputs.build-config }}"
-      net-sdk-version: "${{ inputs.net-sdk-version }}"
-    secrets:
-      cicd-pat: ${{ secrets.cicd-pat }}
-
-
   perform_release:
     name: Perform ${{ inputs.release-type }} Release
     needs: [
       run_prerelease_validation,
       get_and_validate_version,
-      build_project,
     ]
     runs-on: "${{ inputs.runs-on }}"
     steps:

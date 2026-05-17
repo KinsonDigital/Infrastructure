@@ -13,16 +13,13 @@ inputs:
       If 'false', the version will be prefixed with 'v' if it does not already have it.
     required: false
     default: "false"
-  deno-version:
-    description: "The version of Deno to use."
-    required: true
 runs:
   using: "composite"
   steps:
-    - name: Setup Deno (${{ inputs.deno-version }})
+    - name: Setup Deno (v2.7.14)
       uses: denoland/setup-deno@v2
       with:
-        deno-version: ${{ inputs.deno-version }}
+        deno-version: v2.7.14
         cache: true
 
     - name: Run Script

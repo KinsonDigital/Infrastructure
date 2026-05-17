@@ -14,7 +14,7 @@ inputs:
     description: "The URL of a website to include in the post."
     required: false
   github-token:
-    description: "The GitHub token used to download the script for installation."
+    description: "The GitHub token used to authenticate API requests."
     required: true
   post-template-repo-name:
     description: |
@@ -56,16 +56,13 @@ inputs:
   consumer-api-secret:
     description: "The consumer API secret."
     required: true
-  deno-version:
-    description: "The version of Deno to use."
-    required: true
 runs:
   using: "composite"
   steps:
-    - name: Setup Deno (${{ inputs.deno-version }})
+    - name: Setup Deno (v2.7.14)
       uses: denoland/setup-deno@v2
       with:
-        deno-version: ${{ inputs.deno-version }}
+        deno-version: v2.7.14
         cache: true
 
     - name: Run Script

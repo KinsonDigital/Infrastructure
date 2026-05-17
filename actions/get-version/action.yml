@@ -7,19 +7,16 @@ inputs:
   json-prop-path:
     description: "The JSON property path to the version value. Uses dot notation for nested properties."
     required: false
-  deno-version:
-    description: "The version of Deno to use."
-    required: true
 runs:
   using: "composite"
   steps:
     - name: Checkout Repository
       uses: actions/checkout@v5
 
-    - name: Setup Deno (${{ inputs.deno-version }})
+    - name: Setup Deno (v2.7.14)
       uses: denoland/setup-deno@v2
       with:
-        deno-version: ${{ inputs.deno-version }}
+        deno-version: v2.7.14
         cache: true
 
     - name: Run Script

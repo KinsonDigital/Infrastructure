@@ -1,4 +1,4 @@
-import { MilestoneClient } from "https://deno.land/x/kd_clients@v1.0.0-preview.13/GitHubClients/MilestoneClient.ts";
+import { MilestoneClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/github";
 import { printAsGitHubError, printAsGitHubNotice } from "../../cicd/core/github.ts";
 import { getEnvVar } from "../../cicd/core/Utils.ts";
 
@@ -11,7 +11,7 @@ const token = getEnvVar("GITHUB_TOKEN", scriptFileName);
 
 const client: MilestoneClient = new MilestoneClient(repoOwner, repoName, token);
 
-const exists = await client.milestoneExists(milestoneTitle);
+const exists = await client.exists(milestoneTitle);
 
 if (!exists) {
 	printAsGitHubError(`The milestone '${milestoneTitle}' does not exist.\n\tFile: ${scriptFileName}`);
