@@ -1,5 +1,5 @@
-name: 🚀Release
-run-name: 🚀${{ inputs.release-type }} Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
+name: 🚀 Release
+run-name: 🚀 ${{ inputs.release-type }} Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
 
 
 defaults:
@@ -36,7 +36,7 @@ jobs:
     steps:
       - name: Get Version
         id: get-version
-        uses: KinsonDigital/Infrastructure/actions/get-version@v16.0.0
+        uses: ./actions/get-version@v16.0.0
         with:
           version-file-path: "${{ github.workspace }}/deno.json"
           deno-version: "${{ vars.DENO_VERSION }}"
@@ -44,7 +44,7 @@ jobs:
 
       - name: Validate Version
         id: validate-version
-        uses: KinsonDigital/Infrastructure/actions/validate-version@v16.0.0
+        uses: ./actions/validate-version@v16.0.0
         with:
           version: "${{ steps.get-version.outputs.version}}"
           release-type: "${{ inputs.release-type }}"
@@ -54,108 +54,15 @@ jobs:
   run_prerelease_validation:
     name: Run Pre-Release Validation
     needs: [get_and_validate_version]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check Branch
-        id: check-branch
-        continue-on-error: true
-        run: |
-          if ("${{ github.ref_name }}" -ne "main") {
-            exit 1;
-          }
-
-      - name: Checkout Repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
-
-      - name: Set Up Deno (${{ vars.DENO_VERSION }})
-        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 #v2.0.4
-        with:
-          deno-version: ${{ vars.DENO_VERSION }}
-          cache: true
-
-      - name: Milestone Exists
-        id: milestone-exists
-        uses: KinsonDigital/Infrastructure/actions/milestone-exists@v16.0.0
-        with:
-          owner-name: "${{ vars.ORGANIZATION_NAME }}"
-          repo-name: "${{ vars.PROJECT_NAME }}"
-          milestone-name: "${{ needs.get_and_validate_version.outputs.version }}"
-          github-token: "${{ secrets.CICD_TOKEN }}"
-          deno-version: "${{ vars.DENO_VERSION }}"
-
-      - name: Validate Milestone Items
-        id: milestone-items-check
-        uses: KinsonDigital/Infrastructure/actions/milestone-items-closed@v16.0.0
-        with:
-          owner-name: "${{ vars.ORGANIZATION_NAME }}"
-          repo-name: "${{ vars.PROJECT_NAME }}"
-          milestone-name: "${{ needs.get_and_validate_version.outputs.version }}"
-          github-token: "${{ secrets.CICD_TOKEN }}"
-          deno-version: "${{ vars.DENO_VERSION }}"
-          fail-if-all-items-not-closed: true
-        continue-on-error: false
-
-      - name: Lowercase Release Type
-        id: release-type
-        run: |
-          $releaseType = "${{ inputs.release-type }}".ToLower();
-          "release-type=$releaseType" > "$env:GITHUB_OUTPUT";
-
-      - name: Release Notes Exist
-        id: release-notes-check
-        uses: KinsonDigital/Infrastructure/actions/release-notes-exist@v16.0.0
-        with:
-          release-notes-file-path: "${{ github.workspace }}/release-notes/${{ steps.release-type.outputs.release-type }}-releases/Release-Notes-${{ needs.get_and_validate_version.outputs.version }}.md"
-          deno-version: "${{ vars.DENO_VERSION }}"
-          fail-if-does-not-exist: true
-        continue-on-error: true
-
-      - name: GitHub Release Exists
-        id: github-release-check
-        uses: KinsonDigital/Infrastructure/actions/github-release-exists@v16.0.0
-        with:
-          owner-name: "${{ vars.ORGANIZATION_NAME }}"
-          repo-name: "${{ vars.PROJECT_NAME }}"
-          tag-name: "${{ needs.get_and_validate_version.outputs.version }}"
-          deno-version: "${{ vars.DENO_VERSION }}"
-          github-token: "${{ secrets.CICD_TOKEN }}"
-        continue-on-error: true
-    
-      - name: Should Fail Job
-        run: |
-          $validBranch = "${{ steps.check-branch.outcome == 'failure' }}";
-          $milestoneExists = "${{ steps.milestone-exists.outputs.milestone-exists }}";
-          $milestoneItemsCheckFailed = "${{ steps.milestone-items-check.outcome == 'failure' }}";
-          $releaseNotesCheckFailed = "${{ steps.release-notes-check.outcome == 'failure' }}";
-          $githubReleaseCheckFailed = "${{ steps.github-release-check.outcome == 'failure' }}";
-
-          if ($validBranch -eq "true") {
-            Write-Host "::error::The branch '${{ github.ref_name }}' is invalid.  Must run on the 'main' branch.";
-          }
-
-          if ($milestoneExists -eq "false") {
-            Write-Host "::error::The milestone '${{ needs.get_and_validate_version.outputs.version }}' does not exist.";
-          }
-
-          if ($milestoneItemsCheckFailed -eq "true") {
-            Write-Host "::error::The milestone '${{ needs.get_and_validate_version.outputs.version }}' has one or more issues that are not closed or prs that are in draft.";
-          }
-
-          if ($releaseNotesCheckFailed -eq "true") {
-            Write-Host "::error::The release notes do not exist.";
-          }
-
-          if ($githubReleaseCheckFailed -eq "true") {
-            Write-Host "::error::The GitHub release already exists.";
-          }
-
-          if ($validBranch -eq "true" `
-              -or $milestoneExists -eq "false" `
-              -or $milestoneItemsCheckFailed -eq "true" `
-              -or $releaseNotesCheckFailed -eq "true" `
-              -or $githubReleaseCheckFailed -eq "true") {
-            exit 1;
-          }
+    uses: ./.github/workflows/validate-release.yml
+    with:
+      owner-name: "${{ vars.ORGANIZATION_NAME }}"
+      repo-name: "${{ vars.PROJECT_NAME }}"
+      version: "${{ needs.get_and_validate_version.outputs.version }}"
+      release-type: "${{ inputs.release-type }}"
+      relative-release-notes-file-path: "release-notes/${{ inputs.release-type }}-releases/Release-Notes-${{ needs.get_and_validate_version.outputs.version }}.md"
+    secrets:
+      cicd-pat: ${{ secrets.CICD_TOKEN }}
 
 
   build:
@@ -243,25 +150,14 @@ jobs:
 
       - name: Create GitHub Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: inputs.dry-run == false
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           name: "🚀${{ inputs.release-type }} - ${{ needs.get_and_validate_version.outputs.version }}"
           tag: ${{ needs.get_and_validate_version.outputs.version }}
           owner: ${{ env.OWNER_NAME }}
           repo: ${{ env.REPO_NAME }}
           bodyFile: "${{ github.workspace }}/release-notes/${{ steps.release-type.outputs.release-type }}-releases/Release-Notes-${{ needs.get_and_validate_version.outputs.version }}.md"
-          artifacts: "${{ github.workspace }}/release-notes/${{ steps.release-type.outputs.release-type }}-releases/Release-Notes-${{ needs.get_and_validate_version.outputs.version }}.md"
           prerelease: ${{ inputs.release-type }} == 'Preview'
-
-      - name: Close Milestone ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
-        if: inputs.dry-run == false
-        uses: KinsonDigital/Infrastructure/actions/close-milestone@v16.0.0
-        with:
-          repo-owner: "${{ vars.ORGANIZATION_NAME }}"
-          repo-name: "${{ vars.PROJECT_NAME }}"
-          github-token: "${{ secrets.CICD_TOKEN }}"
-          milestone-title: "${{ needs.get_and_validate_version.outputs.version }}"
-          deno-version: "${{ vars.DENO_VERSION }}"
 
       - name: Update CICD Script Version Repo Var ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         env:
@@ -275,3 +171,15 @@ jobs:
           }
 
           deno run -EN "${{ github.workspace }}/.github/internal-cicd/scripts/update-cicd-script-version.ts";
+
+
+  process_milestone:
+    name: Process Milestone
+    needs: [get_and_validate_version, run_prerelease_validation, build, lint, perform_release]
+    uses: ./.github/workflows/process-milestone.yml
+    with:
+      owner-name: "${{ vars.ORGANIZATION_NAME }}"
+      repo-name: "${{ vars.PROJECT_NAME }}"
+      version: "${{ needs.get_and_validate_version.outputs.version }}"
+    secrets:
+      cicd-pat: "${{ secrets.CICD_TOKEN }}"
