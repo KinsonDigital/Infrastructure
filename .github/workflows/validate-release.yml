@@ -143,14 +143,21 @@ jobs:
       - name: Should Fail Job
         env:
           VERSION: "${{ inputs.version }}"
+          TAG_CHECK_FAILED: "${{ steps.tag-check.outcome == 'failure' }}"
+          SDK_CHECK_FAILED: "${{ steps.sdk-check.outcome == 'failure' }}"
+          NOTES_FILE_CHECK_FAILED: "${{ steps.release-notes-check.outcome == 'failure' }}"
+          PACKAGE_CHECK_FAILED: "${{ steps.package-check.outcome == 'failure' }}"
+          MILESTONE_EXISTS: "${{ steps.milestone-exists.outputs.milestone-exists }}"
+          MILESTONE_ITEM_CHECK_FAILED: "${{ steps.milestone-items-check.outcome == 'failure' }}"
+          GITHUB_RELEASE_CHECK_FAILED: "${{ steps.github-release-check.outcome == 'failure' }}"
         run: |
-          $tagCheckFailed = "${{ steps.tag-check.outcome == 'failure' }}";
-          $sdkCheckFailed = "${{ steps.sdk-check.outcome == 'failure' }}";
-          $notesFileCheckFailed = "${{ steps.release-notes-check.outcome == 'failure' }}";
-          $packageCheckFailed = "${{ steps.package-check.outcome == 'failure' }}";
-          $milestoneExists = "${{ steps.milestone-exists.outputs.milestone-exists }}";
-          $milestoneItemsCheckFailed = "${{ steps.milestone-items-check.outcome == 'failure' }}";
-          $githubReleaseCheckFailed = "${{ steps.github-release-check.outcome == 'failure' }}";
+          $tagCheckFailed = "$env:TAG_CHECK_FAILED";
+          $sdkCheckFailed = "$env:SDK_CHECK_FAILED";
+          $notesFileCheckFailed = "$env:NOTES_FILE_CHECK_FAILED";
+          $packageCheckFailed = "$env:PACKAGE_CHECK_FAILED";
+          $milestoneExists = "$env:MILESTONE_EXISTS";
+          $milestoneItemsCheckFailed = "$env:MILESTONE_ITEM_CHECK_FAILED";
+          $githubReleaseCheckFailed = "$env:GITHUB_RELEASE_CHECK_FAILED";
 
           if ($tagCheckFailed -eq "true") {
             Write-Host "::error::Tag already exists.  Please update the version in the 'deno.json' file.";

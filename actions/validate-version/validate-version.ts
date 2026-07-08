@@ -23,8 +23,7 @@ const versionIsInvalid = releaseType === "production"
 
 if (versionIsInvalid) {
 	const prefix = stripVPrefix ? "" : "v";
-	const releaseTypeStr = releaseType === "production" || releaseType === "preview" ? releaseType : "production or preview";
-	const errorMsg = `\nThe version is not in the correct ${releaseTypeStr} version syntax.` +
+	const errorMsg = `\nThe version is not in the correct ${releaseType} version syntax.` +
 		`\n\tThe production version syntax is as follows: ${prefix}<major>.<minor>.<patch>` +
 		`\n\tThe preview version syntax is as follows: ${prefix}<major>.<minor>.<patch>-preview.<preview number>`;
 

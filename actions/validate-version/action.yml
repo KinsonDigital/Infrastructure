@@ -29,7 +29,7 @@ runs:
     - name: Run Script
       shell: pwsh
       env:
-        VERSION: "${{ inputs.VERSION }}"
+        VERSION: "${{ inputs.version }}"
         STRIP_V_PREFIX: "${{ inputs.strip-v-prefix }}"
         RELEASE_TYPE: "${{ inputs.release-type }}"
       run: |

@@ -27,7 +27,6 @@ runs:
       env:
         RELEASE_NOTES_FILE_PATH: "${{ inputs.release-notes-file-path }}"
         FAIL_IF_DOES_NOT_EXIST: "${{ inputs.fail-if-does-not-exist }}"
-        GITHUB_TOKEN: "${{ inputs.github-token }}"
       run: |
         $scriptFilePath = "$env:GITHUB_ACTION_PATH/release-notes-exist.ts";
 

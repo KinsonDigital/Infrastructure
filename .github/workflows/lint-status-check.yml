@@ -1,6 +1,10 @@
 name: ✅ Lint Status Check
 
 
+permissions:
+  contents: read
+
+
 defaults:
   run:
     shell: pwsh

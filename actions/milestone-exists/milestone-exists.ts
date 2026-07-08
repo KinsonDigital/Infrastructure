@@ -1,7 +1,8 @@
 import { MilestoneClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/github";
-import { getEnvVar, isNothing } from "../../cicd/core/Utils.ts";
+import { getEnvVar } from "../../cicd/core/Utils.ts";
 import { printAsGitHubError, setGitHubOutput } from "../../cicd/core/github.ts";
 import { validateOrgExists, validateRepoExists } from "../../cicd/core/Validators.ts";
+import { isNothing } from "../../cicd/core/guards.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 

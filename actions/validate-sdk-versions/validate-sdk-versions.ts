@@ -1,6 +1,7 @@
 import { walkSync } from "jsr:@std/fs@1.0.23";
-import { getEnvVar, isNothing } from "../../cicd/core/Utils.ts";
+import { getEnvVar } from "../../cicd/core/Utils.ts";
 import { printAsGitHubError } from "../../cicd/core/github.ts";
+import { isNothing } from "../../cicd/core/guards.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 

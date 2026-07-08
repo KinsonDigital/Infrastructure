@@ -52,9 +52,9 @@ on:
       cicd-pat:
         required: true
         description: The CICD personal access token.
-      nuget-org-api-key:
+      nuget-user:
         required: true
-        description: The NuGet.org API key.
+        description: "The nuget user for authenticating with nuget.org to push packages."
       telemetry-key:
         required: false
         description: The telemetry key to use if telemetry is enabled.
@@ -112,7 +112,7 @@ jobs:
         uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
         id: login
         with:
-          user: ${{ secrets.NUGET_USER }}
+          user: ${{ secrets.nuget-user }}
 
       - name: Publish NuGet Package
         env:

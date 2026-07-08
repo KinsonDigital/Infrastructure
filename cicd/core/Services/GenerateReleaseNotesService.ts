@@ -2,7 +2,8 @@ import { ReleaseType } from "../Enums.ts";
 import { IssueModel, PullRequestModel } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/github/models";
 import { HTMLService } from "./HTMLService.ts";
 import { MarkdownService } from "./MarkdownService.ts";
-import { firstLetterToUpper, isNothing } from "../Utils.ts";
+import { firstLetterToUpper } from "../Utils.ts";
+import { isNothing } from "../guards.ts";
 
 /**
  * Generates preview or production release notes.

@@ -66,8 +66,8 @@ jobs:
       - name: Close Milestone
         uses: ./actions/close-milestone
         with:
-          repo_owner: ${{ inputs.owner-name }}
-          repo_name: ${{ inputs.repo-name }}
+          repo-owner: ${{ inputs.owner-name }}
+          repo-name: ${{ inputs.repo-name }}
           milestone-title: "${{ inputs.version }}"
           github-token: "${{ secrets.cicd-pat }}"
 

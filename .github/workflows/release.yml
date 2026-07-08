@@ -2,6 +2,10 @@ name: 🚀 Release
 run-name: 🚀 ${{ inputs.release-type }} Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
 
 
+permissions:
+  contents: read
+
+
 defaults:
   run:
     shell: pwsh
@@ -132,17 +136,12 @@ jobs:
           NEW_VERSION: "${{ needs.get_and_validate_version.outputs.version }}"
           GITHUB_TOKEN: "${{ secrets.CICD_TOKEN }}"
         run: |
-          if ("${{ inputs.dry-run == true }}" -eq "true") {
-            Write-Host "::notice::Updating 'INFRASTRUCTURE_VERSION' repository variable ...";
-            exit 0;
-          }
-
           deno run -ERWN "${{ github.workspace }}/.github/internal-cicd/scripts/update-workflow-versions.ts";
 
           $releaseType = "${{ inputs.release-type }}";
 
           git config --global user.email "${{ vars.GIT_CONFIG_EMAIL }}";
-          git config --global user.name "CICD Release Script - (On behalf of Calvin Wilkinson)"; 
+          git config --global user.name "CICD Release Script - (On behalf of Calvin Wilkinson)";
 
           git add -A;
           git commit -m "🚀$releaseType (${{ needs.get_and_validate_version.outputs.version }}) - Update reusable workflow versions";

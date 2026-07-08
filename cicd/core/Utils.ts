@@ -7,7 +7,7 @@ import {
 	PullRequestModel,
 	UserModel,
 } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/github/models";
-import { isLessThanOne } from "./guards.ts";
+import { isLessThanOne, isNothing } from "./guards.ts";
 
 const prodVersionWithVPrefixRegex = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)$/;
 const prodVersionWithoutVPrefixRegex = /^([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)$/;
@@ -42,29 +42,6 @@ export function printInGroup(title: string, lineOrLines: string | string[]): voi
 	}
 
 	console.log("::endgroup::");
-}
-
-/**
- * Checks if the value is null, undefined, or empty.
- * @param value The value to check.
- * @returns True if the value is null, undefined, or empty, otherwise false.
- */
-export function isNothing<T>(
-	value: undefined | null | string | number | boolean | T[] | (() => T) | object,
-): value is undefined | null | "" | number | T[] | (() => T) {
-	if (value === undefined || value === null) {
-		return true;
-	}
-
-	if (typeof value === "string") {
-		return value === "";
-	}
-
-	if (Array.isArray(value)) {
-		return value.length === 0;
-	}
-
-	return false;
 }
 
 /**
@@ -142,7 +119,7 @@ export function printProblemList(problems: string[], successMsg: string, failure
 export function numberItems(items: string[]): string[] {
 	const result: string[] = [];
 
-	for (let i = 0; i < items.length - 1; i++) {
+	for (let i = 0; i < items.length; i++) {
 		result.push(`${toOrdinal(i + 1)} ${items[i]}}`);
 	}
 
@@ -159,7 +136,7 @@ export function numberItems(items: string[]): string[] {
 export function printAsNumberedList(prefix: string, items: string[], logType: GitHubLogType = GitHubLogType.normal): void {
 	const argInfos: string[] = [];
 
-	for (let i = 0; i < items.length - 1; i++) {
+	for (let i = 0; i < items.length; i++) {
 		argInfos.push(`${toOrdinal(i + 1)}${prefix}${items[i]}`);
 	}
 
@@ -286,7 +263,7 @@ export function buildPullRequestUrl(repoOwner: string, repoName: string, prNumbe
 		throw new Error("repoOwner parameter cannot be null, undefined, or empty.");
 	}
 	if (isNothing(repoName)) {
-		throw new Error("repoOwner parameter cannot be null, undefined, or empty.");
+		throw new Error("repoName parameter cannot be null, undefined, or empty.");
 	}
 
 	if (isLessThanOne(prNumber)) {
@@ -447,7 +424,7 @@ export function firstLetterToUpper(value: string): string {
  * @returns The given {@link value} with normalized line endings.
  */
 export function normalizeLineEndings(value: string): string {
-	return value.indexOf("\\r\\n") === -1 ? value.replaceAll("\\r\\n", "\\n") : value;
+	return value.includes("\r\n") ? value.replaceAll("\r\n", "\n") : value;
 }
 
 /**
@@ -475,8 +452,8 @@ export function trimAllStartingWhiteSpace(value: string): string {
 		return value;
 	}
 
-	trimAllStartingValue(value, "");
-	trimAllStartingValue(value, "\t");
+	value = trimAllStartingValue(value, " ");
+	value = trimAllStartingValue(value, "\t");
 
 	return value;
 }
