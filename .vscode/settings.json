@@ -31,6 +31,7 @@
 		"snupkg",
 		"tasklist",
 		"Transpiles",
+		"vnext",
 		"zipball"
 	],
 	"files.exclude": {
