@@ -1,0 +1,40 @@
+name: "Create Milestone"
+description: "Creates a new milestone for a GitHub repository"
+inputs:
+  repo-owner:
+    description: "The owner of the repository."
+    required: true
+  repo-name:
+    description: "The name of the repository."
+    required: true
+  milestone-title:
+    description: "The title of the milestone to create."
+    required: true
+  github-token:
+    description: "The GitHub token used to authenticate API requests."
+    required: true
+  cache-enabled:
+    description: "Whether to enable caching of the Deno installation."
+    required: false
+    default: "true"
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Deno (v2.7.14)
+      uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed #v2.0.5
+      with:
+        deno-version: v2.7.14
+        cache: ${{ inputs.cache-enabled == 'true' }}
+
+    - name: Run Script
+      shell: pwsh
+      env:
+        REPO_OWNER: "${{ inputs.repo-owner }}"
+        REPO_NAME: "${{ inputs.repo-name }}"
+        MILESTONE_TITLE: "${{ inputs.milestone-title }}"
+        GITHUB_TOKEN: "${{ inputs.github-token }}"
+        DENO_AUTH_TOKENS: "${{ inputs.github-token }}@raw.githubusercontent.com"
+      run: |
+        $scriptFilePath = "$env:GITHUB_ACTION_PATH/create-milestone.ts";
+
+        deno run -ERN $scriptFilePath;
