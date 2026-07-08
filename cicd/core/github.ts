@@ -66,3 +66,34 @@ export function setGitHubOutput(name: string, value: string): void {
 
 	Deno.writeTextFileSync(githubOutputFilePath, `${name}=${value}\n`, { append: true });
 }
+
+/**
+ * Creates a new milestone in the specified GitHub repository.
+ * @param ownerName The name of the repository owner.
+ * @param repoName The name of the repository.
+ * @param milestoneTitle The title of the milestone to create.
+ * @param token The GitHub personal access token.
+ */
+export async function createMilestone(ownerName: string, repoName: string, milestoneTitle: string, token: string): Promise<void> {
+	const url = `https://api.github.com/repos/${ownerName}/${repoName}/milestones`;
+
+	const response = await fetch(url, {
+		method: "POST",
+		headers: {
+			"Accept": "application/vnd.github.v3+json",
+			"X-GitHub-Api-Version": "2022-11-28",
+			"Authorization": `Bearer ${token}`,
+		},
+		body: JSON.stringify({
+			title: milestoneTitle,
+		}),
+	});
+
+	if (response.status !== 201) {
+		const responseBody = await response.text();
+		const otherInfo = `Error: ${response.status} ${response.statusText}\nResponse: ${responseBody}`;
+
+		const errorMsg = `::error::Failed to create the '${milestoneTitle}' milestone.\n${otherInfo}`;
+		throw new Error(errorMsg);
+	}
+}
