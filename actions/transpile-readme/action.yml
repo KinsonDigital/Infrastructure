@@ -11,9 +11,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout Repository
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
-
     - name: Setup Deno (v2.7.14)
       uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed #v2.0.5
       with:
