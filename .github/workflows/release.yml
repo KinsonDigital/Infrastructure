@@ -26,11 +26,6 @@ on:
         type: boolean
 
 
-env:
-  OWNER_NAME: "${{ vars.ORGANIZATION_NAME }}"
-  REPO_NAME: "${{ vars.PROJECT_NAME }}"
-
-
 jobs:
   get_and_validate_version:
     name: Get And Validate Version
@@ -138,6 +133,8 @@ jobs:
       - name: Update Reusable Workflow Versions ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: inputs.dry-run == false
         env:
+          OWNER_NAME: "${{ vars.ORGANIZATION_NAME }}"
+          REPO_NAME: "${{ vars.PROJECT_NAME }}"
           BASE_DIR_PATH: "${{ github.workspace }}/.github/workflows"
           NEW_VERSION: "${{ needs.get_and_validate_version.outputs.version }}"
           GITHUB_TOKEN: "${{ secrets.CICD_TOKEN }}"
@@ -156,6 +153,9 @@ jobs:
       - name: Create GitHub Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: inputs.dry-run == false
         uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
+        env:
+          OWNER_NAME: "${{ vars.ORGANIZATION_NAME }}"
+          REPO_NAME: "${{ vars.PROJECT_NAME }}"
         with:
           name: "🚀${{ inputs.release-type }} - ${{ needs.get_and_validate_version.outputs.version }}"
           tag: ${{ needs.get_and_validate_version.outputs.version }}
