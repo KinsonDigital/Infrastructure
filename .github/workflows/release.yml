@@ -50,7 +50,7 @@ jobs:
         id: validate-version
         uses: ./actions/validate-version@v16.0.0
         with:
-          version: "${{ steps.get-version.outputs.version}}"
+          version: "${{ steps.get-version.outputs.version }}"
           release-type: "${{ inputs.release-type }}"
           deno-version: "${{ vars.DENO_VERSION }}"
 
@@ -66,7 +66,7 @@ jobs:
       release-type: "${{ inputs.release-type }}"
       relative-release-notes-file-path: "release-notes/${{ inputs.release-type }}-releases/Release-Notes-${{ needs.get_and_validate_version.outputs.version }}.md"
     secrets:
-      cicd-pat: ${{ secrets.CICD_TOKEN }}
+      cicd-pat: "${{ secrets.CICD_TOKEN }}"
 
 
   build:
@@ -102,7 +102,7 @@ jobs:
           cache: true
 
       - name: Lint
-        run: deno lint "./**/*.ts";
+        run: deno lint ./**/*.ts;
 
 
   perform_release:
@@ -144,7 +144,7 @@ jobs:
           git config --global user.name "CICD Release Script - (On behalf of Calvin Wilkinson)";
 
           git add -A;
-          git commit -m "🚀$releaseType (${{ needs.get_and_validate_version.outputs.version }}) - Update reusable workflow versions";
+          git commit -m --allow-empty "🚀$releaseType (${{ needs.get_and_validate_version.outputs.version }}) - Update reusable workflow versions";
           git push;
 
       - name: Create GitHub Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
@@ -156,20 +156,15 @@ jobs:
           owner: ${{ env.OWNER_NAME }}
           repo: ${{ env.REPO_NAME }}
           bodyFile: "${{ github.workspace }}/release-notes/${{ steps.release-type.outputs.release-type }}-releases/Release-Notes-${{ needs.get_and_validate_version.outputs.version }}.md"
-          prerelease: ${{ inputs.release-type }} == 'Preview'
+          prerelease: ${{ inputs.release-type == 'Preview' }}
 
       - name: Update CICD Script Version Repo Var ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
+        if: ${{ inputs.dry-run == false }}
         env:
           INFRASTRUCTURE_VERSION_REPO_VAR_NAME: "INFRASTRUCTURE_VERSION"
           VERSION: "${{ needs.get_and_validate_version.outputs.version }}"
           GITHUB_TOKEN: "${{ secrets.CICD_TOKEN }}"
-        run: |
-          if ("${{ inputs.dry-run == true }}" -eq "true") {
-            Write-Host "::notice::Updating 'INFRASTRUCTURE_VERSION' repository variable ...";
-            exit 0;
-          }
-
-          deno run -EN "${{ github.workspace }}/.github/internal-cicd/scripts/update-cicd-script-version.ts";
+        run: deno run -EN "${{ github.workspace }}/.github/internal-cicd/scripts/update-cicd-script-version.ts";
 
 
   process_milestone:
