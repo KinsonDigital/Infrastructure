@@ -142,7 +142,7 @@ jobs:
           NEW_VERSION: "${{ needs.get_and_validate_version.outputs.version }}"
           GITHUB_TOKEN: "${{ secrets.CICD_TOKEN }}"
         run: |
-          deno run -ERWN "${{ github.workspace }}/.github/internal-cicd/scripts/update-workflow-versions.ts";
+          deno run -ERWN "${{ github.workspace }}/.github/internal-cicd/scripts/update-infrastructure-versions.ts";
 
           $releaseType = "${{ inputs.release-type }}";
 
