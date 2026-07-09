@@ -34,7 +34,7 @@ env:
 jobs:
   get_and_validate_version:
     name: Get And Validate Version
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-26.04
     outputs:
       version: ${{ steps.get-version.outputs.version }}
     steps:
@@ -71,7 +71,7 @@ jobs:
 
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-26.04
     needs: [get_and_validate_version, run_prerelease_validation]
     steps:
       - name: Checkout Repository
@@ -89,7 +89,7 @@ jobs:
 
   lint:
     name: Lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-26.04
     needs: [get_and_validate_version, run_prerelease_validation]
     steps:
       - name: Checkout Repository
@@ -107,7 +107,7 @@ jobs:
 
   perform_release:
     name: Perform ${{ inputs.release-type }} Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-26.04
     needs: [get_and_validate_version, run_prerelease_validation, build, lint]
     permissions:
       contents: write
