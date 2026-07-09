@@ -164,14 +164,6 @@ jobs:
           bodyFile: "${{ github.workspace }}/release-notes/${{ steps.release-type.outputs.release-type }}-releases/Release-Notes-${{ needs.get_and_validate_version.outputs.version }}.md"
           prerelease: ${{ inputs.release-type == 'Preview' }}
 
-      - name: Update CICD Script Version Repo Var ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
-        if: ${{ inputs.dry-run == false }}
-        env:
-          INFRASTRUCTURE_VERSION_REPO_VAR_NAME: "INFRASTRUCTURE_VERSION"
-          VERSION: "${{ needs.get_and_validate_version.outputs.version }}"
-          GITHUB_TOKEN: "${{ secrets.CICD_TOKEN }}"
-        run: deno run -EN "${{ github.workspace }}/.github/internal-cicd/scripts/update-cicd-script-version.ts";
-
 
   process_milestone:
     name: Process Milestone
