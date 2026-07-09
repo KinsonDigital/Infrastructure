@@ -1,8 +1,8 @@
 name: "Release Notes Exist"
 description: "Checks if a release notes file exists."
 inputs:
-  release-notes-file-path:
-    description: "The fully qualified file path to the release notes file."
+  relative-release-notes-file-path:
+    description: "The relative file path to the release notes file."
     required: true
   fail-if-does-not-exist:
     description: "Fail if the release notes do not exist."
@@ -25,7 +25,7 @@ runs:
       id: run-script
       shell: pwsh
       env:
-        RELEASE_NOTES_FILE_PATH: "${{ inputs.release-notes-file-path }}"
+        RELATIVE_RELEASE_NOTES_FILE_PATH: "${{ inputs.relative-release-notes-file-path }}"
         FAIL_IF_DOES_NOT_EXIST: "${{ inputs.fail-if-does-not-exist }}"
       run: |
         $scriptFilePath = "$env:GITHUB_ACTION_PATH/release-notes-exist.ts";
