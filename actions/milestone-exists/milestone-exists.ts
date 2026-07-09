@@ -17,14 +17,25 @@ await validateRepoExists(ownerName, repoName, token);
 
 const milestoneClient = new MilestoneClient(ownerName, repoName, token);
 
-const milestoneExists = await milestoneClient.exists(milestoneName);
+let milestoneExists = await milestoneClient.exists(milestoneName);
 
-setGitHubOutput("milestone-exists", milestoneExists ? "true" : "false");
-
-if (failIfDoesNotExist && !milestoneExists) {
-	const errorMsg = `The milestone '${milestoneName}' for repo '${repoName}' does not exist.` +
-		(isNothing(scriptFileName) ? "" : `\n\t${scriptFileName}`);
+try {
+	milestoneExists = await milestoneClient.exists(milestoneName);
+	
+	setGitHubOutput("milestone-exists", milestoneExists ? "true" : "false");
+	
+	if (failIfDoesNotExist && !milestoneExists) {
+		const errorMsg = `The milestone '${milestoneName}' for repo '${repoName}' does not exist.` +
+			(isNothing(scriptFileName) ? "" : `\n\t${scriptFileName}`);
+	
+		printAsGitHubError(errorMsg);
+	
+		Deno.exit(1);
+	}
+} catch (error) {
+	const errorMsg = error instanceof Error ? error.message : String(error);
 
 	printAsGitHubError(errorMsg);
+
 	Deno.exit(1);
 }
