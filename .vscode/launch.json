@@ -623,5 +623,28 @@
 			},
 			"console": "integratedTerminal"
 		},
+		{ // GET NEXT PREVIEW VERSION
+			"name": "Get Next Preview Version",
+			"request": "launch",
+			"type": "node",
+			"program": "${workspaceFolder}/.github/reusable-workflow-scripts/get-next-preview-version.ts",
+			"cwd": "${workspaceFolder}",
+			"env": {
+				"PREVIEW_VERSION": "v11.22.33-preview.44"
+			},
+			"runtimeArgs": [
+				"run",
+				"-ERW",
+				"--inspect-wait",
+			],
+			"attachSimplePort": 9229,
+			"windows": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
+			},
+			"linux": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno"
+			},
+			"console": "integratedTerminal"
+		},
 	]
 }
