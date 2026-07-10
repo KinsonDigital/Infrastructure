@@ -37,35 +37,54 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
         with:
           repository: KinsonDigital/Infrastructure
-          ref: v18.0.0
+          ref: feature/121-update-dotnet-lib-workflow
 
       - name: Get Version
         id: get-version
-        uses: ./actions/get-version@v16.0.0
+        uses: ./actions/get-version
         with:
           version-file-path: "${{ github.workspace }}/deno.json"
-          deno-version: "${{ vars.DENO_VERSION }}"
           json-prop-path: "version"
 
       - name: Validate Version
         id: validate-version
-        uses: ./actions/validate-version@v16.0.0
+        uses: ./actions/validate-version
         with:
           version: "${{ steps.get-version.outputs.version }}"
           release-type: "${{ inputs.release-type }}"
-          deno-version: "${{ vars.DENO_VERSION }}"
+
+  
+  create_release_notes_file_path:
+    name: Create Release Notes File Path
+    needs: [get_and_validate_version]
+    runs-on: ubuntu-22.04
+    outputs:
+      release-notes-file-path: ${{ steps.build-file-path.outputs.file-path }}
+    steps:
+      - name: Build File Path
+        id: build-file-path
+        env:
+          RELEASE_TYPE: "${{ inputs.release-type }}"
+          VERSION: "${{ needs.get_and_validate_version.outputs.version }}"
+        run: |
+          $releaseType = "$env:RELEASE_TYPE".ToLower();
+          $version = "$env:VERSION";
+          $releaseNotesFilePath = "release-notes/$releaseType-releases/Release-Notes-$version.md";
+
+          "file-path=$releaseNotesFilePath" >> "$env:GITHUB_OUTPUT";
 
 
   run_prerelease_validation:
     name: Run Pre-Release Validation
-    needs: [get_and_validate_version]
+    needs: [get_and_validate_version, create_release_notes_file_path]
     uses: ./.github/workflows/validate-release.yml
     with:
       owner-name: "${{ vars.ORGANIZATION_NAME }}"
       repo-name: "${{ vars.PROJECT_NAME }}"
       version: "${{ needs.get_and_validate_version.outputs.version }}"
+      is-dotnet-project: false
       release-type: "${{ inputs.release-type }}"
-      relative-release-notes-file-path: "release-notes/${{ inputs.release-type }}-releases/Release-Notes-${{ needs.get_and_validate_version.outputs.version }}.md"
+      relative-release-notes-file-path: "${{ needs.create_release_notes_file_path.outputs.release-notes-file-path }}"
     secrets:
       cicd-pat: "${{ secrets.CICD_TOKEN }}"
 
@@ -109,7 +128,7 @@ jobs:
   perform_release:
     name: Perform ${{ inputs.release-type }} Release
     runs-on: ubuntu-22.04
-    needs: [get_and_validate_version, run_prerelease_validation, build, lint]
+    needs: [get_and_validate_version, create_release_notes_file_path, run_prerelease_validation, build, lint]
     permissions:
       contents: write
     steps:
@@ -128,7 +147,7 @@ jobs:
         id: release-type
         run: |
           $releaseType = "${{ inputs.release-type }}".ToLower();
-          "release-type=$releaseType" > "$env:GITHUB_OUTPUT";
+          "release-type=$releaseType" >> "$env:GITHUB_OUTPUT";
 
       - name: Update Reusable Workflow Versions ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: inputs.dry-run == false
@@ -147,7 +166,7 @@ jobs:
           git config --global user.name "CICD Release Script - (On behalf of Calvin Wilkinson)";
 
           git add -A;
-          git commit -m --allow-empty "🚀$releaseType (${{ needs.get_and_validate_version.outputs.version }}) - Update reusable workflow versions";
+          git commit --allow-empty -m "🚀$releaseType Release (${{ needs.get_and_validate_version.outputs.version }})";
           git push;
 
       - name: Create GitHub Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}

@@ -28,11 +28,12 @@ if (!prevVersionRegex.test(previewVersion)) {
 
 // Remove the 'v' prefix if it exists
 const trimmedPreviewVersion = previewVersion.at(0) === "v" ? previewVersion.slice(1) : previewVersion;
-const leftSectionParts = trimmedPreviewVersion.split("-")[0];
+const leftSection = trimmedPreviewVersion.split("-")[0];
+const [majorStr, minorStr, patchStr] = leftSection.split(".");
 
-const major: number = parseInt(leftSectionParts[0], 10);
-const minor: number = parseInt(leftSectionParts[1], 10);
-const patch: number = parseInt(leftSectionParts[2], 10);
+const major: number = parseInt(majorStr, 10);
+const minor: number = parseInt(minorStr, 10);
+const patch: number = parseInt(patchStr, 10);
 
 const rightSectionParts = trimmedPreviewVersion.split("-")[1].split(".");
 const previewNumber: number = parseInt(rightSectionParts[1], 10);

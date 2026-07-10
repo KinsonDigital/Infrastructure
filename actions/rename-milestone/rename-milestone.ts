@@ -5,9 +5,9 @@ const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
 const ownerName = getEnvVar("REPO_OWNER", scriptFileName);
 const repoName = getEnvVar("REPO_NAME", scriptFileName);
-const githubToken = getEnvVar("GITHUB_TOKEN", scriptFileName);
 const currentMilestoneName = getEnvVar("CURRENT_MILESTONE_NAME", scriptFileName);
 const newMilestoneName = getEnvVar("NEW_MILESTONE_NAME", scriptFileName);
+const githubToken = getEnvVar("GITHUB_TOKEN", scriptFileName);
 
 const milestoneClient = new MilestoneClient(ownerName, repoName, githubToken);
 

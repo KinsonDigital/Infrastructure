@@ -596,5 +596,32 @@
 			},
 			"console": "integratedTerminal"
 		},
+		{ // RENAME MILESTONE
+			"name": "Rename Milestone",
+			"request": "launch",
+			"type": "node",
+			"program": "${workspaceFolder}/actions/rename-milestone/rename-milestone.ts",
+			"cwd": "${workspaceFolder}",
+			"env": {
+				"REPO_OWNER": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+				"CURRENT_MILESTONE_NAME": "vnext",
+				"NEW_MILESTONE_NAME": "v11.22.33"
+			},
+			"runtimeArgs": [
+				"run",
+				"-ERWN",
+				"--inspect-wait",
+			],
+			"attachSimplePort": 9229,
+			"windows": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
+			},
+			"linux": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno"
+			},
+			"console": "integratedTerminal"
+		},
 	]
 }

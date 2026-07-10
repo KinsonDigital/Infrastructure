@@ -14,24 +14,28 @@ on:
   workflow_call:
     inputs:
       owner-name:
-        required: true
         description: "The name of the repository owner."
+        required: true
         type: string
       repo-name:
-        required: true
         description: "The name of the repository."
+        required: true
         type: string
       version:
-        required: true
         description: "The application/library version."
+        required: true
         type: string
       release-type:
+        description: "The type of release to validate.  Either 'Preview' or 'Production'."
         required: true
-        description: The type of release to validate.  Either 'Preview' or 'Production'.
         type: string
-      relative-release-notes-file-path:
+      is-dotnet-project:
         required: true
-        description: The file path to the release notes file to check for existence.
+        description: "True if the project is a dotnet project."
+        type: boolean
+      relative-release-notes-file-path:
+        description: "The file path to the release notes file to check for existence."
+        required: true
         type: string
     secrets:
       cicd-pat:
@@ -49,7 +53,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
         with:
           repository: KinsonDigital/Infrastructure
-          ref: v18.0.0
+          ref: feature/121-update-dotnet-lib-workflow
 
       - name: Set Up Deno (v2.9.2)
         uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed #v2.0.5
@@ -87,6 +91,7 @@ jobs:
         continue-on-error: true
 
       - name: Validate SDK Versions
+        if: ${{ inputs.is-dotnet-project == 'true' }}
         id: sdk-check
         uses: ./actions/validate-sdk-versions
         with:
@@ -103,6 +108,7 @@ jobs:
         continue-on-error: true
 
       - name: Nuget Package Does Not Exist
+        if: ${{ inputs.is-dotnet-project == 'true' }}
         id: package-check
         uses: ./actions/nuget-pkg-exists
         with:
@@ -116,7 +122,7 @@ jobs:
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.repo-name }}"
-          milestone-name: "${{ inputs.version }}"
+          milestone-name: "${{ inputs.release-type == 'Production' && 'vnext' || inputs.version }}"
           github-token: "${{ secrets.cicd-pat }}"
         continue-on-error: true
 
@@ -126,7 +132,7 @@ jobs:
         with:
           owner-name: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.repo-name }}"
-          milestone-name: "${{ inputs.version }}"
+          milestone-name: "${{ inputs.release-type == 'Production' && 'vnext' || inputs.version }}"
           github-token: "${{ secrets.cicd-pat }}"
           fail-if-all-items-not-closed: true
         continue-on-error: true

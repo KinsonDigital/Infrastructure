@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
         with:
           repository: KinsonDigital/Infrastructure
-          ref: v18.0.0
+          ref: feature/121-update-dotnet-lib-workflow
 
       - name: Set Up Deno (v2.9.x)
         uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed #v2.0.5
@@ -51,13 +51,13 @@ jobs:
         id: get-version-type
         env:
           VERSION: "${{ inputs.version }}"
-        run: deno run -EN "$env:GITHUB_WORKSPACE/.github/reusable-workflow-scripts/get-version-type.ts";
+        run: deno run -ERWN "$env:GITHUB_WORKSPACE/.github/reusable-workflow-scripts/get-version-type.ts";
 
       - name: Rename Milestone
         if: ${{ steps.get-version-type.outputs.version-type == 'production' }}
         uses: ./actions/rename-milestone
         with:
-          owner-name: "${{ inputs.owner-name }}"
+          repo-owner: "${{ inputs.owner-name }}"
           repo-name: "${{ inputs.repo-name }}"
           current-milestone-name: "vnext"
           new-milestone-name: "${{ inputs.version }}"
@@ -85,7 +85,7 @@ jobs:
         id: get-next-preview-version
         env:
           PREVIEW_VERSION: "${{ inputs.version }}"
-        run: deno run -EN "$env:GITHUB_WORKSPACE/.github/reusable-workflow-scripts/get-next-preview-version.ts";
+        run: deno run -ERW "$env:GITHUB_WORKSPACE/.github/reusable-workflow-scripts/get-next-preview-version.ts";
 
       - name: Create New Preview Milestone
         if: ${{ steps.get-version-type.outputs.version-type == 'preview' }}

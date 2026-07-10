@@ -1,7 +1,17 @@
 {
+	"deno.enable": true,
+	"deno.lint": true,
 	"window.title": "🦕Infrastructure (PERSONAL)",
 	"workbench.colorCustomizations": {
 		"titleBar.activeBackground": "#21351f"
+	},
+	"workbench.editor.customLabels.patterns": {
+		"**/actions/**/*.yml": "${dirname} 🎬",
+		"**/actions/**/*.ts": "${dirname} 🎬",
+		"**/.github/workflows/*status-check.yml": "${filename} ✅",
+		"**/.github/workflows/*release*.yml": "${filename} 🚀",
+		"**/.github/workflows/*.yml": "${filename} ⚡",
+		"**/*.json": "${filename} ⚙️",
 	},
 	"files.eol": "\n",
 	"cSpell.words": [
@@ -34,6 +44,14 @@
 		"vnext",
 		"zipball"
 	],
+	"editor.quickSuggestions": {
+		"other": "on",
+		"comments": "on",
+		"strings": "on"
+	},
+	"chat.disableAIFeatures": true,
+	"editor.suggest.preview": true,
+	"editor.inlineSuggest.enabled": true,
 	"files.exclude": {
 		"**/.git": true,
 		"**/.svn": true,
@@ -44,8 +62,6 @@
 		"**/cicd/**/bin": true,
 		"**/cicd/**/obj": true,
 	},
-	"deno.enable": true,
-	"deno.lint": true,
 	"[typescript]": {
 		"editor.insertSpaces": false,
 		"editor.tabSize": 4,
