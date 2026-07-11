@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/KinsonDigital/Infrastructure/refs/tags/v16.0.0/dev-tools/release-notes-settings-schema.json",
+    "$schema": "../dev-tools/release-notes-settings-schema.json",
     "ownerName": "KinsonDigital",
     "repoName": "Infrastructure",
     "githubTokenEnvVarName": "CICD_TOKEN",
@@ -10,17 +10,16 @@
     "relativeReleaseNotesDirPath": "release-notes",
     "emojisToRemoveFromTitle": ["🚧", "🐛", "✨", "🚀", "🧪", "🔬"],
     "issueCategoryLabelMappings": {
-        "breaking-changes": "breaking-changes"
+        "breaking-changes": "Breaking Changes 🧨",
+        "dependency-update": "Dependency Updates 📦"
     },
     "issueCategoryIssueTypeMappings": {
-        "CICD": "CICD ⚙️",
-        "Bug": "Bug Fixes 🐛",
-        "Enhancement": "Enhancements 💎",
         "Feature": "Features ✨",
-        "Project-Config": "Configuration 🛠️",
-        "Research": "Research 🔬",
-        "QA-Testing": "Testing 🧪",
+        "Enhancement": "Enhancements 💎",
+        "Bug": "Bug Fixes 🐛",
         "Tech-Debt": "Tech Debt 📉",
+        "Project-Config": "Configuration 🛠️",
+        "CICD": "CICD ⚙️",
         "Dependency-Update": "Dependency Updates 📦"
     },
     "prCategoryLabelMappings": {

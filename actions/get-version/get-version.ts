@@ -14,7 +14,7 @@ const versionFileExtension = extname(versionFilePath).toLowerCase();
 // Check if the extension is a csproj or json file
 if (versionFileExtension !== ".csproj" && versionFileExtension !== ".json") {
 	const errorMsg =
-		`The version file path '${versionFilePath}' is not a valid file type.  Valid file types are '.csproj' and 'json'.`;
+		`The version file path '${versionFilePath}' is not a valid file type.  Valid file types are '.csproj' and '.json'.`;
 	console.error(errorMsg);
 	Deno.exit(1);
 }

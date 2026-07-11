@@ -325,11 +325,11 @@
 				"runtimeExecutable": "${userHome}/.deno/bin/deno"
 			}
 		},
-		{ // UPDATE WORKFLOW VERSIONS
-			"name": "Update Workflow Versions",
+		{ // UPDATE INFRASTRUCTURE VERSIONS
+			"name": "Update Infrastructure Versions",
 			"request": "launch",
 			"type": "node",
-			"program": "${workspaceFolder}/.github/internal-cicd/scripts/update-workflow-versions.ts",
+			"program": "${workspaceFolder}/.github/internal-cicd/scripts/update-infrastructure-versions.ts",
 			"cwd": "${workspaceFolder}",
 			"runtimeArgs": [
 				"run",
@@ -501,32 +501,6 @@
 				"runtimeExecutable": "${userHome}/.deno/bin/deno"
 			}
 		},
-		{ // UPDATE CICD SCRIPT VERSION
-			"name": "Update CICD Script Version",
-			"request": "launch",
-			"type": "node",
-			"program": "${workspaceFolder}/.github/internal-cicd/scripts/update-cicd-script-version.ts",
-			"cwd": "${workspaceFolder}",
-			"runtimeArgs": [
-				"run",
-				"-EN",
-				"--inspect-wait",
-			],
-			"env": {
-				"OWNER_NAME": "KinsonDigital",
-				"REPO_NAME": "Infrastructure",
-				"INFRASTRUCTURE_VERSION_REPO_VAR_NAME": "INFRASTRUCTURE_VERSION",
-				"VERSION": "v1.2.3",
-				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
-			},
-			"attachSimplePort": 9229,
-			"windows": {
-				"runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
-			},
-			"linux": {
-				"runtimeExecutable": "${userHome}/.deno/bin/deno"
-			}
-		},
 		{ // UPDATE COPYRIGHT
 			"name": "Update Copyright",
 			"request": "launch",
@@ -611,6 +585,56 @@
 			"runtimeArgs": [
 				"run",
 				"-ERWN",
+				"--inspect-wait",
+			],
+			"attachSimplePort": 9229,
+			"windows": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
+			},
+			"linux": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno"
+			},
+			"console": "integratedTerminal"
+		},
+		{ // RENAME MILESTONE
+			"name": "Rename Milestone",
+			"request": "launch",
+			"type": "node",
+			"program": "${workspaceFolder}/actions/rename-milestone/rename-milestone.ts",
+			"cwd": "${workspaceFolder}",
+			"env": {
+				"REPO_OWNER": "KinsonDigital",
+				"REPO_NAME": "Infrastructure",
+				"GITHUB_TOKEN": "${env:CICD_TOKEN}",
+				"CURRENT_MILESTONE_NAME": "vnext",
+				"NEW_MILESTONE_NAME": "v11.22.33"
+			},
+			"runtimeArgs": [
+				"run",
+				"-ERWN",
+				"--inspect-wait",
+			],
+			"attachSimplePort": 9229,
+			"windows": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno.exe"
+			},
+			"linux": {
+				"runtimeExecutable": "${userHome}/.deno/bin/deno"
+			},
+			"console": "integratedTerminal"
+		},
+		{ // GET NEXT PREVIEW VERSION
+			"name": "Get Next Preview Version",
+			"request": "launch",
+			"type": "node",
+			"program": "${workspaceFolder}/.github/reusable-workflow-scripts/get-next-preview-version.ts",
+			"cwd": "${workspaceFolder}",
+			"env": {
+				"PREVIEW_VERSION": "v11.22.33-preview.44"
+			},
+			"runtimeArgs": [
+				"run",
+				"-ERW",
 				"--inspect-wait",
 			],
 			"attachSimplePort": 9229,

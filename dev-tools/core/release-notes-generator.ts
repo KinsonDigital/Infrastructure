@@ -19,7 +19,7 @@ export class ReleaseNotesGenerator {
 	 * @param settings The settings to use to generate the release notes.
 	 */
 	public async generateNotes(settings: GeneratorSettings): Promise<string> {
-		this.init(settings);
+		await this.init(settings);
 
 		const releaseNotesList: string[] = [];
 
@@ -54,13 +54,17 @@ export class ReleaseNotesGenerator {
 		const issueTypeNames: string[] = [];
 
 		// Collect all of the issue category names
-		for (const catName in settings.issueCategoryLabelMappings) {
-			issueCatLabels.push(settings.issueCategoryLabelMappings[catName].trim());
+		if (settings.issueCategoryLabelMappings !== undefined) {
+			for (const catName in settings.issueCategoryLabelMappings) {
+				issueCatLabels.push(settings.issueCategoryLabelMappings[catName].trim());
+			}
 		}
 
 		// Collect all of the issueType names
-		for (const catName in settings.issueCategoryIssueTypeMappings) {
-			issueTypeNames.push(catName.trim());
+		if (settings.issueCategoryIssueTypeMappings !== undefined) {
+			for (const catName in settings.issueCategoryIssueTypeMappings) {
+				issueTypeNames.push(catName.trim());
+			}
 		}
 
 		// Get all of the issues that do not have any of the labels in the category labels
@@ -90,7 +94,7 @@ export class ReleaseNotesGenerator {
 	 * Initializes the generator with the given {@link settings}.
 	 * @param settings The settings to use to initialize the generator.
 	 */
-	private init(settings: GeneratorSettings): void {
+	private async init(settings: GeneratorSettings): Promise<void> {
 		if (isNothing(settings.githubTokenEnvVarName)) {
 			const errorMsg = "The 'githubTokenEnvVarName' setting is required and cannot be empty.";
 			throw new Error(errorMsg);
@@ -107,7 +111,7 @@ export class ReleaseNotesGenerator {
 		this.milestoneClient = new MilestoneClient(settings.ownerName, settings.repoName, githubToken);
 		this.repoClient = new RepoClient(settings.ownerName, settings.repoName, githubToken);
 
-		this.validateSettings(settings);
+		await this.validateSettings(settings);
 	}
 
 	/**
@@ -130,9 +134,9 @@ export class ReleaseNotesGenerator {
 			throw new Error(errorMsg);
 		}
 
-		const repoDoesNotExit = !(await this.repoClient?.exists());
+		const repoDoesNotExist = !(await this.repoClient?.exists());
 
-		if (repoDoesNotExit) {
+		if (repoDoesNotExist) {
 			const errorMsg = `The repository '${settings.ownerName}/${settings.repoName}' does not exist.`;
 			throw new Error(errorMsg);
 		}
@@ -221,12 +225,7 @@ export class ReleaseNotesGenerator {
 
 				for (let i = 0; i < catIssues.length; i++) {
 					const issueItem = this.buildLineItem(catIssues[i], i);
-
-					if (categorySection[notesCategoryName] === undefined) {
-						categorySection[notesCategoryName] = [issueItem];
-					} else {
-						categorySection[notesCategoryName].push(issueItem);
-					}
+					categorySection[notesCategoryName].push(issueItem);
 				}
 			}
 		}
@@ -249,7 +248,7 @@ export class ReleaseNotesGenerator {
 		for (const catName in categoryMappings) {
 			const catLabel = categoryMappings[catName];
 
-			const catIssues = issuesOrPrs.filter((issue) => issue.labels.some((label) => label.name === catName));
+			const catIssues = issuesOrPrs.filter((issue) => issue.labels.some((label) => label.name === catLabel));
 
 			if (catIssues.length > 0) {
 				if (categorySection[catName] === undefined) {
@@ -258,12 +257,7 @@ export class ReleaseNotesGenerator {
 
 				for (let i = 0; i < catIssues.length; i++) {
 					const issueItem = this.buildLineItem(catIssues[i], i);
-
-					if (categorySection[catName] === undefined) {
-						categorySection[catName] = [issueItem];
-					} else {
-						categorySection[catName].push(issueItem);
-					}
+					categorySection[catName].push(issueItem);
 				}
 			}
 		}
@@ -377,37 +371,40 @@ export class ReleaseNotesGenerator {
 			}
 		}
 
-		const sections = title.split(" ") ?? [];
+		const sections = title.split(" ");
 
-		for (const wordToReplace in settings.firstWordReplacements) {
-			const replacementWord = settings.firstWordReplacements[wordToReplace];
+		if (settings.firstWordReplacements !== undefined) {
+			for (const wordToReplace in settings.firstWordReplacements) {
+				const replacementWord = settings.firstWordReplacements[wordToReplace];
 
-			// Get the first word and trim all periods from the end
-			let firstWord = sections[0];
+				// Get the first word and trim all periods from the end
+				let firstWord = sections[0];
 
-			firstWord = firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
+				firstWord = firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
 
-			if (firstWord === wordToReplace) {
-				sections[0] = replacementWord;
-				break;
+				if (firstWord === wordToReplace) {
+					sections[0] = replacementWord;
+					break;
+				}
 			}
 		}
 
 		title = sections.join(" ");
 
-		// If there are any words that need to be bolded or italicized
-		for (const wordToStyle in settings.styleWordsList) {
-			const styleList = settings.styleWordsList[wordToStyle].toLowerCase().trim();
+		if (settings.styleWordsList !== undefined) {
+			for (const wordToStyle in settings.styleWordsList) {
+				const styleList = settings.styleWordsList[wordToStyle].toLowerCase().trim();
 
-			const styles = styleList.split(",").filter((s) => s === "bold" || s === "italic");
+				const styles = styleList.split(",").filter((s) => s === "bold" || s === "italic");
 
-			const isBold = styles.includes("bold");
-			const isItalic = styles.includes("italic");
+				const isBold = styles.includes("bold");
+				const isItalic = styles.includes("italic");
 
-			const italicSyntax = isItalic ? "_" : "";
-			const boldSyntax = isBold ? "**" : "";
+				const italicSyntax = isItalic ? "_" : "";
+				const boldSyntax = isBold ? "**" : "";
 
-			title = title.replace(wordToStyle, `${italicSyntax}${boldSyntax}${wordToStyle}${boldSyntax}${italicSyntax}`);
+				title = title.replace(wordToStyle, `${italicSyntax}${boldSyntax}${wordToStyle}${boldSyntax}${italicSyntax}`);
+			}
 		}
 
 		// If versions are to be bolded and/or italicized

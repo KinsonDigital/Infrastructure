@@ -1,0 +1,205 @@
+name: ⚙️ Validate Release
+
+
+permissions:
+  contents: read
+
+
+defaults:
+  run:
+    shell: pwsh
+
+
+on:
+  workflow_call:
+    inputs:
+      owner-name:
+        description: "The name of the repository owner."
+        required: true
+        type: string
+      repo-name:
+        description: "The name of the repository."
+        required: true
+        type: string
+      version:
+        description: "The application/library version."
+        required: true
+        type: string
+      release-type:
+        description: "The type of release to validate.  Either 'Preview' or 'Production'."
+        required: true
+        type: string
+      is-dotnet-project:
+        required: true
+        description: "True if the project is a dotnet project."
+        type: boolean
+      relative-release-notes-file-path:
+        description: "The file path to the release notes file to check for existence."
+        required: true
+        type: string
+    secrets:
+      cicd-pat:
+        required: true
+        description: The CICD personal access token.
+
+
+jobs:
+  validate:
+    name: Run Pre-Release Validation
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
+        with:
+          repository: KinsonDigital/Infrastructure
+          ref: v17.2.0
+
+      - name: Set Up Deno (v2.9.2)
+        uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed #v2.0.5
+        with:
+          deno-version: v2.9.x
+
+      - name: Validate Repo Vars
+        env:
+          DENO_VERSION: ${{ vars.DENO_VERSION }}
+          ORGANIZATION_NAME: ${{ vars.ORGANIZATION_NAME }}
+          NET_SDK_VERSION: ${{ vars.NET_SDK_VERSION }}
+        run: deno run -ERW "$env:GITHUB_WORKSPACE/.github/reusable-workflow-scripts/validate-vars.ts";
+
+      - name: Create Unique Caller Repo Path
+        id: create-caller-repo-path
+        env:
+          CALLER_REPO_NAME: ${{ inputs.repo-name }}
+        run: deno run -ERW "$env:GITHUB_WORKSPACE/.github/reusable-workflow-scripts/create-unique-dir-name.ts";
+
+      - name: Checkout Caller Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
+        with:
+          repository: ${{ inputs.owner-name }}/${{ inputs.repo-name }}
+          path: ${{ steps.create-caller-repo-path.outputs.unique-dir-name }}
+
+      - name: Validate Tag
+        id: tag-check
+        uses: ./actions/validate-tag
+        with:
+          repo-owner: "${{ vars.ORGANIZATION_NAME }}"
+          repo-name: "${{ inputs.repo-name }}"
+          release-type: "${{ inputs.release-type }}"
+          tag-name: "${{ inputs.version }}"
+          github-token: "${{ secrets.cicd-pat }}"
+        continue-on-error: true
+
+      - name: Validate SDK Versions
+        if: ${{ inputs.is-dotnet-project == 'true' }}
+        id: sdk-check
+        uses: ./actions/validate-sdk-versions
+        with:
+          base-search-dir-path: "${{ github.workspace }}/${{ steps.create-caller-repo-path.outputs.unique-dir-name }}"
+          net-sdk-version: "${{ vars.NET_SDK_VERSION }}"
+        continue-on-error: true
+
+      - name: Release Notes Exist
+        id: release-notes-check
+        uses: ./actions/release-notes-exist
+        with:
+          relative-release-notes-file-path: "${{ steps.create-caller-repo-path.outputs.unique-dir-name }}/${{ inputs.relative-release-notes-file-path }}"
+          fail-if-does-not-exist: true
+        continue-on-error: true
+
+      - name: Nuget Package Does Not Exist
+        if: ${{ inputs.is-dotnet-project == 'true' }}
+        id: package-check
+        uses: ./actions/nuget-pkg-exists
+        with:
+          nuget-pkg-name: "${{ vars.ORGANIZATION_NAME }}.${{ inputs.repo-name }}"
+          nuget-pkg-version: "${{ inputs.version }}"
+        continue-on-error: true
+
+      - name: Milestone Exists
+        id: milestone-exists
+        uses: ./actions/milestone-exists
+        with:
+          owner-name: "${{ vars.ORGANIZATION_NAME }}"
+          repo-name: "${{ inputs.repo-name }}"
+          milestone-name: "${{ inputs.release-type == 'Production' && 'vnext' || inputs.version }}"
+          github-token: "${{ secrets.cicd-pat }}"
+        continue-on-error: true
+
+      - name: Validate Milestone Items
+        id: milestone-items-check
+        uses: ./actions/milestone-items-closed
+        with:
+          owner-name: "${{ vars.ORGANIZATION_NAME }}"
+          repo-name: "${{ inputs.repo-name }}"
+          milestone-name: "${{ inputs.release-type == 'Production' && 'vnext' || inputs.version }}"
+          github-token: "${{ secrets.cicd-pat }}"
+          fail-if-all-items-not-closed: true
+        continue-on-error: true
+
+      - name: GitHub Release Exists
+        id: github-release-check
+        uses: ./actions/github-release-exists
+        with:
+          owner-name: "${{ vars.ORGANIZATION_NAME }}"
+          repo-name: "${{ inputs.repo-name }}"
+          tag-name: "${{ inputs.version }}"
+          github-token: "${{ secrets.cicd-pat }}"
+        continue-on-error: true
+
+      - name: Should Fail Job
+        env:
+          VERSION: "${{ inputs.version }}"
+          TAG_CHECK_FAILED: "${{ steps.tag-check.outcome == 'failure' }}"
+          SDK_CHECK_FAILED: "${{ steps.sdk-check.outcome == 'failure' }}"
+          NOTES_FILE_CHECK_FAILED: "${{ steps.release-notes-check.outcome == 'failure' }}"
+          PACKAGE_CHECK_FAILED: "${{ steps.package-check.outcome == 'failure' }}"
+          MILESTONE_EXISTS: "${{ steps.milestone-exists.outputs.milestone-exists }}"
+          MILESTONE_ITEM_CHECK_FAILED: "${{ steps.milestone-items-check.outcome == 'failure' }}"
+          GITHUB_RELEASE_CHECK_FAILED: "${{ steps.github-release-check.outcome == 'failure' }}"
+        run: |
+          $tagCheckFailed = "$env:TAG_CHECK_FAILED";
+          $sdkCheckFailed = "$env:SDK_CHECK_FAILED";
+          $notesFileCheckFailed = "$env:NOTES_FILE_CHECK_FAILED";
+          $packageCheckFailed = "$env:PACKAGE_CHECK_FAILED";
+          $milestoneExists = "$env:MILESTONE_EXISTS";
+          $milestoneItemsCheckFailed = "$env:MILESTONE_ITEM_CHECK_FAILED";
+          $githubReleaseCheckFailed = "$env:GITHUB_RELEASE_CHECK_FAILED";
+
+          if ($tagCheckFailed -eq "true") {
+            Write-Host "::error::Tag already exists.  Please update the version in the 'deno.json' file.";
+          }
+
+          if ($sdkCheckFailed -eq "true") {
+            Write-Host "::error::One or more of the SDK versions are invalid. Check each '.csproj' file.";
+          }
+
+          if ($notesFileCheckFailed -eq "true") {
+            Write-Host "::error::The release notes for version '$env:VERSION' do not exist.";
+          }
+
+          if ($packageCheckFailed -eq "true") {
+            Write-Host "::error::The NuGet package already exists.";
+          }
+
+          if ($milestoneExists -eq "false" -or $milestoneExists -eq "") {
+            Write-Host "::error::The milestone '$env:VERSION' does not exist.";
+          }
+
+          if ($milestoneItemsCheckFailed -eq "true") {
+            Write-Host "::error::The milestone '$env:VERSION' has one or more issues that are not closed or prs that are in draft.";
+          }
+
+          if ($githubReleaseCheckFailed -eq "true") {
+            Write-Host "::error::The GitHub release already exists.";
+          }
+
+          if ($tagCheckFailed -eq "true" `
+              -or $sdkCheckFailed -eq "true" `
+              -or $notesFileCheckFailed -eq "true" `
+              -or $packageCheckFailed -eq "true" `
+              -or $milestoneExists -eq "false" `
+              -or $milestoneItemsCheckFailed -eq "true" `
+              -or $githubReleaseCheckFailed -eq "true") {
+            exit 1;
+          }

@@ -8,30 +8,12 @@ export function isUndefined(value: unknown): value is undefined {
 }
 
 /**
- * Returns a value indicating if the given {@link value} is not undefined.
- * @param value The value to check.
- * @returns True if the value is not undefined, otherwise false.
- */
-export function isNotUndefined(value: unknown): value is undefined {
-	return !isUndefined(value);
-}
-
-/**
  * Returns a value indicating if the given {@link value} is null.
  * @param value The value to check.
  * @returns True if the value is null, otherwise false.
  */
 export function isNull(value: unknown): value is null {
 	return value === null;
-}
-
-/**
- * Returns a value indicating if the given {@link value} is not null.
- * @param value The value to check.
- * @returns True if the value is not null, otherwise false.
- */
-export function isNotNull(value: unknown): value is null {
-	return !isNull(value);
 }
 
 /**
@@ -48,15 +30,6 @@ export function isEmpty<T>(value: string | T[]): value is "" | [] {
 }
 
 /**
- * Returns a value indicating if the given {@link value} is not an empty string or array.
- * @param value The value to check.
- * @returns True if the value is not an empty string or array, otherwise false.
- */
-export function isNotEmpty<T>(value: string | T[]): value is "" | [] {
-	return !isEmpty(value);
-}
-
-/**
  * Returns a value indicating if the given {@link value} is a function.
  * @param func The value to check.
  * @returns True if the value is a function, otherwise false.
@@ -66,36 +39,12 @@ export function isFunction(func: unknown): func is (...args: unknown[]) => unkno
 }
 
 /**
- * Returns a value indicating if the given {@link value} is not a function.
- * @param func The value to check.
- * @returns True if the value is not a function, otherwise false.
- */
-export function isNotFunction(func: unknown): func is (...args: unknown[]) => unknown {
-	return !isFunction(func);
-}
-
-/**
  * Returns a value indicating if the given {@link value} is undefined or null.
  * @param value The value to check.
  * @returns True if the value is undefined or null, otherwise false.
  */
 export function isUndefinedOrNull(value: unknown): value is undefined | null {
 	return isUndefined(value) || isNull(value);
-}
-
-/**
- * Returns a value indicating if the given {@link value} is undefined, null, or an empty string or array.
- * @param value The value to check.
- * @returns True if the value is undefined, null, or an empty string or array, otherwise false.
- */
-export function isUndefinedOrNullOrEmpty(value: unknown | string | []): value is undefined | null | "" {
-	if (typeof value === "string") {
-		return isEmpty(value);
-	} else if (Array.isArray(value)) {
-		return value.length === 0;
-	}
-
-	return isUndefinedOrNull(value);
 }
 
 /**
@@ -130,21 +79,6 @@ export function isNothing<T>(
 }
 
 /**
- * Returns a value indicating whether the value is not null, undefined, or empty.
- * @param value The value to check.
- * @returns True if the value is not null, undefined, or empty, otherwise false.
- * @remarks If the value is not null, undefined, the value true will be returned.
- * If the value is a string, true will be returned if the string is not empty.
- * If the value is a number, true will be returned if the number is not NaN.
- * If the value is an array, true will be returned if the array is not empty.
- */
-export function isNotNothing<T>(
-	value: unknown | undefined | null | string | number | boolean | T[],
-): value is undefined | null | "" {
-	return !isNothing(value);
-}
-
-/**
  * Returns true if the given {@link value} is a string.
  * @param value The value to check.
  * @returns True if the value is a string.
@@ -154,30 +88,12 @@ export function isString(value: unknown): value is string {
 }
 
 /**
- * Returns a value indicating if the given {@link value} is not a string.
- * @param value The value to check.
- * @returns True if the value is not a string.
- */
-export function isNotString(value: unknown): value is string {
-	return !isString(value);
-}
-
-/**
  * Returns a value indicating if the given {@link value} is an error.
  * @param value The value to check.
  * @returns True if the value is an error.
  */
 export function isError(value: unknown): value is Error {
 	return value instanceof Error;
-}
-
-/**
- * Returns a value indicating if the given {@link value} is not an error.
- * @param value The value to check.
- * @returns True if the value is not an error.
- */
-export function isNotError(value: unknown): value is Error {
-	return !isError(value);
 }
 
 /**

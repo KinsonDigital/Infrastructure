@@ -1,34 +1,36 @@
-import { delay } from "jsr:@std/async@1.3.0";
-import { existsSync, walkSync } from "jsr:@std/fs@1.0.23";
-import { Input } from "jsr:@cliffy/prompt@1.0.1/input";
-import { Select } from "jsr:@cliffy/prompt@1.0.1/select";
-import { IssueOrPRRequestData } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/core";
-import { IssueClient, ProjectClient, PullRequestClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.16/github";
+import { delay } from "jsr:@std/async@1.0.15";
+import { existsSync, walkSync } from "jsr:@std/fs@1.0.19";
+import { Input } from "jsr:@cliffy/prompt@1.0.0-rc.8/input";
+import { IssueOrPRRequestData } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/core";
+import { IssueClient, ProjectClient, PullRequestClient } from "jsr:@kinsondigital/kd-clients@1.0.0-preview.15/github";
 import {
 	branchExistsLocally,
 	branchExistsRemotely,
 	checkoutBranch,
 	createCheckoutBranch,
-	createEmptyCommit,
+	createCommit,
 	isCheckedOut,
 	pushToRemote,
-} from "../cicd/core/git.ts";
-import { printError, printStatusUpdate, printStep } from "./core/console-msgs.ts";
+} from "jsr:@kinsondigital/sprocket@2.2.0/git";
+import { printCyan, printGray, printIndianRed, printYellow } from "jsr:@kinsondigital/sprocket@2.2.0/console";
 
 const token = (Deno.env.get("CICD_TOKEN") ?? "").trim();
 const prReviewer = "KinsonDigitalAdmin";
 
-if (token === undefined || token === null || token === "") {
-	console.log("The environment variable 'EA_DEV_TOKEN' does not exist.");
+if (token === "") {
+	console.log("The environment variable 'CICD_TOKEN' is required.");
 	Deno.exit(1);
 }
 
-const GET_DIR_PATH = "./.git";
+const GIT_DIR_PATH = "./.git";
 const GIT_CONFIG_FILE_PATH = "./.git/config";
 
 // If the git dir path or git config file path do not exist, notify the user and stop the process
-if (!existsSync(GET_DIR_PATH, { isDirectory: true }) || !existsSync(GIT_CONFIG_FILE_PATH, { isFile: true })) {
-	printError("Not a valid git repository");
+if (
+	!existsSync(GIT_DIR_PATH, { isDirectory: true }) ||
+	!existsSync(GIT_CONFIG_FILE_PATH, { isFile: true })
+) {
+	printIndianRed("Not a valid git repository");
 
 	Deno.exit(1);
 }
@@ -37,13 +39,12 @@ let repoOwnerName = "";
 let repoName = "";
 
 try {
-	printStep("Validating repository");
-	printStatusUpdate("Validating repository");
+	printGray("Validating repository");
 	const gitConfigFileData = Deno.readTextFileSync(GIT_CONFIG_FILE_PATH);
-	const remoteOriginMatch = gitConfigFileData.match(/\[remote "origin"\][\s\S]*?url = (.+)/m) ?? "";
+	const remoteOriginMatch = gitConfigFileData.match(/\[remote "origin"\][\s\S]*?url = (.+)/);
 
 	if (remoteOriginMatch === null) {
-		printError("The repository does not have a remote configured.");
+		printIndianRed("The repository does not have a remote configured.");
 
 		Deno.exit(1);
 	}
@@ -54,7 +55,9 @@ try {
 	const urlMatch = remoteText.match(urlRegex);
 
 	if (urlMatch === null) {
-		printError("The repository does not have a remote 'origin' URL configured.");
+		printIndianRed(
+			"The repository does not have a remote 'origin' URL configured.",
+		);
 
 		Deno.exit(1);
 	}
@@ -64,20 +67,20 @@ try {
 	const githubUrlRegex = /https:\/\/github\.com\/(.+\/)(.+)\.git/;
 
 	if (!githubUrlRegex.test(url)) {
-		printError("The remote 'origin' URL is not a valid GitHub URL.");
+		printIndianRed("The remote 'origin' URL is not a valid GitHub URL.");
 		Deno.exit(1);
 	}
 
-	printStatusUpdate("Getting GitHub repository owner and name");
+	printGray("Getting GitHub repository owner and name");
 	url = url.replace("https://github.com/", "").replace(".git", "");
 	const urlSections = url.split("/");
 	[repoOwnerName, repoName] = urlSections;
 
-	printStatusUpdate(`Repository owner ${repoOwnerName}`);
-	printStatusUpdate(`Repository name ${repoName}`, true);
+	printGray(`Repository owner ${repoOwnerName}`);
+	printGray(`Repository name ${repoName}`);
 } catch (error) {
 	const errMsg = error instanceof Error ? error.message : "An error occurred reading the git config file.";
-	printError(errMsg);
+	printIndianRed(errMsg);
 
 	Deno.exit(1);
 }
@@ -137,7 +140,9 @@ const featureBranch = await Input.prompt({
 			.replace(/-+$/, "");
 
 		if (!regex.test(value)) {
-			printError("Branch name must match the pattern 'feature/123-my-branch'.");
+			printIndianRed(
+				"Branch name must match the pattern 'feature/123-my-branch'.",
+			);
 
 			return false;
 		}
@@ -156,39 +161,36 @@ const featureBranch = await Input.prompt({
 	},
 });
 
-const chosenBaseBranch = await Select.prompt({
-	message: "Choose the pull request base branch:",
-	options: ["main", "develop"],
-});
+const chosenBaseBranch = "preview";
 
 // If the chosen branch exists
 if (await branchExistsLocally(chosenBaseBranch)) {
 	// If the chosen base branch is not checked out, checkout the branch
 	if (!(await isCheckedOut(chosenBaseBranch))) {
-		printStatusUpdate(`Checking out the local branch '${chosenBaseBranch}'.`);
+		printGray(`Checking out the local branch '${chosenBaseBranch}'.`);
 		await checkoutBranch(chosenBaseBranch);
 	}
 } else if (await branchExistsRemotely(chosenBaseBranch)) {
-	printStatusUpdate(`Checking out the remote branch '${chosenBaseBranch}'.`);
+	printGray(`Checking out the remote branch '${chosenBaseBranch}'.`);
 	await checkoutBranch(chosenBaseBranch);
 } else {
-	printStatusUpdate(`Creating and checking out the branch '${chosenBaseBranch}'.`);
+	printGray(`Creating and checking out the branch '${chosenBaseBranch}'.`);
 	await createCheckoutBranch(chosenBaseBranch);
-	printStatusUpdate(`Pushing the branch '${chosenBaseBranch}' to remote.`);
+	printGray(`Pushing the branch '${chosenBaseBranch}' to remote.`);
 	await pushToRemote(chosenBaseBranch);
 }
 
 try {
 	// Create a branch using git commands from the currently checked out branch.
-	printStatusUpdate(`Creating branch '${featureBranch}'`);
+	printGray(`Creating branch '${featureBranch}'`);
 	await createCheckoutBranch(featureBranch);
 
 	// Create an empty commit
-	printStatusUpdate("Creating empty start commit");
-	await createEmptyCommit(`Start work for issue #${issueNumber}`);
+	printGray("Creating empty start commit");
+	await createCommit(`Start work for issue #${issueNumber}`, true);
 
 	// Push the branch to remote
-	printStatusUpdate(`Pushing branch to remote`);
+	printGray(`Pushing branch to remote`);
 	await pushToRemote(featureBranch);
 
 	// Delay for 1 second to allow GitHub to finalize the branch creation
@@ -196,8 +198,10 @@ try {
 
 	const issue = await issueClient.getIssue(issueNumber);
 
-	printStatusUpdate("Searching for 'pr-template.md' file");
-	const templateFiles = Array.from(walkSync("./", { includeFiles: true, match: [/pr-template\.md$/] }))
+	printGray("Searching for 'pr-template.md' file");
+	const templateFiles = Array.from(
+		walkSync("./", { includeFiles: true, match: [/pr-template\.md$/] }),
+	)
 		.map((entry) => entry.path);
 
 	const prTemplateFilePath = templateFiles.length > 0 ? templateFiles[0] : "";
@@ -205,20 +209,23 @@ try {
 	const templateFound = prTemplateFilePath !== "";
 
 	if (templateFound) {
-		printStatusUpdate(`Found pull request template at '${prTemplateFilePath}'`);
+		printGray(`Found pull request template at '${prTemplateFilePath}'`);
 	} else {
-		printStatusUpdate(noTemplateFoundDescription);
+		printGray(noTemplateFoundDescription);
 	}
 
 	let prDescription = templateFound ? await Deno.readTextFile(prTemplateFilePath) : noTemplateFoundDescription;
 
 	// Replace issue number placeholder with actual issue number
-	prDescription = prDescription.replace("{ISSUE_NUMBER}", issue.number.toString());
+	prDescription = prDescription.replace(
+		"{ISSUE_NUMBER}",
+		issue.number.toString(),
+	);
 
 	// Create a pull request
 	const prClient = new PullRequestClient(repoOwnerName, repoName, token);
 
-	printStatusUpdate("Creating pull request");
+	printGray("Creating pull request");
 	const newPr = await prClient.createPullRequest(
 		issue.title ?? "WIP - Please update title",
 		featureBranch,
@@ -228,7 +235,7 @@ try {
 		true,
 	);
 
-	printStatusUpdate(`Setting pull request reviewer to '${prReviewer}'`);
+	printGray(`Setting pull request reviewer to '${prReviewer}'`);
 	await prClient.requestReviewers(newPr.number, prReviewer);
 
 	const prData: IssueOrPRRequestData = {
@@ -238,32 +245,37 @@ try {
 	};
 
 	// Update the labels assignees, and milestone to match the linked issue
-	printStatusUpdate(`Setting pull request assignees, labels, and milestone to match issue '${newPr.number}'.`);
+	printGray(
+		`Setting pull request assignees, labels, and milestone to match issue '${newPr.number}'.`,
+	);
 	await prClient.updatePullRequest(newPr.number, prData);
 
 	const projClient = new ProjectClient(repoOwnerName, repoName, token);
 
-	printStatusUpdate("Getting issue projects");
+	printGray("Getting issue projects");
 	const issueProjects = await projClient.getIssueProjects(issueNumber);
 
 	// Sync all of the issue projects to the pull request
 	for await (const issueProject of issueProjects) {
-		printStatusUpdate(`Adding pull request to project '${issueProject.title}'`);
-		await projClient.addPullRequestToProject(newPr.number, issueProject.title);
+		printGray(`Adding pull request to project '${issueProject.title}'`);
+		await projClient.addPullRequestToProject(
+			newPr.number,
+			issueProject.title,
+		);
 	}
 
-	printStep(`Pull request '#${newPr.number}' has been created successfully!`);
-	printStep(`URL: ${newPr.html_url}`);
+	printCyan(`Pull request '#${newPr.number}' has been created successfully!`);
+	printCyan(`URL: ${newPr.html_url}`);
 } catch (error) {
 	const errMsg = error instanceof Error ? error.message : "An error occurred.";
-	printError(errMsg);
+	printIndianRed(errMsg);
 
-	console.log("\n%cCheck the following fine-grained access token permissions:", "color:yellow");
-	console.log("\t%cRepo Permissions:", "color:yellow");
-	console.log("\t  %cContents: read & write", "color:yellow");
-	console.log("\t  %cIssues: read only", "color:yellow");
-	console.log("\t  %cMetadata: read only", "color:yellow");
-	console.log("\t  %cPull requests: read & write", "color:yellow");
-	console.log("\t%cOrg Permissions:", "color:yellow");
-	console.log("\t  %cProjects: read & write", "color:yellow");
+	printYellow("\nCheck the following fine-grained access token permissions:");
+	printYellow("\tRepo Permissions:");
+	printYellow("\t  %cContents: read & write");
+	printYellow("\t  %cIssues: read only");
+	printYellow("\t  %cMetadata: read only");
+	printYellow("\t  %cPull requests: read & write");
+	printYellow("\tOrg Permissions:");
+	printYellow("\t  %cProjects: read & write");
 }

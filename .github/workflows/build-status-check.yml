@@ -1,5 +1,5 @@
-name: ✅Build Status Check
-run-name: ✅Build Status Check (${{ github.base_ref }} branch)
+name: ✅ Build Status Check
+run-name: ✅ Build Status Check (${{ github.base_ref }} branch)
 
 
 defaults:
@@ -8,14 +8,14 @@ defaults:
 
 
 on:
-  pull_request_target:
+  pull_request:
     branches: [main, preview]
 
 
 jobs:
   build_status_check:
     name: Build Status Check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - name: Checkout Repository
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
@@ -24,7 +24,7 @@ jobs:
         ref: ${{ github.event.pull_request.head.ref }}
 
     - name: Set Up Deno (${{ vars.DENO_VERSION }})
-      uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 #v2.0.4
+      uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed #v2.0.5
       with:
         deno-version: ${{ vars.DENO_VERSION }}
 

@@ -130,7 +130,8 @@ if (configFilePath === "") {
 		setOutput(version);
 	} catch (error) {
 		printAsGitHubError(
-			`Error reading or parsing the config file at path: ${configFilePath}. Error: ${error instanceof Error ? error.message : String(error)
+			`Error reading or parsing the config file at path: ${configFilePath}. Error: ${
+				error instanceof Error ? error.message : String(error)
 			}`,
 		);
 

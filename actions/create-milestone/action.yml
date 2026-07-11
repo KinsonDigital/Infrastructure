@@ -1,5 +1,5 @@
-name: "Rename Milestone"
-description: "Renames a milestone for a GitHub repository"
+name: "Create Milestone"
+description: "Creates a new milestone for a GitHub repository"
 inputs:
   repo-owner:
     description: "The owner of the repository."
@@ -7,11 +7,8 @@ inputs:
   repo-name:
     description: "The name of the repository."
     required: true
-  current-milestone-name:
-    description: "The current name of the milestone to rename."
-    required: true
-  new-milestone-name:
-    description: "The new name for the milestone."
+  milestone-title:
+    description: "The title of the milestone to create."
     required: true
   github-token:
     description: "The GitHub token used to authenticate API requests."
@@ -34,11 +31,10 @@ runs:
       env:
         REPO_OWNER: "${{ inputs.repo-owner }}"
         REPO_NAME: "${{ inputs.repo-name }}"
-        CURRENT_MILESTONE_NAME: "${{ inputs.current-milestone-name }}"
-        NEW_MILESTONE_NAME: "${{ inputs.new-milestone-name }}"
+        MILESTONE_TITLE: "${{ inputs.milestone-title }}"
         GITHUB_TOKEN: "${{ inputs.github-token }}"
         DENO_AUTH_TOKENS: "${{ inputs.github-token }}@raw.githubusercontent.com"
       run: |
-        $scriptFilePath = "$env:GITHUB_ACTION_PATH/rename-milestone.ts";
+        $scriptFilePath = "$env:GITHUB_ACTION_PATH/create-milestone.ts";
 
         deno run -ERN $scriptFilePath;

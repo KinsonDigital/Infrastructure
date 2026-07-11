@@ -1,5 +1,9 @@
-name: ⚙️Perform DotNet Lib Release
-run-name: ⚙️Perform ${{ inputs.release-type }} Release (${{ inputs.build-config }} Build)
+name: ⚙️ Perform DotNet Lib Release
+run-name: ⚙️ Perform ${{ inputs.release-type }} Release (${{ inputs.build-config }} Build)
+
+
+permissions:
+  contents: write
 
 
 defaults:
@@ -16,7 +20,11 @@ on:
         type: string
       release-type:
         required: true
-        description: The type of release to validate.  Either 'Preview' or 'Production'.
+        description: The type of release to perform.  Either 'Preview' or 'Production'.
+        type: string
+      version:
+        required: true
+        description: "The application/library version."
         type: string
       net-sdk-version:
         required: true
@@ -29,250 +37,33 @@ on:
       build-config:
         required: true
         description: The build configuration to use. This is either 'Debug' or 'Release'.
-        default: Debug
-        type: string
-      deno-version:
-        required: true
-        description: The version of Deno to use.  The deno platform is used in all of the composite actions used in this workflow.
         type: string
       telemetry-enabled:
         required: false
         description: If true, enables telemetry for the dotnet library.
         default: false
         type: boolean
-      build-project:
-        required: false
-        description: If true, builds the project to ensure it compiles before performing the release.
-        default: true
-        type: boolean
-      enable-deno-cache:
-        required: false
-        description: If true, enables caching of the Deno modules.
-        default: true
-        type: boolean
-      runs-on:
-        required: false
-        description: |
-          The type of machine to run the job on.
-          Reference: https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job#standard-github-hosted-runners-for-public-repositories
-        type: string
-        default: ubuntu-latest
       transpile-readme:
         required: false
         description: If true, transpiles the README.md file HTML to markdown.
-        default: false
-        type: boolean
-      dry-run:
-        required: false
-        description: If true, the release will not be created.
         default: false
         type: boolean
     secrets:
       cicd-pat:
         required: true
         description: The CICD personal access token.
-      nuget-org-api-key:
+      nuget-user:
         required: true
-        description: The NuGet.org API key.
+        description: "The nuget user for authenticating with nuget.org to push packages."
       telemetry-key:
         required: false
         description: The telemetry key to use if telemetry is enabled.
 
-env:
-  OWNER_NAME: "${{ vars.ORGANIZATION_NAME }}"
-  REPO_NAME: "${{ inputs.project-name }}"
-
 
 jobs:
-  get_and_validate_version:
-    name: Get And Validate Version
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.get-version.outputs.version }}
-    steps:
-      - name: Get Version
-        id: get-version
-        uses: KinsonDigital/Infrastructure/actions/get-version@v16.0.0
-        with:
-          version-file-path: "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj"
-          deno-version: "${{ inputs.deno-version }}"
-
-      - name: Validate Version
-        id: validate-version
-        uses: KinsonDigital/Infrastructure/actions/validate-version@v16.0.0
-        with:
-          version: "v${{ steps.get-version.outputs.version }}"
-          release-type: "${{ inputs.release-type }}"
-          deno-version: "${{ inputs.deno-version }}"
-
-
-  run_prerelease_validation:
-    name: Run Pre-Release Validation
-    needs: [get_and_validate_version]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
-
-      - name: Set Up Deno (${{ inputs.deno-version }})
-        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 #v2.0.4
-        with:
-          deno-version: ${{ inputs.deno-version }}
-          cache: ${{ inputs.enable-deno-cache }}
-
-      - name: Validate Tag
-        id: tag-check
-        uses: KinsonDigital/Infrastructure/actions/validate-tag@v16.0.0
-        with:
-          repo-owner: "${{ vars.ORGANIZATION_NAME }}"
-          repo-name: "${{ inputs.project-name }}"
-          release-type: "${{ inputs.release-type }}"
-          tag-name: "${{ needs.get_and_validate_version.outputs.version }}"
-          github-token: "${{ secrets.cicd-pat }}"
-          deno-version: "${{ inputs.deno-version }}"
-        continue-on-error: true
-
-      - name: Validate SDK Versions
-        id: sdk-check
-        uses: KinsonDigital/Infrastructure/actions/validate-sdk-versions@v16.0.0
-        with:
-          base-search-dir-path: "${{ github.workspace }}"
-          net-sdk-version: "${{ vars.NET_SDK_VERSION }}"
-          deno-version: "${{ inputs.deno-version }}"
-        continue-on-error: true
-
-      - name: Release Notes Exist
-        id: release-notes-check
-        uses: KinsonDigital/Infrastructure/actions/release-notes-exist@v16.0.0
-        with:
-          release-notes-file-path: "${{ inputs.release-notes-file-path }}"
-          deno-version: "${{ inputs.deno-version }}"
-          fail-if-does-not-exist: true
-        continue-on-error: true
-        
-      - name: Nuget Package Does Not Exist
-        uses: KinsonDigital/Infrastructure/actions/nuget-pkg-exists@v16.0.0
-        id: package-check
-        with:
-          nuget-pkg-name: "${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}"
-          nuget-pkg-version: "${{ needs.get_and_validate_version.outputs.version }}"
-          deno-version: "${{ inputs.deno-version }}"
-        continue-on-error: true
-
-      - name: Milestone Exists
-        id: milestone-exists
-        uses: KinsonDigital/Infrastructure/actions/milestone-exists@v16.0.0
-        with:
-          owner-name: "${{ vars.ORGANIZATION_NAME }}"
-          repo-name: "${{ inputs.project-name }}"
-          milestone-name: "v${{ needs.get_and_validate_version.outputs.version }}"
-          github-token: "${{ secrets.cicd-pat }}"
-          deno-version: "${{ inputs.deno-version }}"
-        continue-on-error: true
-
-      - name: Validate Milestone Items
-        id: milestone-items-check
-        uses: KinsonDigital/Infrastructure/actions/milestone-items-closed@v16.0.0
-        with:
-          owner-name: "${{ vars.ORGANIZATION_NAME }}"
-          repo-name: "${{ inputs.project-name }}"
-          milestone-name: "v${{ needs.get_and_validate_version.outputs.version }}"
-          github-token: "${{ secrets.cicd-pat }}"
-          deno-version: "${{ inputs.deno-version }}"
-          fail-if-all-items-not-closed: true
-        continue-on-error: true
-
-      - name: GitHub Release Exists
-        id: github-release-check
-        uses: KinsonDigital/Infrastructure/actions/github-release-exists@v16.0.0
-        with:
-          owner-name: "${{ vars.ORGANIZATION_NAME }}"
-          repo-name: "${{ inputs.project-name }}"
-          tag-name: "v${{ needs.get_and_validate_version.outputs.version }}"
-          deno-version: "${{ inputs.deno-version }}"
-          github-token: "${{ secrets.cicd-pat }}"
-        continue-on-error: true
-
-      - name: Should Fail Job
-        run: |
-          $tagCheckFailed = "${{ steps.tag-check.outcome == 'failure' }}";
-          $sdkCheckFailed = "${{ steps.sdk-check.outcome == 'failure' }}";
-          $notesFileCheckFailed = "${{ steps.release-notes-check.outcome == 'failure' }}";
-          $packageCheckFailed = "${{ steps.package-check.outcome == 'failure' }}";
-          $milestoneExists = "${{ steps.milestone-exists.outputs.milestone-exists }}";
-          $milestoneItemsCheckFailed = "${{ steps.milestone-items-check.outcome == 'failure' }}";
-          $githubReleaseCheckFailed = "${{ steps.github-release-check.outcome == 'failure' }}";
-
-          if ($tagCheckFailed -eq "true") {
-            Write-Host "::error::Tag already exists.  Please update the version in the 'deno.json' file.";
-          }
-
-          if ($sdkCheckFailed -eq "true") {
-            Write-Host "::error::One or more of the SDK versions are invalid. Check each '.csproj' file.";
-          }
-
-          if ($notesFileCheckFailed -eq "true") {
-            Write-Host "::error::The release notes for version '${{ needs.get_and_validate_version.outputs.version }}' do not exist.";
-          }
-
-          if ($packageCheckFailed -eq "true") {
-            Write-Host "::error::The NuGet package already exists.";
-          }
-
-          if ($milestoneExists -eq "false") {
-            Write-Host "::error::The milestone '${{ needs.get_and_validate_version.outputs.version }}' does not exist.";
-          }
-
-          if ($milestoneItemsCheckFailed -eq "true") {
-            Write-Host "::error::The milestone '${{ needs.get_and_validate_version.outputs.version }}' has one or more issues that are not closed or prs that are in draft.";
-          }
-
-          if ($githubReleaseCheckFailed -eq "true") {
-            Write-Host "::error::The GitHub release already exists.";
-          }
-
-          if ($tagCheckFailed -eq "true" `
-              -or $sdkCheckFailed -eq "true" `
-              -or $notesFileCheckFailed -eq "true" `
-              -or $packageCheckFailed -eq "true" `
-              -or $milestoneExists -eq "false" `
-              -or $milestoneItemsCheckFailed -eq "true" `
-              -or $githubReleaseCheckFailed -eq "true") {
-            exit 1;
-          }
-
-
-  build_project:
-    name: Build Main Project
-    runs-on: "${{ inputs.runs-on }}"
-    steps:
-      - name: Checkout Repository
-        if: inputs.build-project == true
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
-
-      - name: Set Up .NET SDK (${{ inputs.net-sdk-version }})
-        if: inputs.build-project == true
-        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 #v5.2.0
-        with:
-          dotnet-version: ${{ inputs.net-sdk-version }}
-
-      - name: Run Build
-        if: inputs.build-project == true  
-        run: |
-          dotnet build "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj" `
-            -c ${{ inputs.build-config }} `
-            -p:EnableTelemetry="${{ inputs.telemetry-enabled }}";
-
-
   perform_release:
     name: Perform ${{ inputs.release-type }} Release
-    runs-on: ubuntu-latest
-    needs:
-      [
-        get_and_validate_version,
-        run_prerelease_validation,
-        build_project,
-      ]
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
@@ -282,70 +73,76 @@ jobs:
         with:
           dotnet-version: "${{ inputs.net-sdk-version }}"
 
-      - name: Set Up Nuget
+      - name: Set Up NuGet
         uses: NuGet/setup-nuget@fd55a6f3b34392fa83fde1454582407d8c714123 #v4.0.0
 
-      - name: Set Up Deno (${{ inputs.deno-version }})
-        uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 #v2.0.4
+      - name: Set Up Deno (v2.9.x)
+        uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed #v2.0.5
         with:
-          deno-version: ${{ inputs.deno-version }}
-          cache: ${{ inputs.enable-deno-cache }}
+          deno-version: v2.9.x
 
       - name: Transpile README
         if: inputs.transpile-readme == true
-        uses: KinsonDigital/Infrastructure/actions/transpile-readme@v16.0.0
+        uses: ./actions/transpile-readme
         with:
           base-dir-path: "${{ github.workspace }}"
-          deno-version: "${{ inputs.deno-version }}"
 
       - name: Update Copyright
-        uses: KinsonDigital/Infrastructure/actions/update-copyright@v16.0.0
+        uses: ./actions/update-copyright
         with:
           cs-proj-file-name: "${{ inputs.project-name }}.csproj"
-          deno-version: "${{ inputs.deno-version }}"
 
-      - name: Create Nuget Package
+      - name: Create NuGet Package
+        env:
+          PROJECT_NAME: "${{ inputs.project-name }}"
+          BUILD_CONFIG: "${{ inputs.build-config }}"
+          TELEMETRY_ENABLED: "${{ inputs.telemetry-enabled }}"
+          TELEMETRY_KEY: "${{ secrets.telemetry-key }}"
         run: |
           dotnet pack `
-            "${{ github.workspace }}/${{ inputs.project-name }}/${{ inputs.project-name }}.csproj" `
-            -o "${{ github.workspace }}" `
-            -c ${{ inputs.build-config }} `
+            "$env:GITHUB_WORKSPACE/${env:PROJECT_NAME}/${env:PROJECT_NAME}.csproj" `
+            -o "$env:GITHUB_WORKSPACE" `
+            -c ${env:BUILD_CONFIG} `
             -p:IncludeSymbols=true `
             -p:SymbolPackageFormat=snupkg `
-            -p:EnableTelemetry="${{ inputs.telemetry-enabled }}" `
-            -p:TelemetryKey="${{ secrets.telemetry-key }}";
+            -p:EnableTelemetry="$env:TELEMETRY_ENABLED" `
+            -p:TelemetryKey="$env:TELEMETRY_KEY";
 
-      - name: Publish Nuget Package ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
-        if: inputs.dry-run == false
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        id: login
+        with:
+          user: ${{ secrets.nuget-user }}
+
+      - name: Publish NuGet Package
+        env:
+          PROJECT_NAME: "${{ inputs.project-name }}"
+          ORG_NAME: "${{ vars.ORGANIZATION_NAME }}"
+          VERSION: "${{ inputs.version }}"
         run: |
-          $version = "${{ needs.get_and_validate_version.outputs.version }}";
+          $version = "$env:VERSION";
           $version = $version.StartsWith("v") ? $version.Substring(1) : $version;
 
           # Push the nuget package
           dotnet nuget push `
-            "${{ github.workspace }}/${{ vars.ORGANIZATION_NAME }}.${{ inputs.project-name }}.$version.nupkg" `
-            --api-key ${{ secrets.nuget-org-api-key }} `
+            "$env:GITHUB_WORKSPACE/$env:ORG_NAME.$env:PROJECT_NAME.$version.nupkg" `
             --source https://api.nuget.org/v3/index.json;
 
-      - name: Create GitHub Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
-        if: inputs.dry-run == false
-        uses: ncipollo/release-action@v1
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
-          name: "🚀${{ inputs.release-type }} - ${{ needs.get_and_validate_version.outputs.version }}"
-          tag: ${{ needs.get_and_validate_version.outputs.version }}
+          name: "🚀${{ inputs.release-type }} - ${{ inputs.version }}"
+          tag: ${{ inputs.version }}
           owner: ${{ vars.ORGANIZATION_NAME }}
           repo: ${{ inputs.project-name }}
           bodyFile: "${{ inputs.release-notes-file-path }}"
-          artifacts: "${{ inputs.release-notes-file-path }}"
           prerelease: ${{ inputs.release-type }} == 'Preview'
           token: ${{ secrets.cicd-pat }}
 
-      - name: Close Milestone ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
-        if: inputs.dry-run == false
-        uses: KinsonDigital/Infrastructure/actions/close-milestone@v16.0.0
+      - name: Close Milestone
+        uses: ./actions/close-milestone
         with:
           repo-owner: "${{ vars.ORGANIZATION_NAME }}"
           repo-name: "${{ inputs.project-name }}"
           github-token: "${{ secrets.cicd-pat }}"
-          milestone-title: "${{ needs.get_and_validate_version.outputs.version }}"
-          deno-version: "${{ inputs.deno-version }}"
+          milestone-title: "${{ inputs.version }}"
