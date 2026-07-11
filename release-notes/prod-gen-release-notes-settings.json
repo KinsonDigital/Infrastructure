@@ -23,7 +23,7 @@
         "Dependency-Update": "Dependency Updates 📦"
     },
     "prCategoryLabelMappings": {
-        "dependency-update": "dependency-update"
+        "dependency-update": "Dependency Updates 📦"
     },
     "otherCategoryName": "Uncategorized",
     "ignoreLabels": ["production-release"],
