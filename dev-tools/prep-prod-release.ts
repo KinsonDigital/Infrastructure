@@ -44,7 +44,7 @@ const releaseVersion = await Input.prompt({
 	transform: (value) => {
 		const result = value.trim().toLowerCase();
 
-		return result.startsWith("v") ? result.slice(1) : result;
+		return result.startsWith("v") ? result : `v${result}`;
 	},
 });
 
@@ -119,11 +119,11 @@ printGray("⌛\tCreating commit for version changes. . .");
 
 // If there are changes to commit
 if (await uncommittedChangesExist()) {
-	await createCommit(`release: update version to v${releaseVersion}`);
+	await createCommit(`release: update version to ${releaseVersion}`);
 }
 
 printGray("⌛Generating release notes. . .");
-const releaseNotesFileName = `Release-Notes-v${releaseVersion}.md`;
+const releaseNotesFileName = `Release-Notes-${releaseVersion}.md`;
 const releaseNotesFilePath = `${Deno.cwd()}/release-notes/production-releases/${releaseNotesFileName}`;
 const generator: ReleaseNotesGenerator = new ReleaseNotesGenerator();
 const settingsFileContent = Deno.readTextFileSync(settingsFilePath);
@@ -131,19 +131,21 @@ const settings: GeneratorSettings = JSON.parse(settingsFileContent);
 settings.version = `vnext`;
 
 const notes = await generator.generateNotes(settings);
+notes.replace("Infrastructure  Release Notes - vnext", `Infrastructure  Release Notes - ${releaseVersion}`);
+
 Deno.writeTextFileSync(releaseNotesFilePath, notes);
 
 printGray("⌛\tStaging release note changes. . .");
 await stageFiles([`*${releaseNotesFileName}`]);
 printGray("⌛\tCreating commit for release note changes. . .");
 await createCommit(
-	`release: create release notes for version v${releaseVersion}`,
+	`release: create release notes for version ${releaseVersion}`,
 );
 
 printGray("⌛Pushing changes to remote. . .");
 await pushToRemote(headBranch);
 
-const title = `🚀Production Release (v${releaseVersion})`;
+const title = `🚀Production Release (${releaseVersion})`;
 const assignee = "CalvinWilkinson";
 const githubProjectName = "KD-Team";
 const reviewer = "KinsonDigitalAdmin";
