@@ -4,6 +4,7 @@ run-name: ⚙️ Perform ${{ inputs.release-type }} Release (${{ inputs.build-co
 
 permissions:
   contents: write
+  id-token: write
 
 
 defaults:
@@ -15,46 +16,59 @@ on:
   workflow_call:
     inputs:
       project-name:
+        description: "The name of the C# project."
         required: true
-        description: "The name of the C# project to validate."
+        type: string
+      owner-name:
+        description: "The owner of the GitHub repository."
+        required: true
+        type: string
+      repo-name:
+        description: "The name of the GitHub repository."
+        required: true
         type: string
       release-type:
+        description: "The type of release to perform.  Either 'Preview' or 'Production'."
         required: true
-        description: The type of release to perform.  Either 'Preview' or 'Production'.
         type: string
       version:
-        required: true
         description: "The application/library version."
+        required: true
         type: string
       net-sdk-version:
+        description: "The version of the .NET SDK to use."
         required: true
-        description: The version of the .NET SDK to use.
         type: string
       release-notes-file-path:
+        description: "The file path to the release notes file to check for existence."
         required: true
-        description: The file path to the release notes file to check for existence.
         type: string
       build-config:
+        description: "The build configuration to use. This is either 'Debug' or 'Release'."
         required: true
-        description: The build configuration to use. This is either 'Debug' or 'Release'.
         type: string
       telemetry-enabled:
+        description: "If true, enables telemetry for the dotnet library."
         required: false
-        description: If true, enables telemetry for the dotnet library.
         default: false
         type: boolean
       transpile-readme:
+        description: "If true, transpiles the README.md file HTML to markdown."
         required: false
-        description: If true, transpiles the README.md file HTML to markdown.
         default: false
+        type: boolean
+      dry-run:
+        description: |
+          "Runs a dry run of this workflow without publishing the nuget package, creating a github release"
+        required: false
         type: boolean
     secrets:
       cicd-pat:
         required: true
         description: The CICD personal access token.
-      nuget-user:
+      nuget-api-key:
         required: true
-        description: "The nuget user for authenticating with nuget.org to push packages."
+        description: "The nuget API key used for authenticating with nuget.org to push packages."
       telemetry-key:
         required: false
         description: The telemetry key to use if telemetry is enabled.
@@ -65,8 +79,17 @@ jobs:
     name: Perform ${{ inputs.release-type }} Release
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout Repository
+      - name: Checkout Infrastructure Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
+        with:
+          repository: KinsonDigital/Infrastructure
+          ref: main
+
+      - name: Checkout Caller Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
+        with:
+          repository: ${{ inputs.owner-name }}/${{ inputs.repo-name }}
+          path: "${{ inputs.repo-name }}-4e2c95f5"
 
       - name: Set Up .NET SDK
         uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 #v5.2.0
@@ -85,7 +108,7 @@ jobs:
         if: inputs.transpile-readme == true
         uses: ./actions/transpile-readme
         with:
-          base-dir-path: "${{ github.workspace }}"
+          base-dir-path: "${{ github.workspace }}/${{ inputs.repo-name }}-4e2c95f5"
 
       - name: Update Copyright
         uses: ./actions/update-copyright
@@ -96,53 +119,45 @@ jobs:
         env:
           PROJECT_NAME: "${{ inputs.project-name }}"
           BUILD_CONFIG: "${{ inputs.build-config }}"
+          BASE_DIR_PATH: "${{ github.workspace }}/${{ inputs.repo-name }}-4e2c95f5"
           TELEMETRY_ENABLED: "${{ inputs.telemetry-enabled }}"
           TELEMETRY_KEY: "${{ secrets.telemetry-key }}"
         run: |
           dotnet pack `
-            "$env:GITHUB_WORKSPACE/${env:PROJECT_NAME}/${env:PROJECT_NAME}.csproj" `
-            -o "$env:GITHUB_WORKSPACE" `
+            "$env:BASE_DIR_PATH/${env:PROJECT_NAME}/${env:PROJECT_NAME}.csproj" `
+            -o "$env:BASE_DIR_PATH" `
             -c ${env:BUILD_CONFIG} `
             -p:IncludeSymbols=true `
             -p:SymbolPackageFormat=snupkg `
             -p:EnableTelemetry="$env:TELEMETRY_ENABLED" `
             -p:TelemetryKey="$env:TELEMETRY_KEY";
 
-      - name: NuGet login (OIDC → temp API key)
-        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
-        id: login
-        with:
-          user: ${{ secrets.nuget-user }}
-
       - name: Publish NuGet Package
+        if: ${{ inputs.dry-run == false }}
         env:
           PROJECT_NAME: "${{ inputs.project-name }}"
           ORG_NAME: "${{ vars.ORGANIZATION_NAME }}"
           VERSION: "${{ inputs.version }}"
+          NUGET_API_KEY: "${{ secrets.nuget-api-key }}"
+          BASE_DIR_PATH: "${{ github.workspace }}/${{ inputs.repo-name }}-4e2c95f5"
         run: |
           $version = "$env:VERSION";
           $version = $version.StartsWith("v") ? $version.Substring(1) : $version;
 
           # Push the nuget package
           dotnet nuget push `
-            "$env:GITHUB_WORKSPACE/$env:ORG_NAME.$env:PROJECT_NAME.$version.nupkg" `
+            "$env:BASE_DIR_PATH/$env:ORG_NAME.$env:PROJECT_NAME.$version.nupkg" `
+            --api-key $env:NUGET_API_KEY `
             --source https://api.nuget.org/v3/index.json;
 
       - name: Create GitHub Release
+        if: ${{ inputs.dry-run == false }}
         uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           name: "🚀${{ inputs.release-type }} - ${{ inputs.version }}"
           tag: ${{ inputs.version }}
           owner: ${{ vars.ORGANIZATION_NAME }}
-          repo: ${{ inputs.project-name }}
+          repo: ${{ inputs.repo-name }}
           bodyFile: "${{ inputs.release-notes-file-path }}"
           prerelease: ${{ inputs.release-type }} == 'Preview'
           token: ${{ secrets.cicd-pat }}
-
-      - name: Close Milestone
-        uses: ./actions/close-milestone
-        with:
-          repo-owner: "${{ vars.ORGANIZATION_NAME }}"
-          repo-name: "${{ inputs.project-name }}"
-          github-token: "${{ secrets.cicd-pat }}"
-          milestone-title: "${{ inputs.version }}"

@@ -17,7 +17,7 @@ jobs:
     name: Build Status Check
     runs-on: ubuntu-22.04
     steps:
-    - name: Checkout Repository
+    - name: Checkout Repo
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
       with:
         repository: ${{ github.event.pull_request.head.repo.full_name }}

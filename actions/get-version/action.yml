@@ -7,6 +7,12 @@ inputs:
   json-prop-path:
     description: "The JSON property path to the version value. Uses dot notation for nested properties."
     required: false
+  use_v_prefix:
+    description: |
+      "Setting to 'true' to ensure that the version is prefixed with the letter 'v'.
+      Setting to 'false' will ensure that it is not prefixed with the letter 'v'."
+    required: false
+    default: "true"
   cache-enabled:
     description: "Whether to enable caching of the Deno installation."
     required: false
@@ -14,7 +20,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout Repository
+    - name: Checkout Repo
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
 
     - name: Setup Deno (v2.9.x)
@@ -28,6 +34,7 @@ runs:
       shell: pwsh
       env:
         VERSION_FILE_PATH: "${{ inputs.version-file-path }}"
+        USER_V_PREFIX: "${{ inputs.use_v_prefix }}"
         JSON_PROP_PATH: "${{ inputs.json-prop-path }}"
       run: |
         $scriptFilePath = "$env:GITHUB_ACTION_PATH/get-version.ts";

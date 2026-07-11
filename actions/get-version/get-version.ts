@@ -2,11 +2,12 @@ import { existsSync } from "jsr:@std/fs@1.0.23";
 import { extname } from "jsr:@std/path@1.1.4";
 import { getEnvVar } from "../../cicd/core/Utils.ts";
 import { isNothing } from "../../cicd/core/guards.ts";
-import { printAsGitHubError, printAsGitHubNotice } from "../../cicd/core/github.ts";
+import { printAsGitHubError, printAsGitHubNotice, setGitHubOutput } from "../../cicd/core/github.ts";
 
 const scriptFileName = new URL(import.meta.url).pathname.split("/").pop();
 
 const versionFilePath = getEnvVar("VERSION_FILE_PATH", scriptFileName, true);
+const usePrefix = getEnvVar("USER_V_PREFIX", scriptFileName, true).toLowerCase() === "true";
 const jsonPropPath = getEnvVar("JSON_PROP_PATH", scriptFileName, false);
 
 const versionFileExtension = extname(versionFilePath).toLowerCase();
@@ -22,14 +23,6 @@ if (versionFileExtension !== ".csproj" && versionFileExtension !== ".json") {
 // Check if the file exists
 if (!existsSync(versionFilePath)) {
 	const errorMsg = `The version file '${versionFilePath}' does not exist.`;
-	console.error(errorMsg);
-	Deno.exit(1);
-}
-
-const githubOutputFilePath = getEnvVar("GITHUB_OUTPUT", scriptFileName, true);
-
-if (!existsSync(githubOutputFilePath)) {
-	const errorMsg = `The GitHub output file path '${githubOutputFilePath}' does not exist.`;
 	console.error(errorMsg);
 	Deno.exit(1);
 }
@@ -78,8 +71,14 @@ if (isNothing(version)) {
 	Deno.exit(1);
 }
 
+if (usePrefix) {
+	version = version.startsWith("v") ? version : `v${version}`;
+} else {
+	version = version.startsWith("v") ? version.substring(1) : version;
+}
+
 // Update the GitHub output file
-Deno.writeTextFileSync(githubOutputFilePath, `version=${version}\n`, { append: true });
+setGitHubOutput("version", version);
 
 printAsGitHubNotice(
 	`The version '${version}' was retrieved from the file '${versionFilePath}' and set as an output variable with the name 'version'.`,

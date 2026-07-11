@@ -1,19 +1,13 @@
 import { existsSync, walkSync } from "jsr:@std/fs@1.0.23";
 import { extname, resolve } from "jsr:@std/path@1.1.4";
 import { getEnvVar } from "../../cicd/core/Utils.ts";
-import { printAsGitHubError, printAsGitHubWarning } from "../../cicd/core/github.ts";
+import { printAsGitHubError, printAsGitHubWarning, setGitHubOutput } from "../../cicd/core/github.ts";
 
 const scriptName = new URL(import.meta.url).pathname.split("/").pop();
 
 const configFilePath = getEnvVar("CONFIG_FILE_PATH", scriptName, false);
 const trimVersionPrefix = getEnvVar("TRIM_VERSION_PREFIX", scriptName, false).toLowerCase() === "true";
 const failIfConfigNotFound = getEnvVar("FAIL_IF_CONFIG_NOT_FOUND", scriptName, false).toLowerCase() === "true";
-const githubOutputFilePath = getEnvVar("GITHUB_OUTPUT", scriptName, true);
-
-const setOutput = (version: string) => {
-	const sanitized = version.replace(/[\r\n]/g, "");
-	Deno.writeTextFileSync(githubOutputFilePath, `\ndeno-config-version=${sanitized}\n`, { append: true });
-};
 
 // If a config file path was not provided, search for the a compatible file.
 if (configFilePath === "") {
@@ -69,12 +63,12 @@ if (configFilePath === "") {
 			version = version.startsWith("v") ? version.substring(1) : version;
 		}
 
-		setOutput(version);
+		setGitHubOutput("deno-config-version", version);
 	} else {
 		printAsGitHubWarning(
 			`No config file found. Searched for 'deno.json' and 'deno.jsonc' files in the repository starting from path: ${Deno.cwd()}.`,
 		);
-		setOutput("");
+		setGitHubOutput("deno-config-version", "");
 	}
 } else {
 	// If the config file path is not in the workspace
@@ -97,7 +91,7 @@ if (configFilePath === "") {
 		}
 
 		printAsGitHubWarning(message);
-		setOutput("");
+		setGitHubOutput("deno-config-version", "");
 
 		Deno.exit(0);
 	}
@@ -127,7 +121,7 @@ if (configFilePath === "") {
 			version = version.startsWith("v") ? version.substring(1) : version;
 		}
 
-		setOutput(version);
+		setGitHubOutput("deno-config-version", version);
 	} catch (error) {
 		printAsGitHubError(
 			`Error reading or parsing the config file at path: ${configFilePath}. Error: ${

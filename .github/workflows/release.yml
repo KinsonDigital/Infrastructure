@@ -33,11 +33,11 @@ jobs:
     outputs:
       version: ${{ steps.get-version.outputs.version }}
     steps:
-      - name: Checkout Repository
+      - name: Checkout Infrastructure Repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
         with:
           repository: KinsonDigital/Infrastructure
-          ref: v17.2.0
+          ref: main
 
       - name: Get Version
         id: get-version
@@ -94,7 +94,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [get_and_validate_version, run_prerelease_validation]
     steps:
-      - name: Checkout Repository
+      - name: Checkout Repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
 
       - name: Set Up Deno (${{ vars.DENO_VERSION }})
@@ -112,7 +112,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [get_and_validate_version, run_prerelease_validation]
     steps:
-      - name: Checkout Repository
+      - name: Checkout Repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
 
       - name: Set Up Deno (${{ vars.DENO_VERSION }})
@@ -148,26 +148,6 @@ jobs:
         run: |
           $releaseType = "${{ inputs.release-type }}".ToLower();
           "release-type=$releaseType" >> "$env:GITHUB_OUTPUT";
-
-      - name: Update Reusable Workflow Versions ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
-        if: inputs.dry-run == false
-        env:
-          OWNER_NAME: "${{ vars.ORGANIZATION_NAME }}"
-          REPO_NAME: "${{ vars.PROJECT_NAME }}"
-          BASE_DIR_PATH: "${{ github.workspace }}/.github/workflows"
-          NEW_VERSION: "${{ needs.get_and_validate_version.outputs.version }}"
-          GITHUB_TOKEN: "${{ secrets.CICD_TOKEN }}"
-        run: |
-          deno run -ERWN "${{ github.workspace }}/.github/internal-cicd/scripts/update-infrastructure-versions.ts";
-
-          $releaseType = "${{ inputs.release-type }}";
-
-          git config --global user.email "${{ vars.GIT_CONFIG_EMAIL }}";
-          git config --global user.name "CICD Release Script - (On behalf of Calvin Wilkinson)";
-
-          git add -A;
-          git commit --allow-empty -m "🚀$releaseType Release (${{ needs.get_and_validate_version.outputs.version }})";
-          git push;
 
       - name: Create GitHub Release ${{ inputs.dry-run == true && '(Dry Run)' || '' }}
         if: inputs.dry-run == false
