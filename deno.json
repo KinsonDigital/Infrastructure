@@ -6,7 +6,7 @@
         "fmt": "deno fmt ./**/*.ts",
         "fmt-check": "deno fmt --check ./**/*.ts",
         "reload-cache": "deno cache ./**/*.ts",
-        "create-pr": "deno run -ERWN ./dev-tools/create-pr.ts",
+        "create-pr": "deno run -ERWN --allow-run ./dev-tools/create-pr.ts",
         "prep-prod-release": "deno run -ERWN --allow-run ./dev-tools/prep-prod-release.ts"
     },
     "lint": {
