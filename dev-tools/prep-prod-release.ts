@@ -17,7 +17,6 @@ import { IssueOrPRRequestData } from "jsr:@kinsondigital/kd-clients@1.0.0-previe
 import { printGray } from "jsr:@kinsondigital/sprocket@3.0.0/console";
 import { GeneratorSettings, ReleaseNotesGenerator } from "jsr:@kinsondigital/sprocket@3.0.0/releases";
 import denoConfig from "../deno.json" with { type: "json" };
-import { updateInfraVersions } from "./core/infra-versions.ts";
 
 const token = (Deno.env.get("CICD_TOKEN") ?? "").trim();
 
@@ -141,14 +140,6 @@ await stageFiles([`*${releaseNotesFileName}`]);
 printGray("⌛\tCreating commit for release note changes. . .");
 await createCommit(
 	`release: create release notes for version ${releaseVersion}`,
-);
-
-printGray("⏳Updating Reusable Workflow Versions. . .");
-await updateInfraVersions(releaseVersion, token);
-await stageFiles([`*.yml`]);
-printGray("⌛\tCreating commit for workflow release version update changes. . .");
-await createCommit(
-	`release: Update workflows to version ${releaseVersion}`,
 );
 
 printGray("⌛Pushing changes to remote. . .");
