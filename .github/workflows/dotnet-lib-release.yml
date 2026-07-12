@@ -39,8 +39,8 @@ on:
         description: "The version of the .NET SDK to use."
         required: true
         type: string
-      release-notes-file-path:
-        description: "The file path to the release notes file to check for existence."
+      relative-release-notes-file-path:
+        description: "The file path to the release notes file relative to the root of the project."
         required: true
         type: string
       build-config:
@@ -158,6 +158,6 @@ jobs:
           tag: ${{ inputs.version }}
           owner: ${{ vars.ORGANIZATION_NAME }}
           repo: ${{ inputs.repo-name }}
-          bodyFile: "${{ inputs.release-notes-file-path }}"
+          bodyFile: "${{ inputs.repo-name }}-4e2c95f5/${{ inputs.relative-release-notes-file-path }}"
           prerelease: ${{ inputs.release-type }} == 'Preview'
           token: ${{ secrets.cicd-pat }}
