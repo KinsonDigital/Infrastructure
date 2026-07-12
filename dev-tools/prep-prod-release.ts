@@ -143,14 +143,6 @@ await createCommit(
 	`release: create release notes for version ${releaseVersion}`,
 );
 
-printGray("⏳Updating Reusable Workflow Versions. . .");
-await updateInfraVersions(releaseVersion, token);
-await stageFiles([`*.yml`]);
-printGray("⌛\tCreating commit for workflow release version update changes. . .");
-await createCommit(
-	`release: Update workflows to version ${releaseVersion}`,
-);
-
 printGray("⌛Pushing changes to remote. . .");
 await pushToRemote(headBranch);
 
