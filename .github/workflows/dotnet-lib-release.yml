@@ -4,7 +4,6 @@ run-name: ⚙️ Perform ${{ inputs.release-type }} Release (${{ inputs.build-co
 
 permissions:
   contents: write
-  id-token: write
 
 
 defaults:
